@@ -55,27 +55,27 @@ export default function Bos360Page() {
         href="/"
         aria-label="Navigate to philosophy page"
         title="Philosophy"
-        className="fixed bottom-3 right-3 z-20 text-[10px] tracking-[0.25em] uppercase text-slate-500/35 transition hover:text-cyan-300/70"
+        className="fixed bottom-3 right-3 z-20 text-[10px] tracking-[0.25em] uppercase text-slate-500/35 transition hover:text-[#ed7d31]/80"
       >
         ◌
       </a>
 
       {/* Background glow accents */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
-        <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-cyan-400/15 blur-3xl" />
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-[#ed7d31]/20 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-slate-600/20 blur-3xl" />
       </div>
 
       {/* HERO */}
       <section className="mx-auto max-w-6xl px-6 pb-8 pt-24 md:pb-10 md:pt-32">
-        <p className="inline-flex items-center gap-2 rounded-full border border-blue-400/40 bg-blue-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-blue-200">
+        <p className="inline-flex items-center gap-2 rounded-full border border-[#ed7d31]/40 bg-[#ed7d31]/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-200">
           <span aria-hidden>◉</span>
           BOS360 Business Coaching
         </p>
 
         <h1 className="mt-6 max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
           I work with companies at
-          <span className="bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-orange-300 to-[#ed7d31] bg-clip-text text-transparent">
             {" "}$2M to $50M revenue
           </span>{" "}
           to scale with clarity, execution, and accountability.
@@ -85,7 +85,7 @@ export default function Bos360Page() {
           <img
             src="/cam-headshot-circle.png"
             alt="Cam Lillico headshot"
-            className="h-16 w-16 shrink-0 rounded-full border border-cyan-300/40 object-cover shadow-lg shadow-cyan-900/30 md:h-20 md:w-20"
+            className="h-16 w-16 shrink-0 rounded-full border border-[#ed7d31]/40 object-cover shadow-lg shadow-black/40 md:h-20 md:w-20"
             loading="eager"
           />
           <p className="text-lg text-slate-300">
@@ -99,7 +99,7 @@ export default function Bos360Page() {
             href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-xl bg-gradient-to-r from-blue-500 to-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+            className="rounded-xl bg-gradient-to-r from-[#ed7d31] to-orange-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-90"
           >
             Book a Discovery Call
           </a>
@@ -115,17 +115,17 @@ export default function Bos360Page() {
       {/* PILLARS */}
       <section className="mx-auto max-w-6xl px-6 py-10 md:py-12">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-cyan-300">✦</span>
+          <span aria-hidden className="text-[#ed7d31]">✦</span>
           What I Help You Solve
         </h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {pillars.map((item) => (
             <article
               key={item.title}
-              className="group rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-blue-400/40"
+              className="group rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-[#ed7d31]/40"
             >
               <h3 className="flex items-center gap-2 text-xl font-semibold text-slate-100">
-                <span aria-hidden className="text-cyan-300">{item.icon}</span>
+                <span aria-hidden className="text-[#ed7d31]">{item.icon}</span>
                 {item.title}
               </h3>
               <p className="mt-3 text-slate-300">{item.text}</p>
@@ -138,7 +138,7 @@ export default function Bos360Page() {
       <section className="border-y border-slate-800 bg-slate-900/40 py-16">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-            <span aria-hidden className="text-cyan-300">⚡</span>
+            <span aria-hidden className="text-[#ed7d31]">⚡</span>
             My BOS360 Coaching Approach
           </h2>
           <ol className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -147,7 +147,7 @@ export default function Bos360Page() {
                 key={step.title}
                 className="rounded-2xl border border-slate-800 bg-slate-900 p-5"
               >
-                <p className="text-sm font-semibold uppercase tracking-wider text-blue-300">
+                <p className="text-sm font-semibold uppercase tracking-wider text-orange-300">
                   Step {i + 1}
                 </p>
                 <h3 className="mt-2 text-xl font-semibold text-slate-100 md:text-2xl">{step.title}</h3>
@@ -156,13 +156,13 @@ export default function Bos360Page() {
             ))}
           </ol>
 
-          <div className="mt-8 max-w-4xl rounded-2xl border border-cyan-300/25 bg-gradient-to-r from-cyan-400/10 via-blue-400/5 to-transparent p-5 shadow-lg shadow-cyan-900/20">
+          <div className="mt-8 max-w-4xl rounded-2xl border border-[#ed7d31]/30 bg-gradient-to-r from-[#ed7d31]/12 via-orange-500/8 to-transparent p-5 shadow-lg shadow-black/30">
             <p className="text-base font-medium leading-relaxed text-slate-100 md:text-lg">
-              <span className="mr-2 text-cyan-300">◉</span>
+              <span className="mr-2 text-[#ed7d31]">◉</span>
               BOS360 is a practical operating system for leadership teams who want
-              <span className="font-semibold text-cyan-200"> traction</span>
+              <span className="font-semibold text-orange-200"> traction</span>
               <span className="text-slate-400"> — not </span>
-              <span className="font-semibold text-cyan-200">theory</span>.
+              <span className="font-semibold text-orange-200">theory</span>.
             </p>
           </div>
         </div>
@@ -171,23 +171,23 @@ export default function Bos360Page() {
       {/* PROOF */}
       <section id="proof" className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-cyan-300">🏛️</span>
+          <span aria-hidden className="text-[#ed7d31]">🏛️</span>
           Why Founders Work With Me
         </h2>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-4xl font-bold text-cyan-300">20+ Years</p>
+            <p className="text-4xl font-bold text-[#ed7d31]">20+ Years</p>
             <p className="mt-2 text-slate-300">Business and leadership experience</p>
           </div>
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-2xl font-bold text-cyan-300">B2B SaaS Focus</p>
+            <p className="text-2xl font-bold text-[#ed7d31]">B2B SaaS Focus</p>
             <p className="mt-2 text-slate-300">
               Specialized in growth-stage startups from $2M to $50M
             </p>
           </div>
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-2xl font-bold text-cyan-300">BOS360 Framework</p>
+            <p className="text-2xl font-bold text-[#ed7d31]">BOS360 Framework</p>
             <p className="mt-2 text-slate-300">
               Proven methodology built around alignment, discipline, and accountability
             </p>
@@ -195,10 +195,10 @@ export default function Bos360Page() {
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <blockquote className="rounded-2xl border border-blue-400/30 bg-blue-500/10 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-[#ed7d31]/35 bg-slate-800/80 p-6 italic text-slate-100">
             “Cam helped us get brutally clear on priorities and gave our leadership team a practical operating cadence we could actually sustain. Execution quality improved almost immediately.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-cyan-200/10">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-[#ed7d31]/15">
                 <img
                   src="/logos/kira-talent.png"
                   alt="Kira Talent logo"
@@ -206,16 +206,16 @@ export default function Bos360Page() {
                   loading="lazy"
                 />
               </div>
-              <span className="block font-semibold text-cyan-200">
+              <span className="block font-semibold text-orange-200">
                 — Emilie Cushman, CEO at Kira Talent
               </span>
             </div>
           </blockquote>
 
-          <blockquote className="rounded-2xl border border-blue-400/30 bg-blue-500/10 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-[#ed7d31]/35 bg-slate-800/80 p-6 italic text-slate-100">
             “What stood out was the balance of strategy and accountability. Cam challenged our assumptions, tightened ownership, and helped us move from busy to effective.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-cyan-200/10">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-[#ed7d31]/15">
                 <img
                   src="/logos/ctc-communications.png"
                   alt="CTC Communications logo"
@@ -223,16 +223,16 @@ export default function Bos360Page() {
                   loading="lazy"
                 />
               </div>
-              <span className="block font-semibold text-cyan-200">
+              <span className="block font-semibold text-orange-200">
                 — Brennan Smith, CEO at CTC Communications
               </span>
             </div>
           </blockquote>
 
-          <blockquote className="rounded-2xl border border-blue-400/30 bg-blue-500/10 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-[#ed7d31]/35 bg-slate-800/80 p-6 italic text-slate-100">
             “Cam brought structure without bureaucracy. We left each session with clear decisions, named owners, and real momentum—exactly what we needed at our stage.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-cyan-200/10">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-[#ed7d31]/15">
                 <img
                   src="/logos/autohost.png"
                   alt="Autohost logo"
@@ -240,7 +240,7 @@ export default function Bos360Page() {
                   loading="lazy"
                 />
               </div>
-              <span className="block font-semibold text-cyan-200">
+              <span className="block font-semibold text-orange-200">
                 — Roy Firestein, CEO at Autohost
               </span>
             </div>
@@ -253,7 +253,7 @@ export default function Bos360Page() {
         <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:items-center">
           <div>
             <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-              <span aria-hidden className="text-cyan-300">👤</span>
+              <span aria-hidden className="text-[#ed7d31]">👤</span>
               About Cam Lillico
             </h2>
             <div className="mt-5 space-y-4 text-slate-300">
@@ -275,7 +275,7 @@ export default function Bos360Page() {
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
             <h3 className="flex items-center gap-2 text-2xl font-semibold">
-              <span aria-hidden className="text-cyan-300">🚀</span>
+              <span aria-hidden className="text-[#ed7d31]">🚀</span>
               Ready to Scale with More Clarity?
             </h3>
             <p className="mt-3 text-slate-300">
@@ -293,7 +293,7 @@ export default function Bos360Page() {
                 href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:opacity-90"
+                className="rounded-lg bg-gradient-to-r from-[#ed7d31] to-orange-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:opacity-90"
               >
                 Book a Discovery Call
               </a>
