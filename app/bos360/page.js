@@ -68,14 +68,14 @@ export default function Bos360Page() {
 
       {/* HERO */}
       <section className="mx-auto max-w-6xl px-6 pb-8 pt-24 md:pb-10 md:pt-32">
-        <p className="inline-flex items-center gap-2 rounded-full border border-[#ed7d31]/40 bg-[#ed7d31]/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-200">
+        <p className="inline-flex items-center gap-2 rounded-full border border-slate-600 bg-slate-800/85 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-200">
           <span aria-hidden>◉</span>
           BOS360 Business Coaching
         </p>
 
         <h1 className="mt-6 max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
           I work with companies at
-          <span className="bg-gradient-to-r from-orange-300 to-[#ed7d31] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-orange-200 via-[#ed7d31] to-orange-600 bg-clip-text text-transparent">
             {" "}$2M to $50M revenue
           </span>{" "}
           to scale with clarity, execution, and accountability.
@@ -85,7 +85,7 @@ export default function Bos360Page() {
           <img
             src="/cam-headshot-circle.png"
             alt="Cam Lillico headshot"
-            className="h-16 w-16 shrink-0 rounded-full border border-[#ed7d31]/40 object-cover shadow-lg shadow-black/40 md:h-20 md:w-20"
+            className="h-16 w-16 shrink-0 rounded-full border border-slate-600 object-cover shadow-lg shadow-black/40 md:h-20 md:w-20"
             loading="eager"
           />
           <p className="text-lg text-slate-300">
@@ -122,7 +122,7 @@ export default function Bos360Page() {
           {pillars.map((item) => (
             <article
               key={item.title}
-              className="group rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-[#ed7d31]/40"
+              className="group rounded-2xl border border-slate-700 bg-slate-900/80 p-6 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-slate-500"
             >
               <h3 className="flex items-center gap-2 text-xl font-semibold text-slate-100">
                 <span aria-hidden className="text-[#ed7d31]">{item.icon}</span>
@@ -156,7 +156,7 @@ export default function Bos360Page() {
             ))}
           </ol>
 
-          <div className="mt-8 max-w-4xl rounded-2xl border border-[#ed7d31]/30 bg-gradient-to-r from-[#ed7d31]/12 via-orange-500/8 to-transparent p-5 shadow-lg shadow-black/30">
+          <div className="mt-8 max-w-4xl rounded-2xl border border-slate-700 bg-slate-900/85 p-5 shadow-lg shadow-black/30">
             <p className="text-base font-medium leading-relaxed text-slate-100 md:text-lg">
               <span className="mr-2 text-[#ed7d31]">◉</span>
               BOS360 is a practical operating system for leadership teams who want
@@ -195,10 +195,10 @@ export default function Bos360Page() {
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <blockquote className="rounded-2xl border border-[#ed7d31]/35 bg-slate-800/80 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-slate-700 bg-slate-900/85 p-6 italic text-slate-100">
             “Cam helped us get brutally clear on priorities and gave our leadership team a practical operating cadence we could actually sustain. Execution quality improved almost immediately.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-[#ed7d31]/15">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-slate-500/25">
                 <img
                   src="/logos/kira-talent.png"
                   alt="Kira Talent logo"
@@ -212,10 +212,10 @@ export default function Bos360Page() {
             </div>
           </blockquote>
 
-          <blockquote className="rounded-2xl border border-[#ed7d31]/35 bg-slate-800/80 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-slate-700 bg-slate-900/85 p-6 italic text-slate-100">
             “What stood out was the balance of strategy and accountability. Cam challenged our assumptions, tightened ownership, and helped us move from busy to effective.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-[#ed7d31]/15">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-slate-500/25">
                 <img
                   src="/logos/ctc-communications.png"
                   alt="CTC Communications logo"
@@ -229,10 +229,10 @@ export default function Bos360Page() {
             </div>
           </blockquote>
 
-          <blockquote className="rounded-2xl border border-[#ed7d31]/35 bg-slate-800/80 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-slate-700 bg-slate-900/85 p-6 italic text-slate-100">
             “Cam brought structure without bureaucracy. We left each session with clear decisions, named owners, and real momentum—exactly what we needed at our stage.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-[#ed7d31]/15">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-slate-500/25">
                 <img
                   src="/logos/autohost.png"
                   alt="Autohost logo"
