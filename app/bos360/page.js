@@ -50,7 +50,7 @@ const process = [
 
 export default function Bos360Page() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
+    <main className="min-h-screen bg-neutral-950 text-slate-100">
       <a
         href="/"
         aria-label="Navigate to philosophy page"
@@ -63,12 +63,12 @@ export default function Bos360Page() {
       {/* Background glow accents */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-[#ed7d31]/20 blur-3xl" />
-        <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-slate-600/20 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-neutral-600/20 blur-3xl" />
       </div>
 
       {/* HERO */}
       <section className="mx-auto max-w-6xl px-6 pb-8 pt-24 md:pb-10 md:pt-32">
-        <p className="inline-flex items-center gap-2 rounded-full border border-slate-600 bg-slate-800/85 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-200">
+        <p className="inline-flex items-center gap-2 rounded-full border border-neutral-600 bg-neutral-800/85 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-200">
           <span aria-hidden>◉</span>
           BOS360 Business Coaching
         </p>
@@ -85,7 +85,7 @@ export default function Bos360Page() {
           <img
             src="/cam-headshot-circle.png"
             alt="Cam Lillico headshot"
-            className="h-16 w-16 shrink-0 rounded-full border border-slate-600 object-cover shadow-lg shadow-black/40 md:h-20 md:w-20"
+            className="h-16 w-16 shrink-0 rounded-full border border-neutral-600 object-cover shadow-lg shadow-black/40 md:h-20 md:w-20"
             loading="eager"
           />
           <p className="text-lg text-slate-300">
@@ -99,13 +99,13 @@ export default function Bos360Page() {
             href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-xl bg-gradient-to-r from-[#ed7d31] to-orange-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+            className="rounded-xl bg-gradient-to-r from-orange-100 via-[#ed7d31] to-orange-700 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-90"
           >
             Book a Discovery Call
           </a>
           <a
             href="#proof"
-            className="rounded-xl border border-slate-700 px-6 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800"
+            className="rounded-xl border border-neutral-600 px-6 py-3 text-sm font-semibold text-slate-200 transition hover:bg-neutral-800"
           >
             Why Work With Cam
           </a>
@@ -122,7 +122,7 @@ export default function Bos360Page() {
           {pillars.map((item) => (
             <article
               key={item.title}
-              className="group rounded-2xl border border-slate-700 bg-slate-900/80 p-6 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-slate-500"
+              className="group rounded-2xl border border-neutral-600 bg-neutral-900/80 p-6 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-neutral-500"
             >
               <h3 className="flex items-center gap-2 text-xl font-semibold text-slate-100">
                 <span aria-hidden className="text-[#ed7d31]">{item.icon}</span>
@@ -135,7 +135,7 @@ export default function Bos360Page() {
       </section>
 
       {/* PROCESS */}
-      <section className="border-y border-slate-800 bg-slate-900/40 py-16">
+      <section className="border-y border-neutral-700 bg-neutral-900/40 py-16">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
             <span aria-hidden className="text-[#ed7d31]">⚡</span>
@@ -145,7 +145,7 @@ export default function Bos360Page() {
             {process.map((step, i) => (
               <li
                 key={step.title}
-                className="rounded-2xl border border-slate-800 bg-slate-900 p-5"
+                className="rounded-2xl border border-neutral-700 bg-neutral-900 p-5"
               >
                 <p className="text-sm font-semibold uppercase tracking-wider text-orange-300">
                   Step {i + 1}
@@ -156,7 +156,7 @@ export default function Bos360Page() {
             ))}
           </ol>
 
-          <div className="mt-8 max-w-4xl rounded-2xl border border-slate-700 bg-slate-900/85 p-5 shadow-lg shadow-black/30">
+          <div className="mt-8 max-w-4xl rounded-2xl border border-neutral-600 bg-neutral-900/85 p-5 shadow-lg shadow-black/30">
             <p className="text-base font-medium leading-relaxed text-slate-100 md:text-lg">
               <span className="mr-2 text-[#ed7d31]">◉</span>
               BOS360 is a practical operating system for leadership teams who want
@@ -176,17 +176,17 @@ export default function Bos360Page() {
         </h2>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
             <p className="text-4xl font-bold text-[#ed7d31]">20+ Years</p>
             <p className="mt-2 text-slate-300">Business and leadership experience</p>
           </div>
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
             <p className="text-2xl font-bold text-[#ed7d31]">B2B SaaS Focus</p>
             <p className="mt-2 text-slate-300">
               Specialized in growth-stage startups from $2M to $50M
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
             <p className="text-2xl font-bold text-[#ed7d31]">BOS360 Framework</p>
             <p className="mt-2 text-slate-300">
               Proven methodology built around alignment, discipline, and accountability
@@ -195,10 +195,10 @@ export default function Bos360Page() {
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <blockquote className="rounded-2xl border border-slate-700 bg-slate-900/85 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
             “Cam helped us get brutally clear on priorities and gave our leadership team a practical operating cadence we could actually sustain. Execution quality improved almost immediately.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-slate-500/25">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
                 <img
                   src="/logos/kira-talent.png"
                   alt="Kira Talent logo"
@@ -212,10 +212,10 @@ export default function Bos360Page() {
             </div>
           </blockquote>
 
-          <blockquote className="rounded-2xl border border-slate-700 bg-slate-900/85 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
             “What stood out was the balance of strategy and accountability. Cam challenged our assumptions, tightened ownership, and helped us move from busy to effective.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-slate-500/25">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
                 <img
                   src="/logos/ctc-communications.png"
                   alt="CTC Communications logo"
@@ -229,10 +229,10 @@ export default function Bos360Page() {
             </div>
           </blockquote>
 
-          <blockquote className="rounded-2xl border border-slate-700 bg-slate-900/85 p-6 italic text-slate-100">
+          <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
             “Cam brought structure without bureaucracy. We left each session with clear decisions, named owners, and real momentum—exactly what we needed at our stage.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-slate-500/25">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
                 <img
                   src="/logos/autohost.png"
                   alt="Autohost logo"
@@ -249,11 +249,11 @@ export default function Bos360Page() {
       </section>
 
       {/* ABOUT + CTA */}
-      <section className="border-t border-slate-800 bg-slate-900/40 py-16">
+      <section className="border-t border-neutral-700 bg-neutral-900/40 py-16">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:items-center">
           <div>
             <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-              <span aria-hidden className="text-[#ed7d31]">👤</span>
+              <span aria-hidden className="text-[#ed7d31]">◉</span>
               About Cam Lillico
             </h2>
             <div className="mt-5 space-y-4 text-slate-300">
@@ -273,7 +273,7 @@ export default function Bos360Page() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
+          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-8">
             <h3 className="flex items-center gap-2 text-2xl font-semibold">
               <span aria-hidden className="text-[#ed7d31]">🚀</span>
               Ready to Scale with More Clarity?
@@ -285,7 +285,7 @@ export default function Bos360Page() {
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="mailto:cam@camlillico.com"
-                className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-800"
+                className="rounded-lg border border-neutral-600 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-neutral-800"
               >
                 cam@camlillico.com
               </a>
@@ -293,7 +293,7 @@ export default function Bos360Page() {
                 href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg bg-gradient-to-r from-[#ed7d31] to-orange-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:opacity-90"
+                className="rounded-lg bg-gradient-to-r from-orange-100 via-[#ed7d31] to-orange-700 px-4 py-2 text-sm font-semibold text-slate-950 hover:opacity-90"
               >
                 Book a Discovery Call
               </a>
