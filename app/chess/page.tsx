@@ -52,68 +52,89 @@ const pretentiousTruths = [
 
 export default function ChessPage() {
   return (
-    <main className="min-h-screen bg-neutral-950 text-slate-100">
+    <main className="min-h-screen bg-black text-white">
       <a
         href="/"
         aria-label="Navigate home"
         title="Home"
-        className="fixed bottom-3 right-3 z-20 text-[10px] tracking-[0.25em] uppercase text-slate-500/35 transition hover:text-[#ed7d31]/80"
+        className="fixed bottom-3 right-3 z-20 text-[10px] tracking-[0.25em] uppercase text-white/25 transition hover:text-[#ed7d31]"
       >
         ◌
       </a>
 
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[#ed7d31]/20 blur-3xl" />
-        <div className="absolute top-1/3 -right-28 h-96 w-96 rounded-full bg-neutral-600/20 blur-3xl" />
+        <div className="absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#ed7d31]/20 blur-3xl" />
+        <div className="absolute top-1/3 -right-28 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
       </div>
 
-      <section className="mx-auto max-w-6xl px-6 pb-8 pt-24 md:pb-10 md:pt-32">
-        <p className="inline-flex items-center gap-2 rounded-full border border-neutral-600 bg-neutral-800/80 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-200">
-          <span aria-hidden>♟</span>
-          Chess History (With Appropriate Self-Mockery)
-        </p>
+      {/* Hero */}
+      <section className="mx-auto max-w-6xl px-6 pb-10 pt-24 md:pt-32">
+        <div className="flex flex-wrap gap-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-white/90 backdrop-blur">
+            <span aria-hidden>♟</span>
+            Interactive-ish museum energy
+          </span>
+          <span className="inline-flex items-center rounded-full border border-[#ed7d31]/40 bg-[#ed7d31]/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-orange-100">
+            Pretension level: high
+          </span>
+        </div>
 
         <h1 className="mt-6 max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-          The history of chess: a glorious timeline of brilliance,
+          A museum-style history of chess,
           <span className="bg-gradient-to-r from-orange-200 via-[#ed7d31] to-orange-600 bg-clip-text text-transparent">
-            {" "}blunders, and strategic ego
+            {" "}for people who blunder with confidence
           </span>
           .
         </h1>
 
-        <p className="mt-6 max-w-4xl text-lg text-slate-300">
-          Chess is one of humanity's oldest thinking games, and also one of our
-          best machines for turning normal people into confident philosophers after
-          three decent tactics puzzles.
+        <p className="mt-6 max-w-4xl text-lg text-white/75">
+          Chess is one of humanity&apos;s oldest thinking games, and also one of our best
+          machines for turning normal adults into self-declared strategic masterminds
+          after one decent tactic.
         </p>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-10 md:py-12">
+      {/* Sticker strip */}
+      <section className="border-y border-white/15 bg-white/5 py-3 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-6 text-xs uppercase tracking-[0.2em] text-white/70">
+          <span className="rounded-full border border-white/20 px-3 py-1">Kings</span>
+          <span className="rounded-full border border-white/20 px-3 py-1">Queens</span>
+          <span className="rounded-full border border-white/20 px-3 py-1">Ego</span>
+          <span className="rounded-full border border-[#ed7d31]/35 bg-[#ed7d31]/10 px-3 py-1 text-orange-100">Blunders</span>
+          <span className="rounded-full border border-white/20 px-3 py-1">Time trouble</span>
+          <span className="rounded-full border border-white/20 px-3 py-1">"I saw that"</span>
+        </div>
+      </section>
+
+      {/* Timeline cards */}
+      <section className="mx-auto max-w-6xl px-6 py-12">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
           <span aria-hidden className="text-[#ed7d31]">✦</span>
-          Timeline: from kings to keyboards
+          Timeline: from empires to engines
         </h2>
+
         <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {timeline.map((item) => (
             <article
               key={item.title}
-              className="rounded-2xl border border-neutral-700 bg-neutral-900/85 p-6 shadow-xl shadow-black/20"
+              className="rounded-2xl border border-white/15 bg-[#101010] p-6 shadow-xl shadow-black/40 transition hover:-translate-y-1 hover:border-[#ed7d31]/45"
             >
-              <p className="text-xs font-semibold uppercase tracking-widest text-orange-300">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-300">
                 {item.era}
               </p>
-              <h3 className="mt-2 text-xl font-semibold text-slate-100">{item.title}</h3>
-              <p className="mt-3 text-slate-300">{item.text}</p>
+              <h3 className="mt-2 text-xl font-semibold text-white">{item.title}</h3>
+              <p className="mt-3 text-white/70">{item.text}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="border-y border-neutral-700 bg-neutral-900/40 py-16">
+      {/* Split content */}
+      <section className="border-y border-white/15 bg-[#0b0b0b] py-16">
         <div className="mx-auto grid max-w-6xl gap-6 px-6 md:grid-cols-2">
-          <article className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
-            <h2 className="text-2xl font-bold text-slate-100">Fun facts</h2>
-            <ul className="mt-4 space-y-3 text-slate-300">
+          <article className="rounded-2xl border border-white/15 bg-[#121212] p-6">
+            <h2 className="text-2xl font-bold text-white">Fun facts</h2>
+            <ul className="mt-4 space-y-3 text-white/75">
               {funFacts.map((fact) => (
                 <li key={fact} className="flex gap-3">
                   <span className="mt-1 text-[#ed7d31]">•</span>
@@ -123,9 +144,9 @@ export default function ChessPage() {
             </ul>
           </article>
 
-          <article className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
-            <h2 className="text-2xl font-bold text-slate-100">Pretentious truths</h2>
-            <ul className="mt-4 space-y-3 text-slate-300">
+          <article className="rounded-2xl border border-white/15 bg-[#121212] p-6">
+            <h2 className="text-2xl font-bold text-white">Pretentious truths</h2>
+            <ul className="mt-4 space-y-3 text-white/75">
               {pretentiousTruths.map((truth) => (
                 <li key={truth} className="flex gap-3">
                   <span className="mt-1 text-[#ed7d31]">•</span>
@@ -137,15 +158,24 @@ export default function ChessPage() {
         </div>
       </section>
 
+      {/* CTA-like footer block */}
       <section className="py-16">
         <div className="mx-auto max-w-4xl px-6 text-center">
-          <blockquote className="text-xl leading-relaxed text-slate-200 md:text-2xl">
-            “Chess does not prove you're a genius. It proves you can sit still,
+          <blockquote className="text-xl leading-relaxed text-white md:text-2xl">
+            “Chess does not prove you&apos;re a genius. It proves you can sit still,
             stare into chaos, and occasionally miss mate in one.”
           </blockquote>
-          <p className="mt-5 text-slate-400">
+          <p className="mt-5 text-white/55">
             Respect the game. Laugh at the culture. Blunder with dignity.
           </p>
+          <a
+            href="https://www.chess.com/lessons"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-7 inline-flex rounded-xl border border-[#ed7d31]/40 bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-5 py-2 text-sm font-semibold text-black transition hover:opacity-90"
+          >
+            Get slightly less terrible at chess
+          </a>
         </div>
       </section>
     </main>
