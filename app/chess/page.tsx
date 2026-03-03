@@ -92,6 +92,26 @@ export default function ChessPage() {
           machines for turning normal adults into self-declared strategic masterminds
           after one decent tactic.
         </p>
+
+        <div className="mt-8 overflow-hidden rounded-2xl border border-white/20 bg-[#0d0d0d] shadow-2xl shadow-black/40">
+          <div className="relative">
+            <img
+              src="/chess-never-give-up.jpg"
+              alt="Humorous chess meme saying never give up, with a pawn casting a queen shadow"
+              className="h-[320px] w-full object-cover md:h-[420px]"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-3">
+              <p className="max-w-2xl rounded-lg border border-white/20 bg-black/45 px-3 py-2 text-sm text-white/90 backdrop-blur">
+                Exhibit A: the pawn that believes in itself so hard it casts a queen-shaped shadow.
+              </p>
+              <span className="rounded-full border border-[#036734]/45 bg-[#036734]/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-100">
+                museum artifact: delusional confidence
+              </span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Sticker strip */}
