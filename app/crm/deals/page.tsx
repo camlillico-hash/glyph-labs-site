@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { BriefcaseBusiness, Plus, Save, Pencil, Trash2, X, CornerUpLeft } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { BriefcaseBusiness, Plus, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List } from "lucide-react";
 
 const STAGES = ["Discovery meeting booked", "90-minute booked", "90-minute complete", "Verbal Yes", "Client signed (won)", "Lost"];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
@@ -12,6 +12,9 @@ export default function DealsPage() {
   const [form, setForm] = useState<any>({ stage: STAGES[0] });
   const [error, setError] = useState("");
   const [draggingDealId, setDraggingDealId] = useState<string | null>(null);
+  const [view, setView] = useState<"bucket" | "table">("bucket");
+  const [sortBy, setSortBy] = useState<"createdAt" | "stage" | "company">("createdAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const [selected, setSelected] = useState<any>(null);
   const [draft, setDraft] = useState<any>(null);
@@ -41,6 +44,29 @@ export default function DealsPage() {
     });
     await load();
   }
+
+
+  const sortedDeals = useMemo(() => {
+    const arr = [...deals];
+    arr.sort((a, b) => {
+      let va: any = "";
+      let vb: any = "";
+      if (sortBy === "createdAt") {
+        va = new Date(a.createdAt || 0).getTime();
+        vb = new Date(b.createdAt || 0).getTime();
+      } else if (sortBy === "stage") {
+        va = a.stage || "";
+        vb = b.stage || "";
+      } else {
+        va = a.company || "";
+        vb = b.company || "";
+      }
+      if (va < vb) return sortDir === "asc" ? -1 : 1;
+      if (va > vb) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return arr;
+  }, [deals, sortBy, sortDir]);
 
   function openTray(deal: any) {
     setSelected(deal);
@@ -80,7 +106,13 @@ export default function DealsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold inline-flex items-center gap-2"><BriefcaseBusiness size={20} /> Deals</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold inline-flex items-center gap-2"><BriefcaseBusiness size={20} /> Deals</h1>
+        <div className="inline-flex rounded-lg border border-neutral-700 p-1">
+          <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")} title="Bucket view"><LayoutGrid size={16} /></button>
+          <button className={`px-2 py-1 rounded ${view === "table" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("table")} title="Table view"><List size={16} /></button>
+        </div>
+      </div>
       <div className="crm-card p-4">
         <h2 className="font-semibold"><span className="inline-flex items-center gap-1.5"><Plus size={14} /> Add deal</span></h2>
         <div className="mt-2 grid gap-2 md:grid-cols-3">
@@ -107,6 +139,19 @@ export default function DealsPage() {
         }}><span className="inline-flex items-center gap-1.5"><Save size={14} /> Save deal</span></button>
       </div>
 
+      <div className="grid gap-2 md:grid-cols-3">
+        <select className="crm-input" value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
+          <option value="createdAt">Sort: Created date</option>
+          <option value="stage">Sort: Stage</option>
+          <option value="company">Sort: Company</option>
+        </select>
+        <select className="crm-input" value={sortDir} onChange={(e) => setSortDir(e.target.value as any)}>
+          <option value="desc">Newest / Z-A</option>
+          <option value="asc">Oldest / A-Z</option>
+        </select>
+      </div>
+
+      {view === "bucket" ? (
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {STAGES.map((stage) => (
           <div
@@ -121,7 +166,7 @@ export default function DealsPage() {
           >
             <h3 className="mb-3 font-semibold text-emerald-300">{stageLabel(stage, STAGES.indexOf(stage))}</h3>
             <div className="space-y-2 min-h-10">
-              {deals.filter((d) => d.stage === stage).map((d) => (
+              {sortedDeals.filter((d) => d.stage === stage).map((d) => (
                 <button
                   key={d.id}
                   draggable
@@ -139,6 +184,32 @@ export default function DealsPage() {
           </div>
         ))}
       </div>
+      ) : (
+        <div className="crm-card overflow-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-neutral-800 text-slate-400">
+              <tr>
+                <th className="px-3 py-2 text-left">Deal</th>
+                <th className="px-3 py-2 text-left">Contact</th>
+                <th className="px-3 py-2 text-left">Company</th>
+                <th className="px-3 py-2 text-left">Stage</th>
+                <th className="px-3 py-2 text-left">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedDeals.map((d) => (
+                <tr key={d.id} className="border-b border-neutral-900 hover:bg-neutral-900/60 cursor-pointer" onClick={() => openTray(d)}>
+                  <td className="px-3 py-2">{d.name || "Untitled deal"}</td>
+                  <td className="px-3 py-2 text-slate-300">{contactName(d.contactId)}</td>
+                  <td className="px-3 py-2 text-slate-300">{d.company || "—"}</td>
+                  <td className="px-3 py-2 text-emerald-300">{d.stage}</td>
+                  <td className="px-3 py-2 text-slate-400">{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {selected && draft && (
         <div className="fixed inset-0 z-40">

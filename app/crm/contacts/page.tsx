@@ -1,18 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Users, Plus, Save, Pencil, Trash2, X, CornerUpLeft } from "lucide-react";
+import { Users, Plus, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List } from "lucide-react";
 
 type Contact = any;
 
-const CONTACT_STAGES = [
-  "New",
-  "Attempting",
-  "Connected",
-  "Discovery meeting booked",
-  "Not right now",
-];
-
+const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"],
   ["lastName", "Last name", "text"],
@@ -25,6 +18,8 @@ const contactFields: Array<[string, string, string]> = [
 
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 
+type SortBy = "createdAt" | "status" | "company";
+
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
   const [query, setQuery] = useState("");
@@ -32,6 +27,10 @@ export default function ContactsPage() {
   const [gmail, setGmail] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [draggingContactId, setDraggingContactId] = useState<string | null>(null);
+
+  const [view, setView] = useState<"bucket" | "table">("bucket");
+  const [sortBy, setSortBy] = useState<SortBy>("createdAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const [selected, setSelected] = useState<Contact | null>(null);
   const [draft, setDraft] = useState<any>(null);
@@ -43,19 +42,33 @@ export default function ContactsPage() {
     setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
     setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
   };
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
-  const filtered = useMemo(
-    () =>
-      items.filter((c) =>
-        (`${c.firstName || ""} ${c.lastName || ""} ${c.email || ""} ${c.company || ""}`)
-          .toLowerCase()
-          .includes(query.toLowerCase())
-      ),
-    [items, query]
-  );
+  const filtered = useMemo(() =>
+    items.filter((c) => (`${c.firstName || ""} ${c.lastName || ""} ${c.email || ""} ${c.company || ""}`)
+      .toLowerCase().includes(query.toLowerCase())), [items, query]);
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    arr.sort((a, b) => {
+      let va: any = "";
+      let vb: any = "";
+      if (sortBy === "createdAt") {
+        va = new Date(a.createdAt || 0).getTime();
+        vb = new Date(b.createdAt || 0).getTime();
+      } else if (sortBy === "status") {
+        va = a.status || "";
+        vb = b.status || "";
+      } else {
+        va = a.company || "";
+        vb = b.company || "";
+      }
+      if (va < vb) return sortDir === "asc" ? -1 : 1;
+      if (va > vb) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return arr;
+  }, [filtered, sortBy, sortDir]);
 
   async function moveContactStage(contactId: string, status: string) {
     const contact = items.find((c) => c.id === contactId);
@@ -78,11 +91,7 @@ export default function ContactsPage() {
   async function saveFromTray() {
     if (!draft) return;
     setTrayError("");
-    const res = await fetch("/api/crm/contacts", {
-      method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(draft),
-    });
+    const res = await fetch("/api/crm/contacts", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(draft) });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
       setTrayError(j.error || "Could not save contact");
@@ -98,96 +107,97 @@ export default function ContactsPage() {
   async function deleteFromTray() {
     if (!selected?.id) return;
     await fetch(`/api/crm/contacts?id=${selected.id}`, { method: "DELETE" });
-    setSelected(null);
-    setDraft(null);
-    setEditMode(false);
+    setSelected(null); setDraft(null); setEditMode(false);
     await load();
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold inline-flex items-center gap-2"><Users size={20} /> Contacts</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold inline-flex items-center gap-2"><Users size={20} /> Contacts</h1>
+        <div className="inline-flex rounded-lg border border-neutral-700 p-1">
+          <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")} title="Bucket view"><LayoutGrid size={16} /></button>
+          <button className={`px-2 py-1 rounded ${view === "table" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("table")} title="Table view"><List size={16} /></button>
+        </div>
+      </div>
+
       <div className="crm-card p-4">
-        <h2 className="font-semibold"><span className="inline-flex items-center gap-1.5"><Plus size={14} /> Add contact</span></h2>
+        <h2 className="font-semibold inline-flex items-center gap-1.5"><Plus size={14} /> Add contact</h2>
         <div className="mt-3 grid gap-2 md:grid-cols-3">
           {contactFields.map(([k, label, type]) => (
-            <input
-              key={k}
-              type={type}
-              placeholder={label + ((k === "firstName" || k === "lastName") ? " *" : "")}
-              className="crm-input"
-              value={form[k] || ""}
-              onChange={(e) => setForm({ ...form, [k]: e.target.value })}
-            />
+            <input key={k} type={type} placeholder={label + ((k === "firstName" || k === "lastName") ? " *" : "")} className="crm-input" value={form[k] || ""} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
           ))}
           <select className="crm-input" value={form.status || "New"} onChange={(e) => setForm({ ...form, status: e.target.value })}>
             {CONTACT_STAGES.map((s, i) => <option key={s} value={s}>{stageLabel(s, i)}</option>)}
           </select>
         </div>
-        <textarea
-          placeholder="Notes"
-          className="crm-input mt-2"
-          value={form.notes || ""}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })}
-        />
+        <textarea placeholder="Notes" className="crm-input mt-2" value={form.notes || ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
         {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
-        <button
-          className="crm-btn mt-2"
-          onClick={async () => {
-            setError("");
-            const res = await fetch("/api/crm/contacts", {
-              method: "POST",
-              headers: { "content-type": "application/json" },
-              body: JSON.stringify(form),
-            });
-            if (!res.ok) {
-              const j = await res.json().catch(() => ({}));
-              setError(j.error || "Could not save contact");
-              return;
-            }
-            setForm({ status: "New" });
-            load();
-          }}
-        >
-          Save contact
-        </button>
+        <button className="crm-btn mt-2 inline-flex items-center gap-1.5" onClick={async () => {
+          setError("");
+          const res = await fetch("/api/crm/contacts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(form) });
+          if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error || "Could not save contact"); return; }
+          setForm({ status: "New" }); load();
+        }}><Save size={14} /> Save contact</button>
       </div>
 
-      <input
-        placeholder="Search contacts..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="crm-input"
-      />
+      <div className="grid gap-2 md:grid-cols-4">
+        <input placeholder="Search contacts..." value={query} onChange={(e) => setQuery(e.target.value)} className="crm-input md:col-span-2" />
+        <select className="crm-input" value={sortBy} onChange={(e) => setSortBy(e.target.value as SortBy)}>
+          <option value="createdAt">Sort: Created date</option>
+          <option value="status">Sort: Stage</option>
+          <option value="company">Sort: Company</option>
+        </select>
+        <select className="crm-input" value={sortDir} onChange={(e) => setSortDir(e.target.value as "asc" | "desc") }>
+          <option value="desc">Newest / Z-A</option>
+          <option value="asc">Oldest / A-Z</option>
+        </select>
+      </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
-        {CONTACT_STAGES.map((stage, i) => (
-          <div key={stage} className="crm-card p-3" onDragOver={(e) => e.preventDefault()} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); }}>
-            <h3 className="mb-3 font-semibold text-emerald-300">{stageLabel(stage, i)}</h3>
-            <div className="space-y-2">
-              {filtered
-                .filter((c) => (c.status || "New") === stage)
-                .map((c) => (
-                  <button
-                    key={c.id}
-                    draggable
-                    onDragStart={() => setDraggingContactId(c.id)}
-                    onDragEnd={() => setDraggingContactId(null)}
-                    className="crm-card w-full p-3 text-left cursor-grab active:cursor-grabbing"
-                    onClick={() => openTray(c)}
-                  >
+      {view === "bucket" ? (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+          {CONTACT_STAGES.map((stage, i) => (
+            <div key={stage} className="crm-card p-3" onDragOver={(e) => e.preventDefault()} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); }}>
+              <h3 className="mb-3 font-semibold text-emerald-300">{stageLabel(stage, i)}</h3>
+              <div className="space-y-2 min-h-10">
+                {sorted.filter((c) => (c.status || "New") === stage).map((c) => (
+                  <button key={c.id} draggable onDragStart={() => setDraggingContactId(c.id)} onDragEnd={() => setDraggingContactId(null)} className="crm-card w-full p-3 text-left cursor-grab active:cursor-grabbing" onClick={() => openTray(c)}>
                     <p className="font-semibold">{c.firstName} {c.lastName}</p>
                     <p className="text-xs text-slate-400">{c.email || "No email"}</p>
                     <p className="text-xs text-slate-500">{c.company || "No company"}</p>
-                    <p className="mt-1 text-[11px] text-emerald-300">
-                      Gmail: {c.email ? gmail.filter((m) => `${m.from || ""} ${m.to || ""}`.toLowerCase().includes(String(c.email).toLowerCase())).length : 0}
-                    </p>
+                    <p className="mt-1 text-[11px] text-emerald-300">Gmail: {c.email ? gmail.filter((m) => `${m.from || ""} ${m.to || ""}`.toLowerCase().includes(String(c.email).toLowerCase())).length : 0}</p>
                   </button>
                 ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="crm-card overflow-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-neutral-800 text-slate-400">
+              <tr>
+                <th className="px-3 py-2 text-left">Name</th>
+                <th className="px-3 py-2 text-left">Email</th>
+                <th className="px-3 py-2 text-left">Company</th>
+                <th className="px-3 py-2 text-left">Stage</th>
+                <th className="px-3 py-2 text-left">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((c) => (
+                <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60 cursor-pointer" onClick={() => openTray(c)}>
+                  <td className="px-3 py-2">{c.firstName} {c.lastName}</td>
+                  <td className="px-3 py-2 text-slate-300">{c.email || "—"}</td>
+                  <td className="px-3 py-2 text-slate-300">{c.company || "—"}</td>
+                  <td className="px-3 py-2 text-emerald-300">{c.status || "New"}</td>
+                  <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {selected && draft && (
         <div className="fixed inset-0 z-40">
@@ -195,30 +205,25 @@ export default function ContactsPage() {
           <aside className="absolute right-0 top-0 h-full w-full max-w-xl border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-xl font-semibold">{selected.firstName} {selected.lastName}</h2>
-              <button className="crm-btn-ghost" onClick={() => setSelected(null)}><span className="inline-flex items-center gap-1.5"><X size={14} /> Close</span></button>
+              <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => setSelected(null)}><X size={14} /> Close</button>
             </div>
-
             <div className="mt-4 flex gap-2">
               {!editMode ? (
-                <button className="crm-btn" onClick={() => setEditMode(true)}><span className="inline-flex items-center gap-1.5"><Pencil size={14} /> Edit</span></button>
+                <button className="crm-btn inline-flex items-center gap-1.5" onClick={() => setEditMode(true)}><Pencil size={14} /> Edit</button>
               ) : (
                 <>
-                  <button className="crm-btn" onClick={saveFromTray}><span className="inline-flex items-center gap-1.5"><Save size={14} /> Save</span></button>
-                  <button className="crm-btn-ghost" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><span className="inline-flex items-center gap-1.5"><CornerUpLeft size={14} /> Cancel</span></button>
+                  <button className="crm-btn inline-flex items-center gap-1.5" onClick={saveFromTray}><Save size={14} /> Save</button>
+                  <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><CornerUpLeft size={14} /> Cancel</button>
                 </>
               )}
-              <button className="crm-btn-ghost text-red-300" onClick={deleteFromTray}><span className="inline-flex items-center gap-1.5"><Trash2 size={14} /> Delete</span></button>
+              <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" onClick={deleteFromTray}><Trash2 size={14} /> Delete</button>
             </div>
 
             <div className="mt-5 space-y-3 overflow-auto pb-10">
               {contactFields.map(([k, label, type]) => (
                 <div key={k}>
                   <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">{label}</label>
-                  {editMode ? (
-                    <input type={type} className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
-                  ) : (
-                    <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft[k] || "—"}</p>
-                  )}
+                  {editMode ? <input type={type} className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft[k] || "—"}</p>}
                 </div>
               ))}
 
@@ -228,22 +233,14 @@ export default function ContactsPage() {
                   <select className="crm-input" value={draft.status || "New"} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>
                     {CONTACT_STAGES.map((s, i) => <option key={s} value={s}>{stageLabel(s, i)}</option>)}
                   </select>
-                ) : (
-                  <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.status || "New"}</p>
-                )}
+                ) : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.status || "New"}</p>}
               </div>
 
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>
-                {editMode ? (
-                  <textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
-                ) : (
-                  <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{draft.notes || "—"}</p>
-                )}
+                {editMode ? <textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{draft.notes || "—"}</p>}
               </div>
-
               {trayError && <p className="text-sm text-red-300">{trayError}</p>}
-              <p className="text-xs text-slate-500">Tip: moving a contact to “Discovery meeting booked” auto-creates a deal in stage 1 if none exists.</p>
             </div>
           </aside>
         </div>
