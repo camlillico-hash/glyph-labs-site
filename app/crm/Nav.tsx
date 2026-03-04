@@ -5,18 +5,18 @@ import { usePathname } from "next/navigation";
 import { Users, BriefcaseBusiness, CheckSquare, Settings, LogOut, Activity } from "lucide-react";
 
 function navClass(active: boolean) {
-  return `crm-nav-link inline-flex items-center gap-1.5 ${active ? "bg-emerald-900/35 text-emerald-200 border border-emerald-700/60" : ""}`;
+  return `crm-nav-link inline-flex items-center gap-1.5 px-2.5 py-2 sm:px-2 sm:py-1 ${active ? "bg-emerald-900/35 text-emerald-200 border border-emerald-700/60" : ""}`;
 }
 
 export default function Nav() {
   const pathname = usePathname();
   return (
     <nav className="flex items-center gap-1 text-sm">
-      <Link className={navClass(pathname.startsWith('/crm/contacts'))} href="/crm/contacts"><Users size={14} /><span className="hidden sm:inline"> Contacts</span></Link>
-      <Link className={navClass(pathname.startsWith('/crm/deals'))} href="/crm/deals"><BriefcaseBusiness size={14} /><span className="hidden sm:inline"> Deals</span></Link>
-      <Link className={navClass(pathname.startsWith('/crm/tasks'))} href="/crm/tasks"><CheckSquare size={14} /><span className="hidden sm:inline"> Tasks</span></Link>
-      <Link className={navClass(pathname.startsWith('/crm/activities'))} href="/crm/activities"><Activity size={14} /><span className="hidden sm:inline"> Activities</span></Link>
-      <Link title="Settings" aria-label="Settings" className={navClass(pathname.startsWith('/crm/settings'))} href="/crm/settings"><Settings size={14} /><span className="hidden sm:inline"> Settings</span></Link>
+      <Link className={navClass(pathname.startsWith('/crm/contacts'))} href="/crm/contacts"><Users size={18} /><span className="hidden sm:inline"> Contacts</span></Link>
+      <Link className={navClass(pathname.startsWith('/crm/deals'))} href="/crm/deals"><BriefcaseBusiness size={18} /><span className="hidden sm:inline"> Deals</span></Link>
+      <Link className={navClass(pathname.startsWith('/crm/tasks'))} href="/crm/tasks"><CheckSquare size={18} /><span className="hidden sm:inline"> Tasks</span></Link>
+      <Link className={navClass(pathname.startsWith('/crm/activities'))} href="/crm/activities"><Activity size={18} /><span className="hidden sm:inline"> Activities</span></Link>
+      <Link title="Settings" aria-label="Settings" className={navClass(pathname.startsWith('/crm/settings'))} href="/crm/settings"><Settings size={18} /><span className="hidden sm:inline"> Settings</span></Link>
       <button
         type="button"
         className="crm-btn-ghost inline-flex items-center gap-1.5" title="Logout" aria-label="Logout"
@@ -25,7 +25,7 @@ export default function Nav() {
           window.location.href = '/crm/login';
         }}
       >
-        <LogOut size={14} />
+        <LogOut size={18} />
       </button>
     </nav>
   );
