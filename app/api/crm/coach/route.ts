@@ -30,31 +30,32 @@ export async function GET() {
   const staleDeals = openDeals.filter((d) => daysSince(d.updatedAt) > 7).length;
 
   let mood: "push" | "praise" | "warning" = "push";
-  let message = "Glyphord checking in: pipeline oxygen is activity. Move one deal and complete one task today.";
+  let message = "Move one deal, complete one task, and stop negotiating with your potential.";
 
   if (wonDeals.length > 0 && doneTasks >= 3) {
     mood = "praise";
-    message = "Glyphord approves: momentum detected. You’re closing loops, not collecting intentions. Keep pressing.";
+    message = "Good. You executed. Now do it again before your comfort zone files a comeback.";
   }
 
   if (overdueTasks > 0 || staleDeals > 0 || staleDays > 2) {
     mood = "warning";
-    message = `Glyphord says: nice ambition, but the board is getting dusty. ${overdueTasks} overdue task(s), ${staleDeals} stale deal(s). Time to execute.`;
+    message = `Board check: ${overdueTasks} overdue task(s), ${staleDeals} stale deal(s). Less scrolling, more closing.`;
   }
 
   if (openDeals.length === 0 && contacts.length > 0) {
     mood = "push";
-    message = "No open deals right now. Promote a qualified contact to Discovery and get your pipeline breathing.";
+    message = "No open deals. Promote a contact to Discovery today — pipeline is built, not wished into existence.";
   }
 
   if (contacts.length === 0) {
     mood = "warning";
-    message = "Pipeline starts with people. Add 3 contacts today and stop pretending strategy can replace outreach.";
+    message = "Recruit leads. Add 3 contacts today. Strategy without outreach is just decorative thinking.";
   }
 
+
   return NextResponse.json({
-    name: "Glyphord",
-    title: "Pipeline Coach",
+    name: "Sales Coach Glyphy",
+    title: "Revenue Drill Sergeant",
     avatar: "/glyphord-coach.svg",
     mood,
     message,
