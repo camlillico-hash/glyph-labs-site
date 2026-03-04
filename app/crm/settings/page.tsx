@@ -8,10 +8,10 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Settings</h1>
+      <h1 className="text-2xl font-bold">⚙️ Settings</h1>
 
       <section className="crm-card p-4">
-        <h2 className="font-semibold">Gmail (read-only)</h2>
+        <h2 className="font-semibold">📬 Gmail (read-only)</h2>
         <p className="mt-2 text-sm text-slate-400">
           Status: {store.gmail.connectedAt ? `Connected (${new Date(store.gmail.connectedAt).toLocaleString()})` : "Not connected"}
         </p>
@@ -31,7 +31,7 @@ export default async function SettingsPage() {
 
 
       <section className="crm-card p-4">
-        <h2 className="font-semibold">Data storage</h2>
+        <h2 className="font-semibold">🗄️ Data storage</h2>
         <p className="mt-2 text-sm text-slate-400">Current mode: <span className="font-semibold text-emerald-300">{mode}</span></p>
         {mode === "file" && (
           <p className="mt-2 text-sm text-amber-300">Set DATABASE_URL to use persistent hosted Postgres (recommended for production).</p>
@@ -39,7 +39,7 @@ export default async function SettingsPage() {
       </section>
 
       <section className="crm-card p-4">
-        <h2 className="font-semibold">CRM Access</h2>
+        <h2 className="font-semibold">🔐 CRM Access</h2>
         <p className="mt-2 text-sm text-slate-400">Set CRM_PASSWORD and CRM_SESSION_SECRET in your environment for production.</p>
       </section>
     </div>

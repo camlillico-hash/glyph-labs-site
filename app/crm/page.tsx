@@ -14,19 +14,19 @@ export default async function CrmHome() {
       </div>
       <p className="mt-2 text-slate-400">Clean and efficient, built for your pipeline.</p>
       <div className="mt-6 grid gap-4 md:grid-cols-4">
-        <Card label="Contacts" value={store.contacts.length} href="/crm/contacts" />
-        <Card label="Deals" value={store.deals.length} href="/crm/deals" />
-        <Card label="Open Deals" value={openDeals.length} href="/crm/deals" />
-        <Card label="Tasks" value={store.tasks.filter((t) => !t.done).length} href="/crm/tasks" />
+        <Card icon="👥" label="Contacts" value={store.contacts.length} href="/crm/contacts" />
+        <Card icon="💼" label="Deals" value={store.deals.length} href="/crm/deals" />
+        <Card icon="📈" label="Open Deals" value={openDeals.length} href="/crm/deals" />
+        <Card icon="✅" label="Tasks" value={store.tasks.filter((t) => !t.done).length} href="/crm/tasks" />
       </div>
     </div>
   );
 }
 
-function Card({ label, value, href }: { label: string; value: number; href: string }) {
+function Card({ icon, label, value, href }: { icon: string; label: string; value: number; href: string }) {
   return (
     <Link href={href} className="crm-card p-4">
-      <p className="text-sm text-slate-400">{label}</p>
+      <p className="text-sm text-slate-400">{icon} {label}</p>
       <p className="mt-2 text-3xl font-bold">{value}</p>
     </Link>
   );

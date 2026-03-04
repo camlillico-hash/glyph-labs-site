@@ -22,10 +22,10 @@ export default function TasksPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Tasks & Reminders</h1>
+      <h1 className="text-2xl font-bold">✅ Tasks & Reminders</h1>
 
       <div className="crm-card p-4">
-        <h2 className="font-semibold">Add task</h2>
+        <h2 className="font-semibold">➕ Add task</h2>
         <div className="mt-2 grid gap-2 md:grid-cols-2">
           <input placeholder="Task title" className="crm-input" value={form.title || ''} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           <select className="crm-input" value={form.relatedId || ''} onChange={(e) => setForm({ ...form, relatedId: e.target.value, relatedType: 'contact' })}>
@@ -42,7 +42,7 @@ export default function TasksPage() {
           if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error || 'Could not save task'); return; }
           setForm({ relatedType: 'contact' });
           load();
-        }}>Save task</button>
+        }}>💾 Save task</button>
       </div>
 
       <div className="space-y-2">
@@ -61,8 +61,8 @@ export default function TasksPage() {
                   body: JSON.stringify({ ...t, done: !t.done, relatedType: 'contact' }),
                 });
                 load();
-              }}>{t.done ? 'Undo' : 'Done'}</button>
-              <button className="text-xs text-red-300" onClick={async () => { await fetch(`/api/crm/tasks?id=${t.id}`, { method: 'DELETE' }); load(); }}>Delete</button>
+              }}>{t.done ? '↩ Undo' : '✅ Done'}</button>
+              <button className="text-xs text-red-300" onClick={async () => { await fetch(`/api/crm/tasks?id=${t.id}`, { method: 'DELETE' }); load(); }}>🗑 Delete</button>
             </div>
           </div>
         ))}

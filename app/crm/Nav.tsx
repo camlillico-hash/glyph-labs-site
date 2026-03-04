@@ -5,10 +5,10 @@ import Link from "next/link";
 export default function Nav() {
   return (
     <nav className="flex items-center gap-1 text-sm">
-      <Link className="crm-nav-link" href="/crm/contacts">Contacts</Link>
-      <Link className="crm-nav-link" href="/crm/deals">Deals</Link>
-      <Link className="crm-nav-link" href="/crm/tasks">Tasks</Link>
-      <Link className="crm-nav-link" href="/crm/settings">Settings</Link>
+      <Link className="crm-nav-link" href="/crm/contacts">👥 Contacts</Link>
+      <Link className="crm-nav-link" href="/crm/deals">💼 Deals</Link>
+      <Link className="crm-nav-link" href="/crm/tasks">✅ Tasks</Link>
+      <Link className="crm-nav-link" href="/crm/settings">⚙️ Settings</Link>
       <button
         type="button"
         className="crm-btn-ghost"
@@ -17,7 +17,7 @@ export default function Nav() {
           window.location.href = '/crm/login';
         }}
       >
-        Logout
+        🚪 Logout
       </button>
     </nav>
   );
