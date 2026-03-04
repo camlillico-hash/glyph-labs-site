@@ -27,7 +27,7 @@ export default function CoachWidget() {
       <div className="mx-4 hidden min-w-0 flex-1 items-center gap-3 rounded-xl border border-neutral-700 bg-neutral-900/80 px-3 py-2 md:flex">
         <img src={data.avatar} alt="Glyphy avatar" className="h-[65px] w-[65px] shrink-0 rounded-xl border border-neutral-700 object-cover" />
         <div className="min-w-0">
-          <p className="truncate text-xs uppercase tracking-wider text-emerald-300">{data.name}</p>
+          <p className="truncate text-lg font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }}>{data.name}</p>
           <p className="truncate text-sm text-slate-200">{data.message}</p>
         </div>
       </div>
@@ -45,7 +45,7 @@ export default function CoachWidget() {
         {mobileOpen && (
           <div className="mt-2 w-[78vw] max-w-[320px] rounded-xl border border-neutral-700 bg-neutral-950/95 p-3 shadow-2xl backdrop-blur">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-[11px] uppercase tracking-wider text-emerald-300">{data.name}</p>
+              <p className="text-base font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }}>{data.name}</p>
               <button className="text-slate-300" onClick={() => setMobileOpen(false)}>
                 {mobileOpen ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
               </button>
