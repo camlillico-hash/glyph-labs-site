@@ -220,7 +220,7 @@ export default function ContactsPage() {
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? "New contact" : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" onClick={() => setEditMode(true)}><Pencil size={14} /> Edit</button> : <><button className="crm-btn inline-flex items-center gap-1.5" onClick={() => saveContact(false)}><Save size={14} /> Save</button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => saveContact(true)}><Plus size={14} /> Create and add another</button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><CornerUpLeft size={14} /> Cancel</button>}</>}
-              {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" onClick={deleteFromTray}><Trash2 size={14} /> Delete</button>}
+              {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" onClick={() => { if (!confirm("Are you sure you want to delete this record?")) return; deleteFromTray(); }}><Trash2 size={14} /> Delete</button>}
             </div>
             <div className="mt-5 space-y-3 overflow-auto pb-10">
               {contactFields.map(([k, label, type]) => (

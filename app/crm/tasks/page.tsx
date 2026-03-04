@@ -157,7 +157,7 @@ export default function TasksPage() {
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? "New task" : draft.title || "Task"}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" onClick={() => setEditMode(true)}><Pencil size={14} /> Edit</button> : <><button className="crm-btn inline-flex items-center gap-1.5" onClick={saveTask}><Save size={14} /> Save</button>{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setDraft({ ...selected }); setEditMode(false); setError(""); }}><CornerUpLeft size={14} /> Cancel</button>}</>}
-              {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" onClick={() => deleteTask(selected.id)}><Trash2 size={14} /> Delete</button>}
+              {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" onClick={() => { if (!confirm("Are you sure you want to delete this record?")) return; deleteTask(selected.id); }}><Trash2 size={14} /> Delete</button>}
             </div>
             <div className="mt-5 space-y-3">
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Task title</label>{(editMode || createMode) ? <input className="crm-input" value={draft.title || ''} onChange={(e) => setDraft({ ...draft, title: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.title || '—'}</p>}</div>

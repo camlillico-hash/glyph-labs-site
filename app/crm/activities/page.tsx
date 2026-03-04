@@ -60,7 +60,7 @@ export default function ActivitiesPage() {
                 <td className="px-3 py-2 text-slate-300">{contactName(a.contactId)}</td>
                 <td className="px-3 py-2 text-slate-300">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</td>
                 <td className="px-3 py-2 text-slate-300">{a.note || "—"}</td>
-                <td className="px-3 py-2"><button className="text-xs text-red-300 inline-flex items-center gap-1" onClick={async () => { await fetch(`/api/crm/activities?id=${a.id}`, { method: 'DELETE' }); load(); }}><Trash2 size={13} /> Delete</button></td>
+                <td className="px-3 py-2"><button className="text-xs text-red-300 inline-flex items-center gap-1" onClick={async () => { if (!confirm("Are you sure you want to delete this record?")) return; await fetch(`/api/crm/activities?id=${a.id}`, { method: 'DELETE' }); load(); }}><Trash2 size={13} /> Delete</button></td>
               </tr>
             ))}
           </tbody>
