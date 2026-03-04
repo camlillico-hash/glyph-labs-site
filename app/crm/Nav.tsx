@@ -16,16 +16,16 @@ export default function Nav() {
       <Link className={navClass(pathname.startsWith('/crm/deals'))} href="/crm/deals"><BriefcaseBusiness size={14} /> Deals</Link>
       <Link className={navClass(pathname.startsWith('/crm/tasks'))} href="/crm/tasks"><CheckSquare size={14} /> Tasks</Link>
       <Link className={navClass(pathname.startsWith('/crm/activities'))} href="/crm/activities"><Activity size={14} /> Activities</Link>
-      <Link className={navClass(pathname.startsWith('/crm/settings'))} href="/crm/settings"><Settings size={14} /> Settings</Link>
+      <Link title="Settings" aria-label="Settings" className={navClass(pathname.startsWith('/crm/settings'))} href="/crm/settings"><Settings size={14} /></Link>
       <button
         type="button"
-        className="crm-btn-ghost inline-flex items-center gap-1.5"
+        className="crm-btn-ghost inline-flex items-center gap-1.5" title="Logout" aria-label="Logout"
         onClick={async () => {
           await fetch('/api/crm/auth', { method: 'DELETE' });
           window.location.href = '/crm/login';
         }}
       >
-        <LogOut size={14} /> Logout
+        <LogOut size={14} />
       </button>
     </nav>
   );
