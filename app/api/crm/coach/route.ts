@@ -17,6 +17,12 @@ export async function GET() {
 
   const openDeals = deals.filter((d) => d.stage !== "Client signed (won)" && d.stage !== "Lost");
   const wonDeals = deals.filter((d) => d.stage === "Client signed (won)");
+  const latestWonAt = wonDeals
+    .map((d) => d.updatedAt || d.createdAt)
+    .filter(Boolean)
+    .sort()
+    .reverse()[0];
+  const latestWonHours = latestWonAt ? (Date.now() - new Date(latestWonAt).getTime()) / (1000 * 60 * 60) : 999;
 
   const overdueTasks = tasks.filter((t: any) => !t.done && t.dueDate && new Date(t.dueDate).getTime() < Date.now()).length;
   const doneTasks = tasks.filter((t: any) => t.done || t.status === "Complete").length;
@@ -62,6 +68,17 @@ export async function GET() {
     iconColor = "green";
     avatar = "/glyphy-mood-fired-up.jpg";
     message = "Elite consistency. Keep pressure on: top up pipeline while conversion is hot.";
+  }
+
+
+  // Fresh win override: force best mood for 24h
+  if (latestWonHours <= 24) {
+    mood = "crushing";
+    statusLabel = "You're crushing it!";
+    icon = "heart";
+    iconColor = "green";
+    avatar = "/glyphy-mood-fired-up.jpg";
+    message = "New client closed — outstanding work. Enjoy the win for a minute, then get right back to prospecting so tomorrow-you has pipeline.";
   }
 
   return NextResponse.json({
