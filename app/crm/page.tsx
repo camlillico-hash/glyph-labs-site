@@ -7,7 +7,10 @@ export default async function CrmHome() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">Coaching CRM</h1>
+      <div className="flex items-center gap-3">
+        <img src="/bos360-logo.svg" alt="BOS360 logo" className="h-12 w-auto rounded-md border border-neutral-800" />
+        <h1 className="text-3xl font-bold">Bos360 CRM</h1>
+      </div>
       <p className="mt-2 text-slate-400">Clean and efficient, built for your pipeline.</p>
       <div className="mt-6 grid gap-4 md:grid-cols-4">
         <Card label="Contacts" value={store.contacts.length} href="/crm/contacts" />
