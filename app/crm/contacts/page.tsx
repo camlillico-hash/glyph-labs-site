@@ -14,12 +14,9 @@ const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
-  const [query, setQuery] = useState("");
   const [gmail, setGmail] = useState<any[]>([]);
   const [draggingContactId, setDraggingContactId] = useState<string | null>(null);
   const [view, setView] = useState<"bucket" | "table">("table");
-  const [sortBy, setSortBy] = useState<"createdAt" | "status" | "company">("createdAt");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const [selected, setSelected] = useState<Contact | null>(null);
   const [draft, setDraft] = useState<any>(null);
@@ -37,20 +34,7 @@ export default function ContactsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const filtered = useMemo(() => items.filter((c) => (`${c.firstName || ""} ${c.lastName || ""} ${c.email || ""} ${c.company || ""}`).toLowerCase().includes(query.toLowerCase())), [items, query]);
-  const sorted = useMemo(() => {
-    const arr = [...filtered];
-    arr.sort((a, b) => {
-      let va: any = "", vb: any = "";
-      if (sortBy === "createdAt") { va = new Date(a.createdAt || 0).getTime(); vb = new Date(b.createdAt || 0).getTime(); }
-      else if (sortBy === "status") { va = a.status || ""; vb = b.status || ""; }
-      else { va = a.company || ""; vb = b.company || ""; }
-      if (va < vb) return sortDir === "asc" ? -1 : 1;
-      if (va > vb) return sortDir === "asc" ? 1 : -1;
-      return 0;
-    });
-    return arr;
-  }, [filtered, sortBy, sortDir]);
+  const sorted = useMemo(() => [...items], [items]);
 
   function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ status: "New" }); setTrayError(""); }
   function openTray(contact: Contact) { setSelected(contact); setDraft({ ...contact }); setEditMode(false); setCreateMode(false); setTrayError(""); }
@@ -105,11 +89,7 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-sky-800/40 bg-sky-950/20 p-2"><div className="grid gap-2 md:grid-cols-4">
-        <input placeholder="Search contacts..." value={query} onChange={(e) => setQuery(e.target.value)} className="crm-input md:col-span-2" />
-        <select className="crm-input" value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}><option value="createdAt">Sort: Created date</option><option value="status">Sort: Stage</option><option value="company">Sort: Company</option></select>
-        <select className="crm-input" value={sortDir} onChange={(e) => setSortDir(e.target.value as any)}><option value="desc">Newest / Z-A</option><option value="asc">Oldest / A-Z</option></select>
-      </div></div>
+      
 
       {view === "bucket" ? (
         <div className="overflow-x-auto pb-2">

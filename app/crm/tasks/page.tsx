@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckSquare, Plus, Save, CornerUpLeft, Trash2, LayoutGrid, List, X, Pencil } from "lucide-react";
 
-type SortBy = "createdAt" | "contact" | "dueDate" | "status";
 const TASK_STATUSES = ["Not started", "Complete", "Canceled"];
 
 export default function TasksPage() {
@@ -11,8 +10,6 @@ export default function TasksPage() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [view, setView] = useState<"bucket" | "table">("table");
-  const [sortBy, setSortBy] = useState<SortBy>("createdAt");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
 
   const [selected, setSelected] = useState<any>(null);
@@ -36,20 +33,7 @@ export default function TasksPage() {
     return c ? `${c.firstName || ''} ${c.lastName || ''}`.trim() : 'Unknown contact';
   };
 
-  const sorted = useMemo(() => {
-    const arr = [...tasks];
-    arr.sort((a, b) => {
-      let va: any = "", vb: any = "";
-      if (sortBy === "createdAt") { va = new Date(a.createdAt || 0).getTime(); vb = new Date(b.createdAt || 0).getTime(); }
-      else if (sortBy === "contact") { va = contactName(a.relatedId).toLowerCase(); vb = contactName(b.relatedId).toLowerCase(); }
-      else if (sortBy === "status") { va = a.status || "Not started"; vb = b.status || "Not started"; }
-      else { va = a.dueDate || ""; vb = b.dueDate || ""; }
-      if (va < vb) return sortDir === "asc" ? -1 : 1;
-      if (va > vb) return sortDir === "asc" ? 1 : -1;
-      return 0;
-    });
-    return arr;
-  }, [tasks, sortBy, sortDir, contacts]);
+  const sorted = useMemo(() => [...tasks], [tasks]);
 
   function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ relatedType: "contact", status: "Not started" }); setError(""); }
   function openTask(t: any) { setSelected(t); setDraft({ ...t, status: t.status || (t.done ? "Complete" : "Not started") }); setCreateMode(false); setEditMode(false); setError(""); }
@@ -101,10 +85,7 @@ export default function TasksPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-violet-800/40 bg-violet-950/20 p-2"><div className="grid gap-2 md:grid-cols-3">
-        <select className="crm-input" value={sortBy} onChange={(e) => setSortBy(e.target.value as SortBy)}><option value="createdAt">Sort: Created date</option><option value="contact">Sort: Contact</option><option value="dueDate">Sort: Due date</option><option value="status">Sort: Task status</option></select>
-        <select className="crm-input" value={sortDir} onChange={(e) => setSortDir(e.target.value as any)}><option value="desc">Newest / Z-A</option><option value="asc">Oldest / A-Z</option></select>
-      </div></div>
+      
 
       {view === "bucket" ? (
         <div className="overflow-x-auto pb-2">

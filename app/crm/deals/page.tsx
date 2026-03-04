@@ -12,8 +12,6 @@ export default function DealsPage() {
   const [error, setError] = useState("");
   const [draggingDealId, setDraggingDealId] = useState<string | null>(null);
   const [view, setView] = useState<"bucket" | "table">("table");
-  const [sortBy, setSortBy] = useState<"createdAt" | "stage" | "company">("createdAt");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const [selected, setSelected] = useState<any>(null);
   const [draft, setDraft] = useState<any>(null);
@@ -31,19 +29,7 @@ export default function DealsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const sortedDeals = useMemo(() => {
-    const arr = [...deals];
-    arr.sort((a, b) => {
-      let va: any = "", vb: any = "";
-      if (sortBy === "createdAt") { va = new Date(a.createdAt || 0).getTime(); vb = new Date(b.createdAt || 0).getTime(); }
-      else if (sortBy === "stage") { va = a.stage || ""; vb = b.stage || ""; }
-      else { va = a.company || ""; vb = b.company || ""; }
-      if (va < vb) return sortDir === "asc" ? -1 : 1;
-      if (va > vb) return sortDir === "asc" ? 1 : -1;
-      return 0;
-    });
-    return arr;
-  }, [deals, sortBy, sortDir]);
+  const sortedDeals = useMemo(() => [...deals], [deals]);
 
   const contactName = (id?: string) => {
     const c = contacts.find((x) => x.id === id);
@@ -103,10 +89,7 @@ export default function DealsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-amber-800/40 bg-amber-950/20 p-2"><div className="grid gap-2 md:grid-cols-3">
-        <select className="crm-input" value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}><option value="createdAt">Sort: Created date</option><option value="stage">Sort: Stage</option><option value="company">Sort: Company</option></select>
-        <select className="crm-input" value={sortDir} onChange={(e) => setSortDir(e.target.value as any)}><option value="desc">Newest / Z-A</option><option value="asc">Oldest / A-Z</option></select>
-      </div></div>
+      
 
       {view === "bucket" ? (
         <div className="overflow-x-auto pb-2"><div className="flex gap-4 min-w-max">
