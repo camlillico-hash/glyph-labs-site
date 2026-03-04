@@ -27,7 +27,17 @@ function maybeCreateDealForDiscovery(store: any, contact: any) {
 
 export async function GET() {
   const store = await getStore();
-  return NextResponse.json({ contacts: store.contacts, stages: CONTACT_STAGES });
+  const contacts = (store.contacts || []).map((c: any) => {
+    const acts = (store.activities || []).filter((a: any) => a.contactId === c.id)
+      .sort((a: any, b: any) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime());
+    const latest = acts[0];
+    return {
+      ...c,
+      lastActivityDate: c.lastActivityDate || latest?.occurredAt || "",
+      lastActivityType: c.lastActivityType || latest?.type || "",
+    };
+  });
+  return NextResponse.json({ contacts, stages: CONTACT_STAGES });
 }
 
 export async function POST(req: Request) {

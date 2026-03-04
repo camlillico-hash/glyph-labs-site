@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Pool } from "pg";
 
-export type Contact = { id: string; firstName?: string; lastName?: string; email?: string; phone?: string; company?: string; title?: string; leadSource?: string; status?: string; tags?: string[]; notes?: string; createdAt: string; updatedAt: string; };
+export type Contact = { id: string; firstName?: string; lastName?: string; email?: string; phone?: string; linkedin?: string; company?: string; title?: string; leadSource?: string; status?: string; tags?: string[]; notes?: string; lastActivityDate?: string; lastActivityType?: string; createdAt: string; updatedAt: string; };
 export type Deal = { id: string; name?: string; contactId?: string; company?: string; stage: string; value?: number; probability?: number; expectedCloseDate?: string; nextStep?: string; lastActivityAt?: string; notes?: string; createdAt: string; updatedAt: string; };
 export type Task = { id: string; title: string; relatedType?: "contact" | "deal"; relatedId?: string; dueDate?: string; done: boolean; notes?: string; createdAt: string; updatedAt: string; };
 export type GmailMessage = { id: string; threadId?: string; from?: string; to?: string; subject?: string; date?: string; snippet?: string; };

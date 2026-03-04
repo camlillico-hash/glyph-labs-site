@@ -30,6 +30,10 @@ function archiveTaskAsActivity(store: any, task: any) {
     updatedAt: now(),
   };
   store.activities = [activity, ...(store.activities || [])];
+  const cidx = (store.contacts || []).findIndex((c: any) => c.id === task.relatedId);
+  if (cidx >= 0) {
+    store.contacts[cidx] = { ...store.contacts[cidx], lastActivityDate: activity.occurredAt, lastActivityType: "task_completed", updatedAt: now() };
+  }
 }
 
 export async function GET() {
