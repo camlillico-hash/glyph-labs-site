@@ -8,6 +8,22 @@ function norm(v: any) {
   return String(v ?? "").trim();
 }
 
+function formatPhone(v: any) {
+  const raw = norm(v);
+  const digits = raw.replace(/\D+/g, "");
+  if (!digits) return "";
+
+  if (digits.length === 10) {
+    return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  }
+
+  if (digits.length === 11 && digits.startsWith("1")) {
+    return `+1 (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
+  }
+
+  return raw;
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const rows = Array.isArray(body?.rows) ? body.rows : [];
@@ -39,7 +55,7 @@ export async function POST(req: Request) {
       firstName,
       lastName,
       email: norm(r.email || r.Email),
-      phone: norm(r.phone || r.Phone),
+      phone: formatPhone(r.phone || r.Phone),
       linkedin: norm(r.linkedin || r.Linkedin || r.LinkedIn || r["LinkedIn"] || r["linkedin_url"]),
       company: norm(r.company || r.Company),
       title: norm(r.title || r.Title),
