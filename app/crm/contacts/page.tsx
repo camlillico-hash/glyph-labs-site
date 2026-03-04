@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Users, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List, Plus } from "lucide-react";
+import { Users, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List, Plus, Upload } from "lucide-react";
+import Papa from "papaparse";
 
 type Contact = any;
 const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"];
@@ -29,6 +30,9 @@ export default function ContactsPage() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [inlineDraft, setInlineDraft] = useState<any>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importResult, setImportResult] = useState<any>(null);
+  const [importError, setImportError] = useState("");
 
   const load = async () => {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
@@ -94,6 +98,7 @@ export default function ContactsPage() {
         <h1 className="text-2xl font-bold inline-flex items-center gap-2 text-sky-200"><Users size={20} /> Contacts</h1>
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={openCreate}><Plus size={14} /> New</button>
+          <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /> Import CSV</button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
             <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
             <button className={`px-2 py-1 rounded ${view === "table" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("table")}><List size={16} /></button>
@@ -145,6 +150,64 @@ export default function ContactsPage() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+
+      {importOpen && (
+        <div className="fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black/55" onClick={() => setImportOpen(false)} />
+          <aside className="absolute right-0 top-0 h-full w-full max-w-xl border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl font-semibold">Import contacts from CSV</h2>
+              <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => setImportOpen(false)}><X size={14} /> Close</button>
+            </div>
+            <p className="mt-2 text-sm text-slate-400">Headers supported: firstName,lastName,email,phone,company,title,type,leadSource,status,notes</p>
+            <div className="mt-4">
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                className="crm-input"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setImportError("");
+                  setImportResult(null);
+                  const text = await file.text();
+                  const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+                  if (parsed.errors?.length) {
+                    setImportError(parsed.errors[0].message || "CSV parse error");
+                    return;
+                  }
+                  const rows = parsed.data as any[];
+                  const res = await fetch('/api/crm/contacts/import', {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({ rows }),
+                  });
+                  const j = await res.json().catch(() => ({}));
+                  if (!res.ok) {
+                    setImportError(j.error || 'Import failed');
+                    return;
+                  }
+                  setImportResult(j);
+                  await load();
+                }}
+              />
+            </div>
+
+            {importError && <p className="mt-3 text-sm text-red-300">{importError}</p>}
+            {importResult && (
+              <div className="mt-3 rounded-lg border border-neutral-800 bg-neutral-900 p-3 text-sm">
+                <p className="text-emerald-300">Created: {importResult.created} · Skipped: {importResult.skipped}</p>
+                {importResult.errors?.length > 0 && (
+                  <div className="mt-2 max-h-56 overflow-auto text-xs text-slate-300">
+                    {importResult.errors.map((er: any, i: number) => <p key={i}>Row {er.row}: {er.reason}</p>)}
+                  </div>
+                )}
+              </div>
+            )}
+          </aside>
         </div>
       )}
 
