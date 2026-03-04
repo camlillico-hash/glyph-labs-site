@@ -40,10 +40,10 @@ export async function GET() {
   // Fired up = behind/slacking
   if (overdueTasks > 0 || staleDeals > 0 || staleDays > 2 || openDeals.length === 0) {
     mood = "fired_up";
-    statusLabel = "Fired up!";
+    statusLabel = "This is pathetic!";
     icon = "flame";
     iconColor = "red";
-    avatar = "/glyphy-mood-fired-up.jpg";
+    avatar = "/glyphy-drill-sergeant.jpg";
 
     if (openDeals.length === 0 && contacts.length > 0) {
       message = "No open deals? That’s not a pipeline, that’s a wishlist. Promote a contact to Discovery now.";
@@ -60,7 +60,7 @@ export async function GET() {
     statusLabel = "You're crushing it!";
     icon = "heart";
     iconColor = "green";
-    avatar = "/glyphy-drill-sergeant.jpg";
+    avatar = "/glyphy-mood-fired-up.jpg";
     message = "Elite consistency. Keep pressure on: top up pipeline while conversion is hot.";
   }
 
