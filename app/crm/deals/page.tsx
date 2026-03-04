@@ -29,7 +29,8 @@ export default function DealsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const sortedDeals = useMemo(() => [...deals], [deals]);
+  const visibleDeals = useMemo(() => deals.filter((d) => d.stage !== "Client signed (won)"), [deals]);
+  const sortedDeals = useMemo(() => [...visibleDeals], [visibleDeals]);
 
   const contactName = (id?: string) => {
     const c = contacts.find((x) => x.id === id);
@@ -79,7 +80,7 @@ export default function DealsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-amber-200 whitespace-nowrap"><BriefcaseBusiness size={20} /> Deals ({deals.length})</h1>
+        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-amber-200 whitespace-nowrap"><BriefcaseBusiness size={20} /> Deals ({visibleDeals.length})</h1>
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-lg bg-amber-700 px-3 py-2 font-semibold text-white hover:bg-amber-600" onClick={openCreate}><Plus size={14} /> New</button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
