@@ -4,6 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 
 type Contact = any;
 
+const CONTACT_STAGES = [
+  "New",
+  "Attempting",
+  "Connected",
+  "Discovery meeting booked",
+  "Not right now",
+];
+
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"],
   ["lastName", "Last name", "text"],
@@ -12,13 +20,12 @@ const contactFields: Array<[string, string, string]> = [
   ["company", "Company", "text"],
   ["title", "Title", "text"],
   ["leadSource", "Lead source", "text"],
-  ["status", "Status", "text"],
 ];
 
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
   const [query, setQuery] = useState("");
-  const [form, setForm] = useState<any>({});
+  const [form, setForm] = useState<any>({ status: "New" });
   const [gmail, setGmail] = useState<any[]>([]);
   const [error, setError] = useState("");
 
@@ -28,7 +35,8 @@ export default function ContactsPage() {
   const [trayError, setTrayError] = useState("");
 
   const load = async () => {
-    setItems(await (await fetch("/api/crm/contacts", { cache: "no-store" })).json());
+    const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
+    setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
     setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
   };
   useEffect(() => {
@@ -97,6 +105,9 @@ export default function ContactsPage() {
               onChange={(e) => setForm({ ...form, [k]: e.target.value })}
             />
           ))}
+          <select className="crm-input" value={form.status || "New"} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+            {CONTACT_STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
         </div>
         <textarea
           placeholder="Notes"
@@ -119,7 +130,7 @@ export default function ContactsPage() {
               setError(j.error || "Could not save contact");
               return;
             }
-            setForm({});
+            setForm({ status: "New" });
             load();
           }}
         >
@@ -145,6 +156,7 @@ export default function ContactsPage() {
               <div>
                 <p className="font-semibold">{c.firstName} {c.lastName}</p>
                 <p className="text-sm text-slate-400">{c.email || "No email"} · {c.company || "No company"}</p>
+                <p className="text-xs text-emerald-300">Stage: {c.status || "New"}</p>
                 <p className="text-xs text-emerald-300">
                   Gmail matches: {c.email ? gmail.filter((m) => `${m.from || ""} ${m.to || ""}`.toLowerCase().includes(String(c.email).toLowerCase())).length : 0}
                 </p>
@@ -189,6 +201,17 @@ export default function ContactsPage() {
               ))}
 
               <div>
+                <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Lead stage</label>
+                {editMode ? (
+                  <select className="crm-input" value={draft.status || "New"} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>
+                    {CONTACT_STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                ) : (
+                  <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.status || "New"}</p>
+                )}
+              </div>
+
+              <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>
                 {editMode ? (
                   <textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
@@ -198,6 +221,7 @@ export default function ContactsPage() {
               </div>
 
               {trayError && <p className="text-sm text-red-300">{trayError}</p>}
+              <p className="text-xs text-slate-500">Tip: moving a contact to “Discovery meeting booked” auto-creates a deal in the first deal stage if none exists.</p>
             </div>
           </aside>
         </div>

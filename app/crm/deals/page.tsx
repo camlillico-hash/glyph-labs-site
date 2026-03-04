@@ -19,7 +19,7 @@ export default function DealsPage() {
     const d = await (await fetch("/api/crm/deals", { cache: "no-store" })).json();
     const c = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
     setDeals(d.deals || []);
-    setContacts(c || []);
+    setContacts(Array.isArray(c) ? c : c.contacts || []);
   };
   useEffect(() => {
     load();

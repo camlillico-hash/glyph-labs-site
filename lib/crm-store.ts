@@ -13,6 +13,8 @@ const dataDir = path.join(process.cwd(), "data");
 const dbPath = path.join(dataDir, "crm.json");
 const initialStore: CrmStore = { contacts: [], deals: [], tasks: [], gmail: { messages: [] } };
 
+export const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"] as const;
+
 export const DEAL_STAGES = ["Discovery meeting booked", "90-minute booked", "90-minute complete", "Verbal Yes", "Client signed (won)", "Lost"] as const;
 
 const DATABASE_URL = process.env.DATABASE_URL;
