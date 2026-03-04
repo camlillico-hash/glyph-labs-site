@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, BriefcaseBusiness, CheckSquare, Settings, LogOut } from "lucide-react";
+import { Users, BriefcaseBusiness, CheckSquare, Settings, LogOut, Activity } from "lucide-react";
 
 function navClass(active: boolean) {
   return `crm-nav-link inline-flex items-center gap-1.5 ${active ? "bg-emerald-900/35 text-emerald-200 border border-emerald-700/60" : ""}`;
@@ -15,6 +15,7 @@ export default function Nav() {
       <Link className={navClass(pathname.startsWith('/crm/contacts'))} href="/crm/contacts"><Users size={14} /> Contacts</Link>
       <Link className={navClass(pathname.startsWith('/crm/deals'))} href="/crm/deals"><BriefcaseBusiness size={14} /> Deals</Link>
       <Link className={navClass(pathname.startsWith('/crm/tasks'))} href="/crm/tasks"><CheckSquare size={14} /> Tasks</Link>
+      <Link className={navClass(pathname.startsWith('/crm/activities'))} href="/crm/activities"><Activity size={14} /> Activities</Link>
       <Link className={navClass(pathname.startsWith('/crm/settings'))} href="/crm/settings"><Settings size={14} /> Settings</Link>
       <button
         type="button"

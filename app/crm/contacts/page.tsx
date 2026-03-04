@@ -15,6 +15,9 @@ const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
   const [gmail, setGmail] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [activityDraft, setActivityDraft] = useState<any>({ type: "email" });
+  const [activityError, setActivityError] = useState("");
   const [draggingContactId, setDraggingContactId] = useState<string | null>(null);
   const [view, setView] = useState<"bucket" | "table">("table");
 
@@ -31,13 +34,22 @@ export default function ContactsPage() {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
     setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
     setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
+    setActivities(await (await fetch("/api/crm/activities", { cache: "no-store" })).json());
   };
   useEffect(() => { load(); }, []);
 
   const sorted = useMemo(() => [...items], [items]);
 
-  function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ status: "New" }); setTrayError(""); }
-  function openTray(contact: Contact) { setSelected(contact); setDraft({ ...contact }); setEditMode(false); setCreateMode(false); setTrayError(""); }
+
+  const selectedActivities = useMemo(() => {
+    if (!selected?.id) return [];
+    return (activities || [])
+      .filter((a: any) => a.contactId === selected.id)
+      .sort((a: any, b: any) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime());
+  }, [activities, selected]);
+
+  function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ status: "New" }); setTrayError(""); setActivityDraft({ type: "email" }); setActivityError(""); }
+  function openTray(contact: Contact) { setSelected(contact); setDraft({ ...contact }); setEditMode(false); setCreateMode(false); setTrayError(""); setActivityDraft({ type: "email", contactId: contact.id }); setActivityError(""); }
   function closeTray() { setSelected(null); setDraft(null); setEditMode(false); setCreateMode(false); setTrayError(""); }
 
   function startInlineEdit(c: any) { setEditingId(c.id); setInlineDraft({ ...c }); }
@@ -162,6 +174,46 @@ export default function ContactsPage() {
               ))}
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Lead stage</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || "New"} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>{CONTACT_STAGES.map((s, i) => <option key={s} value={s}>{stageLabel(s, i)}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.status || "New"}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>{(editMode || createMode) ? <textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{draft.notes || "—"}</p>}</div>
+
+              {!createMode && (
+                <div className="rounded-xl border border-neutral-800 p-3">
+                  <h3 className="mb-2 text-sm font-semibold text-slate-200">Log activity</h3>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <select className="crm-input" value={activityDraft.type || "email"} onChange={(e) => setActivityDraft({ ...activityDraft, type: e.target.value, contactId: selected.id })}>
+                      <option value="email">Email</option>
+                      <option value="call">Call</option>
+                      <option value="text">Text</option>
+                      <option value="linkedin">LinkedIn</option>
+                      <option value="in_person">In person</option>
+                      <option value="meeting">Meeting</option>
+                    </select>
+                    <input type="datetime-local" className="crm-input" onChange={(e) => setActivityDraft({ ...activityDraft, occurredAt: e.target.value ? new Date(e.target.value).toISOString() : "", contactId: selected.id })} />
+                  </div>
+                  <textarea className="crm-input mt-2" placeholder="Activity note" value={activityDraft.note || ""} onChange={(e) => setActivityDraft({ ...activityDraft, note: e.target.value, contactId: selected.id })} />
+                  {activityError && <p className="mt-2 text-sm text-red-300">{activityError}</p>}
+                  <button className="crm-btn mt-2" onClick={async () => {
+                    setActivityError("");
+                    const res = await fetch('/api/crm/activities', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...activityDraft, contactId: selected.id }) });
+                    if (!res.ok) { const j = await res.json().catch(() => ({})); setActivityError(j.error || 'Could not log activity'); return; }
+                    setActivityDraft({ type: "email", contactId: selected.id, note: "" });
+                    setActivities(await (await fetch('/api/crm/activities', { cache: 'no-store' })).json());
+                  }}>Save activity</button>
+
+                  <div className="mt-3 space-y-2">
+                    {selectedActivities.map((a: any) => (
+                      <div key={a.id} className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-emerald-300">{String(a.type).replace('_', ' ')}</span>
+                          <span className="text-slate-400">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</span>
+                        </div>
+                        <p className="mt-1 text-slate-300">{a.note || "—"}</p>
+                      </div>
+                    ))}
+                    {selectedActivities.length === 0 && <p className="text-xs text-slate-500">No activities yet.</p>}
+                  </div>
+                </div>
+              )}
+
               {trayError && <p className="text-sm text-red-300">{trayError}</p>}
             </div>
           </aside>
