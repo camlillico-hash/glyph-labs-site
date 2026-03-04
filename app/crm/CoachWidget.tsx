@@ -45,14 +45,14 @@ export default function CoachWidget() {
       </div>
 
       {/* Mobile bubble */}
-      <div className="fixed bottom-4 right-4 z-50 md:hidden">
+      <div className="fixed right-4 bottom-4 top-auto left-auto z-50 md:hidden">
         <button onClick={() => setMobileOpen((v) => !v)} className="h-16 w-16 overflow-hidden rounded-full border-2 border-neutral-600 shadow-2xl" aria-label="Toggle Sales Coach Glyphy">
           <img src={data.avatar} alt="Glyphy avatar" className="h-full w-full object-cover" />
         </button>
 
         {mobileOpen && (
-          <div className="mt-2 w-[78vw] max-w-[330px] rounded-xl border border-neutral-700 bg-neutral-950/95 p-3 shadow-2xl backdrop-blur">
-            <div className="mb-2 flex items-center justify-between">
+          <div className="absolute bottom-[76px] right-0 w-[78vw] max-w-[330px] rounded-xl border border-neutral-700 bg-neutral-950/95 p-3 shadow-2xl backdrop-blur">
+            <div className="mb-2 flex items-center justify-between" onClick={() => setMobileOpen(false)}>
               <p className="text-base font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }}>{data.name}</p>
               <button className="text-slate-300" onClick={() => setMobileOpen(false)}>
                 {mobileOpen ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
