@@ -40,6 +40,7 @@ export async function POST(req: Request) {
       lastName,
       email: norm(r.email || r.Email),
       phone: norm(r.phone || r.Phone),
+      linkedin: norm(r.linkedin || r.Linkedin || r.LinkedIn || r["LinkedIn"] || r["linkedin_url"]),
       company: norm(r.company || r.Company),
       title: norm(r.title || r.Title),
       type: ALLOWED_TYPES.includes(type) ? type : "",
