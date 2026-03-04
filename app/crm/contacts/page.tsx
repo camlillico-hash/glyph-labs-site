@@ -4,6 +4,17 @@ import { useEffect, useMemo, useState } from "react";
 
 type Contact = any;
 
+const contactFields: Array<[string, string, string]> = [
+  ["firstName", "First name", "text"],
+  ["lastName", "Last name", "text"],
+  ["email", "Email", "email"],
+  ["phone", "Phone", "text"],
+  ["company", "Company", "text"],
+  ["title", "Title", "text"],
+  ["leadSource", "Lead source", "text"],
+  ["status", "Status", "text"],
+];
+
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
   const [query, setQuery] = useState("");
@@ -11,13 +22,64 @@ export default function ContactsPage() {
   const [gmail, setGmail] = useState<any[]>([]);
   const [error, setError] = useState("");
 
+  const [selected, setSelected] = useState<Contact | null>(null);
+  const [draft, setDraft] = useState<any>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [trayError, setTrayError] = useState("");
+
   const load = async () => {
     setItems(await (await fetch("/api/crm/contacts", { cache: "no-store" })).json());
     setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
-  const filtered = useMemo(() => items.filter((c) => (`${c.firstName || ""} ${c.lastName || ""} ${c.email || ""} ${c.company || ""}`).toLowerCase().includes(query.toLowerCase())), [items, query]);
+  const filtered = useMemo(
+    () =>
+      items.filter((c) =>
+        (`${c.firstName || ""} ${c.lastName || ""} ${c.email || ""} ${c.company || ""}`)
+          .toLowerCase()
+          .includes(query.toLowerCase())
+      ),
+    [items, query]
+  );
+
+  function openTray(contact: Contact) {
+    setSelected(contact);
+    setDraft({ ...contact });
+    setEditMode(false);
+    setTrayError("");
+  }
+
+  async function saveFromTray() {
+    if (!draft) return;
+    setTrayError("");
+    const res = await fetch("/api/crm/contacts", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(draft),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      setTrayError(j.error || "Could not save contact");
+      return;
+    }
+    await load();
+    const fresh = await res.json();
+    setSelected(fresh);
+    setDraft(fresh);
+    setEditMode(false);
+  }
+
+  async function deleteFromTray() {
+    if (!selected?.id) return;
+    await fetch(`/api/crm/contacts?id=${selected.id}`, { method: "DELETE" });
+    setSelected(null);
+    setDraft(null);
+    setEditMode(false);
+    await load();
+  }
 
   return (
     <div className="space-y-6">
@@ -25,47 +87,121 @@ export default function ContactsPage() {
       <div className="crm-card p-4">
         <h2 className="font-semibold">Add contact</h2>
         <div className="mt-3 grid gap-2 md:grid-cols-3">
-          {[
-            ["firstName", "First name"], ["lastName", "Last name"], ["email", "Email"],
-            ["phone", "Phone"], ["company", "Company"], ["title", "Title"], ["leadSource", "Lead source"], ["status", "Status"]
-          ].map(([k, label]) => (
-            <input key={k} placeholder={label + ((k === "firstName" || k === "lastName") ? " *" : "")} className="crm-input"
-              value={form[k] || ""} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
+          {contactFields.map(([k, label, type]) => (
+            <input
+              key={k}
+              type={type}
+              placeholder={label + ((k === "firstName" || k === "lastName") ? " *" : "")}
+              className="crm-input"
+              value={form[k] || ""}
+              onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+            />
           ))}
         </div>
-        <textarea placeholder="Notes" className="mt-2 w-full crm-input"
-          value={form.notes || ""} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+        <textarea
+          placeholder="Notes"
+          className="crm-input mt-2"
+          value={form.notes || ""}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+        />
         {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
-        <button className="mt-2 crm-btn"
+        <button
+          className="crm-btn mt-2"
           onClick={async () => {
             setError("");
-            const res = await fetch('/api/crm/contacts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(form) });
-            if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error || "Could not save contact"); return; }
-            setForm({}); load();
-          }}>
+            const res = await fetch("/api/crm/contacts", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify(form),
+            });
+            if (!res.ok) {
+              const j = await res.json().catch(() => ({}));
+              setError(j.error || "Could not save contact");
+              return;
+            }
+            setForm({});
+            load();
+          }}
+        >
           Save contact
         </button>
       </div>
 
-      <input placeholder="Search contacts..." value={query} onChange={(e) => setQuery(e.target.value)} className="crm-input" />
+      <input
+        placeholder="Search contacts..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="crm-input"
+      />
 
       <div className="space-y-3">
         {filtered.map((c) => (
-          <div key={c.id} className="crm-card p-4">
+          <button
+            key={c.id}
+            className="crm-card w-full p-4 text-left"
+            onClick={() => openTray(c)}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-semibold">{c.firstName} {c.lastName}</p>
                 <p className="text-sm text-slate-400">{c.email || "No email"} · {c.company || "No company"}</p>
-                <p className="text-xs text-emerald-300">Gmail matches: {c.email ? gmail.filter((m)=> `${m.from||""} ${m.to||""}`.toLowerCase().includes(String(c.email).toLowerCase())).length : 0}</p>
+                <p className="text-xs text-emerald-300">
+                  Gmail matches: {c.email ? gmail.filter((m) => `${m.from || ""} ${m.to || ""}`.toLowerCase().includes(String(c.email).toLowerCase())).length : 0}
+                </p>
               </div>
-              <button className="text-xs text-red-300" onClick={async () => { await fetch(`/api/crm/contacts?id=${c.id}`, { method: 'DELETE' }); load(); }}>Delete</button>
+              <span className="text-xs text-slate-400">Open</span>
             </div>
-            <textarea className="mt-2 w-full crm-input text-sm" value={c.notes || ""}
-              onChange={(e) => setItems(items.map((x) => x.id === c.id ? { ...x, notes: e.target.value } : x))}
-              onBlur={async (e) => { await fetch('/api/crm/contacts', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...c, notes: e.target.value }) }); }} />
-          </div>
+          </button>
         ))}
       </div>
+
+      {selected && draft && (
+        <div className="fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black/55" onClick={() => setSelected(null)} />
+          <aside className="absolute right-0 top-0 h-full w-full max-w-xl border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl font-semibold">{selected.firstName} {selected.lastName}</h2>
+              <button className="crm-btn-ghost" onClick={() => setSelected(null)}>Close</button>
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              {!editMode ? (
+                <button className="crm-btn" onClick={() => setEditMode(true)}>Edit</button>
+              ) : (
+                <>
+                  <button className="crm-btn" onClick={saveFromTray}>Save</button>
+                  <button className="crm-btn-ghost" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}>Cancel</button>
+                </>
+              )}
+              <button className="crm-btn-ghost text-red-300" onClick={deleteFromTray}>Delete</button>
+            </div>
+
+            <div className="mt-5 space-y-3 overflow-auto pb-10">
+              {contactFields.map(([k, label, type]) => (
+                <div key={k}>
+                  <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">{label}</label>
+                  {editMode ? (
+                    <input type={type} className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
+                  ) : (
+                    <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft[k] || "—"}</p>
+                  )}
+                </div>
+              ))}
+
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>
+                {editMode ? (
+                  <textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
+                ) : (
+                  <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{draft.notes || "—"}</p>
+                )}
+              </div>
+
+              {trayError && <p className="text-sm text-red-300">{trayError}</p>}
+            </div>
+          </aside>
+        </div>
+      )}
     </div>
   );
 }
