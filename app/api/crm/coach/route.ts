@@ -65,7 +65,7 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    name: "Sales Coach Glyphy",
+    name: "Sales Sgt. Glyphy",
     title: "Revenue Drill Sergeant",
     mood,
     statusLabel,
