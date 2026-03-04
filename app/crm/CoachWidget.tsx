@@ -45,9 +45,15 @@ export default function CoachWidget() {
       </div>
 
       {/* Mobile bubble */}
-      <div className="fixed right-4 bottom-4 top-auto left-auto z-50 md:hidden">
-        <button onClick={() => setMobileOpen((v) => !v)} className="h-16 w-16 overflow-hidden rounded-full border-2 border-neutral-600 shadow-2xl" aria-label="Toggle Sales Coach Glyphy">
+      <div
+        className="fixed z-50 md:hidden"
+        style={{ right: "1rem", bottom: "max(1rem, env(safe-area-inset-bottom))", top: "auto", left: "auto" }}
+      >
+        <button onClick={() => setMobileOpen((v) => !v)} className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-neutral-600 shadow-2xl" aria-label="Toggle Sales Coach Glyphy">
           <img src={data.avatar} alt="Glyphy avatar" className="h-full w-full object-cover" />
+          <span className={`absolute -right-1 -top-1 inline-flex h-6 w-6 items-center justify-center rounded-full border text-[10px] ${iconClass}`}>
+            <Icon size={12} />
+          </span>
         </button>
 
         {mobileOpen && (
