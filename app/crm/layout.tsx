@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Nav from "./Nav";
+import CoachWidget from "./CoachWidget";
 
 export default function CrmLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -22,6 +23,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
         </header>
       )}
       <div className="mx-auto max-w-7xl px-6 py-6">{children}</div>
+      {!isLogin && <CoachWidget />}
     </main>
   );
 }
