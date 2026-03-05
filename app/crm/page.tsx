@@ -31,7 +31,7 @@ export default async function CrmHome() {
         <img src="/bos360-logo.svg" alt="BOS360 logo" className="h-12 w-auto rounded-md border border-neutral-800" />
         <h1 className="text-3xl font-bold">Bos360 CRM</h1>
       </div>
-      <p className="mt-2 text-slate-400">Clean and efficient, built for your pipeline.</p>
+      <p className="mt-2 text-slate-400">Command Post — plan, direct, control, act, and decide.</p>
       <div className="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-8">
         <Card icon={<Users size={16} />} label="Contacts" value={store.contacts.length} href="/crm/contacts" />
         <Card icon={<BriefcaseBusiness size={16} />} label="Deals" value={store.deals.length} href="/crm/deals" />
