@@ -13,14 +13,14 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
     <main className="crm-shell flex min-h-screen flex-col text-slate-100">
       {!isLogin && (
         <header className="border-b border-neutral-800/80 bg-neutral-900/75 backdrop-blur">
-          <div className="mx-auto flex max-w-7xl items-start justify-between px-6 pt-4 pb-5">
+          <div className="mx-auto flex max-w-7xl items-start justify-between px-6 pt-3 pb-2">
             <Link href="/crm" className="mt-1 flex shrink-0 items-center leading-tight">
               <img src="/glyph-crm-logo.png" alt="Glyph CRM logo" className="h-16 w-auto" />
             </Link>
             <CoachWidget mode="desktop-inline" />
             <div className="mt-2 ml-auto shrink-0 sm:ml-4"><Nav /></div>
           </div>
-          <div className="mx-auto max-w-7xl px-6 pb-3">
+          <div className="mx-auto max-w-7xl px-6 pb-1">
             <CoachWidget mode="mobile-accordion" />
           </div>
         </header>
