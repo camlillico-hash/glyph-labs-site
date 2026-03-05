@@ -12,6 +12,14 @@ function normalizePrimaryPain(value: any) {
   return ["Execution", "Strategy", "Culture"].includes(v) ? v : undefined;
 }
 
+function normalizeEmail(value: any) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function statusNeedsEmail(status: string) {
+  return ["Connected", "Discovery meeting booked", "Not right now"].includes(status);
+}
+
 function upsertContactStamp(store: any, contact: any) {
   if (contact.status !== "Discovery meeting booked") return;
   const idx = (store.contactStamps || []).findIndex((s: any) => s.contactId === contact.id);
@@ -72,7 +80,15 @@ export async function POST(req: Request) {
   }
 
   const store = await getStore();
-  const record = { id: id(), createdAt: now(), updatedAt: now(), status: normalizeStatus(body.status), ...body, primaryPain: normalizePrimaryPain(body.primaryPain) };
+  const status = normalizeStatus(body.status);
+  const email = normalizeEmail(body.email);
+  if (statusNeedsEmail(status) && !email) {
+    return NextResponse.json({ error: "Email is required for Connected and later stages" }, { status: 400 });
+  }
+  if (email && store.contacts.some((c: any) => normalizeEmail(c.email) === email)) {
+    return NextResponse.json({ error: "A contact with this email already exists" }, { status: 400 });
+  }
+  const record = { id: id(), createdAt: now(), updatedAt: now(), status, ...body, email, primaryPain: normalizePrimaryPain(body.primaryPain) };
   maybeCreateDealForDiscovery(store, record);
   upsertContactStamp(store, record);
   store.contacts.unshift(record);
@@ -90,7 +106,15 @@ export async function PUT(req: Request) {
   const idx = store.contacts.findIndex((c) => c.id === body.id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const updated = { ...store.contacts[idx], ...body, status: normalizeStatus(body.status), primaryPain: normalizePrimaryPain(body.primaryPain), updatedAt: now() };
+  const status = normalizeStatus(body.status);
+  const email = normalizeEmail(body.email);
+  if (statusNeedsEmail(status) && !email) {
+    return NextResponse.json({ error: "Email is required for Connected and later stages" }, { status: 400 });
+  }
+  if (email && store.contacts.some((c: any, i: number) => i !== idx && normalizeEmail(c.email) === email)) {
+    return NextResponse.json({ error: "A contact with this email already exists" }, { status: 400 });
+  }
+  const updated = { ...store.contacts[idx], ...body, status, email, primaryPain: normalizePrimaryPain(body.primaryPain), updatedAt: now() };
   maybeCreateDealForDiscovery(store, updated);
   upsertContactStamp(store, updated);
   store.contacts[idx] = updated;
