@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getStore, now, DEAL_STAGES } from "@/lib/crm-store";
-import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair } from "lucide-react";
+import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX } from "lucide-react";
 
 export default async function CrmHome() {
   const store = await getStore();
@@ -10,7 +10,9 @@ export default async function CrmHome() {
   const oneWeekAgo = currentMs - 7 * 24 * 60 * 60 * 1000;
 
   const openDeals = store.deals.filter((d) => d.stage !== "Launch paid (won)" && d.stage !== "Lost");
-  const activeClients = store.deals.filter((d) => d.stage === "Launch paid (won)").length;
+  const wonDeals = store.deals.filter((d) => d.stage === "Launch paid (won)");
+  const lostDeals = store.deals.filter((d) => d.stage === "Lost");
+  const activeClients = wonDeals.length;
 
   const activitiesThisWeek = (store.activities || []).filter((a) => {
     const ts = a.occurredAt || a.createdAt;
@@ -39,7 +41,8 @@ export default async function CrmHome() {
       ? `Strong posture. ${activeClients} active client(s) in delivery. Keep filling top-of-funnel while momentum is high.`
       : "Pipeline is clean. Push top-of-funnel and convert Discovery to Fit meetings this week.";
 
-  const weightedByStage = DEAL_STAGES.map((stage) => {
+  const openStageSet = new Set(["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"]);
+  const weightedByStage = DEAL_STAGES.filter((stage) => openStageSet.has(stage)).map((stage) => {
     const deals = (store.deals || []).filter((d) => d.stage === stage);
     const total = deals.reduce((sum, d) => sum + Number(d.value || 0), 0);
     const weighted = deals.reduce((sum, d) => sum + Number(d.value || 0) * (Number(d.probability || 0) / 100), 0);
@@ -105,7 +108,7 @@ export default async function CrmHome() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold">Funnel</h2>
+        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Funnel size={18} /> Funnel</h2>
         <div className="grid gap-4 md:grid-cols-3">
           <Card icon={<Users size={16} />} label="Contacts" value={store.contacts.length} href="/crm/contacts" />
           <Card icon={<BriefcaseBusiness size={16} />} label="Open Deals" value={openDeals.length} href="/crm/deals" />
@@ -114,7 +117,7 @@ export default async function CrmHome() {
       </section>
 
       <section className="crm-card p-4">
-        <h2 className="mb-3 text-lg font-semibold">Pipeline</h2>
+        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><BarChart3 size={18} /> Open Pipeline</h2>
         <div className="overflow-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-neutral-800 text-slate-400">
@@ -146,12 +149,56 @@ export default async function CrmHome() {
       </section>
 
       <section className="crm-card p-4">
-        <h2 className="mb-3 text-lg font-semibold">Conversion rates</h2>
+        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Percent size={18} /> Conversion rates</h2>
         <ul className="space-y-2 text-sm">
           <li className="flex items-center justify-between"><span>Connected → Discovery booked</span><span className="font-semibold">{conversion.connectedToDiscoveryBooked}%</span></li>
           <li className="flex items-center justify-between"><span>Discovery completed → Fit booked</span><span className="font-semibold">{conversion.discoveryToFitBooked}%</span></li>
           <li className="flex items-center justify-between"><span>Fit completed → Won</span><span className="font-semibold">{conversion.fitCompletedToWon}%</span></li>
         </ul>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="crm-card p-4">
+          <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Trophy size={18} /> Won deals</h2>
+          <div className="overflow-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-neutral-800 text-slate-400">
+                <tr><th className="px-2 py-2 text-left">Deal</th><th className="px-2 py-2 text-left">Company</th><th className="px-2 py-2 text-right">Amount</th></tr>
+              </thead>
+              <tbody>
+                {wonDeals.map((d) => (
+                  <tr key={d.id} className="border-b border-neutral-900">
+                    <td className="px-2 py-2">{d.name || "Untitled deal"}</td>
+                    <td className="px-2 py-2">{d.company || "—"}</td>
+                    <td className="px-2 py-2 text-right">${Math.round(Number(d.value || 0)).toLocaleString()}</td>
+                  </tr>
+                ))}
+                {wonDeals.length === 0 && <tr><td className="px-2 py-3 text-slate-500" colSpan={3}>No won deals yet.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="crm-card p-4">
+          <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CircleX size={18} /> Lost deals</h2>
+          <div className="overflow-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-neutral-800 text-slate-400">
+                <tr><th className="px-2 py-2 text-left">Deal</th><th className="px-2 py-2 text-left">Company</th><th className="px-2 py-2 text-right">Amount</th></tr>
+              </thead>
+              <tbody>
+                {lostDeals.map((d) => (
+                  <tr key={d.id} className="border-b border-neutral-900">
+                    <td className="px-2 py-2">{d.name || "Untitled deal"}</td>
+                    <td className="px-2 py-2">{d.company || "—"}</td>
+                    <td className="px-2 py-2 text-right">${Math.round(Number(d.value || 0)).toLocaleString()}</td>
+                  </tr>
+                ))}
+                {lostDeals.length === 0 && <tr><td className="px-2 py-3 text-slate-500" colSpan={3}>No lost deals.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
     </div>
   );
