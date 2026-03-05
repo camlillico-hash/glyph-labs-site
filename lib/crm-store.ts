@@ -3,7 +3,7 @@ import path from "node:path";
 import { Pool } from "pg";
 
 export type Contact = { id: string; firstName?: string; lastName?: string; email?: string; phone?: string; linkedin?: string; company?: string; title?: string; type?: string; leadSource?: string; primaryPain?: "Execution" | "Strategy" | "Culture"; status?: string; tags?: string[]; notes?: string; lastActivityDate?: string; lastActivityType?: string; createdAt: string; updatedAt: string; };
-export type Deal = { id: string; name?: string; contactId?: string; company?: string; stage: string; clientStage?: "Launch" | "Active rhythm"; primaryPain?: "Execution" | "Strategy" | "Culture"; leadSource?: string; dailyRate?: number; launchFee?: number; annualFee?: number; value?: number; launchDay1Date?: string; launchDay2Date?: string; launchDay3Date?: string; nextQuarterlyDate?: string; nextAnnualDay1Date?: string; nextAnnualDay2Date?: string; probability?: number; expectedCloseDate?: string; nextStep?: string; lastActivityAt?: string; notes?: string; createdAt: string; updatedAt: string; };
+export type Deal = { id: string; name?: string; contactId?: string; company?: string; stage: string; clientStage?: "Launch" | "Active rhythm"; primaryPain?: "Execution" | "Strategy" | "Culture"; leadSource?: string; launchIncluded?: "Yes" | "No"; dailyRate?: number; launchFee?: number; annualFee?: number; value?: number; launchDay1Date?: string; launchDay2Date?: string; launchDay3Date?: string; nextQuarterlyDate?: string; nextAnnualDay1Date?: string; nextAnnualDay2Date?: string; probability?: number; expectedCloseDate?: string; nextStep?: string; lastActivityAt?: string; notes?: string; createdAt: string; updatedAt: string; };
 export type Task = { id: string; title: string; relatedType?: "contact" | "deal"; relatedId?: string; dueDate?: string; status?: "Not started" | "Completed" | "Canceled"; done: boolean; notes?: string; createdAt: string; updatedAt: string; };
 export type GmailMessage = { id: string; threadId?: string; from?: string; to?: string; subject?: string; date?: string; snippet?: string; };
 export type Activity = { id: string; contactId: string; type: "email" | "call" | "text" | "linkedin" | "in_person" | "meeting" | "task_completed"; note?: string; occurredAt: string; createdAt: string; updatedAt: string; };
@@ -48,11 +48,12 @@ function normalizeStore(store: CrmStore): CrmStore {
   const deals = (store.deals || []).map((d) => {
     const stage = mapLegacyDealStage(d.stage);
     const clientStage = stage === "Launch paid (won)" ? (d.clientStage || "Launch") : d.clientStage;
+    const launchIncluded: "Yes" | "No" = d.launchIncluded === "No" ? "No" : "Yes";
     const dailyRate = Number(d.dailyRate || 5000);
-    const launchFee = dailyRate * 3;
+    const launchFee = launchIncluded === "Yes" ? dailyRate * 3 : 0;
     const annualFee = dailyRate * 5;
     const amount = launchFee + annualFee;
-    return { ...d, stage, clientStage, dailyRate, launchFee, annualFee, value: amount, probability: DEAL_STAGE_WEIGHTS[stage] ?? 0 };
+    return { ...d, stage, clientStage, launchIncluded, dailyRate, launchFee, annualFee, value: amount, probability: DEAL_STAGE_WEIGHTS[stage] ?? 0 };
   });
   return { ...store, deals, dealStamps: store.dealStamps || [], contactStamps: store.contactStamps || [] };
 }

@@ -43,11 +43,12 @@ function normalizeClientStage(stage: string, clientStage: any) {
 }
 
 function computeFinancials(input: any) {
+  const launchIncluded = String(input.launchIncluded || "Yes") === "No" ? "No" : "Yes";
   const dailyRate = Number(input.dailyRate || 5000);
-  const launchFee = dailyRate * 3;
+  const launchFee = launchIncluded === "Yes" ? dailyRate * 3 : 0;
   const annualFee = dailyRate * 5;
   const amount = launchFee + annualFee;
-  return { dailyRate, launchFee, annualFee, value: amount };
+  return { launchIncluded, dailyRate, launchFee, annualFee, value: amount };
 }
 
 export async function GET() {

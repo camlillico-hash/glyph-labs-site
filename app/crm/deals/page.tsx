@@ -40,7 +40,7 @@ export default function DealsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const visibleDeals = useMemo(() => deals.filter((d) => d.stage !== "Launch paid (won)" && d.stage !== "Lost"), [deals]);
+  const visibleDeals = useMemo(() => deals, [deals]);
   const sortedDeals = useMemo(() => [...visibleDeals], [visibleDeals]);
 
   const contactName = (id?: string) => {
@@ -59,7 +59,7 @@ export default function DealsPage() {
     cancelInlineEdit();
   }
 
-  function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ stage: STAGES[0], dailyRate: 5000 }); setTrayError(""); }
+  function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ stage: STAGES[0], dailyRate: 5000, launchIncluded: "Yes" }); setTrayError(""); }
   function openTray(deal: any) { setSelected(deal); setDraft({ ...deal }); setEditMode(false); setCreateMode(false); setTrayError(""); }
   function closeTray() { setSelected(null); setDraft(null); setEditMode(false); setCreateMode(false); setTrayError(""); }
 
@@ -246,10 +246,11 @@ export default function DealsPage() {
               <Field label="Client stage" editMode={editMode || createMode} read={draft.clientStage || "—"}><select className="crm-input" value={draft.clientStage || ""} onChange={(e) => setDraft({ ...draft, clientStage: e.target.value || undefined })}><option value="">Not set</option>{CLIENT_STAGES.map((s) => <option key={s} value={s}>{s}</option>)}</select></Field>
               <Field label="Primary pain" editMode={editMode || createMode} read={draft.primaryPain || "—"}><select className="crm-input" value={draft.primaryPain || ""} onChange={(e) => setDraft({ ...draft, primaryPain: e.target.value || undefined })}><option value="">Not set</option>{PRIMARY_PAIN_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}</select></Field>
               <Field label="Lead source" editMode={editMode || createMode} read={draft.leadSource || "—"}><input className="crm-input" value={draft.leadSource || ""} onChange={(e) => setDraft({ ...draft, leadSource: e.target.value })} /></Field>
+              <Field label="Launch included" editMode={editMode || createMode} read={draft.launchIncluded || "Yes"}><select className="crm-input" value={draft.launchIncluded || "Yes"} onChange={(e) => setDraft({ ...draft, launchIncluded: e.target.value })}><option value="Yes">Yes</option><option value="No">No</option></select></Field>
               <Field label="Daily rate" editMode={editMode || createMode} read={money(draft.dailyRate || 5000)}><input type="number" className="crm-input" value={draft.dailyRate || 5000} onChange={(e) => setDraft({ ...draft, dailyRate: Number(e.target.value || 5000) })} /></Field>
-              <Field label="Launch fee" editMode={false} read={money((draft.dailyRate || 5000) * 3)}><span /></Field>
+              <Field label="Launch fee" editMode={false} read={money((draft.launchIncluded || "Yes") === "Yes" ? (draft.dailyRate || 5000) * 3 : 0)}><span /></Field>
               <Field label="Annual fee" editMode={false} read={money((draft.dailyRate || 5000) * 5)}><span /></Field>
-              <Field label="Amount" editMode={false} read={money((draft.dailyRate || 5000) * 8)}><span /></Field>
+              <Field label="Amount" editMode={false} read={money((((draft.launchIncluded || "Yes") === "Yes" ? 3 : 0) + 5) * (draft.dailyRate || 5000))}><span /></Field>
               <Field label="Stage weight" editMode={false} read={draft.probability !== undefined ? `${draft.probability}%` : "—"}><span /></Field>
               <Field label="Expected close date" editMode={editMode || createMode} read={draft.expectedCloseDate || "—"}><input type="date" className="crm-input" value={draft.expectedCloseDate || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, expectedCloseDate: e.target.value })} /></Field>
               <Field label="Launch Day 1" editMode={editMode || createMode} read={draft.launchDay1Date || "—"}><input type="date" className="crm-input" value={draft.launchDay1Date || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, launchDay1Date: e.target.value })} /></Field>
