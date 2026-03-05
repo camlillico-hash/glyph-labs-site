@@ -112,34 +112,6 @@ export default function Bos360Page() {
         </div>
       </section>
 
-      {/* ACCOLADES */}
-      <section className="mx-auto max-w-6xl px-6 pb-2">
-        <div className="grid gap-3 md:grid-cols-3">
-          <a
-            href="https://bos360.ca"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
-          >
-            <span aria-hidden>🏅</span>
-            BOS360 Certified Coach
-          </a>
-          <a
-            href="https://innovationcluster.ca/programs/mentors-advisors"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
-          >
-            <span aria-hidden>🏛️</span>
-            Expert in Residence · Innovation Cluster
-          </a>
-          <span className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100">
-            <span aria-hidden>🧭</span>
-            10+ years coaching experience
-          </span>
-        </div>
-      </section>
-
       {/* PILLARS */}
       <section className="mx-auto max-w-6xl px-6 py-10 md:py-12">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
@@ -298,6 +270,30 @@ export default function Bos360Page() {
                 focus is simple: build strong teams, sharpen strategy, and ensure execution
                 matches ambition.
               </p>
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <a
+                href="https://bos360.ca"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+              >
+                <img src="/badge-bos360.jpg" alt="BOS360" className="h-7 w-7 rounded object-cover" />
+                BOS360 Certified Coach
+              </a>
+              <a
+                href="https://innovationcluster.ca/programs/mentors-advisors"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+              >
+                <img src="/badge-innovation-cluster.jpg" alt="Innovation Cluster" className="h-7 w-7 rounded object-cover" />
+                Expert in Residence
+              </a>
+              <span className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-sm font-semibold text-orange-100">
+                10+ years coaching experience
+              </span>
             </div>
           </div>
 
