@@ -171,7 +171,7 @@ export default function Bos360Page() {
       <section className="border-y border-neutral-700 bg-neutral-900/40 py-16">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-            <span aria-hidden className="text-[#ed7d31]">⚡</span>
+            <span aria-hidden className="text-[#ed7d31]">✦</span>
             My BOS360 Coaching Approach
           </h2>
           <ol className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -204,7 +204,7 @@ export default function Bos360Page() {
       {/* PROOF */}
       <section id="proof" className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-[#ed7d31]">🏛️</span>
+          <span aria-hidden className="text-[#ed7d31]">✦</span>
           Why Founders Work With Me
         </h2>
 
@@ -346,7 +346,7 @@ export default function Bos360Page() {
 
           <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-8">
             <h3 className="flex items-center gap-2 text-2xl font-semibold">
-              <span aria-hidden className="text-[#ed7d31]">🚀</span>
+              <span aria-hidden className="text-[#ed7d31]">✦</span>
               Ready to Scale with More Clarity?
             </h3>
             <p className="mt-3 text-slate-300">
@@ -375,7 +375,7 @@ export default function Bos360Page() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-[#ed7d31]">📚</span>
+          <span aria-hidden className="text-[#ed7d31]">✦</span>
           Recommended reads
         </h2>
         <p className="mt-3 max-w-4xl text-slate-300">
