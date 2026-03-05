@@ -89,10 +89,8 @@ export default function TasksPage() {
     setError("");
     const res = await fetch('/api/crm/tasks', { method: createMode ? 'POST' : 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(draft) });
     if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error || 'Could not save task'); return; }
-    const fresh = await res.json();
     await load();
-    if (fresh?.archived) { closeTray(); return; }
-    setSelected(fresh); setDraft(fresh); setCreateMode(false); setEditMode(false);
+    closeTray();
   }
 
   async function deleteTask(id: string) { await fetch(`/api/crm/tasks?id=${id}`, { method: 'DELETE' }); await load(); if (selected?.id === id) closeTray(); }

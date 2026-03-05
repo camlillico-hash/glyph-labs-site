@@ -81,10 +81,9 @@ export default function ContactsPage() {
     const isCreate = createMode;
     const res = await fetch("/api/crm/contacts", { method: isCreate ? "POST" : "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(draft) });
     if (!res.ok) { const j = await res.json().catch(() => ({})); setTrayError(j.error || "Could not save contact"); return; }
-    const fresh = await res.json();
     await load();
     if (isCreate && createAnother) { setDraft({ status: "New" }); setCreateMode(true); setEditMode(true); return; }
-    setSelected(fresh); setDraft(fresh); setCreateMode(false); setEditMode(false);
+    closeTray();
   }
 
   async function deleteFromTray() {

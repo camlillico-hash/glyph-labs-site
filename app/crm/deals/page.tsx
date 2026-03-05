@@ -67,9 +67,8 @@ export default function DealsPage() {
     const isCreate = createMode;
     const res = await fetch("/api/crm/deals", { method: isCreate ? "POST" : "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(draft) });
     if (!res.ok) { const j = await res.json().catch(() => ({})); setTrayError(j.error || "Could not save deal"); return; }
-    const fresh = await res.json();
     await load();
-    setSelected(fresh); setDraft(fresh); setCreateMode(false); setEditMode(false);
+    closeTray();
   }
 
   async function deleteFromTray() {
