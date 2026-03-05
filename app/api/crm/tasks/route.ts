@@ -12,17 +12,27 @@ function normalizeStatus(body: any) {
 
 function validateTaskPayload(body: any, store: any) {
   if (!String(body.title || "").trim()) return "Task title is required";
-  if (body.relatedType !== "contact") return "Tasks must be associated to a contact";
-  if (!String(body.relatedId || "").trim()) return "Linked contact is required";
+  if (body.relatedType !== "contact" && body.relatedType !== "deal") return "Tasks must be associated to a contact or deal";
+  if (!String(body.relatedId || "").trim()) return body.relatedType === "deal" ? "Linked deal is required" : "Linked contact is required";
+  if (body.relatedType === "deal") {
+    const dealExists = store.deals.some((d: any) => d.id === body.relatedId);
+    if (!dealExists) return "Linked deal not found";
+    return null;
+  }
   const contactExists = store.contacts.some((c: any) => c.id === body.relatedId);
   if (!contactExists) return "Linked contact not found";
   return null;
 }
 
 function archiveTaskAsActivity(store: any, task: any) {
+  const contactId = task.relatedType === "deal"
+    ? (store.deals.find((d: any) => d.id === task.relatedId)?.contactId || "")
+    : task.relatedId;
+  if (!contactId) return;
+
   const activity = {
     id: id(),
-    contactId: task.relatedId,
+    contactId,
     type: "task_completed",
     note: `Task completed: ${task.title}${task.notes ? ` — ${task.notes}` : ""}`,
     occurredAt: now(),
@@ -30,7 +40,7 @@ function archiveTaskAsActivity(store: any, task: any) {
     updatedAt: now(),
   };
   store.activities = [activity, ...(store.activities || [])];
-  const cidx = (store.contacts || []).findIndex((c: any) => c.id === task.relatedId);
+  const cidx = (store.contacts || []).findIndex((c: any) => c.id === contactId);
   if (cidx >= 0) {
     store.contacts[cidx] = { ...store.contacts[cidx], lastActivityDate: activity.occurredAt, lastActivityType: "task_completed", updatedAt: now() };
   }

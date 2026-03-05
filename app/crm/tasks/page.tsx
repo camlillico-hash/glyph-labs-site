@@ -8,6 +8,7 @@ const TASK_STATUSES = ["Not started", "Completed", "Canceled"];
 export default function TasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
+  const [deals, setDeals] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [view, setView] = useState<"bucket" | "table">("table");
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
@@ -25,7 +26,9 @@ export default function TasksPage() {
     const tasksRes = await (await fetch('/api/crm/tasks', { cache: 'no-store' })).json();
     setTasks(Array.isArray(tasksRes) ? tasksRes : tasksRes.tasks || []);
     const contactsRes = await (await fetch('/api/crm/contacts', { cache: 'no-store' })).json();
+    const dealsRes = await (await fetch('/api/crm/deals', { cache: 'no-store' })).json();
     setContacts(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
+    setDeals(Array.isArray(dealsRes) ? dealsRes : dealsRes.deals || []);
   };
   useEffect(() => { load(); }, []);
 
@@ -33,6 +36,11 @@ export default function TasksPage() {
     const c = contacts.find((x) => x.id === id);
     return c ? `${c.firstName || ''} ${c.lastName || ''}`.trim() : 'Unknown contact';
   };
+  const dealName = (id?: string) => {
+    const d = deals.find((x) => x.id === id);
+    return d ? (d.name || 'Untitled deal') : 'Unknown deal';
+  };
+  const relatedLabel = (task: any) => task.relatedType === 'deal' ? `Deal: ${dealName(task.relatedId)}` : `Contact: ${contactName(task.relatedId)}`;
 
   const sorted = useMemo(() => [...tasks], [tasks]);
 
@@ -44,7 +52,7 @@ export default function TasksPage() {
   function cancelInlineEdit() { setEditingId(null); setInlineDraft(null); }
   async function saveInlineEdit() {
     if (!inlineDraft) return;
-    const res = await fetch('/api/crm/tasks', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...inlineDraft, relatedType: 'contact' }) });
+    const res = await fetch('/api/crm/tasks', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(inlineDraft) });
     if (!res.ok) return;
     await load();
     cancelInlineEdit();
@@ -55,7 +63,7 @@ export default function TasksPage() {
     await fetch('/api/crm/tasks', {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...task, status: 'Completed', relatedType: 'contact' }),
+      body: JSON.stringify({ ...task, status: 'Completed' }),
     });
     setTimeout(async () => {
       setFadingIds((ids) => ids.filter((x) => x !== task.id));
@@ -71,7 +79,7 @@ export default function TasksPage() {
     await fetch('/api/crm/tasks', {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...task, status, relatedType: 'contact' }),
+      body: JSON.stringify({ ...task, status }),
     });
     await load();
   }
@@ -79,7 +87,7 @@ export default function TasksPage() {
   async function saveTask() {
     if (!draft) return;
     setError("");
-    const res = await fetch('/api/crm/tasks', { method: createMode ? 'POST' : 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...draft, relatedType: 'contact' }) });
+    const res = await fetch('/api/crm/tasks', { method: createMode ? 'POST' : 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(draft) });
     if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error || 'Could not save task'); return; }
     const fresh = await res.json();
     await load();
@@ -112,7 +120,7 @@ export default function TasksPage() {
                   {sorted.filter((t) => (t.status || (t.done ? "Completed" : "Not started")) === status).map((t) => (
                     <button key={t.id} draggable onDragStart={() => setDraggingTaskId(t.id)} onDragEnd={() => setDraggingTaskId(null)} className={`crm-card w-full p-3 text-left cursor-grab transition-opacity ${fadingIds.includes(t.id) ? 'opacity-0' : 'opacity-100'}`} onClick={() => openTask(t)}>
                       <p className="font-medium">{t.title}</p>
-                      <p className="text-xs text-emerald-300">Contact: {contactName(t.relatedId)}</p>
+                      <p className="text-xs text-emerald-300">{relatedLabel(t)}</p>
                       <p className="text-xs text-slate-400">Due: {t.dueDate || '—'}</p>
                     </button>
                   ))}
@@ -137,7 +145,7 @@ export default function TasksPage() {
                       </button>
                     </td>
                     <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(t)}>{editing ? <input className="crm-input" value={inlineDraft.title || ''} onChange={(e)=>setInlineDraft({...inlineDraft, title:e.target.value})} /> : t.title}</td>
-                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(t)}>{editing ? <select className="crm-input" value={inlineDraft.relatedId || ''} onChange={(e)=>setInlineDraft({...inlineDraft, relatedId:e.target.value, relatedType:'contact'})}><option value="">Select linked contact *</option>{contacts.map((c)=> <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}</select> : contactName(t.relatedId)}</td>
+                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(t)}>{editing ? <select className="crm-input" value={inlineDraft.relatedId || ''} onChange={(e)=>setInlineDraft({...inlineDraft, relatedId:e.target.value})}>{inlineDraft.relatedType === 'deal' ? <><option value="">Select linked deal *</option>{deals.map((d)=> <option key={d.id} value={d.id}>{d.name || 'Untitled deal'}</option>)}</> : <><option value="">Select linked contact *</option>{contacts.map((c)=> <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}</>}</select> : relatedLabel(t)}</td>
                     <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(t)}>{editing ? <input type="date" className="crm-input" value={inlineDraft.dueDate || ''} onChange={(e)=>setInlineDraft({...inlineDraft, dueDate:e.target.value})} /> : (t.dueDate || '—')}</td>
                     <td className="px-3 py-2 text-slate-400">{t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "—"}</td>
                     <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(t)}>{editing ? <select className="crm-input" value={inlineDraft.status || 'Not started'} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{TASK_STATUSES.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : <span className={status === 'Completed' ? 'text-emerald-300' : status === 'Canceled' ? 'text-rose-300' : 'text-amber-300'}>{status}</span>}</td>
@@ -161,7 +169,8 @@ export default function TasksPage() {
             </div>
             <div className="mt-5 space-y-3">
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Task title</label>{(editMode || createMode) ? <input className="crm-input" value={draft.title || ''} onChange={(e) => setDraft({ ...draft, title: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.title || '—'}</p>}</div>
-              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Linked contact</label>{(editMode || createMode) ? <select className="crm-input" value={draft.relatedId || ''} onChange={(e) => setDraft({ ...draft, relatedId: e.target.value, relatedType: 'contact' })}><option value="">Select linked contact *</option>{contacts.map((c) => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{contactName(draft.relatedId)}</p>}</div>
+              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Related type</label>{(editMode || createMode) ? <select className="crm-input" value={draft.relatedType || 'contact'} onChange={(e) => setDraft({ ...draft, relatedType: e.target.value, relatedId: '' })}><option value="contact">Contact</option><option value="deal">Deal</option></select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.relatedType || 'contact'}</p>}</div>
+              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Linked record</label>{(editMode || createMode) ? <select className="crm-input" value={draft.relatedId || ''} onChange={(e) => setDraft({ ...draft, relatedId: e.target.value })}>{(draft.relatedType || 'contact') === 'deal' ? <><option value="">Select linked deal *</option>{deals.map((d) => <option key={d.id} value={d.id}>{d.name || 'Untitled deal'}</option>)}</> : <><option value="">Select linked contact *</option>{contacts.map((c) => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}</>}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{(draft.relatedType || 'contact') === 'deal' ? dealName(draft.relatedId) : contactName(draft.relatedId)}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Task status</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || 'Not started'} onChange={(e)=>setDraft({...draft, status:e.target.value})}>{TASK_STATUSES.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.status || 'Not started'}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Due date</label>{(editMode || createMode) ? <input type="date" className="crm-input" value={draft.dueDate || ''} onChange={(e) => setDraft({ ...draft, dueDate: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.dueDate || '—'}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>{(editMode || createMode) ? <textarea className="crm-input min-h-28" value={draft.notes || ''} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{draft.notes || '—'}</p>}</div>
