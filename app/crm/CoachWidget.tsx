@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronUp, ChevronDown, Flame, Hammer, Heart } from "lucide-react";
 
 export default function CoachWidget({ mode = "desktop-inline" }: { mode?: "desktop-inline" | "mobile-accordion" }) {
   const [data, setData] = useState<any>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopExpanded, setDesktopExpanded] = useState(false);
+  const [desktopCanExpand, setDesktopCanExpand] = useState(false);
+  const desktopMsgRef = useRef<HTMLParagraphElement | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -21,6 +24,19 @@ export default function CoachWidget({ mode = "desktop-inline" }: { mode?: "deskt
       clearInterval(t);
     };
   }, []);
+
+  useEffect(() => {
+    const measure = () => {
+      const el = desktopMsgRef.current;
+      if (!el) return;
+      const over = el.scrollHeight > el.clientHeight + 1;
+      setDesktopCanExpand(over);
+      if (!over) setDesktopExpanded(false);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [data?.message, desktopExpanded]);
 
   if (!data) return null;
 
@@ -75,7 +91,25 @@ export default function CoachWidget({ mode = "desktop-inline" }: { mode?: "deskt
             <Icon size={12} /> {data.statusLabel}
           </span>
         </div>
-        <p className="truncate text-sm text-slate-200">{data.message}</p>
+        <div className="flex items-start gap-1">
+          <p
+            ref={desktopMsgRef}
+            className="text-sm text-slate-200"
+            style={desktopExpanded ? undefined : { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+          >
+            {data.message}
+          </p>
+          {desktopCanExpand && (
+            <button
+              type="button"
+              className="mt-0.5 rounded p-0.5 text-slate-300 hover:bg-neutral-800"
+              onClick={() => setDesktopExpanded((v) => !v)}
+              aria-label={desktopExpanded ? "Collapse message" : "Expand message"}
+            >
+              {desktopExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
