@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { BriefcaseBusiness, Plus, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List, Archive } from "lucide-react";
 
 const STAGES = ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)", "Lost"];
-const OPEN_STAGES = ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"];
 const CLIENT_STAGES = ["Launch", "Active rhythm"];
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
@@ -137,7 +136,7 @@ export default function DealsPage() {
 
       {view === "bucket" ? (
         <div className="overflow-x-auto pb-2"><div className="flex gap-4 min-w-max">
-          {OPEN_STAGES.map((stage) => (
+          {STAGES.map((stage) => (
             <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStage === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStage(stage)} onDragLeave={() => setHoverStage((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingDealId) return; await moveDealStage(draggingDealId, stage); setDraggingDealId(null); setHoverStage(null); setHoverDrop(null); }}>
               <h3 className="mb-3 font-semibold text-emerald-300">{stageLabel(stage, STAGES.indexOf(stage))}</h3>
               <div className="min-h-10">
