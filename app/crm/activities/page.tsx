@@ -80,13 +80,13 @@ export default function ActivitiesPage() {
       {createOpen && (
         <div className="fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/55" onClick={() => setCreateOpen(false)} />
-          <aside className="absolute right-0 top-0 h-full w-full max-w-xl border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
+          <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-xl font-semibold">New activity</h2>
               <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => setCreateOpen(false)}><X size={14} /> Close</button>
             </div>
 
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Activity type</label>
                 <select className="crm-input" value={draft.type || "email"} onChange={(e) => setDraft({ ...draft, type: e.target.value })}>

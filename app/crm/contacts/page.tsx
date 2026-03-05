@@ -163,7 +163,7 @@ export default function ContactsPage() {
       {importOpen && (
         <div className="fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/55" onClick={() => setImportOpen(false)} />
-          <aside className="absolute right-0 top-0 h-full w-full max-w-xl border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
+          <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-xl font-semibold">Import contacts from CSV</h2>
               <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => setImportOpen(false)}><X size={14} /> Close</button>
@@ -219,13 +219,13 @@ export default function ContactsPage() {
 
       {draft && (
         <div className="fixed inset-0 z-40"><div className="absolute inset-0 bg-black/55" onClick={closeTray} />
-          <aside className="absolute right-0 top-0 h-full w-full max-w-xl border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
+          <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? "New contact" : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" onClick={() => setEditMode(true)}><Pencil size={14} /> Edit</button> : <><button className="crm-btn inline-flex items-center gap-1.5" onClick={() => saveContact(false)}><Save size={14} /> Save</button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => saveContact(true)}><Plus size={14} /> Create and add another</button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><CornerUpLeft size={14} /> Cancel</button>}</>}
               {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" onClick={() => { if (!confirm("Are you sure you want to delete this record?")) return; deleteFromTray(); }}><Trash2 size={14} /> Delete</button>}
             </div>
-            <div className="mt-5 space-y-3 overflow-auto pb-10">
+            <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
               {contactFields.map(([k, label, type]) => (
                 <div key={k}>
                   <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">{label}</label>
