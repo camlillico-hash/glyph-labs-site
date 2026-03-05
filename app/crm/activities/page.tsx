@@ -13,6 +13,11 @@ const TYPES = [
   { value: "task_completed", label: "Task completed" },
 ];
 
+const openPicker = (e: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
+  const el = e.currentTarget as HTMLInputElement & { showPicker?: () => void };
+  el.showPicker?.();
+};
+
 export default function ActivitiesPage() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
@@ -104,7 +109,7 @@ export default function ActivitiesPage() {
 
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Occurred at</label>
-                <input type="datetime-local" className="crm-input" value={draft.occurredAtLocal || ""} onChange={(e) => setDraft({ ...draft, occurredAtLocal: e.target.value })} />
+                <input type="datetime-local" className="crm-input" value={draft.occurredAtLocal || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, occurredAtLocal: e.target.value })} />
               </div>
 
               <div>

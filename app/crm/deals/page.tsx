@@ -8,6 +8,10 @@ const CLIENT_STAGES = ["Launch", "Active rhythm"];
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 const money = (n?: number) => `$${Math.round(Number(n || 0)).toLocaleString()}`;
+const openPicker = (e: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
+  const el = e.currentTarget as HTMLInputElement & { showPicker?: () => void };
+  el.showPicker?.();
+};
 
 export default function DealsPage() {
   const [deals, setDeals] = useState<any[]>([]);
@@ -196,13 +200,13 @@ export default function DealsPage() {
               <Field label="Launch fee" editMode={editMode || createMode} read={draft.value ? money(draft.value) : "—"}><input type="number" className="crm-input" value={draft.value || ""} onChange={(e) => setDraft({ ...draft, value: Number(e.target.value || 0) })} /></Field>
               <Field label="Quarterly fee" editMode={editMode || createMode} read={draft.quarterlyFee ? money(draft.quarterlyFee) : "—"}><input type="number" className="crm-input" value={draft.quarterlyFee || ""} onChange={(e) => setDraft({ ...draft, quarterlyFee: Number(e.target.value || 0) })} /></Field>
               <Field label="Stage weight" editMode={false} read={draft.probability !== undefined ? `${draft.probability}%` : "—"}><span /></Field>
-              <Field label="Expected close date" editMode={editMode || createMode} read={draft.expectedCloseDate || "—"}><input type="date" className="crm-input" value={draft.expectedCloseDate || ""} onChange={(e) => setDraft({ ...draft, expectedCloseDate: e.target.value })} /></Field>
-              <Field label="Launch Day 1" editMode={editMode || createMode} read={draft.launchDay1Date || "—"}><input type="date" className="crm-input" value={draft.launchDay1Date || ""} onChange={(e) => setDraft({ ...draft, launchDay1Date: e.target.value })} /></Field>
-              <Field label="Launch Day 2" editMode={editMode || createMode} read={draft.launchDay2Date || "—"}><input type="date" className="crm-input" value={draft.launchDay2Date || ""} onChange={(e) => setDraft({ ...draft, launchDay2Date: e.target.value })} /></Field>
-              <Field label="Launch Day 3" editMode={editMode || createMode} read={draft.launchDay3Date || "—"}><input type="date" className="crm-input" value={draft.launchDay3Date || ""} onChange={(e) => setDraft({ ...draft, launchDay3Date: e.target.value })} /></Field>
-              <Field label="Next quarterly date" editMode={editMode || createMode} read={draft.nextQuarterlyDate || "—"}><input type="date" className="crm-input" value={draft.nextQuarterlyDate || ""} onChange={(e) => setDraft({ ...draft, nextQuarterlyDate: e.target.value })} /></Field>
-              <Field label="Next annual Day 1" editMode={editMode || createMode} read={draft.nextAnnualDay1Date || "—"}><input type="date" className="crm-input" value={draft.nextAnnualDay1Date || ""} onChange={(e) => setDraft({ ...draft, nextAnnualDay1Date: e.target.value })} /></Field>
-              <Field label="Next annual Day 2" editMode={editMode || createMode} read={draft.nextAnnualDay2Date || "—"}><input type="date" className="crm-input" value={draft.nextAnnualDay2Date || ""} onChange={(e) => setDraft({ ...draft, nextAnnualDay2Date: e.target.value })} /></Field>
+              <Field label="Expected close date" editMode={editMode || createMode} read={draft.expectedCloseDate || "—"}><input type="date" className="crm-input" value={draft.expectedCloseDate || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, expectedCloseDate: e.target.value })} /></Field>
+              <Field label="Launch Day 1" editMode={editMode || createMode} read={draft.launchDay1Date || "—"}><input type="date" className="crm-input" value={draft.launchDay1Date || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, launchDay1Date: e.target.value })} /></Field>
+              <Field label="Launch Day 2" editMode={editMode || createMode} read={draft.launchDay2Date || "—"}><input type="date" className="crm-input" value={draft.launchDay2Date || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, launchDay2Date: e.target.value })} /></Field>
+              <Field label="Launch Day 3" editMode={editMode || createMode} read={draft.launchDay3Date || "—"}><input type="date" className="crm-input" value={draft.launchDay3Date || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, launchDay3Date: e.target.value })} /></Field>
+              <Field label="Next quarterly date" editMode={editMode || createMode} read={draft.nextQuarterlyDate || "—"}><input type="date" className="crm-input" value={draft.nextQuarterlyDate || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, nextQuarterlyDate: e.target.value })} /></Field>
+              <Field label="Next annual Day 1" editMode={editMode || createMode} read={draft.nextAnnualDay1Date || "—"}><input type="date" className="crm-input" value={draft.nextAnnualDay1Date || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, nextAnnualDay1Date: e.target.value })} /></Field>
+              <Field label="Next annual Day 2" editMode={editMode || createMode} read={draft.nextAnnualDay2Date || "—"}><input type="date" className="crm-input" value={draft.nextAnnualDay2Date || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, nextAnnualDay2Date: e.target.value })} /></Field>
               <Field label="Next step" editMode={editMode || createMode} read={draft.nextStep || "—"}><input className="crm-input" value={draft.nextStep || ""} onChange={(e) => setDraft({ ...draft, nextStep: e.target.value })} /></Field>
               <Field label="Notes" editMode={editMode || createMode} read={draft.notes || "—"}><textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} /></Field>
               {error && <p className="text-sm text-red-300">{error}</p>}

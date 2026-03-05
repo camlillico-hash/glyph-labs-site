@@ -14,6 +14,10 @@ const contactFields: Array<[string, string, string]> = [
   ["linkedin", "LinkedIn", "text"], ["company", "Company", "text"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"],
 ];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
+const openPicker = (e: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
+  const el = e.currentTarget as HTMLInputElement & { showPicker?: () => void };
+  el.showPicker?.();
+};
 
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
@@ -260,7 +264,7 @@ export default function ContactsPage() {
                       <option value="in_person">In person</option>
                       <option value="meeting">Meeting</option>
                     </select>
-                    <input type="datetime-local" className="crm-input" value={activityDraft.occurredAtLocal || ""} onChange={(e) => setActivityDraft({ ...activityDraft, occurredAtLocal: e.target.value, contactId: selected.id })} />
+                    <input type="datetime-local" className="crm-input" value={activityDraft.occurredAtLocal || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setActivityDraft({ ...activityDraft, occurredAtLocal: e.target.value, contactId: selected.id })} />
                   </div>
                   <textarea className="crm-input mt-2" placeholder="Activity note" value={activityDraft.note || ""} onChange={(e) => setActivityDraft({ ...activityDraft, note: e.target.value, contactId: selected.id })} />
                   {activityError && <p className="mt-2 text-sm text-red-300">{activityError}</p>}
