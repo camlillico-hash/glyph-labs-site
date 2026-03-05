@@ -70,7 +70,7 @@ const reads = [
   {
     title: "The Science of Scaling",
     author: "Dr. Benjamin Hardy",
-    rating: "Goodreads rating pending",
+    rating: "4.3 Goodreads",
     cover: "https://covers.openlibrary.org/b/title/The%20Science%20of%20Scaling-L.jpg",
   },
   {
