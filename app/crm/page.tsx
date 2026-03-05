@@ -34,12 +34,28 @@ export default async function CrmHome() {
     const t = new Date(d.updatedAt || d.createdAt).getTime();
     return Number.isFinite(t) && t < currentMs - 7 * 24 * 60 * 60 * 1000;
   }).length;
+  const doneTasks = (store.tasks || []).filter((t: any) => t.done || t.status === "Completed").length;
+  const lastUpdatedAt = [
+    ...store.contacts.map((c) => c.updatedAt),
+    ...store.deals.map((d) => d.updatedAt),
+    ...store.tasks.map((t) => t.updatedAt),
+  ].filter(Boolean).sort().reverse()[0];
+  const staleDays = lastUpdatedAt ? (currentMs - new Date(lastUpdatedAt).getTime()) / (1000 * 60 * 60 * 24) : 999;
+  const latestWonAt = wonDeals.map((d) => d.updatedAt || d.createdAt).filter(Boolean).sort().reverse()[0];
+  const latestWonHours = latestWonAt ? (currentMs - new Date(latestWonAt).getTime()) / (1000 * 60 * 60) : 999;
 
-  const glyphMood = overdueTasks.length > 0 || staleDeals > 0
-    ? { icon: Flame, color: "text-rose-300", nameColor: "text-rose-300", text: `Pressure rising: ${overdueTasks.length} overdue task(s), ${staleDeals} stale deal(s). Prioritize movement today.` }
-    : activeClients > 0
-      ? { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: `Strong posture. ${activeClients} active client(s) in delivery. Keep filling top-of-funnel while momentum is high.` }
-      : { icon: Hammer, color: "text-sky-300", nameColor: "text-sky-300", text: "Pipeline is clean. Push top-of-funnel and convert Discovery to Fit meetings this week." };
+  let glyphMood = { icon: Hammer, color: "text-sky-300", nameColor: "text-sky-300", text: "Nice pace. Now sharpen it: move 1 deal stage and complete 2 tasks before day-end." };
+  if (overdueTasks.length > 0 || staleDeals > 0 || staleDays > 2 || openDeals.length === 0) {
+    glyphMood = { icon: Flame, color: "text-rose-300", nameColor: "text-rose-300", text: `You’re drifting. ${overdueTasks.length} overdue task(s), ${staleDeals} stale deal(s). Execute now, excuses later.` };
+    if (openDeals.length === 0 && store.contacts.length > 0) glyphMood.text = "No open deals? That’s not a pipeline, that’s a wishlist. Promote a contact to Discovery now.";
+    if (store.contacts.length === 0) glyphMood.text = "Pipeline starts with people. Add 3 contacts today and stop hiding behind planning.";
+  }
+  if (wonDeals.length >= 1 && doneTasks >= 5 && overdueTasks.length === 0 && staleDeals === 0 && staleDays <= 1) {
+    glyphMood = { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: "Elite consistency. Keep pressure on: top up pipeline while conversion is hot." };
+  }
+  if (latestWonHours <= 24) {
+    glyphMood = { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: "New client closed — outstanding work. Enjoy the win for a minute, then get right back to prospecting so tomorrow-you has pipeline." };
+  }
   const GlyphMoodIcon = glyphMood.icon;
 
   const openStageSet = new Set(["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"]);
@@ -102,7 +118,7 @@ export default async function CrmHome() {
           )}
         </div>
         <div className="crm-card p-4">
-          <p className="mb-2 inline-flex items-center gap-1.5 text-sm text-slate-400"><CheckSquare size={14} /> Upcoming tasks</p>
+          <Link href="/crm/tasks" className="mb-2 inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200"><CheckSquare size={14} /> Upcoming tasks</Link>
           {upcomingTasks.length === 0 ? <p className="text-sm text-slate-500">No upcoming dated tasks.</p> : (
             <ul className="space-y-2 text-sm">
               {upcomingTasks.slice(0, 8).map((t) => <li key={t.id} className="text-slate-200">• {t.title} <span className="text-slate-400">({contactMap.get(t.relatedId || "") || "Unlinked"}, {t.dueDate})</span></li>)}

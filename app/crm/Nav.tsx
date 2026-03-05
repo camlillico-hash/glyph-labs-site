@@ -12,7 +12,7 @@ export default function Nav() {
   const pathname = usePathname();
   return (
     <nav className="flex items-center gap-1 text-sm">
-      <Link title="Command Post" aria-label="Command Post" className={navClass(pathname === '/crm')} href="/crm"><Crosshair size={18} /></Link>
+      <Link title="Command Post" aria-label="Command Post" className={`${navClass(pathname === '/crm')} text-[#ffb401]`} href="/crm"><Crosshair size={18} /></Link>
       <Link className={navClass(pathname.startsWith('/crm/contacts'))} href="/crm/contacts"><Users size={18} /><span className="hidden sm:inline"> Contacts</span></Link>
       <Link className={navClass(pathname.startsWith('/crm/deals'))} href="/crm/deals"><BriefcaseBusiness size={18} /><span className="hidden sm:inline"> Deals</span></Link>
       <Link className={navClass(pathname.startsWith('/crm/clients'))} href="/crm/clients"><Handshake size={18} /><span className="hidden sm:inline"> Clients</span></Link>

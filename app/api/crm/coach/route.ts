@@ -15,8 +15,8 @@ export async function GET() {
   const deals = store.deals || [];
   const tasks = store.tasks || [];
 
-  const openDeals = deals.filter((d) => d.stage !== "Client signed (won)" && d.stage !== "Lost");
-  const wonDeals = deals.filter((d) => d.stage === "Client signed (won)");
+  const openDeals = deals.filter((d) => d.stage !== "Launch paid (won)" && d.stage !== "Lost");
+  const wonDeals = deals.filter((d) => d.stage === "Launch paid (won)");
   const latestWonAt = wonDeals
     .map((d) => d.updatedAt || d.createdAt)
     .filter(Boolean)
@@ -25,7 +25,7 @@ export async function GET() {
   const latestWonHours = latestWonAt ? (Date.now() - new Date(latestWonAt).getTime()) / (1000 * 60 * 60) : 999;
 
   const overdueTasks = tasks.filter((t: any) => !t.done && t.dueDate && new Date(t.dueDate).getTime() < Date.now()).length;
-  const doneTasks = tasks.filter((t: any) => t.done || t.status === "Complete").length;
+  const doneTasks = tasks.filter((t: any) => t.done || t.status === "Completed").length;
 
   const lastUpdatedAt = [
     ...contacts.map((c) => c.updatedAt),
