@@ -19,8 +19,13 @@
   }
 }
 
+html, body {
+  background: #0a0a0a;
+  overscroll-behavior-y: none;
+}
+
 body {
-  background: var(--background);
+  background: #0a0a0a;
   color: var(--foreground);
   font-family: var(--font-libre-franklin), sans-serif;
 }
