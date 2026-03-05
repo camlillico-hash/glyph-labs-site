@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Users, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List, Plus, Upload, Linkedin } from "lucide-react";
+import { Users, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List, Plus, Upload, Linkedin, Archive } from "lucide-react";
 import Papa from "papaparse";
 
 type Contact = any;
@@ -22,6 +22,7 @@ const openPicker = (e: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTM
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
   const [gmail, setGmail] = useState<any[]>([]);
+  const [contactStamps, setContactStamps] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
   const [activityDraft, setActivityDraft] = useState<any>({ type: "email" });
   const [activityError, setActivityError] = useState("");
@@ -45,12 +46,14 @@ export default function ContactsPage() {
   const load = async () => {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
     setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
+    setContactStamps(Array.isArray(contactsRes) ? [] : contactsRes.contactStamps || []);
     setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
     setActivities(await (await fetch("/api/crm/activities", { cache: "no-store" })).json());
   };
   useEffect(() => { load(); }, []);
 
-  const sorted = useMemo(() => [...items], [items]);
+  const openItems = useMemo(() => items.filter((c) => (c.status || "New") !== "Discovery meeting booked" && (c.status || "New") !== "Not right now"), [items]);
+  const sorted = useMemo(() => [...openItems], [openItems]);
 
 
   const selectedActivities = useMemo(() => {
@@ -120,10 +123,16 @@ export default function ContactsPage() {
     await load();
   }
 
+  async function removeContactStamp(stampId: string) {
+    if (!confirm("Remove this won-contact placeholder?")) return;
+    await fetch(`/api/crm/contacts?stampId=${encodeURIComponent(stampId)}`, { method: "DELETE" });
+    await load();
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap"><Users size={20} /> Contacts ({items.length})</h1>
+        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap"><Users size={20} /> Contacts ({sorted.length})</h1>
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={openCreate}><Plus size={14} /> New</button>
           <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
@@ -139,7 +148,7 @@ export default function ContactsPage() {
       {view === "bucket" ? (
         <div className="overflow-x-auto pb-2">
           <div className="flex gap-4 min-w-max">
-            {CONTACT_STAGES.map((stage, i) => (
+            {CONTACT_STAGES.filter((s) => s !== "Discovery meeting booked" && s !== "Not right now").map((stage, i) => (
               <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStatus === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStatus(stage)} onDragLeave={() => setHoverStatus((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }}>
                 <h3 className="mb-3 font-semibold text-emerald-300">{stageLabel(stage, i)}</h3>
                 <div className="min-h-10">
@@ -206,6 +215,40 @@ export default function ContactsPage() {
         </div>
       )}
 
+      {(contactStamps.length > 0 || items.some((c) => (c.status || "New") === "Not right now")) && (
+        <div className="space-y-4">
+          {contactStamps.length > 0 && (
+            <div className="crm-card p-4">
+              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Past Wins</h3>
+              <div className="space-y-2">
+                {contactStamps.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
+                    <div>
+                      <p className="text-sm font-medium text-slate-100">{s.name || "Unnamed contact"}</p>
+                      <p className="text-xs text-slate-400">{s.email || "—"} · {s.company || "—"} · won {s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</p>
+                    </div>
+                    <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeContactStamp(s.id)}><Trash2 size={13} /> Remove</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {items.some((c) => (c.status || "New") === "Not right now") && (
+            <div className="crm-card p-4">
+              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Past Loses</h3>
+              <div className="space-y-2">
+                {items.filter((c) => (c.status || "New") === "Not right now").map((c) => (
+                  <div key={c.id} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
+                    <p className="text-sm font-medium text-slate-100">{c.firstName} {c.lastName}</p>
+                    <p className="text-xs text-slate-400">{c.email || "—"} · {c.company || "—"}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {importOpen && (
         <div className="fixed inset-0 z-40">

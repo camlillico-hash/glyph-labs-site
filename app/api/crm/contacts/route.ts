@@ -12,6 +12,22 @@ function normalizePrimaryPain(value: any) {
   return ["Execution", "Strategy", "Culture"].includes(v) ? v : undefined;
 }
 
+function upsertContactStamp(store: any, contact: any) {
+  if (contact.status !== "Discovery meeting booked") return;
+  const idx = (store.contactStamps || []).findIndex((s: any) => s.contactId === contact.id);
+  const stamp = {
+    id: idx >= 0 ? store.contactStamps[idx].id : id(),
+    contactId: contact.id,
+    name: `${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "Unnamed contact",
+    company: contact.company || "",
+    email: contact.email || "",
+    wonAt: idx >= 0 ? store.contactStamps[idx].wonAt : now(),
+    removedAt: undefined,
+  };
+  if (idx >= 0) store.contactStamps[idx] = stamp;
+  else store.contactStamps = [stamp, ...(store.contactStamps || [])];
+}
+
 function maybeCreateDealForDiscovery(store: any, contact: any) {
   if (contact.status !== "Discovery meeting booked") return;
   const exists = store.deals.some((d: any) => d.contactId === contact.id && d.stage !== "Lost");
@@ -46,7 +62,7 @@ export async function GET() {
       lastActivityType: c.lastActivityType || latest?.type || "",
     };
   });
-  return NextResponse.json({ contacts, stages: CONTACT_STAGES });
+  return NextResponse.json({ contacts, contactStamps: store.contactStamps || [], stages: CONTACT_STAGES });
 }
 
 export async function POST(req: Request) {
@@ -58,6 +74,7 @@ export async function POST(req: Request) {
   const store = await getStore();
   const record = { id: id(), createdAt: now(), updatedAt: now(), status: normalizeStatus(body.status), ...body, primaryPain: normalizePrimaryPain(body.primaryPain) };
   maybeCreateDealForDiscovery(store, record);
+  upsertContactStamp(store, record);
   store.contacts.unshift(record);
   await saveStore(store);
   return NextResponse.json(record);
@@ -75,6 +92,7 @@ export async function PUT(req: Request) {
 
   const updated = { ...store.contacts[idx], ...body, status: normalizeStatus(body.status), primaryPain: normalizePrimaryPain(body.primaryPain), updatedAt: now() };
   maybeCreateDealForDiscovery(store, updated);
+  upsertContactStamp(store, updated);
   store.contacts[idx] = updated;
 
   await saveStore(store);
@@ -84,7 +102,15 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
+  const stampId = searchParams.get("stampId");
   const store = await getStore();
+
+  if (stampId) {
+    store.contactStamps = (store.contactStamps || []).filter((s: any) => s.id !== stampId);
+    await saveStore(store);
+    return NextResponse.json({ ok: true });
+  }
+
   store.contacts = store.contacts.filter((c) => c.id !== id);
   await saveStore(store);
   return NextResponse.json({ ok: true });

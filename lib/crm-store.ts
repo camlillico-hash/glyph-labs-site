@@ -9,12 +9,13 @@ export type GmailMessage = { id: string; threadId?: string; from?: string; to?: 
 export type Activity = { id: string; contactId: string; type: "email" | "call" | "text" | "linkedin" | "in_person" | "meeting" | "task_completed"; note?: string; occurredAt: string; createdAt: string; updatedAt: string; };
 
 export type DealStamp = { id: string; dealId: string; name?: string; company?: string; contactId?: string; value?: number; wonAt: string; removedAt?: string };
+export type ContactStamp = { id: string; contactId: string; name?: string; company?: string; email?: string; wonAt: string; removedAt?: string };
 
-type CrmStore = { contacts: Contact[]; deals: Deal[]; dealStamps: DealStamp[]; tasks: Task[]; activities: Activity[]; gmail: { connectedAt?: string; messages: GmailMessage[]; tokens?: { access_token?: string; refresh_token?: string; expiry_date?: number; }; }; };
+type CrmStore = { contacts: Contact[]; contactStamps: ContactStamp[]; deals: Deal[]; dealStamps: DealStamp[]; tasks: Task[]; activities: Activity[]; gmail: { connectedAt?: string; messages: GmailMessage[]; tokens?: { access_token?: string; refresh_token?: string; expiry_date?: number; }; }; };
 
 const dataDir = path.join(process.cwd(), "data");
 const dbPath = path.join(dataDir, "crm.json");
-const initialStore: CrmStore = { contacts: [], deals: [], dealStamps: [], tasks: [], activities: [], gmail: { messages: [] } };
+const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], gmail: { messages: [] } };
 
 export const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"] as const;
 
@@ -53,7 +54,7 @@ function normalizeStore(store: CrmStore): CrmStore {
     const amount = launchFee + annualFee;
     return { ...d, stage, clientStage, dailyRate, launchFee, annualFee, value: amount, probability: DEAL_STAGE_WEIGHTS[stage] ?? 0 };
   });
-  return { ...store, deals, dealStamps: store.dealStamps || [] };
+  return { ...store, deals, dealStamps: store.dealStamps || [], contactStamps: store.contactStamps || [] };
 }
 
 async function ensureSchema() {
@@ -66,6 +67,12 @@ async function ensureSchema() {
       updated_at timestamptz default now()
     );
     create table if not exists crm_deals (
+      id text primary key,
+      data jsonb not null,
+      created_at timestamptz default now(),
+      updated_at timestamptz default now()
+    );
+    create table if not exists crm_contact_stamps (
       id text primary key,
       data jsonb not null,
       created_at timestamptz default now(),
@@ -102,8 +109,9 @@ async function ensureSchema() {
 async function getStorePg(): Promise<CrmStore> {
   if (!pool) throw new Error("No database");
   await ensureSchema();
-  const [contactsQ, dealsQ, dealStampsQ, tasksQ, activitiesQ, gmailQ] = await Promise.all([
+  const [contactsQ, contactStampsQ, dealsQ, dealStampsQ, tasksQ, activitiesQ, gmailQ] = await Promise.all([
     pool.query("select data from crm_contacts order by updated_at desc"),
+    pool.query("select data from crm_contact_stamps order by updated_at desc"),
     pool.query("select data from crm_deals order by updated_at desc"),
     pool.query("select data from crm_deal_stamps order by updated_at desc"),
     pool.query("select data from crm_tasks order by updated_at desc"),
@@ -113,6 +121,7 @@ async function getStorePg(): Promise<CrmStore> {
   const gmailData = gmailQ.rows[0]?.data || { messages: [] };
   return normalizeStore({
     contacts: contactsQ.rows.map((r: any) => r.data),
+    contactStamps: contactStampsQ.rows.map((r: any) => r.data),
     deals: dealsQ.rows.map((r: any) => r.data),
     dealStamps: dealStampsQ.rows.map((r: any) => r.data),
     tasks: tasksQ.rows.map((r: any) => r.data),
@@ -127,9 +136,12 @@ async function saveStorePg(store: CrmStore) {
   const client = await pool.connect();
   try {
     await client.query("begin");
-    await client.query("truncate crm_contacts, crm_deals, crm_deal_stamps, crm_tasks, crm_activities");
+    await client.query("truncate crm_contacts, crm_contact_stamps, crm_deals, crm_deal_stamps, crm_tasks, crm_activities");
     for (const c of store.contacts) {
       await client.query("insert into crm_contacts (id, data, updated_at) values ($1,$2,now())", [c.id, c]);
+    }
+    for (const s of (store.contactStamps || [])) {
+      await client.query("insert into crm_contact_stamps (id, data, updated_at) values ($1,$2,now())", [s.id, s]);
     }
     for (const d of store.deals) {
       await client.query("insert into crm_deals (id, data, updated_at) values ($1,$2,now())", [d.id, d]);
