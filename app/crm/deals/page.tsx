@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BriefcaseBusiness, Plus, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List, Archive } from "lucide-react";
 
 const STAGES = ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)", "Lost"];
+const OPEN_STAGES = ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"];
 const CLIENT_STAGES = ["Launch", "Active rhythm"];
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
@@ -40,7 +41,7 @@ export default function DealsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const visibleDeals = useMemo(() => deals, [deals]);
+  const visibleDeals = useMemo(() => deals.filter((d) => d.stage !== "Launch paid (won)" && d.stage !== "Lost"), [deals]);
   const sortedDeals = useMemo(() => [...visibleDeals], [visibleDeals]);
 
   const contactName = (id?: string) => {
@@ -136,7 +137,7 @@ export default function DealsPage() {
 
       {view === "bucket" ? (
         <div className="overflow-x-auto pb-2"><div className="flex gap-4 min-w-max">
-          {STAGES.map((stage) => (
+          {OPEN_STAGES.map((stage) => (
             <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStage === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStage(stage)} onDragLeave={() => setHoverStage((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingDealId) return; await moveDealStage(draggingDealId, stage); setDraggingDealId(null); setHoverStage(null); setHoverDrop(null); }}>
               <h3 className="mb-3 font-semibold text-emerald-300">{stageLabel(stage, STAGES.indexOf(stage))}</h3>
               <div className="min-h-10">
@@ -207,7 +208,10 @@ export default function DealsPage() {
                       <p className="text-sm font-medium text-slate-100">{s.name || "Untitled deal"} <span className="text-emerald-300">• {money(s.value)}</span></p>
                       <p className="text-xs text-slate-400">{s.company || "—"} · won {s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</p>
                     </div>
-                    <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /> Remove</button>
+                    <div className="flex gap-2">
+                      <button className="crm-btn-ghost inline-flex items-center gap-1" onClick={() => { const deal = deals.find((d) => d.id === s.dealId); if (deal) openTray(deal); }}>Open</button>
+                      <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /> Remove</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -219,9 +223,12 @@ export default function DealsPage() {
               <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Past Loses</h3>
               <div className="space-y-2">
                 {deals.filter((d) => d.stage === "Lost").map((d) => (
-                  <div key={d.id} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
-                    <p className="text-sm font-medium text-slate-100">{d.name || "Untitled deal"} <span className="text-rose-300">• {money(d.value)}</span></p>
-                    <p className="text-xs text-slate-400">{d.company || "—"} · lost {d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : "—"}</p>
+                  <div key={d.id} className="flex items-center justify-between rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
+                    <div>
+                      <p className="text-sm font-medium text-slate-100">{d.name || "Untitled deal"} <span className="text-rose-300">• {money(d.value)}</span></p>
+                      <p className="text-xs text-slate-400">{d.company || "—"} · lost {d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : "—"}</p>
+                    </div>
+                    <button className="crm-btn-ghost inline-flex items-center gap-1" onClick={() => openTray(d)}>Open</button>
                   </div>
                 ))}
               </div>
