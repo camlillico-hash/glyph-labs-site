@@ -71,7 +71,7 @@ const reads = [
     title: "The Science of Scaling",
     author: "Dr. Benjamin Hardy",
     rating: "4.3 Goodreads",
-    cover: "https://covers.openlibrary.org/b/isbn/1401967639-L.jpg",
+    cover: "/books/science-of-scaling.jpg",
   },
   {
     title: "The Five Dysfunctions of a Team",
