@@ -27,10 +27,10 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
       )}
       <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-6">{children}</div>
       {!isLogin && (
-        <footer className="border-t border-neutral-800/80 bg-neutral-900/45">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 text-xs text-slate-400">
-            <p>Glyph CRM</p>
-            <p className="text-slate-500">Built for focus, clarity, and execution.</p>
+        <footer className="border-t border-neutral-700 bg-neutral-900/90 shadow-[0_-8px_28px_rgba(0,0,0,.35)]">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-sm text-slate-300">
+            <p>© {new Date().getFullYear()} Glyph CRM</p>
+            <p className="text-slate-400">Sgt. Glyph says: no easy button — just clean pipeline and ruthless follow-through.</p>
           </div>
         </footer>
       )}

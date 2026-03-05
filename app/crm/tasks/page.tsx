@@ -14,7 +14,7 @@ export default function TasksPage() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [deals, setDeals] = useState<any[]>([]);
   const [error, setError] = useState("");
-  const [view, setView] = useState<"bucket" | "table">("bucket");
+  const [view, setView] = useState<"bucket" | "table">("table");
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [hoverTaskStatus, setHoverTaskStatus] = useState<string | null>(null);
   const [hoverDrop, setHoverDrop] = useState<{ status: string; index: number } | null>(null);

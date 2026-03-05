@@ -29,7 +29,7 @@ export default function ContactsPage() {
   const [draggingContactId, setDraggingContactId] = useState<string | null>(null);
   const [hoverStatus, setHoverStatus] = useState<string | null>(null);
   const [hoverDrop, setHoverDrop] = useState<{ status: string; index: number } | null>(null);
-  const [view, setView] = useState<"bucket" | "table">("bucket");
+  const [view, setView] = useState<"bucket" | "table">("table");
 
   const [selected, setSelected] = useState<Contact | null>(null);
   const [draft, setDraft] = useState<any>(null);

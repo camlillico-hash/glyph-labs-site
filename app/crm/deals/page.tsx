@@ -21,7 +21,7 @@ export default function DealsPage() {
   const [draggingDealId, setDraggingDealId] = useState<string | null>(null);
   const [hoverStage, setHoverStage] = useState<string | null>(null);
   const [hoverDrop, setHoverDrop] = useState<{ stage: string; index: number } | null>(null);
-  const [view, setView] = useState<"bucket" | "table">("bucket");
+  const [view, setView] = useState<"bucket" | "table">("table");
 
   const [selected, setSelected] = useState<any>(null);
   const [draft, setDraft] = useState<any>(null);
