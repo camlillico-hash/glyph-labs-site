@@ -292,7 +292,6 @@ export default function Bos360Page() {
                 className="h-10 w-10 rounded-full border border-neutral-600 object-cover"
                 loading="lazy"
               />
-              <span aria-hidden className="text-[#ed7d31]">◉</span>
               About Cam Lillico
             </h2>
             <div className="mt-5 space-y-4 text-slate-300">
