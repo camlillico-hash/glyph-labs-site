@@ -27,11 +27,11 @@ export default function CoachWidget({ mode = "desktop-inline" }: { mode?: "deskt
 
   useEffect(() => {
     const measure = () => {
+      if (desktopExpanded) return;
       const el = desktopMsgRef.current;
       if (!el) return;
       const over = el.scrollHeight > el.clientHeight + 1;
       setDesktopCanExpand(over);
-      if (!over) setDesktopExpanded(false);
     };
     measure();
     window.addEventListener("resize", measure);
