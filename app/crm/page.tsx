@@ -77,7 +77,7 @@ export default async function CrmHome() {
     <div className="space-y-6">
       <div>
         <h1 className="inline-flex items-center gap-2 text-3xl font-bold"><Crosshair size={28} /> Command Post</h1>
-        <p className="mt-2 text-slate-400">Plan, direct, control, act, and make decisions.</p>
+        <p className="mt-2 text-slate-400">No easy button: stay informed, stay dangerous, and execute the next right move.</p>
       </div>
 
       <section className="grid gap-4 lg:grid-cols-3">
