@@ -51,7 +51,7 @@ export default function ClientsPage() {
             <tr>
               <th className="px-3 py-2 text-left">Client</th>
               <th className="px-3 py-2 text-left">Deal</th>
-              <th className="px-3 py-2 text-left">Value</th>
+              <th className="px-3 py-2 text-left">Amount</th>
               <th className="px-3 py-2 text-left">Signed</th>
               <th className="px-3 py-2 text-left">Client stage</th>
               <th className="px-3 py-2 text-left">Actions</th>

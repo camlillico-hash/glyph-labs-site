@@ -42,6 +42,14 @@ function normalizeClientStage(stage: string, clientStage: any) {
   return "Launch";
 }
 
+function computeFinancials(input: any) {
+  const dailyRate = Number(input.dailyRate || 5000);
+  const launchFee = dailyRate * 3;
+  const annualFee = dailyRate * 5;
+  const amount = launchFee + annualFee;
+  return { dailyRate, launchFee, annualFee, value: amount };
+}
+
 export async function GET() {
   const store = await getStore();
   return NextResponse.json({ deals: store.deals, dealStamps: store.dealStamps || [], stages: DEAL_STAGES });
@@ -57,11 +65,13 @@ export async function POST(req: Request) {
   }
   const store = await getStore();
   const stage = normalizeStage(body.stage || DEAL_STAGES[0]);
+  const financials = computeFinancials(body);
   const record = {
     id: id(),
     createdAt: now(),
     updatedAt: now(),
     ...body,
+    ...financials,
     stage,
     probability: DEAL_STAGE_WEIGHTS[stage] ?? 0,
     primaryPain: normalizePrimaryPain(body.primaryPain),
@@ -85,9 +95,11 @@ export async function PUT(req: Request) {
   const idx = store.deals.findIndex((d) => d.id === body.id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const stage = normalizeStage(body.stage || store.deals[idx].stage);
+  const financials = computeFinancials({ ...store.deals[idx], ...body });
   store.deals[idx] = {
     ...store.deals[idx],
     ...body,
+    ...financials,
     stage,
     probability: DEAL_STAGE_WEIGHTS[stage] ?? 0,
     primaryPain: normalizePrimaryPain(body.primaryPain),
