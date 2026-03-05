@@ -114,28 +114,29 @@ export default function Bos360Page() {
 
       {/* ACCOLADES */}
       <section className="mx-auto max-w-6xl px-6 pb-2">
-        <div className="overflow-x-auto pb-1">
-          <div className="flex min-w-max items-stretch gap-3">
-            <a
-              href="https://bos360.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
-            >
-              BOS360 Certified Coach
-            </a>
-            <a
-              href="https://innovationcluster.ca"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
-            >
-              Expert in Residence · Innovation Cluster
-            </a>
-            <span className="inline-flex items-center rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100">
-              10+ years coaching experience
-            </span>
-          </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          <a
+            href="https://bos360.ca"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+          >
+            <span aria-hidden>🏅</span>
+            BOS360 Certified Coach
+          </a>
+          <a
+            href="https://innovationcluster.ca/programs/mentors-advisors"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+          >
+            <span aria-hidden>🏛️</span>
+            Expert in Residence · Innovation Cluster
+          </a>
+          <span className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-2 text-sm font-semibold text-orange-100">
+            <span aria-hidden>🧭</span>
+            10+ years coaching experience
+          </span>
         </div>
       </section>
 
