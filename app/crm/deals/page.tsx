@@ -34,7 +34,7 @@ export default function DealsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const visibleDeals = useMemo(() => deals.filter((d) => d.stage !== "Launch paid (won)"), [deals]);
+  const visibleDeals = useMemo(() => deals.filter((d) => d.stage !== "Launch paid (won)" && d.stage !== "Lost"), [deals]);
   const sortedDeals = useMemo(() => [...visibleDeals], [visibleDeals]);
 
   const contactName = (id?: string) => {
@@ -142,20 +142,38 @@ export default function DealsPage() {
         </div>
       )}
 
-      {dealStamps.length > 0 && (
-        <div className="crm-card p-4">
-          <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Won placeholders</h3>
-          <div className="space-y-2">
-            {dealStamps.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
-                <div>
-                  <p className="text-sm font-medium text-slate-100">{s.name || "Untitled deal"}</p>
-                  <p className="text-xs text-slate-400">{s.company || "—"} · won {s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</p>
-                </div>
-                <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /> Remove</button>
+      {(dealStamps.length > 0 || deals.some((d) => d.stage === "Lost")) && (
+        <div className="space-y-4">
+          {dealStamps.length > 0 && (
+            <div className="crm-card p-4">
+              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Past Wins</h3>
+              <div className="space-y-2">
+                {dealStamps.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
+                    <div>
+                      <p className="text-sm font-medium text-slate-100">{s.name || "Untitled deal"} <span className="text-emerald-300">• {money(s.value)}</span></p>
+                      <p className="text-xs text-slate-400">{s.company || "—"} · won {s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</p>
+                    </div>
+                    <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /> Remove</button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {deals.some((d) => d.stage === "Lost") && (
+            <div className="crm-card p-4">
+              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Past Loses</h3>
+              <div className="space-y-2">
+                {deals.filter((d) => d.stage === "Lost").map((d) => (
+                  <div key={d.id} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
+                    <p className="text-sm font-medium text-slate-100">{d.name || "Untitled deal"} <span className="text-rose-300">• {money(d.value)}</span></p>
+                    <p className="text-xs text-slate-400">{d.company || "—"} · lost {d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : "—"}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

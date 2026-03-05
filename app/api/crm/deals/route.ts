@@ -10,6 +10,7 @@ function upsertDealStamp(store: any, deal: any) {
     name: deal.name || "Untitled deal",
     company: deal.company || "",
     contactId: deal.contactId || "",
+    value: Number(deal.value || 0),
     wonAt: idx >= 0 ? store.dealStamps[idx].wonAt : now(),
     removedAt: undefined,
   };
