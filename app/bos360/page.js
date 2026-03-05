@@ -64,8 +64,8 @@ const reads = [
   {
     title: "Superabound",
     author: "Aquin & Haas",
-    rating: "Goodreads rating pending",
-    cover: "https://covers.openlibrary.org/b/title/Superabound-L.jpg",
+    rating: "4.9/5 Amazon",
+    cover: "/books/superabound.jpg",
   },
   {
     title: "The Science of Scaling",
