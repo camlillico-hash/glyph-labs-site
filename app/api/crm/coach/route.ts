@@ -41,7 +41,7 @@ export async function GET() {
   let icon = "hammer";
   let iconColor = "blue";
   let avatar = "/glyphy-mood-on-it.jpg";
-  let message = "Nice pace. Now sharpen it: move 1 deal stage and complete 2 tasks before day-end.";
+  let message = "Not bad, but not legendary. Move 1 deal stage and clear 2 tasks before day-end.";
 
   // Fired up = behind/slacking
   if (overdueTasks > 0 || staleDeals > 0 || staleDays > 2 || openDeals.length === 0) {
@@ -52,11 +52,11 @@ export async function GET() {
     avatar = "/glyphy-drill-sergeant.jpg";
 
     if (openDeals.length === 0 && contacts.length > 0) {
-      message = "No open deals? That’s not a pipeline, that’s a wishlist. Promote a contact to Discovery now.";
+      message = "No open deals? That’s not a pipeline, that’s fan fiction. Promote a contact to Discovery right now.";
     } else if (contacts.length === 0) {
-      message = "Pipeline starts with people. Add 3 contacts today and stop hiding behind planning.";
+      message = "Pipeline starts with people. Add 3 contacts today and stop pretending strategy is outreach.";
     } else {
-      message = `You’re drifting. ${overdueTasks} overdue task(s), ${staleDeals} stale deal(s). Execute now, excuses later.`;
+      message = `You’re coasting. ${overdueTasks} overdue task(s), ${staleDeals} stale deal(s). Quit flirting with the to-do list and execute.`;
     }
   }
 
@@ -67,7 +67,7 @@ export async function GET() {
     icon = "heart";
     iconColor = "green";
     avatar = "/glyphy-mood-fired-up.jpg";
-    message = "Elite consistency. Keep pressure on: top up pipeline while conversion is hot.";
+    message = "Elite consistency. Celebrate for 30 seconds, then top up pipeline while conversion is hot.";
   }
 
 
@@ -78,7 +78,7 @@ export async function GET() {
     icon = "heart";
     iconColor = "green";
     avatar = "/glyphy-mood-fired-up.jpg";
-    message = "New client closed — outstanding work. Enjoy the win for a minute, then get right back to prospecting so tomorrow-you has pipeline.";
+    message = "New client closed — nasty work. Take a breath, then get back to prospecting before comfort makes you soft.";
   }
 
   return NextResponse.json({

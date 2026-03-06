@@ -44,17 +44,17 @@ export default async function CrmHome() {
   const latestWonAt = wonDeals.map((d) => d.updatedAt || d.createdAt).filter(Boolean).sort().reverse()[0];
   const latestWonHours = latestWonAt ? (currentMs - new Date(latestWonAt).getTime()) / (1000 * 60 * 60) : 999;
 
-  let glyphMood = { icon: Hammer, color: "text-sky-300", nameColor: "text-sky-300", text: "Nice pace. Now sharpen it: move 1 deal stage and complete 2 tasks before day-end." };
+  let glyphMood = { icon: Hammer, color: "text-sky-300", nameColor: "text-sky-300", text: "Not bad, but not legendary. Move 1 deal stage and clear 2 tasks before day-end." };
   if (overdueTasks.length > 0 || staleDeals > 0 || staleDays > 2 || openDeals.length === 0) {
-    glyphMood = { icon: Flame, color: "text-rose-300", nameColor: "text-rose-300", text: `You’re drifting. ${overdueTasks.length} overdue task(s), ${staleDeals} stale deal(s). Execute now, excuses later.` };
-    if (openDeals.length === 0 && store.contacts.length > 0) glyphMood.text = "No open deals? That’s not a pipeline, that’s a wishlist. Promote a contact to Discovery now.";
-    if (store.contacts.length === 0) glyphMood.text = "Pipeline starts with people. Add 3 contacts today and stop hiding behind planning.";
+    glyphMood = { icon: Flame, color: "text-rose-300", nameColor: "text-rose-300", text: `You’re coasting. ${overdueTasks.length} overdue task(s), ${staleDeals} stale deal(s). Quit flirting with the to-do list and execute.` };
+    if (openDeals.length === 0 && store.contacts.length > 0) glyphMood.text = "No open deals? That’s not a pipeline, that’s fan fiction. Promote a contact to Discovery right now.";
+    if (store.contacts.length === 0) glyphMood.text = "Pipeline starts with people. Add 3 contacts today and stop pretending strategy is outreach.";
   }
   if (wonDeals.length >= 1 && doneTasks >= 5 && overdueTasks.length === 0 && staleDeals === 0 && staleDays <= 1) {
-    glyphMood = { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: "Elite consistency. Keep pressure on: top up pipeline while conversion is hot." };
+    glyphMood = { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: "Elite consistency. Celebrate for 30 seconds, then top up pipeline while conversion is hot." };
   }
   if (latestWonHours <= 24) {
-    glyphMood = { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: "New client closed — outstanding work. Enjoy the win for a minute, then get right back to prospecting so tomorrow-you has pipeline." };
+    glyphMood = { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: "New client closed — nasty work. Take a breath, then get back to prospecting before comfort makes you soft." };
   }
   const GlyphMoodIcon = glyphMood.icon;
 
@@ -94,7 +94,7 @@ export default async function CrmHome() {
     <div className="space-y-6">
       <div>
         <h1 className="inline-flex items-center gap-2 text-3xl font-bold"><Crosshair size={28} /> Command Post</h1>
-        <p className="mt-2 text-slate-400">No easy button: stay informed, stay dangerous, and execute the next right move.</p>
+        <p className="mt-2 text-slate-400">No fairy dust, no excuses — know the score, pick your shot, and move now.</p>
       </div>
 
       <section className="grid gap-4 lg:grid-cols-3">
