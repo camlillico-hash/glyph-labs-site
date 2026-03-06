@@ -295,7 +295,7 @@ export default function Bos360Page() {
               <span className="inline-flex items-center gap-2">
                 About Cam Lillico
                 <a
-                  href="https://www.linkedin.com/in/camlillico"
+                  href="https://www.linkedin.com/in/cameron-lillico/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center"
