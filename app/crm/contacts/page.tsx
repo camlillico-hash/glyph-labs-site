@@ -102,7 +102,20 @@ export default function ContactsPage() {
 
   function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ status: "New" }); setTrayError(""); setActivityDraft({ type: "email", occurredAtLocal: "" }); setActivityError(""); setShowDetailSection(true); setShowActivitiesSection(true); setShowDealsSection(true); }
   function openTray(contact: Contact) { setSelected(contact); setDraft({ ...contact }); setEditMode(false); setCreateMode(false); setTrayError(""); setActivityDraft({ type: "email", contactId: contact.id, occurredAtLocal: "" }); setActivityError(""); setShowDetailSection(true); setShowActivitiesSection(true); setShowDealsSection(true); }
-  function closeTray() { setSelected(null); setDraft(null); setEditMode(false); setCreateMode(false); setTrayError(""); }
+  function closeTray() {
+    setSelected(null);
+    setDraft(null);
+    setEditMode(false);
+    setCreateMode(false);
+    setTrayError("");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("contactId")) {
+        url.searchParams.delete("contactId");
+        window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+      }
+    }
+  }
 
   function startInlineEdit(c: any) { setEditingId(c.id); setInlineDraft({ ...c }); }
   function cancelInlineEdit() { setEditingId(null); setInlineDraft(null); }
