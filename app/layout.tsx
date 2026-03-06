@@ -17,8 +17,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "BOS360",
-  description: "BOS360 website",
+  title: {
+    default: "Glyph Labs",
+    template: "%s | Glyph Labs",
+  },
+  description:
+    "Glyph Labs is a studio for practical insight, building tools and frameworks that reveal patterns, simplify complexity, and improve decision-making.",
+  applicationName: "Glyph Labs",
   icons: {
     icon: [
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -33,6 +38,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
+    title: "Glyph Labs",
   },
 };
 
