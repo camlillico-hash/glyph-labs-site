@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getStore, now, DEAL_STAGES } from "@/lib/crm-store";
-import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart } from "lucide-react";
+import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3 } from "lucide-react";
 
 export default async function CrmHome() {
   const store = await getStore();
@@ -107,7 +107,7 @@ export default async function CrmHome() {
 
       <section className="grid gap-4 lg:grid-cols-2">
         <Link href="/crm/tasks" className="crm-card block p-4 hover:-translate-y-0.5">
-          <p className="mb-2 inline-flex items-center gap-1.5 text-sm text-slate-400"><CheckSquare size={14} /> Overdue tasks</p>
+          <p className="mb-2 inline-flex items-center gap-1.5 text-sm text-rose-300"><Clock3 size={14} /> Overdue tasks</p>
           {overdueTasks.length === 0 ? <p className="text-sm text-slate-500">No overdue tasks.</p> : (
             <ul className="space-y-2 text-sm">
               {overdueTasks.slice(0, 8).map((t) => <li key={t.id} className="text-slate-200">• {t.title} <span className="text-slate-400">({contactMap.get(t.relatedId || "") || "Unlinked"}, {t.dueDate})</span></li>)}
@@ -115,7 +115,7 @@ export default async function CrmHome() {
           )}
         </Link>
         <Link href="/crm/tasks" className="crm-card block p-4 hover:-translate-y-0.5">
-          <p className="mb-2 inline-flex items-center gap-1.5 text-sm text-slate-400"><CheckSquare size={14} /> Upcoming tasks</p>
+          <p className="mb-2 inline-flex items-center gap-1.5 text-sm text-sky-300"><CheckSquare size={14} /> Upcoming tasks</p>
           {upcomingTasks.length === 0 ? <p className="text-sm text-slate-500">No upcoming dated tasks.</p> : (
             <ul className="space-y-2 text-sm">
               {upcomingTasks.slice(0, 8).map((t) => <li key={t.id} className="text-slate-200">• {t.title} <span className="text-slate-400">({contactMap.get(t.relatedId || "") || "Unlinked"}, {t.dueDate})</span></li>)}
