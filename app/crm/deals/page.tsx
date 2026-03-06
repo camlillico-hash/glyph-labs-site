@@ -189,7 +189,7 @@ export default function DealsPage() {
                     <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (d.company || "—")}</td>
                     <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <select className="crm-input" value={inlineDraft.stage || STAGES[0]} onChange={(e)=>setInlineDraft({...inlineDraft, stage:e.target.value})}>{STAGES.map((s)=><option key={s} value={s}>{s}</option>)}</select> : d.stage}</td>
                     <td className="px-3 py-2 text-slate-400">{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "—"}</td>
-                    <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" onClick={saveInlineEdit}>Save</button><button className="crm-btn-ghost" onClick={cancelInlineEdit}>Cancel</button></div> : <button className="crm-btn-ghost" onClick={() => openTray(d)}>Open</button>}</td>
+                    <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open" aria-label="Open" onClick={() => openTray(d)}><Pencil size={14} /></button>}</td>
                   </tr>
                 );
               })}
@@ -211,8 +211,8 @@ export default function DealsPage() {
                       <p className="text-xs text-slate-400">{s.company || "—"} · won {s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</p>
                     </div>
                     <div className="flex gap-2">
-                      <button className="crm-btn-ghost inline-flex items-center gap-1" onClick={() => { const deal = deals.find((d) => d.id === s.dealId); if (deal) openTray(deal); }}>Open</button>
-                      <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /> Remove</button>
+                      <button className="crm-btn-ghost inline-flex items-center gap-1" title="Open" aria-label="Open" onClick={() => { const deal = deals.find((d) => d.id === s.dealId); if (deal) openTray(deal); }}><Pencil size={14} /></button>
+                      <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" title="Remove" aria-label="Remove" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /></button>
                     </div>
                   </div>
                 ))}
@@ -230,7 +230,7 @@ export default function DealsPage() {
                       <p className="text-sm font-medium text-slate-100">{d.name || "Untitled deal"} <span className="text-rose-300">• {money(d.value)}</span></p>
                       <p className="text-xs text-slate-400">{d.company || "—"} · lost {d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : "—"}</p>
                     </div>
-                    <button className="crm-btn-ghost inline-flex items-center gap-1" onClick={() => openTray(d)}>Open</button>
+                    <button className="crm-btn-ghost inline-flex items-center gap-1" title="Open" aria-label="Open" onClick={() => openTray(d)}><Pencil size={14} /></button>
                   </div>
                 ))}
               </div>
@@ -245,8 +245,8 @@ export default function DealsPage() {
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? "New deal" : selected?.name || "Untitled deal"}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex gap-2">
-              {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" onClick={() => setEditMode(true)}><Pencil size={14} /> Edit</button> : <><button className="crm-btn inline-flex items-center gap-1.5" onClick={saveDeal}><Save size={14} /> Save</button>{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><CornerUpLeft size={14} /> Cancel</button>}</>}
-              {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" onClick={() => { if (!confirm("Are you sure you want to delete this record?")) return; deleteFromTray(); }}><Trash2 size={14} /> Delete</button>}
+              {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={saveDeal}><Save size={14} className="text-emerald-300" /></button>{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
+              {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" title="Delete" aria-label="Delete" onClick={() => { if (!confirm("Are you sure you want to delete this record?")) return; deleteFromTray(); }}><Trash2 size={14} /></button>}
             </div>
             <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
               <Field label="Deal name" editMode={editMode || createMode}><input className="crm-input" value={draft.name || ""} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></Field>

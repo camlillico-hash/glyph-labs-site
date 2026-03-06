@@ -87,9 +87,9 @@ export default function ClientsPage() {
                 <td className="px-3 py-2 text-slate-300">{d.clientStage || 'Launch'}</td>
                 <td className="px-3 py-2">
                   <div className="flex gap-2">
-                    <button className="crm-btn-ghost inline-flex items-center gap-1 text-xs" onClick={() => openTray(d)}>Open</button>
+                    <button className="crm-btn-ghost inline-flex items-center gap-1 text-xs" title="Open" aria-label="Open" onClick={() => openTray(d)}><Pencil size={14} /></button>
                     <button className="crm-btn-ghost inline-flex items-center gap-1 text-xs" onClick={() => moveBack(d)}><RotateCcw size={13} /> Move back</button>
-                    <button className="crm-btn-ghost inline-flex items-center gap-1 text-xs text-red-300" onClick={() => removeClient(d)}><Trash2 size={13} /> Remove</button>
+                    <button className="crm-btn-ghost inline-flex items-center gap-1 text-xs text-red-300" title="Remove" aria-label="Remove" onClick={() => removeClient(d)}><Trash2 size={13} /></button>
                   </div>
                 </td>
               </tr>
@@ -107,7 +107,7 @@ export default function ClientsPage() {
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{selected?.name || "Client deal"}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex gap-2">
-              {!editMode ? <button className="crm-btn inline-flex items-center gap-1.5" onClick={() => setEditMode(true)}><Pencil size={14} /> Edit</button> : <button className="crm-btn inline-flex items-center gap-1.5" onClick={saveDeal}><Save size={14} /> Save</button>}
+              {!editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={saveDeal}><Save size={14} className="text-emerald-300" /></button>}
             </div>
             <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Deal name</label>{editMode ? <input className="crm-input" value={draft.name || ''} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.name || '—'}</p>}</div>
