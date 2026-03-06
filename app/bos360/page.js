@@ -172,7 +172,7 @@ export default function Bos360Page() {
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
             <span aria-hidden className="text-[#ed7d31]">◇</span>
-            My Glyph Labs Coaching Approach
+            My BOS360 Coaching Approach
           </h2>
           <ol className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {process.map((step, i) => (
@@ -192,7 +192,7 @@ export default function Bos360Page() {
           <div className="mt-8 max-w-4xl rounded-2xl border border-neutral-600 bg-neutral-900/85 p-5 shadow-lg shadow-black/30">
             <p className="text-base font-medium leading-relaxed text-slate-100 md:text-lg">
               <span className="mr-2 text-[#ed7d31]">◉</span>
-              Glyph Labs is a practical operating system for leadership teams who want
+              BOS360 is a practical operating system for leadership teams who want
               <span className="font-semibold text-orange-200"> traction</span>
               <span className="text-slate-400"> — not </span>
               <span className="font-semibold text-orange-200">theory</span>.
@@ -220,7 +220,7 @@ export default function Bos360Page() {
             </p>
           </div>
           <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
-            <p className="text-2xl font-bold text-[#ed7d31]">Glyph Labs Framework</p>
+            <p className="text-2xl font-bold text-[#ed7d31]">BOS360 Framework</p>
             <p className="mt-2 text-slate-300">
               Proven methodology built around alignment, discipline, and accountability
             </p>
@@ -292,11 +292,22 @@ export default function Bos360Page() {
                 className="h-10 w-10 rounded-full border border-neutral-600 object-cover"
                 loading="lazy"
               />
-              About Cam Lillico
+              <span className="inline-flex items-center gap-2">
+                About Cam Lillico
+                <a
+                  href="https://www.linkedin.com/in/camlillico"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center"
+                  aria-label="Cam Lillico on LinkedIn"
+                >
+                  <img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-5 w-5" />
+                </a>
+              </span>
             </h2>
             <div className="mt-5 space-y-4 text-slate-300">
               <p>
-                Cam is a certified Glyph Labs facilitator and seasoned revenue leader who helps
+                Cam is a certified BOS360 facilitator and seasoned revenue leader who helps
                 CEOs and leadership teams turn vision into disciplined execution. With nearly
                 a decade of hands-on experience running annual and quarterly planning sessions,
                 he combines structured frameworks with calm, unbiased facilitation to drive
@@ -317,8 +328,8 @@ export default function Bos360Page() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
               >
-                <img src="/badge-bos360.jpg" alt="Glyph Labs" className="h-7 w-7 rounded object-cover" />
-                Glyph Labs Certified Coach
+                <img src="/badge-bos360.jpg" alt="BOS360" className="h-7 w-7 rounded object-cover" />
+                Certified Coach
               </a>
               <a
                 href="https://innovationcluster.ca/programs/mentors-advisors"
@@ -330,17 +341,9 @@ export default function Bos360Page() {
                 Expert in Residence
               </a>
               <span className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-sm font-semibold text-orange-100">
-                10+ years coaching experience
+                <img src="/badge-eos.jpg" alt="EOS" className="h-7 w-7 rounded object-cover" />
+                EOS facilitator from 2019-2025
               </span>
-              <a
-                href="https://www.linkedin.com/in/camlillico"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
-              >
-                <img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-7 w-7 rounded object-cover" />
-                LinkedIn
-              </a>
             </div>
           </div>
 
