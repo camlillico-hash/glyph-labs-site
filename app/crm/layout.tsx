@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import Nav from "./Nav";
 import CoachWidget from "./CoachWidget";
 
 export default function CrmLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLogin = pathname === "/crm/login";
+  const [role, setRole] = useState<string>("");
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|; )crm_role=([^;]+)/);
+    setRole(match ? decodeURIComponent(match[1]) : "");
+  }, [pathname]);
 
   return (
     <main className="crm-shell flex min-h-screen flex-col text-slate-100">
@@ -18,7 +25,10 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
               <img src="/glyph-crm-logo.png" alt="Glyph CRM logo" className="h-14 w-auto sm:h-16" />
             </Link>
             <CoachWidget mode="desktop-inline" />
-            <div className="mt-2 ml-auto shrink-0 sm:ml-4"><Nav /></div>
+            <div className="mt-2 ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
+              {role === "guest" && <span className="rounded-md border border-amber-500/60 bg-amber-500/15 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-amber-300">Guest mode</span>}
+              <Nav />
+            </div>
           </div>
           <div className="mx-auto max-w-7xl px-6 pb-1">
             <CoachWidget mode="mobile-accordion" />
