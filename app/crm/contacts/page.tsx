@@ -9,6 +9,8 @@ type Contact = any;
 const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"];
 const CONTACT_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
+const DISQUALIFICATION_REASONS = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Other"];
+const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"], ["lastName", "Last name", "text"], ["email", "Email", "email"],
   ["phone", "Phone", "text"],
@@ -24,6 +26,7 @@ const openPicker = (e: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTM
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
   const [gmail, setGmail] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
   const [contactStamps, setContactStamps] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
   const [activityDraft, setActivityDraft] = useState<any>({ type: "email" });
@@ -51,6 +54,7 @@ export default function ContactsPage() {
     setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
     setContactStamps(Array.isArray(contactsRes) ? [] : contactsRes.contactStamps || []);
     setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
+    setTasks((await (await fetch("/api/crm/tasks", { cache: "no-store" })).json()).tasks || []);
     setActivities(await (await fetch("/api/crm/activities", { cache: "no-store" })).json());
   };
   useEffect(() => { load(); }, []);
@@ -247,12 +251,15 @@ export default function ContactsPage() {
 
           {items.some((c) => (c.status || "New") === "Not right now") && (
             <div className="crm-card p-4">
-              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Past Loses</h3>
+              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Past Leads</h3>
               <div className="space-y-2">
                 {items.filter((c) => (c.status || "New") === "Not right now").map((c) => (
                   <div key={c.id} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
                     <p className="text-sm font-medium text-slate-100">{c.firstName} {c.lastName}</p>
                     <p className="text-xs text-slate-400">{c.email || "—"} · {c.company || "—"}</p>
+                    <p className="mt-1 text-xs text-slate-300">Reason: {c.disqualificationReason || "—"}</p>
+                    <p className="text-xs text-slate-300">What now: {c.whatNow || "—"}</p>
+                    <p className="text-xs text-slate-300">Nurture due: {tasks.find((t) => t.followUpKind === "nurture_reactivate" && t.followUpForContactId === c.id && t.status !== "Completed" && t.status !== "Canceled")?.dueDate || "—"}</p>
                   </div>
                 ))}
               </div>
@@ -348,6 +355,8 @@ export default function ContactsPage() {
                 </div>
               ))}
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Lead stage</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || "New"} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>{CONTACT_STAGES.map((s, i) => <option key={s} value={s}>{stageLabel(s, i)}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.status || "New"}</p>}</div>
+              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Disqualification reason{(editMode || createMode) && (draft.status === "Not right now") ? " *" : ""}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.disqualificationReason || ""} onChange={(e) => setDraft({ ...draft, disqualificationReason: e.target.value || undefined })}><option value="">Select reason</option>{DISQUALIFICATION_REASONS.map((s) => <option key={s} value={s}>{s}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.disqualificationReason || "—"}</p>}</div>
+              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">What now?{(editMode || createMode) && (draft.status === "Not right now") ? " *" : ""}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.whatNow || ""} onChange={(e) => setDraft({ ...draft, whatNow: e.target.value || undefined })}><option value="">Select next path</option>{WHAT_NOW_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.whatNow || "—"}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>{(editMode || createMode) ? <textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{draft.notes || "—"}</p>}</div>
 
               {!createMode && (

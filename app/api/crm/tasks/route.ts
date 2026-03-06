@@ -54,6 +54,34 @@ function archiveTaskAsActivity(store: any, task: any) {
 
 export async function GET() {
   const store = await getStore();
+
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+  let changed = false;
+
+  for (const t of (store.tasks || [])) {
+    if (t.followUpKind !== "nurture_reactivate" || !t.followUpForContactId || !t.dueDate) continue;
+    if (t.status === "Completed" || t.status === "Canceled") continue;
+    const dueMs = new Date(`${t.dueDate}T23:59:59`).getTime();
+    if (Number.isNaN(dueMs) || dueMs > todayEnd.getTime()) continue;
+
+    const cidx = (store.contacts || []).findIndex((c: any) => c.id === t.followUpForContactId);
+    if (cidx >= 0) {
+      store.contacts[cidx] = {
+        ...store.contacts[cidx],
+        status: "New",
+        updatedAt: now(),
+      };
+      changed = true;
+    }
+
+    t.status = "Canceled";
+    t.notes = `${t.notes ? `${t.notes}\n` : ""}Auto: contact reset to New when nurture follow-up became due.`;
+    t.updatedAt = now();
+    changed = true;
+  }
+
+  if (changed) await saveStore(store);
   return NextResponse.json({ tasks: store.tasks, statuses: TASK_STATUSES });
 }
 
