@@ -280,38 +280,42 @@ export default function ContactsPage() {
               <h2 className="text-xl font-semibold">Import contacts from CSV</h2>
               <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => setImportOpen(false)}><X size={14} /> Close</button>
             </div>
-            <p className="mt-2 text-sm text-slate-400">Headers supported: firstName,lastName,email,phone,company,title,type,primaryPain,leadSource,status,notes</p>
             <div className="mt-4">
-              <input
-                type="file"
-                accept=".csv,text/csv"
-                className="crm-input"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  setImportError("");
-                  setImportResult(null);
-                  const text = await file.text();
-                  const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-                  if (parsed.errors?.length) {
-                    setImportError(parsed.errors[0].message || "CSV parse error");
-                    return;
-                  }
-                  const rows = parsed.data as any[];
-                  const res = await fetch('/api/crm/contacts/import', {
-                    method: 'POST',
-                    headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify({ rows }),
-                  });
-                  const j = await res.json().catch(() => ({}));
-                  if (!res.ok) {
-                    setImportError(j.error || 'Import failed');
-                    return;
-                  }
-                  setImportResult(j);
-                  await load();
-                }}
-              />
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-200 hover:bg-neutral-800">
+                <Upload size={14} /> Choose file
+                <input
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setImportError("");
+                    setImportResult(null);
+                    const text = await file.text();
+                    const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+                    if (parsed.errors?.length) {
+                      setImportError(parsed.errors[0].message || "CSV parse error");
+                      return;
+                    }
+                    const rows = parsed.data as any[];
+                    const res = await fetch('/api/crm/contacts/import', {
+                      method: 'POST',
+                      headers: { 'content-type': 'application/json' },
+                      body: JSON.stringify({ rows }),
+                    });
+                    const j = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                      setImportError(j.error || 'Import failed');
+                      return;
+                    }
+                    setImportResult(j);
+                    await load();
+                  }}
+                />
+              </label>
+              <p className="mt-3 text-xs text-slate-500">CSV headers: firstName, lastName, email, phone, company, title, type, primaryPain, leadSource, status, notes.</p>
+              <p className="mt-1 text-xs text-slate-500">Tip: firstName + lastName are required.</p>
             </div>
 
             {importError && <p className="mt-3 text-sm text-red-300">{importError}</p>}
