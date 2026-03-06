@@ -127,6 +127,36 @@ export default function Bos360Page() {
           </p>
         </div>
 
+        <div className="mt-7 flex flex-wrap gap-3">
+          <a
+            href="https://bos360.ca"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-w-[230px] items-center justify-center gap-3 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-5 py-2.5 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+          >
+            <img src="/badge-bos360.jpg" alt="BOS360" className="h-7 w-7 rounded object-cover" />
+            Certified Coach
+          </a>
+          <a
+            href="https://innovationcluster.ca/programs/mentors-advisors"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-w-[230px] items-center justify-center gap-3 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-5 py-2.5 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+          >
+            <img src="/badge-innovation-cluster.jpg" alt="Innovation Cluster" className="h-7 w-7 rounded object-cover" />
+            Expert in Residence
+          </a>
+          <a
+            href="https://www.eosworldwide.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-w-[230px] items-center justify-center gap-3 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-5 py-2.5 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+          >
+            <img src="/badge-eos.jpg" alt="EOS" className="h-7 w-7 rounded object-cover" />
+            EOS expert past 6 years
+          </a>
+        </div>
+
         <div className="mt-8 flex flex-wrap gap-4">
           <a
             href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
