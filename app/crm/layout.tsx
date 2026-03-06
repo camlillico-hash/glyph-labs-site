@@ -21,7 +21,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
       {!isLogin && (
         <header className="border-b border-neutral-800/80 bg-neutral-900/75 backdrop-blur">
           <div className="mx-auto flex max-w-7xl items-start justify-between px-6 pt-3 pb-2">
-            <div className="mt-1 flex shrink-0 flex-col items-start leading-tight">
+            <div className="mt-1 flex shrink-0 flex-col items-center leading-tight">
               <Link href="/crm" className="flex items-center">
                 <img src="/glyph-crm-logo.png" alt="Glyph CRM logo" className="h-12 w-auto sm:h-14" />
               </Link>
