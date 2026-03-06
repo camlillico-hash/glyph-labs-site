@@ -38,7 +38,6 @@ const activityTypeIcon = (v?: string) => {
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
   const [gmail, setGmail] = useState<any[]>([]);
-  const [tasks, setTasks] = useState<any[]>([]);
   const [contactStamps, setContactStamps] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
   const [activityDraft, setActivityDraft] = useState<any>({ type: "email" });
@@ -67,13 +66,13 @@ export default function ContactsPage() {
     setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
     setContactStamps(Array.isArray(contactsRes) ? [] : contactsRes.contactStamps || []);
     setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
-    setTasks((await (await fetch("/api/crm/tasks", { cache: "no-store" })).json()).tasks || []);
     setActivities(await (await fetch("/api/crm/activities", { cache: "no-store" })).json());
   };
   useEffect(() => { load(); }, []);
 
   const openItems = useMemo(() => items.filter((c) => (c.status || "New") !== "Discovery meeting booked" && (c.status || "New") !== "Not right now"), [items]);
   const sorted = useMemo(() => [...openItems], [openItems]);
+  const disqualifiedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Not right now"), [items]);
 
 
   const selectedActivities = useMemo(() => {
@@ -154,10 +153,37 @@ export default function ContactsPage() {
     });
   }
 
+  const renderContactsTable = (rows: Contact[]) => (
+    <div className="crm-card overflow-auto">
+      <table className="w-full text-sm">
+        <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
+        <tbody>
+          {rows.map((c) => {
+            const editing = editingId === c.id;
+            return (
+              <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
+                <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : `${c.firstName} ${c.lastName}`}</td>
+                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5">{c.email}<a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a></span> : "—")}</td>
+                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
+                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
+                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.type || ""} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}><option value="">Select type</option>{CONTACT_TYPES.map((t)=> <option key={t} value={t}>{t}</option>)}</select> : (c.type || "—")}</td>
+                <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || "New"} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{CONTACT_STAGES.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || "New")}</td>
+                <td className="px-3 py-2 text-slate-300">{c.lastActivityDate ? new Date(c.lastActivityDate).toLocaleDateString() : "—"}</td>
+                <td className="px-3 py-2 text-slate-300">{c.lastActivityType ? prettyType(String(c.lastActivityType)) : "—"}</td>
+                <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
+                <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open" aria-label="Open" onClick={() => openTray(c)}><Pencil size={14} /></button>}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap"><Users size={20} /> Contacts ({sorted.length})</h1>
+        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap"><Users size={20} /> Open Contacts ({sorted.length})</h1>
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={openCreate}><Plus size={14} /> New</button>
           <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
@@ -217,68 +243,42 @@ export default function ContactsPage() {
           </div>
         </div>
       ) : (
-        <div className="crm-card overflow-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
-            <tbody>
-              {sorted.map((c) => {
-                const editing = editingId === c.id;
-                return (
-                  <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
-                    <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : `${c.firstName} ${c.lastName}`}</td>
-                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5">{c.email}<a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a></span> : "—")}</td>
-                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
-                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
-                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.type || ""} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}><option value="">Select type</option>{CONTACT_TYPES.map((t)=> <option key={t} value={t}>{t}</option>)}</select> : (c.type || "—")}</td>
-                    <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || "New"} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{CONTACT_STAGES.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || "New")}</td>
-                    <td className="px-3 py-2 text-slate-300">{c.lastActivityDate ? new Date(c.lastActivityDate).toLocaleDateString() : "—"}</td>
-                    <td className="px-3 py-2 text-slate-300">{c.lastActivityType ? prettyType(String(c.lastActivityType)) : "—"}</td>
-                    <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
-                    <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open" aria-label="Open" onClick={() => openTray(c)}><Pencil size={14} /></button>}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        renderContactsTable(sorted)
       )}
 
       {(contactStamps.length > 0 || items.some((c) => (c.status || "New") === "Not right now")) && (
         <div className="space-y-4">
           {contactStamps.length > 0 && (
-            <div className="crm-card p-4">
-              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Converted</h3>
-              <div className="space-y-2">
-                {contactStamps.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
-                    <div>
-                      <p className="text-sm font-medium text-slate-100">{s.name || "Unnamed contact"}</p>
-                      <p className="text-xs text-slate-400">{s.email || "—"} · {s.company || "—"} · won {s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</p>
-                    </div>
-                    <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeContactStamp(s.id)}><Trash2 size={13} /> Remove</button>
-                  </div>
-                ))}
+            <div className="space-y-2">
+              <h3 className="inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Converted</h3>
+              <div className="crm-card overflow-auto">
+                <table className="w-full text-sm">
+                  <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
+                  <tbody>
+                    {contactStamps.map((s) => (
+                      <tr key={s.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
+                        <td className="px-3 py-2">{s.name || "Unnamed contact"}</td>
+                        <td className="px-3 py-2 text-slate-300">{s.email || "—"}</td>
+                        <td className="px-3 py-2 text-slate-300">—</td>
+                        <td className="px-3 py-2 text-slate-300">{s.company || "—"}</td>
+                        <td className="px-3 py-2 text-slate-300">—</td>
+                        <td className="px-3 py-2 text-emerald-300">Discovery meeting booked</td>
+                        <td className="px-3 py-2 text-slate-300">{s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</td>
+                        <td className="px-3 py-2 text-slate-300">task completed</td>
+                        <td className="px-3 py-2 text-slate-400">—</td>
+                        <td className="px-3 py-2"><button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeContactStamp(s.id)}><Trash2 size={13} /> Remove</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
 
-          {items.some((c) => (c.status || "New") === "Not right now") && (
-            <div className="crm-card p-4">
-              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Disqualified (for now)</h3>
-              <div className="space-y-2">
-                {items.filter((c) => (c.status || "New") === "Not right now").map((c) => (
-                  <div key={c.id} className="flex items-start justify-between gap-3 rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
-                    <div>
-                      <p className="text-sm font-medium text-slate-100">{c.firstName} {c.lastName}</p>
-                      <p className="text-xs text-slate-400">{c.email || "—"} · {c.company || "—"}</p>
-                      <p className="mt-1 text-xs text-slate-300">Reason: {c.disqualificationReason || "—"}</p>
-                      <p className="text-xs text-slate-300">What now: {c.whatNow || "—"}</p>
-                      <p className="text-xs text-slate-300">Nurture due: {tasks.find((t) => t.followUpKind === "nurture_reactivate" && t.followUpForContactId === c.id && t.status !== "Completed" && t.status !== "Canceled")?.dueDate || "—"}</p>
-                    </div>
-                    <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" title="Delete" aria-label="Delete" onClick={() => askConfirm("Delete this past lead contact?", async () => { await fetch(`/api/crm/contacts?id=${c.id}`, { method: "DELETE" }); await load(); })}><Trash2 size={13} /></button>
-                  </div>
-                ))}
-              </div>
+          {disqualifiedItems.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Disqualified (for now)</h3>
+              {renderContactsTable(disqualifiedItems)}
             </div>
           )}
         </div>
