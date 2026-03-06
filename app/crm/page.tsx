@@ -84,10 +84,11 @@ export default async function CrmHome() {
   const connectedCount = store.contacts.filter((c) => c.status === "Connected" || c.status === "Discovery meeting booked").length;
   const discoveryBookedContacts = store.contacts.filter((c) => c.status === "Discovery meeting booked").length;
   const attemptingOrLaterNonLost = store.contacts.filter((c) => ["Attempting", "Connected", "Discovery meeting booked"].includes(c.status || "")).length;
-  const progressedFromAttemptingNonLost = store.contacts.filter((c) => ["Connected", "Discovery meeting booked"].includes(c.status || "")).length;
+  // Treat any later non-lost stage as having achieved "Connected", even if status was skipped.
+  const countedAsConnected = store.contacts.filter((c) => ["Connected", "Discovery meeting booked"].includes(c.status || "")).length;
 
   const conversion = {
-    attemptingToLaterNonLost: attemptingOrLaterNonLost > 0 ? Math.round((progressedFromAttemptingNonLost / attemptingOrLaterNonLost) * 100) : 0,
+    attemptingToConnected: attemptingOrLaterNonLost > 0 ? Math.round((countedAsConnected / attemptingOrLaterNonLost) * 100) : 0,
     connectedToDiscoveryBooked: connectedCount > 0 ? Math.round((discoveryBookedContacts / connectedCount) * 100) : 0,
     discoveryToFitBooked: discoveryCompletedCount > 0 ? Math.round((fitBookedCount / discoveryCompletedCount) * 100) : 0,
     fitCompletedToWon: fitCompletedCount > 0 ? Math.round((wonCount / fitCompletedCount) * 100) : 0,
@@ -171,7 +172,7 @@ export default async function CrmHome() {
       <Link href="/crm/deals" className="crm-card block p-4 hover:-translate-y-0.5">
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Percent size={18} /> Conversion rates</h2>
         <ul className="space-y-2 text-sm">
-          <li className="flex items-center justify-between"><span>Attempting → Later stage (non-lost)</span><span className="font-semibold">{conversion.attemptingToLaterNonLost}%</span></li>
+          <li className="flex items-center justify-between"><span>Attempting → Connected</span><span className="font-semibold">{conversion.attemptingToConnected}%</span></li>
           <li className="flex items-center justify-between"><span>Connected → Discovery booked</span><span className="font-semibold">{conversion.connectedToDiscoveryBooked}%</span></li>
           <li className="flex items-center justify-between"><span>Discovery completed → Fit booked</span><span className="font-semibold">{conversion.discoveryToFitBooked}%</span></li>
           <li className="flex items-center justify-between"><span>Fit completed → Won</span><span className="font-semibold">{conversion.fitCompletedToWon}%</span></li>
