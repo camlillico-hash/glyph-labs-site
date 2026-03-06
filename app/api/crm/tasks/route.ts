@@ -2,12 +2,18 @@ import { NextResponse } from "next/server";
 import { getStore, id, now, saveStore } from "@/lib/crm-store";
 
 const TASK_STATUSES = ["Not started", "Completed", "Canceled"] as const;
+const TASK_TYPES = ["email", "call", "text", "linkedin", "in_person", "meeting", "task_completed"] as const;
 
 function normalizeStatus(body: any) {
   const v = String(body.status || "").trim();
   if ((TASK_STATUSES as readonly string[]).includes(v)) return v;
   if (body.done === true) return "Completed";
   return "Not started";
+}
+
+function normalizeType(body: any) {
+  const v = String(body.type || "").trim();
+  return (TASK_TYPES as readonly string[]).includes(v) ? v : "meeting";
 }
 
 function validateTaskPayload(body: any, store: any) {
@@ -33,7 +39,7 @@ function archiveTaskAsActivity(store: any, task: any) {
   const activity = {
     id: id(),
     contactId,
-    type: "task_completed",
+    type: (task.type && (TASK_TYPES as readonly string[]).includes(task.type) ? task.type : "task_completed"),
     note: `Task completed: ${task.title}${task.notes ? ` — ${task.notes}` : ""}`,
     occurredAt: now(),
     createdAt: now(),
@@ -58,7 +64,7 @@ export async function POST(req: Request) {
   if (error) return NextResponse.json({ error }, { status: 400 });
 
   const status = normalizeStatus(body);
-  const record = { id: id(), createdAt: now(), updatedAt: now(), ...body, status, done: status === "Completed" };
+  const record = { id: id(), createdAt: now(), updatedAt: now(), ...body, type: normalizeType(body), status, done: status === "Completed" };
 
   if (status === "Completed") {
     archiveTaskAsActivity(store, record);
@@ -81,7 +87,7 @@ export async function PUT(req: Request) {
   if (error) return NextResponse.json({ error }, { status: 400 });
 
   const status = normalizeStatus(body);
-  const updated = { ...store.tasks[idx], ...body, status, done: status === "Completed", updatedAt: now() };
+  const updated = { ...store.tasks[idx], ...body, type: normalizeType(body), status, done: status === "Completed", updatedAt: now() };
 
   if (status === "Completed") {
     archiveTaskAsActivity(store, updated);

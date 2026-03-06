@@ -171,6 +171,9 @@ export default function ContactsPage() {
                               <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
                               <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
                               <p className="mt-1 truncate text-[11px] text-emerald-300">Gmail: {c.email ? gmail.filter((m) => `${m.from || ""} ${m.to || ""}`.toLowerCase().includes(String(c.email).toLowerCase())).length : 0}</p>
+                              <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); const next = prompt(`Move to status (${CONTACT_STAGES.join(', ')})`, c.status || "New"); if (!next) return; moveContactStage(c.id, next); }}>
+                                Move
+                              </button>
                             </button>
                           </div>
                         ))}

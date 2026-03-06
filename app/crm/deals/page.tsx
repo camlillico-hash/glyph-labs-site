@@ -156,6 +156,9 @@ export default function DealsPage() {
                             <p className="truncate font-medium">{d.name || "Untitled deal"}</p>
                             <p className="truncate text-xs text-slate-400">Amount: {money(d.value)} · {d.probability || 0}%</p>
                             <p className="truncate text-xs text-slate-500">{contactName(d.contactId)}</p>
+                            <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); const next = prompt(`Move to stage (${STAGES.join(', ')})`, d.stage || STAGES[0]); if (!next) return; moveDealStage(d.id, next); }}>
+                              Move
+                            </button>
                           </button>
                         </div>
                       ))}

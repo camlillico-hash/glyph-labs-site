@@ -15,7 +15,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
         <header className="border-b border-neutral-800/80 bg-neutral-900/75 backdrop-blur">
           <div className="mx-auto flex max-w-7xl items-start justify-between px-6 pt-3 pb-2">
             <Link href="/crm" className="mt-1 flex shrink-0 items-center leading-tight">
-              <img src="/glyph-crm-logo.png" alt="Glyph CRM logo" className="h-16 w-auto" />
+              <img src="/glyph-crm-logo.png" alt="Glyph CRM logo" className="h-14 w-auto sm:h-16" />
             </Link>
             <CoachWidget mode="desktop-inline" />
             <div className="mt-2 ml-auto shrink-0 sm:ml-4"><Nav /></div>
@@ -28,7 +28,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
       <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-6">{children}</div>
       {!isLogin && (
         <footer className="border-t border-neutral-700 bg-neutral-900/90 shadow-[0_-8px_28px_rgba(0,0,0,.35)]">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-sm text-slate-300">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-[11px] sm:text-sm text-slate-300">
             <p>© {new Date().getFullYear()} Glyph CRM</p>
             <p className="text-slate-400">Sgt. Glyph says: no easy button — just clean pipeline and ruthless follow-through.</p>
           </div>
