@@ -25,6 +25,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
               <Link href="/crm" className="flex items-center">
                 <img src="/glyph-crm-logo.png" alt="Glyph CRM logo" className="h-12 w-auto sm:h-14" />
               </Link>
+              <span className="mt-0.5 text-[10px] text-[#ffb401]" style={{ fontFamily: "var(--font-playfair-display), serif" }}>Glyph CRM</span>
               {role === "guest" && <span className="mt-1 rounded border border-amber-500/50 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-300">Guest</span>}
             </div>
             <CoachWidget mode="desktop-inline" />
