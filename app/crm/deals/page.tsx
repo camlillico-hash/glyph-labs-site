@@ -45,6 +45,7 @@ export default function DealsPage() {
 
   const visibleDeals = useMemo(() => deals.filter((d) => d.stage !== "Launch paid (won)" && d.stage !== "Lost"), [deals]);
   const sortedDeals = useMemo(() => [...visibleDeals], [visibleDeals]);
+  const lostDeals = useMemo(() => deals.filter((d) => d.stage === "Lost"), [deals]);
 
   const contactName = (id?: string) => {
     const c = contacts.find((x) => x.id === id);
@@ -126,10 +127,34 @@ export default function DealsPage() {
     await load();
   }
 
+  const renderDealsTable = (rows: any[]) => (
+    <div className="crm-card overflow-auto">
+      <table className="w-full text-sm">
+        <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Deal</th><th className="px-3 py-2 text-left">Contact</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Amount</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
+        <tbody>
+          {rows.map((d) => {
+            const editing = editingId === d.id;
+            return (
+              <tr key={d.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
+                <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(d)}>{editing ? <input className="crm-input" value={inlineDraft.name || ""} onChange={(e)=>setInlineDraft({...inlineDraft, name:e.target.value})} /> : (d.name || "Untitled deal")}</td>
+                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <select className="crm-input" value={inlineDraft.contactId || ""} onChange={(e)=>setInlineDraft({...inlineDraft, contactId:e.target.value})}><option value="">Select linked contact *</option>{contacts.map((c) => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}</select> : contactName(d.contactId)}</td>
+                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (d.company || "—")}</td>
+                <td className="px-3 py-2 text-slate-300">{money(d.value)}</td>
+                <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <select className="crm-input" value={inlineDraft.stage || STAGES[0]} onChange={(e)=>setInlineDraft({...inlineDraft, stage:e.target.value})}>{STAGES.map((s)=><option key={s} value={s}>{s}</option>)}</select> : d.stage}</td>
+                <td className="px-3 py-2 text-slate-400">{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "—"}</td>
+                <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open" aria-label="Open" onClick={() => openTray(d)}><Pencil size={14} /></button>}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-amber-200 whitespace-nowrap"><BriefcaseBusiness size={20} /> Deals ({visibleDeals.length})</h1>
+        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-amber-200 whitespace-nowrap"><BriefcaseBusiness size={20} /> Open Deals ({visibleDeals.length})</h1>
         <div className="flex items-center gap-2">
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
             <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
@@ -182,64 +207,42 @@ export default function DealsPage() {
           ))}
         </div></div>
       ) : (
-        <div className="crm-card overflow-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Deal</th><th className="px-3 py-2 text-left">Contact</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
-            <tbody>
-              {sortedDeals.map((d) => {
-                const editing = editingId === d.id;
-                return (
-                  <tr key={d.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
-                    <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(d)}>{editing ? <input className="crm-input" value={inlineDraft.name || ""} onChange={(e)=>setInlineDraft({...inlineDraft, name:e.target.value})} /> : (d.name || "Untitled deal")}</td>
-                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <select className="crm-input" value={inlineDraft.contactId || ""} onChange={(e)=>setInlineDraft({...inlineDraft, contactId:e.target.value})}><option value="">Select linked contact *</option>{contacts.map((c) => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}</select> : contactName(d.contactId)}</td>
-                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (d.company || "—")}</td>
-                    <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <select className="crm-input" value={inlineDraft.stage || STAGES[0]} onChange={(e)=>setInlineDraft({...inlineDraft, stage:e.target.value})}>{STAGES.map((s)=><option key={s} value={s}>{s}</option>)}</select> : d.stage}</td>
-                    <td className="px-3 py-2 text-slate-400">{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "—"}</td>
-                    <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open" aria-label="Open" onClick={() => openTray(d)}><Pencil size={14} /></button>}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        renderDealsTable(sortedDeals)
       )}
 
       {(dealStamps.length > 0 || deals.some((d) => d.stage === "Lost")) && (
         <div className="space-y-4">
           {dealStamps.length > 0 && (
-            <div className="crm-card p-4">
-              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Won</h3>
-              <div className="space-y-2">
-                {dealStamps.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
-                    <div>
-                      <p className="text-sm font-medium text-slate-100">{s.name || "Untitled deal"} <span className="text-emerald-300">• {money(s.value)}</span></p>
-                      <p className="text-xs text-slate-400">{s.company || "—"} · won {s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="crm-btn-ghost inline-flex items-center gap-1" title="Open" aria-label="Open" onClick={() => { const deal = deals.find((d) => d.id === s.dealId); if (deal) openTray(deal); }}><Pencil size={14} /></button>
-                      <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" title="Remove" aria-label="Remove" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /></button>
-                    </div>
-                  </div>
-                ))}
+            <div className="space-y-2">
+              <h3 className="inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Won</h3>
+              <div className="crm-card overflow-auto">
+                <table className="w-full text-sm">
+                  <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Deal</th><th className="px-3 py-2 text-left">Contact</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Amount</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
+                  <tbody>
+                    {dealStamps.map((s) => {
+                      const linkedDeal = deals.find((d) => d.id === s.dealId);
+                      return (
+                        <tr key={s.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
+                          <td className="px-3 py-2">{s.name || "Untitled deal"}</td>
+                          <td className="px-3 py-2 text-slate-300">{linkedDeal ? contactName(linkedDeal.contactId) : "—"}</td>
+                          <td className="px-3 py-2 text-slate-300">{s.company || "—"}</td>
+                          <td className="px-3 py-2 text-slate-300">{money(s.value)}</td>
+                          <td className="px-3 py-2 text-emerald-300">Launch paid (won)</td>
+                          <td className="px-3 py-2 text-slate-400">{s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</td>
+                          <td className="px-3 py-2"><div className="flex gap-2"><button className="crm-btn-ghost inline-flex items-center gap-1" title="Open" aria-label="Open" onClick={() => { if (linkedDeal) openTray(linkedDeal); }}><Pencil size={14} /></button><button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" title="Remove" aria-label="Remove" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /></button></div></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
 
-          {deals.some((d) => d.stage === "Lost") && (
-            <div className="crm-card p-4">
-              <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Lost</h3>
-              <div className="space-y-2">
-                {deals.filter((d) => d.stage === "Lost").map((d) => (
-                  <div key={d.id} className="flex items-center justify-between rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2">
-                    <div>
-                      <p className="text-sm font-medium text-slate-100">{d.name || "Untitled deal"} <span className="text-rose-300">• {money(d.value)}</span></p>
-                      <p className="text-xs text-slate-400">{d.company || "—"} · lost {d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : "—"}</p>
-                    </div>
-                    <button className="crm-btn-ghost inline-flex items-center gap-1" title="Open" aria-label="Open" onClick={() => openTray(d)}><Pencil size={14} /></button>
-                  </div>
-                ))}
-              </div>
+          {lostDeals.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Lost</h3>
+              {renderDealsTable(lostDeals)}
             </div>
           )}
         </div>
