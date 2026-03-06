@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Users, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List, Plus, Upload, Archive } from "lucide-react";
+import { Users, Save, Pencil, Trash2, X, CornerUpLeft, LayoutGrid, List, Plus, Upload, Archive, Mail } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 import Papa from "papaparse";
 
@@ -22,6 +22,7 @@ const openPicker = (e: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTM
   const el = e.currentTarget as HTMLInputElement & { showPicker?: () => void };
   el.showPicker?.();
 };
+const gmailComposeUrl = (email?: string) => `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(String(email || ""))}`;
 
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
@@ -178,7 +179,7 @@ export default function ContactsPage() {
                             />
                             <button draggable onDragStart={() => setDraggingContactId(c.id)} onDragEnd={() => { setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }} className={`crm-card w-full min-w-0 p-3 text-left cursor-grab transition-all duration-150 ${draggingContactId === c.id ? "scale-[1.02] opacity-70" : ""}`} onClick={() => openTray(c)}>
                               <p className="truncate font-semibold">{c.firstName} {c.lastName}</p>
-                              <p className="truncate text-xs text-slate-400">{c.email || "No email"}</p>
+                              <p className="truncate text-xs text-slate-400 inline-flex items-center gap-1.5">{c.email || "No email"}{c.email && <a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={12} /></a>}</p>
                               {c.linkedin && <p className="truncate text-xs text-slate-400">{c.linkedin}</p>}
                               <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
                               <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
@@ -213,7 +214,7 @@ export default function ContactsPage() {
                 return (
                   <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
                     <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : `${c.firstName} ${c.lastName}`}</td>
-                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email || "—")}</td>
+                    <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5">{c.email}<a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a></span> : "—")}</td>
                     <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
                     <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
                     <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.type || ""} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}><option value="">Select type</option>{CONTACT_TYPES.map((t)=> <option key={t} value={t}>{t}</option>)}</select> : (c.type || "—")}</td>
