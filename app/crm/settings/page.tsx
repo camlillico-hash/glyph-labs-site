@@ -2,7 +2,7 @@ import { getStore, storageMode } from "@/lib/crm-store";
 import { gmailReady } from "@/lib/gmail";
 import { Settings, Mail, Database, Shield } from "lucide-react";
 
-export default async function SettingsPage({ searchParams }: { searchParams?: { gmail?: string; reason?: string } }) {
+export default async function SettingsPage({ searchParams }: { searchParams?: { gmail?: string; reason?: string; count?: string; activities?: string } }) {
   const store = await getStore();
   const ready = gmailReady();
   const mode = storageMode();
@@ -17,7 +17,9 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
           Status: {store.gmail.connectedAt ? `Connected (${new Date(store.gmail.connectedAt).toLocaleString()})` : "Not connected"}
         </p>
         {searchParams?.gmail === "connected" && <p className="mt-2 text-sm text-emerald-300">Gmail connected successfully.</p>}
+        {searchParams?.gmail === "synced" && <p className="mt-2 text-sm text-emerald-300">Sync complete: {searchParams?.count || 0} messages checked, {searchParams?.activities || 0} activities created.</p>}
         {searchParams?.gmail === "error" && <p className="mt-2 text-sm text-rose-300">Gmail connect failed{searchParams?.reason ? `: ${decodeURIComponent(searchParams.reason)}` : "."}</p>}
+        {searchParams?.gmail === "sync_error" && <p className="mt-2 text-sm text-rose-300">Gmail sync failed{searchParams?.reason ? `: ${searchParams.reason}` : "."}</p>}
         {!ready && (
           <p className="mt-2 text-sm text-amber-300">
             Add GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI in env to enable connect.
