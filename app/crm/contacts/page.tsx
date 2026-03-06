@@ -250,7 +250,7 @@ export default function ContactsPage() {
         <div className="space-y-4">
           {contactStamps.length > 0 && (
             <div className="space-y-2">
-              <h3 className="inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Converted</h3>
+              <h3 className="inline-flex items-center gap-2 font-semibold text-emerald-300"><Archive size={16} /> Converted</h3>
               <div className="crm-card overflow-auto">
                 <table className="w-full text-sm">
                   <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
@@ -277,7 +277,7 @@ export default function ContactsPage() {
 
           {disqualifiedItems.length > 0 && (
             <div className="space-y-2">
-              <h3 className="inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Disqualified (for now)</h3>
+              <h3 className="inline-flex items-center gap-2 font-semibold text-amber-300"><Archive size={16} /> Disqualified (for now)</h3>
               {renderContactsTable(disqualifiedItems)}
             </div>
           )}

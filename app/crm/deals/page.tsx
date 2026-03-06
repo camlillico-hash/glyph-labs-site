@@ -214,7 +214,7 @@ export default function DealsPage() {
         <div className="space-y-4">
           {dealStamps.length > 0 && (
             <div className="space-y-2">
-              <h3 className="inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Won</h3>
+              <h3 className="inline-flex items-center gap-2 font-semibold text-emerald-300"><Archive size={16} /> Won</h3>
               <div className="crm-card overflow-auto">
                 <table className="w-full text-sm">
                   <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Deal</th><th className="px-3 py-2 text-left">Contact</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Amount</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
@@ -241,7 +241,7 @@ export default function DealsPage() {
 
           {lostDeals.length > 0 && (
             <div className="space-y-2">
-              <h3 className="inline-flex items-center gap-2 font-semibold text-slate-200"><Archive size={16} /> Lost</h3>
+              <h3 className="inline-flex items-center gap-2 font-semibold text-amber-300"><Archive size={16} /> Lost</h3>
               {renderDealsTable(lostDeals)}
             </div>
           )}
