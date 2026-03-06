@@ -34,6 +34,7 @@ export default function TasksPage() {
   const [hoverDrop, setHoverDrop] = useState<{ status: string; index: number } | null>(null);
   const [fadingIds, setFadingIds] = useState<string[]>([]);
   const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; action: (() => void) | null }>({ open: false, message: "", action: null });
+  const [movePicker, setMovePicker] = useState<{ open: boolean; taskId?: string }>({ open: false });
 
   const [selected, setSelected] = useState<any>(null);
   const [draft, setDraft] = useState<any>(null);
@@ -186,7 +187,7 @@ export default function TasksPage() {
                               <p className="truncate text-xs text-violet-300 inline-flex items-center gap-1.5">{(() => { const I = typeIcon(t.type || 'meeting'); return <I size={12} />; })()} Type: {prettyType(t.type || 'meeting')}</p>
                               <p className="truncate text-xs text-emerald-300">{relatedLabel(t)}</p>
                               <p className="truncate text-xs text-slate-400">Due: {t.dueDate || '—'}</p>
-                              <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); const next = prompt(`Move to status (${TASK_STATUSES.filter((s)=>s!=="Overdue").join(', ')})`, getTaskStatus(t)); if (!next) return; moveTaskStatus(t.id, next); }}>
+                              <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); setMovePicker({ open: true, taskId: t.id }); }}>
                                 Move
                               </button>
                             </button>
@@ -256,6 +257,22 @@ export default function TasksPage() {
               {error && <p className="text-sm text-red-300">{error}</p>}
             </div>
           </aside>
+        </div>
+      )}
+
+      {movePicker.open && (
+        <div className="fixed inset-0 z-[70] md:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMovePicker({ open: false })} />
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-neutral-700 bg-neutral-900 p-4 shadow-2xl">
+            <h3 className="text-sm font-semibold text-slate-100">Move task to status</h3>
+            <div className="mt-3 grid gap-2">
+              {TASK_STATUSES.filter((s) => s !== "Overdue").map((s) => (
+                <button key={s} className="crm-btn-ghost text-left" onClick={async () => { if (!movePicker.taskId) return; await moveTaskStatus(movePicker.taskId, s); setMovePicker({ open: false }); }}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

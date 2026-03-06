@@ -30,6 +30,7 @@ export default function DealsPage() {
   const [createMode, setCreateMode] = useState(false);
   const [trayError, setTrayError] = useState("");
   const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; action: (() => void) | null }>({ open: false, message: "", action: null });
+  const [movePicker, setMovePicker] = useState<{ open: boolean; dealId?: string }>({ open: false });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [inlineDraft, setInlineDraft] = useState<any>(null);
 
@@ -161,7 +162,7 @@ export default function DealsPage() {
                             <p className="truncate font-medium">{d.name || "Untitled deal"}</p>
                             <p className="truncate text-xs text-slate-400">Amount: {money(d.value)} · {d.probability || 0}%</p>
                             <p className="truncate text-xs text-slate-500">{contactName(d.contactId)}</p>
-                            <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); const next = prompt(`Move to stage (${STAGES.join(', ')})`, d.stage || STAGES[0]); if (!next) return; moveDealStage(d.id, next); }}>
+                            <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); setMovePicker({ open: true, dealId: d.id }); }}>
                               Move
                             </button>
                           </button>
@@ -280,6 +281,22 @@ export default function DealsPage() {
               {trayError && <p className="text-sm text-red-300">{trayError}</p>}
             </div>
           </aside>
+        </div>
+      )}
+
+      {movePicker.open && (
+        <div className="fixed inset-0 z-[70] md:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMovePicker({ open: false })} />
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-neutral-700 bg-neutral-900 p-4 shadow-2xl">
+            <h3 className="text-sm font-semibold text-slate-100">Move deal to stage</h3>
+            <div className="mt-3 grid gap-2">
+              {STAGES.map((s) => (
+                <button key={s} className="crm-btn-ghost text-left" onClick={async () => { if (!movePicker.dealId) return; await moveDealStage(movePicker.dealId, s); setMovePicker({ open: false }); }}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

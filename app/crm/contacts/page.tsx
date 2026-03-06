@@ -54,6 +54,7 @@ export default function ContactsPage() {
   const [createMode, setCreateMode] = useState(false);
   const [trayError, setTrayError] = useState("");
   const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; action: (() => void) | null }>({ open: false, message: "", action: null });
+  const [movePicker, setMovePicker] = useState<{ open: boolean; contactId?: string }>({ open: false });
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [inlineDraft, setInlineDraft] = useState<any>(null);
@@ -195,7 +196,7 @@ export default function ContactsPage() {
                               <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
                               <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
                               <p className="mt-1 truncate text-[11px] text-emerald-300">Gmail: {c.email ? gmail.filter((m) => `${m.from || ""} ${m.to || ""}`.toLowerCase().includes(String(c.email).toLowerCase())).length : 0}</p>
-                              <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); const next = prompt(`Move to status (${CONTACT_STAGES.join(', ')})`, c.status || "New"); if (!next) return; moveContactStage(c.id, next); }}>
+                              <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); setMovePicker({ open: true, contactId: c.id }); }}>
                                 Move
                               </button>
                             </button>
@@ -420,6 +421,22 @@ export default function ContactsPage() {
               {trayError && <p className="text-sm text-red-300">{trayError}</p>}
             </div>
           </aside>
+        </div>
+      )}
+
+      {movePicker.open && (
+        <div className="fixed inset-0 z-[70] md:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMovePicker({ open: false })} />
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-neutral-700 bg-neutral-900 p-4 shadow-2xl">
+            <h3 className="text-sm font-semibold text-slate-100">Move contact to stage</h3>
+            <div className="mt-3 grid gap-2">
+              {CONTACT_STAGES.map((s) => (
+                <button key={s} className="crm-btn-ghost text-left" onClick={async () => { if (!movePicker.contactId) return; await moveContactStage(movePicker.contactId, s); setMovePicker({ open: false }); }}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
