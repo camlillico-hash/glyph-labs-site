@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import "leaflet/dist/leaflet.css";
 
 const ROUTES = [
   {
@@ -12,13 +13,8 @@ const ROUTES = [
     color: "#22c55e",
     notes: "Sheltered shoreline route with gentle turns. Great warm-up lap.",
     coords: [
-      [44.6688, -78.1605],
-      [44.6706, -78.1541],
-      [44.6719, -78.1492],
-      [44.6702, -78.1438],
-      [44.6675, -78.1455],
-      [44.6664, -78.1528],
-      [44.6688, -78.1605],
+      [44.6688, -78.1605], [44.6706, -78.1541], [44.6719, -78.1492], [44.6702, -78.1438],
+      [44.6675, -78.1455], [44.6664, -78.1528], [44.6688, -78.1605],
     ],
   },
   {
@@ -30,15 +26,8 @@ const ROUTES = [
     color: "#f59e0b",
     notes: "Longer open sections. Fantastic views, more wind exposure.",
     coords: [
-      [44.6678, -78.1658],
-      [44.6712, -78.1582],
-      [44.6768, -78.1517],
-      [44.6821, -78.1441],
-      [44.6862, -78.1368],
-      [44.681, -78.1322],
-      [44.6745, -78.1376],
-      [44.6692, -78.1462],
-      [44.6678, -78.1658],
+      [44.6678, -78.1658], [44.6712, -78.1582], [44.6768, -78.1517], [44.6821, -78.1441],
+      [44.6862, -78.1368], [44.681, -78.1322], [44.6745, -78.1376], [44.6692, -78.1462], [44.6678, -78.1658],
     ],
   },
   {
@@ -50,21 +39,10 @@ const ROUTES = [
     color: "#ef4444",
     notes: "Speed segments + crosswind returns. Fitness day route.",
     coords: [
-      [44.6645, -78.1685],
-      [44.6695, -78.1621],
-      [44.6761, -78.1566],
-      [44.6817, -78.149],
-      [44.6863, -78.1395],
-      [44.6838, -78.1308],
-      [44.6778, -78.1278],
-      [44.6724, -78.1339],
-      [44.6701, -78.1428],
-      [44.6735, -78.1503],
-      [44.6798, -78.1551],
-      [44.6841, -78.1622],
-      [44.6799, -78.1687],
-      [44.6712, -78.1713],
-      [44.6645, -78.1685],
+      [44.6645, -78.1685], [44.6695, -78.1621], [44.6761, -78.1566], [44.6817, -78.149],
+      [44.6863, -78.1395], [44.6838, -78.1308], [44.6778, -78.1278], [44.6724, -78.1339],
+      [44.6701, -78.1428], [44.6735, -78.1503], [44.6798, -78.1551], [44.6841, -78.1622],
+      [44.6799, -78.1687], [44.6712, -78.1713], [44.6645, -78.1685],
     ],
   },
   {
@@ -76,141 +54,111 @@ const ROUTES = [
     color: "#06b6d4",
     notes: "Short interval loops around island pinch points. Great for training sets.",
     coords: [
-      [44.6754, -78.16],
-      [44.6773, -78.1542],
-      [44.6792, -78.1497],
-      [44.676, -78.146],
-      [44.6726, -78.148],
-      [44.6719, -78.1545],
-      [44.6746, -78.1588],
-      [44.6754, -78.16],
+      [44.6754, -78.16], [44.6773, -78.1542], [44.6792, -78.1497], [44.676, -78.146],
+      [44.6726, -78.148], [44.6719, -78.1545], [44.6746, -78.1588], [44.6754, -78.16],
     ],
   },
 ];
 
-const pageStyle = {
-  background: "radial-gradient(1200px 700px at 20% -10%, #1b2a48, #0b1220)",
-  color: "#e7eefc",
-  minHeight: "100vh",
-  padding: "1rem",
-};
-
 function DifficultyBadge({ difficulty }) {
   const color = difficulty === "easy" ? "#22c55e" : difficulty === "hard" ? "#ef4444" : "#f59e0b";
-  return (
-    <span style={{ border: "1px solid #314f84", borderRadius: 999, padding: "2px 8px", color, fontSize: 12, fontWeight: 700 }}>
-      {difficulty.toUpperCase()}
-    </span>
-  );
+  return <span style={{ border: "1px solid #314f84", borderRadius: 999, padding: "2px 8px", color, fontSize: 12, fontWeight: 700 }}>{difficulty.toUpperCase()}</span>;
 }
 
 export default function CatchacomaLakeXCPage() {
   const [difficulty, setDifficulty] = useState("all");
   const [activeRouteId, setActiveRouteId] = useState(null);
+  const mapRef = useRef(null);
+  const leafletRef = useRef(null);
+  const linesRef = useRef(new Map());
 
-  const filteredRoutes = useMemo(() => {
-    if (difficulty === "all") return ROUTES;
-    return ROUTES.filter((r) => r.difficulty === difficulty);
-  }, [difficulty]);
+  const filteredRoutes = useMemo(() => (difficulty === "all" ? ROUTES : ROUTES.filter((r) => r.difficulty === difficulty)), [difficulty]);
 
   useEffect(() => {
-    let map;
-    const lines = new Map();
+    let mounted = true;
 
-    function addLeafletAssets() {
-      if (!document.querySelector('link[data-leaflet="true"]')) {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-        link.crossOrigin = "";
-        link.dataset.leaflet = "true";
-        document.head.appendChild(link);
-      }
+    async function initMap() {
+      if (mapRef.current) return;
+      const L = await import("leaflet");
+      leafletRef.current = L;
 
-      return new Promise((resolve) => {
-        if (window.L) return resolve(window.L);
-        const script = document.createElement("script");
-        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-        script.crossOrigin = "";
-        script.onload = () => resolve(window.L);
-        document.body.appendChild(script);
-      });
-    }
-
-    function drawAll(Lib, routesToDraw) {
-      lines.forEach((layer) => map.removeLayer(layer));
-      lines.clear();
-
-      routesToDraw.forEach((route) => {
-        const line = Lib.polyline(route.coords, {
-          color: route.color,
-          weight: 5,
-          opacity: 0.92,
-        }).addTo(map);
-
-        line.bindPopup(
-          `<div style="min-width:210px"><strong>${route.name}</strong><br>${route.distanceKm.toFixed(1)} km · ${route.estTime}<br><em>${route.notes}</em></div>`
-        );
-
-        lines.set(route.id, line);
-      });
-
-      if (lines.size > 0) {
-        const group = Lib.featureGroup([...lines.values()]);
-        map.fitBounds(group.getBounds().pad(0.16));
-      }
-
-      if (activeRouteId && lines.get(activeRouteId)) {
-        const active = lines.get(activeRouteId);
-        map.fitBounds(active.getBounds().pad(0.25));
-        active.openPopup();
-      }
-    }
-
-    addLeafletAssets().then((L) => {
-      if (!document.getElementById("catchacomaMap")) return;
-
-      map = L.map("catchacomaMap", { zoomControl: true }).setView([44.6735, -78.1475], 12);
-
+      const map = L.map("catchacomaMap", { zoomControl: true }).setView([44.6735, -78.1475], 12);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 18,
         attribution: "&copy; OpenStreetMap contributors",
       }).addTo(map);
 
-      drawAll(L, filteredRoutes);
-
-      if (activeRouteId) {
-        lines.forEach((line, id) => {
-          line.setStyle({ opacity: id === activeRouteId ? 1 : 0.35, weight: id === activeRouteId ? 6 : 4 });
-        });
+      mapRef.current = map;
+      if (mounted) {
+        setTimeout(() => map.invalidateSize(), 100);
       }
-    });
+    }
+
+    initMap();
 
     return () => {
-      if (map) map.remove();
+      mounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    if (!mapRef.current || !leafletRef.current) return;
+    const map = mapRef.current;
+    const L = leafletRef.current;
+
+    linesRef.current.forEach((line) => map.removeLayer(line));
+    linesRef.current.clear();
+
+    filteredRoutes.forEach((route) => {
+      const line = L.polyline(route.coords, { color: route.color, weight: 5, opacity: 0.92 }).addTo(map);
+      line.bindPopup(`<div style="min-width:220px"><strong>${route.name}</strong><br>${route.distanceKm.toFixed(1)} km · ${route.estTime}<br><em>${route.notes}</em></div>`);
+      linesRef.current.set(route.id, line);
+    });
+
+    if (linesRef.current.size > 0) {
+      const group = L.featureGroup([...linesRef.current.values()]);
+      map.fitBounds(group.getBounds().pad(0.16));
+    }
+
+    if (activeRouteId && linesRef.current.get(activeRouteId)) {
+      const active = linesRef.current.get(activeRouteId);
+      map.fitBounds(active.getBounds().pad(0.25));
+      active.openPopup();
+      linesRef.current.forEach((line, id) => {
+        line.setStyle({ opacity: id === activeRouteId ? 1 : 0.35, weight: id === activeRouteId ? 6 : 4 });
+      });
+    }
+
+    setTimeout(() => map.invalidateSize(), 100);
   }, [filteredRoutes, activeRouteId]);
 
+  useEffect(() => {
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
   return (
-    <main style={pageStyle}>
-      <div style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gap: 16, gridTemplateColumns: "360px 1fr" }}>
+    <main style={{ background: "radial-gradient(1200px 700px at 20% -10%, #1b2a48, #0b1220)", color: "#e7eefc", minHeight: "100vh", padding: "1rem" }}>
+      <style>{`
+        .layout { display:grid; gap:16px; grid-template-columns: 360px 1fr; max-width:1400px; margin:0 auto; }
+        .mapWrap { width:100%; min-height: calc(100vh - 2rem); border-radius:16px; border:1px solid #213252; overflow:hidden; }
+        @media (max-width: 980px){ .layout { grid-template-columns: 1fr; } .mapWrap { min-height: 62vh; } }
+      `}</style>
+      <div className="layout">
         <aside style={{ background: "#111b2f", border: "1px solid #213252", borderRadius: 16, padding: 16 }}>
-          <div style={{ color: "#67e8f9", border: "1px solid #2b436f", display: "inline-block", padding: "4px 10px", borderRadius: 999, fontSize: 12 }}>
-            Catchacoma Lake · XC
-          </div>
+          <div style={{ color: "#67e8f9", border: "1px solid #2b436f", display: "inline-block", padding: "4px 10px", borderRadius: 999, fontSize: 12 }}>Catchacoma Lake · XC</div>
           <h1 style={{ margin: "10px 0", fontSize: 28, lineHeight: 1.15 }}>Catchacoma Cross-Country Ski Hub</h1>
-          <p style={{ color: "#9fb2d9", lineHeight: 1.45, marginTop: 0 }}>
-            Pick your route, filter by difficulty, and click cards to focus the map. Built for fun planning and winter stoke.
-          </p>
+          <p style={{ color: "#9fb2d9", lineHeight: 1.45, marginTop: 0 }}>Pick your route, filter by difficulty, and click cards to focus the map.</p>
 
           <label htmlFor="difficulty" style={{ color: "#9fb2d9", display: "block", marginBottom: 8 }}>Filter by difficulty</label>
           <select
             id="difficulty"
             value={difficulty}
-            onChange={(e) => {
-              setDifficulty(e.target.value);
-              setActiveRouteId(null);
-            }}
+            onChange={(e) => { setDifficulty(e.target.value); setActiveRouteId(null); }}
             style={{ width: "100%", borderRadius: 10, border: "1px solid #2b436f", background: "#101a30", color: "#e7eefc", padding: "9px 11px" }}
           >
             <option value="all">All routes</option>
@@ -221,35 +169,20 @@ export default function CatchacomaLakeXCPage() {
 
           <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
             {filteredRoutes.map((route) => (
-              <article
-                key={route.id}
-                onClick={() => setActiveRouteId(route.id)}
-                style={{
-                  border: "1px solid #28416c",
-                  borderRadius: 12,
-                  padding: 12,
-                  cursor: "pointer",
-                  background: route.id === activeRouteId ? "#12213d" : "#0f172a",
-                }}
-              >
+              <article key={route.id} onClick={() => setActiveRouteId(route.id)} style={{ border: "1px solid #28416c", borderRadius: 12, padding: 12, cursor: "pointer", background: route.id === activeRouteId ? "#12213d" : "#0f172a" }}>
                 <h3 style={{ margin: "0 0 6px", fontSize: 16 }}>{route.name}</h3>
                 <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", color: "#9fb2d9", fontSize: 14 }}>
-                  <span>{route.distanceKm.toFixed(1)} km</span>
-                  <span>•</span>
-                  <span>{route.estTime}</span>
-                  <DifficultyBadge difficulty={route.difficulty} />
+                  <span>{route.distanceKm.toFixed(1)} km</span><span>•</span><span>{route.estTime}</span><DifficultyBadge difficulty={route.difficulty} />
                 </div>
                 <p style={{ margin: "8px 0 0", fontSize: 14, color: "#9fb2d9" }}>{route.notes}</p>
               </article>
             ))}
           </div>
 
-          <p style={{ marginTop: 14, fontSize: 12, color: "#9db0d4", lineHeight: 1.4 }}>
-            ⚠️ Suggested routes only. Verify ice thickness, local advisories, weather, and shoreline access before skiing.
-          </p>
+          <p style={{ marginTop: 14, fontSize: 12, color: "#9db0d4", lineHeight: 1.4 }}>⚠️ Suggested routes only. Verify ice thickness, local advisories, weather, and shoreline access before skiing.</p>
         </aside>
 
-        <section id="catchacomaMap" style={{ width: "100%", minHeight: "calc(100vh - 2rem)", borderRadius: 16, border: "1px solid #213252", overflow: "hidden" }} />
+        <section id="catchacomaMap" className="mapWrap" />
       </div>
     </main>
   );
