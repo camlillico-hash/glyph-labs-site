@@ -52,6 +52,15 @@ export default function FellasPage() {
           </div>
         </div>
 
+        <div className="mt-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+          <h2 className="text-xl font-semibold text-amber-200">Field note: The Gus Incident</h2>
+          <p className="mt-2 text-slate-300">
+            Gus the dog chose violence and dropped one right by O’Reilly’s car.
+            O’Reilly then stepped in it... and somehow kept stepping in it before realizing what happened.
+            Absolutely gross. Absolutely unforgettable.
+          </p>
+        </div>
+
         <p className="mt-6 text-slate-400">
           The kind of weekend that reminds you: the best stories usually start where the easy route ends.
         </p>
