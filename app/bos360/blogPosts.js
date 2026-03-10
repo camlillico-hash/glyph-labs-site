@@ -8,7 +8,8 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
     readTime: "6 min read",
     category: "Execution",
-    publishedAt: "March 2026",
+    publishedAt: "March 10, 2026",
+    publishedBy: "Cam Lillico",
     body: [
       "Most leadership meetings fail for the same reason: too many updates, not enough decisions.",
       "If your weekly cadence feels heavy but progress is still inconsistent, tighten the agenda around three things: metrics, priorities, and blockers. Keep updates short and use most of the room for issue-solving.",
@@ -25,7 +26,8 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
     readTime: "8 min read",
     category: "Strategy",
-    publishedAt: "March 2026",
+    publishedAt: "March 11, 2026",
+    publishedBy: "Cam Lillico",
     body: [
       "Growth amplifies whatever is already true in your business — strengths and weaknesses alike.",
       "A strong strategic plan does not just define ambition; it identifies where you are vulnerable. Where are margins thin? Which channels are fragile? Which customer segments are high effort and low return?",
@@ -42,7 +44,8 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
     readTime: "7 min read",
     category: "Leadership",
-    publishedAt: "March 2026",
+    publishedAt: "March 12, 2026",
+    publishedBy: "Cam Lillico",
     body: [
       "At early stages, founder heroics can carry the company. Later, they become the bottleneck.",
       "The shift is not about doing less. It is about designing systems that keep quality high without your constant intervention.",

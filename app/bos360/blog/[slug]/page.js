@@ -38,7 +38,10 @@ export default async function BlogPostPage({ params }) {
         </a>
 
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-orange-200/90">
-          {post.category} · {post.readTime} · {post.publishedAt}
+          {post.category} · {post.readTime}
+        </p>
+        <p className="mt-2 text-sm text-slate-300">
+          Published {post.publishedAt} · By {post.publishedBy || "Cam Lillico"}
         </p>
         <h1 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">{post.title}</h1>
         <p className="mt-4 text-lg text-slate-300">{post.description}</p>
