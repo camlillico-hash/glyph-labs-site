@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Upload, Archive, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight } from "lucide-react";
+import { Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Upload, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 import Papa from "papaparse";
 
@@ -38,7 +38,6 @@ const activityTypeIcon = (v?: string) => {
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
   const [gmail, setGmail] = useState<any[]>([]);
-  const [contactStamps, setContactStamps] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
   const [deals, setDeals] = useState<any[]>([]);
@@ -72,7 +71,6 @@ export default function ContactsPage() {
   const load = async () => {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
     setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
-    setContactStamps(Array.isArray(contactsRes) ? [] : contactsRes.contactStamps || []);
     setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
     setActivities(await (await fetch("/api/crm/activities", { cache: "no-store" })).json());
     setTasks((await (await fetch("/api/crm/tasks", { cache: "no-store" })).json()).tasks || []);
@@ -82,16 +80,9 @@ export default function ContactsPage() {
 
   const openItems = useMemo(() => items.filter((c) => (c.status || "New") !== "Discovery meeting booked" && (c.status || "New") !== "Not right now"), [items]);
   const sorted = useMemo(() => [...openItems], [openItems]);
+  const convertedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Discovery meeting booked"), [items]);
   const disqualifiedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Not right now"), [items]);
 
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const targetId = new URLSearchParams(window.location.search).get("contactId");
-    if (!targetId || selected?.id === targetId || items.length === 0) return;
-    const target = items.find((c) => c.id === targetId);
-    if (target) openTray(target);
-  }, [items, selected?.id]);
 
   const selectedActivities = useMemo(() => {
     if (!selected?.id) return [];
@@ -116,6 +107,14 @@ export default function ContactsPage() {
       }
     }
   }
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const targetId = new URLSearchParams(window.location.search).get("contactId");
+    if (!targetId || selected?.id === targetId || items.length === 0) return;
+    const target = items.find((c) => c.id === targetId);
+    if (target) openTray(target);
+  }, [items, selected?.id]);
 
   function startInlineEdit(c: any) { setEditingId(c.id); setInlineDraft({ ...c }); }
   function cancelInlineEdit() { setEditingId(null); setInlineDraft(null); }
@@ -173,15 +172,31 @@ export default function ContactsPage() {
     await load();
   }
 
-  function askConfirm(message: string, action: () => void) {
-    setConfirmState({ open: true, message, action });
+  async function unconvertFromTray() {
+    if (!selected?.id) return;
+    const payload = {
+      ...selected,
+      status: "Connected",
+      disqualificationReason: undefined,
+      whatNow: undefined,
+    };
+    const res = await fetch('/api/crm/contacts', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const updated = await res.json().catch(() => null);
+    if (!res.ok) {
+      setTrayError(updated?.error || 'Could not unconvert contact');
+      return;
+    }
+    await load();
+    setSelected(updated);
+    setDraft({ ...updated });
   }
 
-  async function removeContactStamp(stampId: string) {
-    askConfirm("Remove this won-contact placeholder?", async () => {
-      await fetch(`/api/crm/contacts?stampId=${encodeURIComponent(stampId)}`, { method: "DELETE" });
-      await load();
-    });
+  function askConfirm(message: string, action: () => void) {
+    setConfirmState({ open: true, message, action });
   }
 
   const renderContactsTable = (rows: Contact[]) => (
@@ -283,51 +298,31 @@ export default function ContactsPage() {
         </div>
       )}
 
-      {(contactStamps.length > 0 || items.some((c) => (c.status || "New") === "Not right now")) && (
-        <div className="space-y-4">
-          {contactStamps.length > 0 && (
-            <div className="space-y-2">
-              <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowConverted((v) => !v)}>
-                {showConverted ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                Converted ({contactStamps.length})
-              </button>
-              {showConverted && (
-                <div className="crm-card overflow-auto">
-                  <table className="w-full text-sm">
-                    <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
-                    <tbody>
-                      {contactStamps.map((s) => (
-                        <tr key={s.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
-                          <td className="px-3 py-2">{s.name || "Unnamed contact"}</td>
-                          <td className="px-3 py-2 text-slate-300">{s.email || "—"}</td>
-                          <td className="px-3 py-2 text-slate-300">—</td>
-                          <td className="px-3 py-2 text-slate-300">{s.company || "—"}</td>
-                          <td className="px-3 py-2 text-slate-300">—</td>
-                          <td className="px-3 py-2 text-emerald-300">Discovery meeting booked</td>
-                          <td className="px-3 py-2 text-slate-300">{s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</td>
-                          <td className="px-3 py-2 text-slate-300">task completed</td>
-                          <td className="px-3 py-2 text-slate-400">—</td>
-                          <td className="px-3 py-2"><button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" onClick={() => removeContactStamp(s.id)}><Trash2 size={13} /> Remove</button></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
-
-          {disqualifiedItems.length > 0 && (
-            <div className="space-y-2">
-              <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-amber-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowDisqualified((v) => !v)}>
-                {showDisqualified ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                Disqualified ({disqualifiedItems.length})
-              </button>
-              {showDisqualified && renderContactsTable(disqualifiedItems)}
-            </div>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowConverted((v) => !v)}>
+            {showConverted ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            Converted ({convertedItems.length})
+          </button>
+          {showConverted && (
+            convertedItems.length > 0 ? renderContactsTable(convertedItems) : (
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No converted contacts yet.</div>
+            )
           )}
         </div>
-      )}
+
+        <div className="space-y-2">
+          <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-amber-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowDisqualified((v) => !v)}>
+            {showDisqualified ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            Disqualified ({disqualifiedItems.length})
+          </button>
+          {showDisqualified && (
+            disqualifiedItems.length > 0 ? renderContactsTable(disqualifiedItems) : (
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No disqualified contacts.</div>
+            )
+          )}
+        </div>
+      </div>
 
       {importOpen && (
         <div className="fixed inset-0 z-40">
@@ -394,8 +389,13 @@ export default function ContactsPage() {
         <div className="fixed inset-0 z-40"><div className="absolute inset-0 bg-black/55" onClick={closeTray} />
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? "New contact" : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(false)}><Save size={14} className="text-emerald-300" /></button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(true)}><Save size={14} className="text-emerald-300" /></button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
+              {!createMode && selected?.status === "Discovery meeting booked" && (
+                <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this contact and return it to Open contacts?", () => { unconvertFromTray(); })}>
+                  Unconvert
+                </button>
+              )}
               {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" title="Delete" aria-label="Delete" onClick={() => askConfirm("Are you sure you want to delete this record?", () => { deleteFromTray(); })}><Trash2 size={14} /></button>}
             </div>
             <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10">

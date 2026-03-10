@@ -41,20 +41,29 @@ function plusMonthsIsoDate(baseIso: string, months: number) {
   return d.toISOString().slice(0, 10);
 }
 
-function upsertContactStamp(store: any, contact: any) {
-  if (contact.status !== "Discovery meeting booked") return;
-  const idx = (store.contactStamps || []).findIndex((s: any) => s.contactId === contact.id);
-  const stamp = {
-    id: idx >= 0 ? store.contactStamps[idx].id : id(),
-    contactId: contact.id,
-    name: `${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "Unnamed contact",
-    company: contact.company || "",
-    email: contact.email || "",
-    wonAt: idx >= 0 ? store.contactStamps[idx].wonAt : now(),
-    removedAt: undefined,
-  };
-  if (idx >= 0) store.contactStamps[idx] = stamp;
-  else store.contactStamps = [stamp, ...(store.contactStamps || [])];
+function syncContactStamp(store: any, previous: any | null, contact: any) {
+  const stamps = store.contactStamps || (store.contactStamps = []);
+  const idx = stamps.findIndex((s: any) => s.contactId === contact.id);
+
+  if (contact.status === "Discovery meeting booked") {
+    const stamp = {
+      id: idx >= 0 ? stamps[idx].id : id(),
+      contactId: contact.id,
+      name: `${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "Unnamed contact",
+      company: contact.company || "",
+      email: contact.email || "",
+      wonAt: idx >= 0 ? stamps[idx].wonAt : now(),
+      removedAt: undefined,
+    };
+    if (idx >= 0) stamps[idx] = stamp;
+    else store.contactStamps = [stamp, ...stamps];
+    return;
+  }
+
+  const wasConverted = previous?.status === "Discovery meeting booked";
+  if (idx >= 0 && wasConverted) {
+    store.contactStamps = stamps.filter((s: any) => s.contactId !== contact.id);
+  }
 }
 
 function maybeCreateNurtureTaskForContact(store: any, previous: any | null, contact: any) {
@@ -151,7 +160,7 @@ export async function POST(req: Request) {
   const record = { id: id(), createdAt: now(), updatedAt: now(), status, ...body, email, disqualificationReason, whatNow, primaryPain: normalizePrimaryPain(body.primaryPain) };
   maybeCreateDealForDiscovery(store, record);
   maybeCreateNurtureTaskForContact(store, null, record);
-  upsertContactStamp(store, record);
+  syncContactStamp(store, null, record);
   store.contacts.unshift(record);
   await saveStore(store);
   return NextResponse.json(record);
@@ -187,7 +196,7 @@ export async function PUT(req: Request) {
   const updated = { ...store.contacts[idx], ...body, status, email, disqualificationReason, whatNow, primaryPain: normalizePrimaryPain(body.primaryPain), updatedAt: now() };
   maybeCreateDealForDiscovery(store, updated);
   maybeCreateNurtureTaskForContact(store, previous, updated);
-  upsertContactStamp(store, updated);
+  syncContactStamp(store, previous, updated);
   store.contacts[idx] = updated;
 
   await saveStore(store);
