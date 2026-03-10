@@ -5,8 +5,9 @@ export function generateStaticParams() {
   return blogPosts.map((post) => ({ slug: post.slug }));
 }
 
-export function generateMetadata({ params }) {
-  const post = getPostBySlug(params.slug);
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const post = getPostBySlug(resolvedParams?.slug);
 
   if (!post) {
     return { title: "Article not found | BOS360" };
@@ -19,8 +20,9 @@ export function generateMetadata({ params }) {
   };
 }
 
-export default function BlogPostPage({ params }) {
-  const post = getPostBySlug(params.slug);
+export default async function BlogPostPage({ params }) {
+  const resolvedParams = await params;
+  const post = getPostBySlug(resolvedParams?.slug);
 
   if (!post) notFound();
 
