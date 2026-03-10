@@ -1,4 +1,5 @@
 import CopyEmailButton from "./CopyEmailButton";
+import { blogPosts } from "./blogPosts";
 
 export const metadata = {
   title: "Glyph Labs | Cam Lillico Coaching",
@@ -7,17 +8,17 @@ export const metadata = {
 
 const pillars = [
   {
-    icon: "🧭",
+    icon: "◼",
     title: "Strategic Clarity",
     text: "Get your leadership team aligned on where you’re going, what matters most now, and what to deprioritize.",
   },
   {
-    icon: "⚙️",
+    icon: "◻",
     title: "Execution Discipline",
     text: "Turn strategy into focused weekly execution with practical operating rhythms your team can actually sustain.",
   },
   {
-    icon: "📈",
+    icon: "◆",
     title: "Leadership Accountability",
     text: "Build a high-performance culture where ownership is clear, progress is measurable, and momentum compounds.",
   },
@@ -150,7 +151,7 @@ export default function Bos360Page() {
       {/* PILLARS */}
       <section className="mx-auto max-w-6xl px-6 py-10 md:py-12">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-[#ed7d31]">✦</span>
+          <span aria-hidden className="text-[#ed7d31]">⬤</span>
           What I Help You Solve
         </h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -173,7 +174,7 @@ export default function Bos360Page() {
       <section className="border-y border-neutral-700 bg-neutral-900/40 py-16">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-            <span aria-hidden className="text-[#ed7d31]">◇</span>
+            <span aria-hidden className="text-[#ed7d31]">⬤</span>
             My BOS360 Coaching Approach
           </h2>
           <ol className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -206,7 +207,7 @@ export default function Bos360Page() {
       {/* PROOF */}
       <section id="proof" className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-[#ed7d31]">◻</span>
+          <span aria-hidden className="text-[#ed7d31]">⬤</span>
           Why Founders Work With Me
         </h2>
 
@@ -356,7 +357,7 @@ export default function Bos360Page() {
 
           <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-8">
             <h3 className="flex items-center gap-2 text-2xl font-semibold">
-              <span aria-hidden className="text-[#ed7d31]">▸</span>
+              <span aria-hidden className="text-[#ed7d31]">⬤</span>
               Ready to Scale with More Clarity?
             </h3>
             <p className="mt-3 text-slate-300">
@@ -380,7 +381,7 @@ export default function Bos360Page() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-[#ed7d31]">◦</span>
+          <span aria-hidden className="text-[#ed7d31]">⬤</span>
           Recommended reads
         </h2>
         <p className="mt-3 max-w-4xl text-slate-300">
@@ -401,6 +402,44 @@ export default function Bos360Page() {
               <p className="mt-2 text-xs font-semibold text-orange-200">{book.rating}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-neutral-700 bg-neutral-900/40 py-16">
+        <div className="mx-auto max-w-6xl px-6">
+          <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
+            <span aria-hidden className="text-[#ed7d31]">⬤</span>
+            Informal blog
+          </h2>
+          <p className="mt-3 max-w-4xl text-slate-300">
+            Short, practical notes on management, strategy, execution, leadership, and communication.
+          </p>
+
+          <div className="mt-8 space-y-4">
+            {blogPosts.map((post) => (
+              <a
+                key={post.slug}
+                href={`/bos360/blog/${post.slug}`}
+                className="group flex flex-col gap-4 rounded-2xl border border-neutral-700 bg-neutral-900 p-4 transition hover:border-neutral-500 md:flex-row md:items-center"
+              >
+                <img
+                  src={post.thumbnail}
+                  alt={post.title}
+                  className="h-36 w-full rounded-xl border border-neutral-700 object-cover md:h-24 md:w-44"
+                  loading="lazy"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange-200/90">
+                    {post.category} · {post.readTime}
+                  </p>
+                  <h3 className="mt-1 text-xl font-semibold text-slate-100 transition group-hover:text-orange-100">
+                    {post.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-slate-300">{post.description}</p>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
     </main>
