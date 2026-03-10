@@ -127,8 +127,8 @@ export async function GET() {
     const latest = acts[0];
     return {
       ...c,
-      lastActivityDate: c.lastActivityDate || latest?.occurredAt || "",
-      lastActivityType: c.lastActivityType || latest?.type || "",
+      lastActivityDate: latest?.occurredAt || "",
+      lastActivityType: latest?.type || "",
     };
   });
   return NextResponse.json({ contacts, contactStamps: store.contactStamps || [], stages: CONTACT_STAGES });

@@ -86,7 +86,26 @@ export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const activityId = searchParams.get("id");
   const store = await getStore();
+
+  const existing = (store.activities || []).find((a: any) => a.id === activityId);
   store.activities = (store.activities || []).filter((a: any) => a.id !== activityId);
+
+  if (existing?.contactId) {
+    const latest = (store.activities || [])
+      .filter((a: any) => a.contactId === existing.contactId)
+      .sort((a: any, b: any) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime())[0];
+
+    const cidx = (store.contacts || []).findIndex((c: any) => c.id === existing.contactId);
+    if (cidx >= 0) {
+      store.contacts[cidx] = {
+        ...store.contacts[cidx],
+        lastActivityDate: latest?.occurredAt || "",
+        lastActivityType: latest?.type || "",
+        updatedAt: now(),
+      };
+    }
+  }
+
   await saveStore(store);
   return NextResponse.json({ ok: true });
 }
