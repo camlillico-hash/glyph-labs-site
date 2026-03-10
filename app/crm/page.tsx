@@ -1,5 +1,9 @@
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "CRM",
+};
+
 import Link from "next/link";
 import { getStore, now, DEAL_STAGES } from "@/lib/crm-store";
 import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3 } from "lucide-react";

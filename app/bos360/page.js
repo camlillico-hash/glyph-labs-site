@@ -2,7 +2,7 @@ import CopyEmailButton from "./CopyEmailButton";
 import { blogPosts } from "./blogPosts";
 
 export const metadata = {
-  title: "Glyph Labs | Cam Lillico Coaching",
+  title: "Coaching",
   robots: { index: false, follow: false },
 };
 
