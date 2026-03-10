@@ -110,6 +110,24 @@ h1, h2, h3, h4, h5, h6, thead th {
   font-family: var(--font-playfair-display), serif;
 }
 
+/* CRM list table truncation: keep rows single-line and cap wide text columns */
+.crm-card table {
+  width: 100%;
+}
+
+.crm-card table th,
+.crm-card table td {
+  max-width: 12rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crm-card table th:nth-last-child(-n+2),
+.crm-card table td:nth-last-child(-n+2) {
+  max-width: none;
+}
+
 
 .crm-input[type="date"],
 .crm-input[type="time"],
