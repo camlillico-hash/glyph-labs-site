@@ -2,6 +2,8 @@ import { getStore, storageMode } from "@/lib/crm-store";
 import { gmailReady } from "@/lib/gmail";
 import { Settings, Mail, Database } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage({ searchParams }: { searchParams?: { gmail?: string; reason?: string; count?: string; activities?: string } }) {
   const store = await getStore();
   const ready = gmailReady();
