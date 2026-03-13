@@ -96,18 +96,25 @@ export default function StrengthTestPage() {
 
   const pieSlices = useMemo(() => {
     const entries = Object.keys(subtotals) as SectionKey[];
-    let start = 0;
+    const radius = 86;
+    const circumference = 2 * Math.PI * radius;
+    let offset = 0;
+
     return entries.map((section) => {
       const value = subtotals[section];
-      const angle = (value / 100) * 360;
-      const end = start + angle;
+      const percent = Math.round((value / sectionMax[section]) * 100);
+      const length = (value / 100) * circumference;
       const slice = {
         section,
         value,
+        percent,
         color: sectionColors[section],
-        path: angle > 0 ? makeArcPath(120, 120, 100, start, end) : "",
+        radius,
+        circumference,
+        dashArray: `${length} ${Math.max(circumference - length, 0)}`,
+        dashOffset: -offset,
       };
-      start = end;
+      offset += length;
       return slice;
     });
   }, [subtotals]);
@@ -157,16 +164,31 @@ export default function StrengthTestPage() {
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
             <h1 className="text-3xl font-bold">Strength Test Results</h1>
 
-            <div className="mt-6 grid gap-6 md:grid-cols-[280px_1fr]">
+            <div className="mt-6 grid gap-6 md:grid-cols-[300px_1fr]">
               <div className="flex flex-col items-center">
-                <svg width="240" height="240" viewBox="0 0 240 240" aria-label="Section score pie chart">
-                  <circle cx="120" cy="120" r="100" fill="#0f172a" />
-                  {pieSlices.map((s) =>
-                    s.path ? <path key={s.section} d={s.path} fill={s.color} stroke="#0b1020" strokeWidth="2" /> : null
-                  )}
-                  <circle cx="120" cy="120" r="52" fill="#06090f" />
+                <svg width="260" height="260" viewBox="0 0 260 260" aria-label="Section score donut chart">
+                  <g transform="rotate(-90 130 130)">
+                    <circle cx="130" cy="130" r="86" fill="none" stroke="#0f172a" strokeWidth="28" />
+                    {pieSlices.map((s) => (
+                      <circle
+                        key={s.section}
+                        cx="130"
+                        cy="130"
+                        r={s.radius}
+                        fill="none"
+                        stroke={s.color}
+                        strokeWidth="28"
+                        strokeLinecap="butt"
+                        strokeDasharray={s.dashArray}
+                        strokeDashoffset={s.dashOffset}
+                      />
+                    ))}
+                  </g>
+                  <circle cx="130" cy="130" r="56" fill="#06090f" />
+                  <text x="130" y="120" textAnchor="middle" fontSize="12" fill="#94a3b8">Overall Score</text>
+                  <text x="130" y="147" textAnchor="middle" fontSize="28" fontWeight="700" fill={totalColor}>{total}%</text>
                 </svg>
-                <p className="mt-2 text-sm text-slate-400">Section contribution chart</p>
+                <p className="mt-2 text-sm text-slate-400">Section distribution</p>
               </div>
 
               <div>
@@ -179,12 +201,16 @@ export default function StrengthTestPage() {
                 </p>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {(Object.keys(subtotals) as SectionKey[]).map((section) => (
-                    <div key={section} className="rounded-lg border border-slate-800 p-3">
-                      <p className="text-sm text-slate-300">{section}</p>
-                      <p className="text-xl font-semibold">
-                        {subtotals[section]} / {sectionMax[section]}
+                  {pieSlices.map((s) => (
+                    <div key={s.section} className="rounded-lg border border-slate-800 p-3">
+                      <p className="text-sm text-slate-300 inline-flex items-center gap-2">
+                        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                        {s.section}
                       </p>
+                      <p className="text-xl font-semibold">
+                        {s.value} / {sectionMax[s.section]}
+                      </p>
+                      <p className="text-xs text-slate-400">{s.percent}% of section max</p>
                     </div>
                   ))}
                 </div>
