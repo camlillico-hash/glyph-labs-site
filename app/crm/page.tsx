@@ -9,7 +9,22 @@ import { getStore, now, DEAL_STAGES } from "@/lib/crm-store";
 import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3 } from "lucide-react";
 
 export default async function CrmHome() {
-  const store = await getStore();
+  let storeRaw: any = null;
+  try {
+    storeRaw = await getStore();
+  } catch (error) {
+    console.error("[crm/home] getStore failed", error);
+    storeRaw = {};
+  }
+
+  const store: { contacts: any[]; deals: any[]; tasks: any[]; activities: any[]; gmail: any } = {
+    contacts: Array.isArray(storeRaw?.contacts) ? storeRaw.contacts : [],
+    deals: Array.isArray(storeRaw?.deals) ? storeRaw.deals : [],
+    tasks: Array.isArray(storeRaw?.tasks) ? storeRaw.tasks : [],
+    activities: Array.isArray(storeRaw?.activities) ? storeRaw.activities : [],
+    gmail: storeRaw?.gmail && typeof storeRaw.gmail === "object" ? storeRaw.gmail : { messages: [] },
+  };
+
   const currentMs = new Date(now()).getTime();
   const oneWeekAgo = currentMs - 7 * 24 * 60 * 60 * 1000;
 
