@@ -13,7 +13,8 @@ export type ContactStamp = { id: string; contactId: string; name?: string; compa
 
 type CrmStore = { contacts: Contact[]; contactStamps: ContactStamp[]; deals: Deal[]; dealStamps: DealStamp[]; tasks: Task[]; activities: Activity[]; gmail: { connectedAt?: string; lastSyncedAt?: string; messages: GmailMessage[]; tokens?: { access_token?: string; refresh_token?: string; expiry_date?: number; }; }; };
 
-const dataDir = path.join(process.cwd(), "data");
+const dataRoot = process.env.VERCEL ? "/tmp" : process.cwd();
+const dataDir = path.join(dataRoot, "data");
 const dbPath = path.join(dataDir, "crm.json");
 const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], gmail: { messages: [] } };
 
