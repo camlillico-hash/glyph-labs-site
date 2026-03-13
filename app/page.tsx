@@ -25,6 +25,7 @@ const dynamicPoints = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#06090f] text-slate-100">
+      <div className="h-2 w-full bg-blue-500" aria-hidden />
       <a
         href="/bos360"
         aria-label="Navigate to Glyph Labs"
