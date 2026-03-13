@@ -186,12 +186,26 @@ async function saveStoreFile(store: CrmStore) {
 }
 
 export async function getStore(): Promise<CrmStore> {
-  if (pool) return getStorePg();
+  if (pool) {
+    try {
+      return await getStorePg();
+    } catch (error) {
+      console.error("[crm-store] Postgres read failed, falling back to file storage", error);
+      return getStoreFile();
+    }
+  }
   return getStoreFile();
 }
 
 export async function saveStore(store: CrmStore) {
-  if (pool) return saveStorePg(store);
+  if (pool) {
+    try {
+      return await saveStorePg(store);
+    } catch (error) {
+      console.error("[crm-store] Postgres write failed, falling back to file storage", error);
+      return saveStoreFile(store);
+    }
+  }
   return saveStoreFile(store);
 }
 
