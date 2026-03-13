@@ -44,19 +44,12 @@ const sectionMax: Record<SectionKey, number> = {
 
 export default function StrengthTestPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [index, setIndex] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
 
-  const grouped = useMemo(() => {
-    const map: Record<SectionKey, Question[]> = {
-      Business: [],
-      Brand: [],
-      Team: [],
-      Strategy: [],
-      Execution: [],
-      Culture: [],
-    };
-    for (const q of questions) map[q.section].push(q);
-    return map;
-  }, []);
+  const current = questions[index];
+  const selected = current ? answers[current.id] : undefined;
+  const completed = Object.keys(answers).length;
 
   const subtotals = useMemo(() => {
     const totals: Record<SectionKey, number> = {
@@ -71,69 +64,121 @@ export default function StrengthTestPage() {
     return totals;
   }, [answers]);
 
-  const answered = Object.keys(answers).length;
   const total = Object.values(subtotals).reduce((a, b) => a + b, 0);
+
+  const choose = (score: number) => {
+    if (!current) return;
+    setAnswers((prev) => ({ ...prev, [current.id]: score }));
+  };
+
+  const next = () => {
+    if (index < questions.length - 1) setIndex((i) => i + 1);
+  };
+
+  const back = () => {
+    if (index > 0) setIndex((i) => i - 1);
+  };
+
+  if (submitted) {
+    return (
+      <main className="min-h-screen bg-[#06090f] text-slate-100">
+        <section className="mx-auto max-w-3xl px-6 py-10">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+            <h1 className="text-3xl font-bold">Strength Test Results</h1>
+            <p className="mt-3 text-slate-300">Your current baseline score is:</p>
+            <p className="mt-2 text-5xl font-bold text-cyan-300">{total} / 100</p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {(Object.keys(subtotals) as SectionKey[]).map((section) => (
+                <div key={section} className="rounded-lg border border-slate-800 p-3">
+                  <p className="text-sm text-slate-300">{section}</p>
+                  <p className="text-xl font-semibold">
+                    {subtotals[section]} / {sectionMax[section]}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="mt-6 rounded border border-slate-700 px-3 py-2 text-sm hover:border-slate-500"
+              onClick={() => {
+                setSubmitted(false);
+                setIndex(0);
+              }}
+            >
+              Review answers
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#06090f] text-slate-100">
-      <section className="mx-auto max-w-5xl px-6 py-10">
-        <h1 className="text-3xl font-bold">Strength Test</h1>
-        <p className="mt-2 text-slate-300">
-          For each statement, score your organization from 0 (weak) to 5 (strong).
-        </p>
-        <p className="mt-1 text-sm text-slate-400">Answered: {answered}/20</p>
+      <section className="mx-auto max-w-3xl px-6 py-10">
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <div className="mb-5 flex items-center justify-between">
+            <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Strength Test</p>
+            <p className="text-xs text-slate-400">{index + 1} / {questions.length}</p>
+          </div>
 
-        <div className="mt-6 space-y-6">
-          {(Object.keys(grouped) as SectionKey[]).map((section) => (
-            <section key={section} className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-xl font-semibold">{section}</h2>
-                <p className="text-sm text-slate-300">
-                  {subtotals[section]} / {sectionMax[section]}
-                </p>
-              </div>
+          <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{current.section}</p>
+          <h1 className="mt-2 text-xl font-semibold leading-relaxed">{current.id}. {current.text}</h1>
 
-              <div className="space-y-4">
-                {grouped[section].map((q) => (
-                  <div key={q.id} className="rounded-lg border border-slate-800 p-3">
-                    <p className="text-sm leading-relaxed text-slate-200">
-                      <span className="mr-2 font-semibold text-slate-100">{q.id}.</span>
-                      {q.text}
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {[0, 1, 2, 3, 4, 5].map((score) => {
-                        const active = answers[q.id] === score;
-                        return (
-                          <button
-                            key={score}
-                            type="button"
-                            onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: score }))}
-                            className={`h-8 w-8 rounded border text-sm ${
-                              active
-                                ? "border-cyan-300 bg-cyan-400/20 text-cyan-200"
-                                : "border-slate-700 text-slate-300 hover:border-slate-500"
-                            }`}
-                            aria-label={`Question ${q.id} score ${score}`}
-                          >
-                            {score}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
+          <div className="mt-6 flex flex-wrap gap-2">
+            {[0, 1, 2, 3, 4, 5].map((score) => {
+              const active = selected === score;
+              return (
+                <button
+                  key={score}
+                  type="button"
+                  onClick={() => choose(score)}
+                  className={`h-10 w-10 rounded border text-sm ${
+                    active
+                      ? "border-cyan-300 bg-cyan-400/20 text-cyan-200"
+                      : "border-slate-700 text-slate-300 hover:border-slate-500"
+                  }`}
+                  aria-label={`Question ${current.id} score ${score}`}
+                >
+                  {score}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-8 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={back}
+              disabled={index === 0}
+              className="rounded border border-slate-700 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Back
+            </button>
+
+            {index < questions.length - 1 ? (
+              <button
+                type="button"
+                onClick={next}
+                disabled={selected === undefined}
+                className="rounded bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSubmitted(true)}
+                disabled={completed < questions.length}
+                className="rounded bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                See Results
+              </button>
+            )}
+          </div>
         </div>
-
-        <section className="mt-8 rounded-xl border border-cyan-500/30 bg-slate-900/70 p-5">
-          <h3 className="text-xl font-semibold">Current Score</h3>
-          <p className="mt-2 text-4xl font-bold text-cyan-300">{total} / 100</p>
-          <p className="mt-3 text-sm text-slate-300">
-            Identify weaker areas first, then choose 1–2 focused improvements for your next execution cycle.
-          </p>
-        </section>
       </section>
     </main>
   );
