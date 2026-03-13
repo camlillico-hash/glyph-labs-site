@@ -33,7 +33,15 @@ export const DEAL_STAGE_WEIGHTS: Record<string, number> = {
 };
 
 const DATABASE_URL = process.env.DATABASE_URL;
-const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } }) : null;
+const pool = DATABASE_URL
+  ? new Pool({
+      connectionString: DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 1,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 10000,
+    })
+  : null;
 let schemaReady = false;
 
 function mapLegacyDealStage(stage: string | undefined) {
