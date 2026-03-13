@@ -42,10 +42,38 @@ const sectionMax: Record<SectionKey, number> = {
   Culture: 15,
 };
 
+const sectionColors: Record<SectionKey, string> = {
+  Business: "#D90000",
+  Brand: "#FF5700",
+  Team: "#E9D019",
+  Strategy: "#4A9BB8",
+  Execution: "#7DD3FC",
+  Culture: "#22C55E",
+};
+
+function scoreColor(total: number) {
+  if (total <= 50) return "#ef4444";
+  if (total <= 84) return "#facc15";
+  return "#22c55e";
+}
+
+function polarToCartesian(cx: number, cy: number, r: number, angle: number) {
+  const rad = (angle - 90) * (Math.PI / 180);
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function makeArcPath(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+  return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y} Z`;
+}
+
 export default function StrengthTestPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [index, setIndex] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [started, setStarted] = useState(false);
 
   const current = questions[index];
   const selected = current ? answers[current.id] : undefined;
@@ -66,6 +94,24 @@ export default function StrengthTestPage() {
 
   const total = Object.values(subtotals).reduce((a, b) => a + b, 0);
 
+  const pieSlices = useMemo(() => {
+    const entries = Object.keys(subtotals) as SectionKey[];
+    let start = 0;
+    return entries.map((section) => {
+      const value = subtotals[section];
+      const angle = (value / 100) * 360;
+      const end = start + angle;
+      const slice = {
+        section,
+        value,
+        color: sectionColors[section],
+        path: angle > 0 ? makeArcPath(120, 120, 100, start, end) : "",
+      };
+      start = end;
+      return slice;
+    });
+  }, [subtotals]);
+
   const choose = (score: number) => {
     if (!current) return;
     setAnswers((prev) => ({ ...prev, [current.id]: score }));
@@ -79,24 +125,70 @@ export default function StrengthTestPage() {
     if (index > 0) setIndex((i) => i - 1);
   };
 
-  if (submitted) {
+  if (!started) {
     return (
       <main className="min-h-screen bg-[#06090f] text-slate-100">
-        <section className="mx-auto max-w-3xl px-6 py-10">
+        <section className="mx-auto flex min-h-screen max-w-3xl items-center px-6 py-10">
+          <div className="w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8 text-center">
+            <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">Assessment</p>
+            <h1 className="mt-2 text-3xl font-bold">Strength Test</h1>
+            <p className="mx-auto mt-4 max-w-xl text-slate-300">
+              Answer 20 questions across Business, Brand, Team, Strategy, Execution, and Culture.
+              You’ll see your full score breakdown at the end.
+            </p>
+            <button
+              type="button"
+              className="mt-8 rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black"
+              onClick={() => setStarted(true)}
+            >
+              Start Test
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (submitted) {
+    const totalColor = scoreColor(total);
+    return (
+      <main className="min-h-screen bg-[#06090f] text-slate-100">
+        <section className="mx-auto max-w-4xl px-6 py-10">
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
             <h1 className="text-3xl font-bold">Strength Test Results</h1>
-            <p className="mt-3 text-slate-300">Your current baseline score is:</p>
-            <p className="mt-2 text-5xl font-bold text-cyan-300">{total} / 100</p>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {(Object.keys(subtotals) as SectionKey[]).map((section) => (
-                <div key={section} className="rounded-lg border border-slate-800 p-3">
-                  <p className="text-sm text-slate-300">{section}</p>
-                  <p className="text-xl font-semibold">
-                    {subtotals[section]} / {sectionMax[section]}
-                  </p>
+            <div className="mt-6 grid gap-6 md:grid-cols-[280px_1fr]">
+              <div className="flex flex-col items-center">
+                <svg width="240" height="240" viewBox="0 0 240 240" aria-label="Section score pie chart">
+                  <circle cx="120" cy="120" r="100" fill="#0f172a" />
+                  {pieSlices.map((s) =>
+                    s.path ? <path key={s.section} d={s.path} fill={s.color} stroke="#0b1020" strokeWidth="2" /> : null
+                  )}
+                  <circle cx="120" cy="120" r="52" fill="#06090f" />
+                </svg>
+                <p className="mt-2 text-sm text-slate-400">Section contribution chart</p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-300">Total Score</p>
+                <p className="mt-1 text-5xl font-bold" style={{ color: totalColor }}>
+                  {total} / 100
+                </p>
+                <p className="mt-1 text-sm text-slate-400">
+                  {total <= 50 ? "At-risk zone" : total <= 84 ? "Developing zone" : "Strong zone"}
+                </p>
+
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {(Object.keys(subtotals) as SectionKey[]).map((section) => (
+                    <div key={section} className="rounded-lg border border-slate-800 p-3">
+                      <p className="text-sm text-slate-300">{section}</p>
+                      <p className="text-xl font-semibold">
+                        {subtotals[section]} / {sectionMax[section]}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
 
             <button
@@ -121,11 +213,15 @@ export default function StrengthTestPage() {
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           <div className="mb-5 flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Strength Test</p>
-            <p className="text-xs text-slate-400">{index + 1} / {questions.length}</p>
+            <p className="text-xs text-slate-400">
+              {index + 1} / {questions.length}
+            </p>
           </div>
 
           <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{current.section}</p>
-          <h1 className="mt-2 text-xl font-semibold leading-relaxed">{current.id}. {current.text}</h1>
+          <h1 className="mt-2 text-xl font-semibold leading-relaxed">
+            {current.id}. {current.text}
+          </h1>
 
           <div className="mt-6 flex flex-wrap gap-2">
             {[0, 1, 2, 3, 4, 5].map((score) => {
