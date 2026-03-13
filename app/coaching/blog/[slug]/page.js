@@ -10,11 +10,11 @@ export async function generateMetadata({ params }) {
   const post = getPostBySlug(resolvedParams?.slug);
 
   if (!post) {
-    return { title: "Article not found | BOS360" };
+    return { title: "Article not found | Coaching" };
   }
 
   return {
-    title: `${post.title} | BOS360 Insights`,
+    title: `${post.title} | Glyph Labs Insights`,
     description: post.description,
     robots: { index: false, follow: false },
   };
@@ -30,11 +30,11 @@ export default async function BlogPostPage({ params }) {
     <main className="min-h-screen bg-neutral-950 text-slate-100">
       <section className="mx-auto max-w-3xl px-6 pb-16 pt-24 md:pt-28">
         <a
-          href="/bos360"
+          href="/coaching"
           className="inline-flex items-center gap-2 text-sm font-medium text-orange-200 transition hover:text-orange-100"
         >
           <span aria-hidden>⬤</span>
-          Back to BOS360
+          Back to Coaching
         </a>
 
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-orange-200/90">

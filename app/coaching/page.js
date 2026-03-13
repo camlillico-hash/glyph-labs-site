@@ -419,7 +419,7 @@ export default function Bos360Page() {
             {blogPosts.map((post) => (
               <a
                 key={post.slug}
-                href={`/bos360/blog/${post.slug}`}
+                href={`/coaching/blog/${post.slug}`}
                 className="group flex flex-col gap-4 rounded-2xl border border-neutral-700 bg-neutral-900 p-4 transition hover:border-neutral-500 md:flex-row md:items-center"
               >
                 <img
