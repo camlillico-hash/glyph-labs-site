@@ -463,66 +463,65 @@ export default function Bos360Page() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16">
+      <section className="mx-auto max-w-6xl px-6 py-12">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
           <BookOpen size={22} aria-hidden className="text-[#ed7d31]" />
           Recommended reads
         </h2>
-        <p className="mt-3 max-w-4xl text-slate-300">
-          These are frameworks and operating-system books I regularly pull from in planning, leadership alignment,
-          and execution coaching. Great prep if you want to get the most out of a coaching engagement.
+        <p className="mt-2 max-w-4xl text-sm text-slate-300">
+          Core books I use for planning, leadership alignment, and execution coaching.
         </p>
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {reads.map((book) => (
-            <article key={book.title} className="rounded-2xl border border-neutral-700 bg-neutral-900 p-4">
+            <article key={book.title} className="rounded-xl border border-neutral-700 bg-neutral-900 p-3">
               <img
                 src={book.cover}
                 alt={`${book.title} cover`}
-                className="h-52 w-full rounded-lg border border-neutral-700 object-cover bg-neutral-950"
+                className="h-36 w-full rounded-md border border-neutral-700 object-cover bg-neutral-950"
                 loading="lazy"
               />
-              <h3 className="mt-3 text-sm font-semibold text-slate-100">{book.title}</h3>
-              <p className="mt-1 text-xs text-slate-300">{book.author}</p>
-              <p className="mt-2 text-xs font-semibold text-orange-200">{book.rating}</p>
+              <h3 className="mt-2 text-[13px] font-semibold leading-tight text-slate-100">{book.title}</h3>
+              <p className="mt-0.5 text-[11px] text-slate-300">{book.author}</p>
+              <p className="mt-1 text-[11px] font-semibold text-orange-200">{book.rating}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="border-t border-neutral-700 bg-neutral-900/40 py-16">
+      <section className="border-t border-neutral-700 bg-neutral-900/40 py-12">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
             <Gem size={22} aria-hidden className="text-[#ed7d31]" />
             Glyph Coaching
           </h2>
-          <p className="mt-3 max-w-4xl text-slate-300">
-            Short, practical notes on management, strategy, execution, leadership, and communication.
+          <p className="mt-2 max-w-4xl text-sm text-slate-300">
+            Short practical notes on management, strategy, execution, leadership, and communication.
           </p>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-5 space-y-3">
             {blogPosts.map((post) => (
               <a
                 key={post.slug}
                 href={`/coaching/blog/${post.slug}`}
-                className="group flex flex-col gap-4 rounded-2xl border border-neutral-700 bg-neutral-900 p-4 transition hover:border-neutral-500 md:flex-row md:items-center"
+                className="group flex flex-col gap-3 rounded-xl border border-neutral-700 bg-neutral-900 p-3 transition hover:border-neutral-500 md:flex-row md:items-center"
               >
                 <img
                   src={post.thumbnail}
                   alt={post.title}
-                  className="h-36 w-full rounded-xl border border-neutral-700 object-cover md:h-24 md:w-44"
+                  className="h-24 w-full rounded-lg border border-neutral-700 object-cover md:h-20 md:w-36"
                   loading="lazy"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange-200/90">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-orange-200/90">
                     {post.category} · {post.readTime}
                   </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Published {post.publishedAt} · By {post.publishedBy || "Cam Lillico"}
+                  <p className="mt-0.5 text-[11px] text-slate-400">
+                    {post.publishedAt} · {post.publishedBy || "Cam Lillico"}
                   </p>
-                  <h3 className="mt-1 text-xl font-semibold text-slate-100 transition group-hover:text-orange-100">
+                  <h3 className="mt-0.5 text-lg font-semibold leading-tight text-slate-100 transition group-hover:text-orange-100">
                     {post.title}
                   </h3>
-                  <p className="mt-2 text-sm text-slate-300">{post.description}</p>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-300">{post.description}</p>
                 </div>
               </a>
             ))}
