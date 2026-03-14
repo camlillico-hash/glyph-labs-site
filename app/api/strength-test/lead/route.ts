@@ -1,6 +1,25 @@
 import { NextResponse } from "next/server";
 import { getStore, id, now, saveStore } from "@/lib/crm-store";
 
+const recentByKey = new Map<string, number>();
+const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 min
+const RATE_LIMIT = 5;
+const disposableDomains = new Set([
+  "mailinator.com",
+  "tempmail.com",
+  "10minutemail.com",
+  "guerrillamail.com",
+  "yopmail.com",
+]);
+
+function checkRateLimit(key: string) {
+  const nowMs = Date.now();
+  const bucketKey = `${key}:${Math.floor(nowMs / RATE_WINDOW_MS)}`;
+  const count = (recentByKey.get(bucketKey) || 0) + 1;
+  recentByKey.set(bucketKey, count);
+  return count <= RATE_LIMIT;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -9,6 +28,16 @@ export async function POST(req: Request) {
     const company = String(body?.company || "").trim();
     const email = String(body?.email || "").trim().toLowerCase();
     const phone = String(body?.phone || "").trim();
+    const website = String(body?.website || "").trim(); // honeypot
+
+    if (website) {
+      return NextResponse.json({ error: "Invalid submission" }, { status: 400 });
+    }
+
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (!checkRateLimit(ip) || !checkRateLimit(email || ip)) {
+      return NextResponse.json({ error: "Too many submissions. Please try again later." }, { status: 429 });
+    }
 
     if (!firstName || !lastName || !company || !email) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -17,6 +46,11 @@ export async function POST(req: Request) {
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if (!emailValid) {
       return NextResponse.json({ error: "Please enter a valid email" }, { status: 400 });
+    }
+
+    const emailDomain = email.split("@")[1] || "";
+    if (disposableDomains.has(emailDomain)) {
+      return NextResponse.json({ error: "Please use your business email" }, { status: 400 });
     }
 
     if (phone) {

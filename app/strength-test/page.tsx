@@ -106,6 +106,7 @@ export default function StrengthTestPage() {
     company: "",
     email: "",
     phone: "",
+    website: "", // honeypot
   });
 
   const current = questions[index];
@@ -299,6 +300,16 @@ export default function StrengthTestPage() {
                     placeholder="Phone (optional)"
                     value={leadForm.phone}
                     onChange={(e) => setLeadForm((p) => ({ ...p, phone: e.target.value }))}
+                  />
+
+                  <input
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden
+                    className="hidden"
+                    placeholder="Website"
+                    value={leadForm.website}
+                    onChange={(e) => setLeadForm((p) => ({ ...p, website: e.target.value }))}
                   />
 
                   {leadError ? <p className="text-sm text-rose-600">{leadError}</p> : null}
