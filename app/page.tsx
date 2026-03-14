@@ -30,7 +30,7 @@ const textColor = (hex: string) => (hex === "#E9F2DC" || hex === "#E9D019" || he
 
 export default function Home() {
   return (
-    <main style={{ width: "100vw", height: "100dvh", overflow: "hidden", background: "#000" }}>
+    <main style={{ width: "100vw", height: "100dvh", overflow: "hidden", background: "#E9F2DC" }}>
       <div style={{ position: "relative", width: "100%", height: "100%" }}>
         {blocks.map((b, i) => {
           const bg = colors[b.c];
