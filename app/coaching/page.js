@@ -148,6 +148,29 @@ export default function Bos360Page() {
         </div>
       </section>
 
+      {/* STRENGTH TEST CTA */}
+      <section className="mx-auto max-w-6xl px-6 pb-4">
+        <div className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 shadow-lg shadow-black/30 md:p-7">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange-200">Free Diagnostic</p>
+          <h2 className="mt-2 text-2xl font-bold md:text-3xl">Take the Strength Test before we talk.</h2>
+          <p className="mt-3 max-w-4xl text-slate-300">
+            In 3–5 minutes, you’ll get a clear baseline across Business, Brand, Team, Strategy, Execution, and Culture.
+            It helps us focus your discovery call on the real bottlenecks instead of surface symptoms.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <a
+              href="/strength-test"
+              className="rounded-xl bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+            >
+              Start the Strength Test
+            </a>
+            <span className="inline-flex items-center rounded-xl border border-neutral-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
+              20 questions · instant results
+            </span>
+          </div>
+        </div>
+      </section>
+
       {/* PILLARS */}
       <section className="mx-auto max-w-6xl px-6 py-10 md:py-12">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
