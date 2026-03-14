@@ -419,6 +419,12 @@ export default function Bos360Page() {
               >
                 Book a Discovery Call
               </a>
+              <a
+                href="/strength-test"
+                className="rounded-lg border border-neutral-600 bg-neutral-900 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-neutral-800"
+              >
+                Start the Strength Test
+              </a>
             </div>
           </div>
         </div>
