@@ -99,6 +99,7 @@ export default function StrengthTestPage() {
   const [showLeadModal, setShowLeadModal] = useState(false);
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadError, setLeadError] = useState("");
+  const [leadThanks, setLeadThanks] = useState(false);
   const [leadForm, setLeadForm] = useState({
     firstName: "",
     lastName: "",
@@ -193,6 +194,7 @@ export default function StrengthTestPage() {
       }
       setShowLeadModal(false);
       setStarted(true);
+      setLeadThanks(true);
     } catch (err: any) {
       setLeadError(err?.message || "Unable to start test right now.");
     } finally {
@@ -215,6 +217,7 @@ export default function StrengthTestPage() {
               <p>• Covers 3 Core Pillars: <span className="font-semibold text-slate-100">Business, Brand, Team</span>.</p>
               <p>• Plus 3 Bonding Forces: <span className="font-semibold text-slate-100">Strategy, Execution, Culture</span>.</p>
               <p>• Finish in a few minutes and get an instant score breakdown.</p>
+              <p className="pt-1 text-xs text-slate-400">Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.</p>
             </div>
             <button
               type="button"
@@ -229,6 +232,7 @@ export default function StrengthTestPage() {
             <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4">
               <div className="w-full max-w-md rounded-2xl bg-white p-5 text-slate-900 shadow-2xl">
                 <p className="text-lg font-semibold">Fill in the information below to get started.</p>
+                <p className="mt-1 text-sm text-slate-600">I’ll personally review your submission and follow up by email with context on your results.</p>
                 <form className="mt-4 space-y-3" onSubmit={submitLead}>
                   <input
                     className="w-full rounded-lg border border-slate-300 px-3 py-2"
@@ -437,6 +441,12 @@ export default function StrengthTestPage() {
     <main className="min-h-screen bg-[#06090f] pb-16 text-slate-100">
       <section className="mx-auto max-w-3xl px-6 py-10">
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          {leadThanks ? (
+            <div className="mb-4 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+              Thanks — details received. Let’s run your Strength Test.
+            </div>
+          ) : null}
+
           <div className="mb-5 flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Strength Test</p>
             <p className="text-xs text-slate-400">
