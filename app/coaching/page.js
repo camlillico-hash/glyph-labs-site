@@ -405,12 +405,17 @@ export default function Bos360Page() {
               <ArrowRight size={18} aria-hidden className="text-[#ed7d31]" />
               Ready to Scale with More Clarity?
             </h3>
+            <a
+              href="/strength-test"
+              className="mt-4 inline-flex rounded-lg border border-cyan-400/50 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-500/15"
+            >
+              Start the Strength Test
+            </a>
             <p className="mt-3 text-slate-300">
               Let’s talk about your current stage, your next growth targets, and the
               operating cadence to get you there.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <CopyEmailButton email="cam@camlillico.com" />
               <a
                 href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
                 target="_blank"
@@ -419,12 +424,7 @@ export default function Bos360Page() {
               >
                 Book a Discovery Call
               </a>
-              <a
-                href="/strength-test"
-                className="rounded-lg border border-cyan-400/50 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-500/15"
-              >
-                Start the Strength Test
-              </a>
+              <CopyEmailButton email="cam@camlillico.com" />
             </div>
           </div>
         </div>
