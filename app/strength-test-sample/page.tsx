@@ -39,12 +39,12 @@ function scoreLabel(total: number) {
 export default function StrengthTestSamplePage() {
   // random-ish but realistic sample values
   const subtotals: Record<SectionKey, number> = {
-    Business: 13,
-    Brand: 9,
-    Team: 11,
-    Strategy: 10,
-    Execution: 14,
-    Culture: 12,
+    Business: 18,  // 90% strong
+    Brand: 6,      // 40% weak
+    Team: 13,      // 87% strong
+    Strategy: 7,   // 47% weak
+    Execution: 10, // 50% weak
+    Culture: 14,   // 93% strong
   };
 
   const total = Object.values(subtotals).reduce((a, b) => a + b, 0);
