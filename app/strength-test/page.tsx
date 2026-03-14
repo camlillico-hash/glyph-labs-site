@@ -1,6 +1,6 @@
 "use client";
 
-import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout } from "lucide-react";
+import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type SectionKey = "Business" | "Brand" | "Team" | "Strategy" | "Execution" | "Culture";
@@ -233,7 +233,11 @@ export default function StrengthTestPage() {
               <p>• Covers 3 Core Pillars: <span className="font-semibold text-slate-100">Business, Brand, Team</span>.</p>
               <p>• Plus 3 Bonding Forces: <span className="font-semibold text-slate-100">Strategy, Execution, Culture</span>.</p>
               <p>• Finish in a few minutes and get an instant score breakdown.</p>
-              <p className="pt-1 text-xs text-slate-400">Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.</p>
+              <span className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-900/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-200">
+                <User size={11} aria-hidden />
+                <Mail size={11} aria-hidden />
+                Before starting, name + email required
+              </span>
             </div>
             <button
               type="button"
@@ -248,7 +252,14 @@ export default function StrengthTestPage() {
             <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4">
               <div className="w-full max-w-md rounded-2xl bg-white p-5 text-slate-900 shadow-2xl">
                 <p className="text-lg font-semibold">Fill in the information below to get started.</p>
-                <p className="mt-1 text-sm text-slate-600">I’ll personally review your submission and follow up by email with context on your results.</p>
+                <p className="mt-1 inline-flex items-center gap-2 text-sm text-slate-600">
+                  <img
+                    src="/cam-headshot-circle.png"
+                    alt="Cam Lillico"
+                    className="h-6 w-6 rounded-full border border-slate-300 object-cover"
+                  />
+                  I’ll personally review your submission and follow up by email with context on your results.
+                </p>
                 <form className="mt-4 space-y-3" onSubmit={submitLead}>
                   <input
                     className="w-full rounded-lg border border-slate-300 px-3 py-2"
