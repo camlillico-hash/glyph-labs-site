@@ -177,7 +177,7 @@ export default function Bos360Page() {
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <a
               href="/strength-test"
-              className="w-[260px] rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-5 py-2.5 text-cyan-200 transition hover:bg-cyan-500/15"
+              className="w-[260px] rounded-xl bg-gradient-to-r from-cyan-300 via-cyan-500 to-blue-600 px-5 py-2.5 text-slate-950 transition hover:opacity-90"
             >
               <span className="block text-base font-extrabold">Start the Strength Test</span>
               <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/85 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] text-slate-200">
@@ -186,7 +186,7 @@ export default function Bos360Page() {
                 Name + email required
               </span>
             </a>
-            <span className="inline-flex w-[260px] items-center justify-center rounded-xl border border-neutral-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
+            <span className="inline-flex w-[260px] items-center justify-center whitespace-nowrap rounded-xl border border-neutral-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
               20 questions · instant results
             </span>
           </div>
