@@ -36,6 +36,11 @@ function scoreLabel(total: number) {
   return "Strong";
 }
 
+function polarToCartesian(cx: number, cy: number, r: number, angle: number) {
+  const rad = (angle - 90) * (Math.PI / 180);
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
 export default function StrengthTestSamplePage() {
   // random-ish but realistic sample values
   const subtotals: Record<SectionKey, number> = {
@@ -60,6 +65,8 @@ export default function StrengthTestSamplePage() {
     const share = total > 0 ? value / total : 0;
     const length = share * circumference;
     const color = scoreColor(percent);
+    const startFraction = total > 0 ? offset / circumference : 0;
+    const endFraction = total > 0 ? (offset + length) / circumference : 0;
     const slice = {
       section,
       value,
@@ -68,6 +75,8 @@ export default function StrengthTestSamplePage() {
       color,
       dashArray: `${length} ${Math.max(circumference - length, 0)}`,
       dashOffset: -offset,
+      startFraction,
+      endFraction,
     };
     offset += length;
     return slice;
@@ -120,6 +129,12 @@ export default function StrengthTestSamplePage() {
                     </g>
                   ))}
                 </g>
+                {slices.map((s) => {
+                  const angle = s.endFraction * 360;
+                  const p1 = polarToCartesian(140, 140, 78, angle);
+                  const p2 = polarToCartesian(140, 140, 110, angle);
+                  return <line key={`sep-${s.section}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="#ffffff" strokeWidth="2" />;
+                })}
                 <circle cx="140" cy="140" r="56" fill="#06090f" />
                 <text x="140" y="124" textAnchor="middle" fontSize="13" fontWeight="700" fill="#cbd5e1">Your Overall Score</text>
                 <text x="140" y="166" textAnchor="middle" fontSize="44" fontWeight="700" fill={totalColor}> {total}%</text>
