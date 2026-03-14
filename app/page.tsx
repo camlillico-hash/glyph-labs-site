@@ -5,44 +5,53 @@ export const metadata = {
 
 const colors = ["#D90000", "#FF5700", "#E9D019", "#E9F2DC", "#4A9BB8", "#000000"];
 
-// Keep the pattern; reduce text density.
-const blocks = [
-  { word: "truth", c: 0, x: 0, y: 0, w: 26, h: 22 },
-  { word: "", c: 5, x: 26, y: 0, w: 18, h: 16 },
-  { word: "humility", c: 4, x: 66, y: 0, w: 34, h: 24 },
+// 6x6 grid -> 36 cells. Each color appears exactly 6 times for balanced distribution.
+const colorMap = [
+  0, 3, 5, 1, 4, 2,
+  4, 1, 2, 5, 0, 3,
+  2, 5, 0, 3, 1, 4,
+  3, 0, 4, 2, 5, 1,
+  1, 4, 3, 0, 2, 5,
+  5, 2, 1, 4, 3, 0,
+];
 
-  { word: "clarity", c: 1, x: 0, y: 22, w: 20, h: 20 },
-  { word: "", c: 0, x: 64, y: 24, w: 18, h: 18 },
-  { word: "", c: 3, x: 82, y: 24, w: 18, h: 16 },
-
-  { word: "focus", c: 2, x: 0, y: 62, w: 18, h: 16 },
-  { word: "", c: 3, x: 18, y: 62, w: 22, h: 16 },
-  { word: "builder", c: 1, x: 56, y: 62, w: 18, h: 16 },
-  { word: "", c: 0, x: 74, y: 62, w: 26, h: 16 },
-
-  { word: "", c: 1, x: 28, y: 76, w: 20, h: 24 },
-  { word: "fair", c: 2, x: 48, y: 76, w: 18, h: 24 },
-  { word: "", c: 4, x: 66, y: 82, w: 16, h: 18 },
-  { word: "traction", c: 3, x: 82, y: 78, w: 18, h: 22 },
+const words = [
+  "truth",
+  "clarity",
+  "focus",
+  "humility",
+  "builder",
+  "fair",
+  "traction",
+  "method",
+  "candor",
+  "balance",
+  "calm",
+  "own",
 ];
 
 const textColor = (hex: string) => (hex === "#E9F2DC" || hex === "#E9D019" || hex === "#FF5700" ? "#111" : "#fff");
 
 export default function Home() {
   return (
-    <main style={{ width: "100vw", height: "100dvh", overflow: "hidden", background: "#E9F2DC" }}>
-      <div style={{ position: "relative", width: "100%", height: "100%" }}>
-        {blocks.map((b, i) => {
-          const bg = colors[b.c];
+    <main style={{ width: "100vw", height: "100dvh", overflow: "hidden", background: "#000" }}>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "grid",
+          gridTemplateColumns: "repeat(6, 1fr)",
+          gridTemplateRows: "repeat(6, 1fr)",
+        }}
+      >
+        {colorMap.map((ci, i) => {
+          const bg = colors[ci];
+          const showWord = i % 3 === 0; // less text density
+          const word = words[(i / 3) % words.length | 0];
           return (
             <section
-              key={`${b.word || "blk"}-${i}`}
+              key={i}
               style={{
-                position: "absolute",
-                left: `${b.x}%`,
-                top: `${b.y}%`,
-                width: `${b.w}%`,
-                height: `${b.h}%`,
                 backgroundColor: bg,
                 color: textColor(bg),
                 display: "flex",
@@ -51,13 +60,13 @@ export default function Home() {
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 fontWeight: 800,
-                fontSize: "clamp(10px, 1.2vw, 20px)",
+                fontSize: "clamp(9px, 1.1vw, 16px)",
                 lineHeight: 1,
                 textAlign: "center",
                 padding: "4px",
               }}
             >
-              {b.word}
+              {showWord ? word : ""}
             </section>
           );
         })}
