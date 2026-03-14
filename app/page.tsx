@@ -5,38 +5,25 @@ export const metadata = {
 
 const colors = ["#D90000", "#FF5700", "#E9D019", "#E9F2DC", "#4A9BB8", "#000000"];
 
+// Keep the pattern; reduce text density.
 const blocks = [
-  { word: "truth", c: 5, x: 0, y: 0, w: 34, h: 32 },
-  { word: "method", c: 1, x: 34, y: 0, w: 16, h: 18 },
-  { word: "humility", c: 4, x: 50, y: 0, w: 22, h: 20 },
-  { word: "clarity", c: 2, x: 72, y: 0, w: 28, h: 16 },
+  { word: "truth", c: 0, x: 0, y: 0, w: 26, h: 22 },
+  { word: "", c: 5, x: 26, y: 0, w: 18, h: 16 },
+  { word: "humility", c: 4, x: 66, y: 0, w: 34, h: 24 },
 
-  { word: "courage", c: 0, x: 34, y: 18, w: 16, h: 14 },
-  { word: "kind", c: 3, x: 50, y: 20, w: 14, h: 12 },
-  { word: "focus", c: 1, x: 64, y: 16, w: 16, h: 16 },
-  { word: "fair", c: 4, x: 80, y: 16, w: 20, h: 16 },
+  { word: "clarity", c: 1, x: 0, y: 22, w: 20, h: 20 },
+  { word: "", c: 0, x: 64, y: 24, w: 18, h: 18 },
+  { word: "", c: 3, x: 82, y: 24, w: 18, h: 16 },
 
-  { word: "builder", c: 5, x: 0, y: 32, w: 24, h: 20 },
-  { word: "balance", c: 3, x: 24, y: 32, w: 20, h: 14 },
-  { word: "candor", c: 0, x: 44, y: 32, w: 18, h: 20 },
-  { word: "traction", c: 2, x: 62, y: 32, w: 20, h: 16 },
-  { word: "own", c: 1, x: 82, y: 32, w: 18, h: 20 },
+  { word: "focus", c: 2, x: 0, y: 62, w: 18, h: 16 },
+  { word: "", c: 3, x: 18, y: 62, w: 22, h: 16 },
+  { word: "builder", c: 1, x: 56, y: 62, w: 18, h: 16 },
+  { word: "", c: 0, x: 74, y: 62, w: 26, h: 16 },
 
-  { word: "aware", c: 5, x: 0, y: 52, w: 30, h: 24 },
-  { word: "calm", c: 4, x: 30, y: 46, w: 16, h: 14 },
-  { word: "precise", c: 0, x: 46, y: 52, w: 18, h: 16 },
-  { word: "comrade", c: 3, x: 64, y: 48, w: 18, h: 16 },
-  { word: "no ego", c: 2, x: 82, y: 52, w: 18, h: 14 },
-
-  { word: "integrity", c: 5, x: 30, y: 60, w: 28, h: 24 },
-  { word: "curious", c: 1, x: 58, y: 64, w: 18, h: 16 },
-  { word: "paced", c: 4, x: 76, y: 66, w: 24, h: 14 },
-
-  { word: "craft", c: 0, x: 0, y: 76, w: 20, h: 24 },
-  { word: "listen", c: 2, x: 20, y: 76, w: 18, h: 24 },
-  { word: "ship", c: 3, x: 38, y: 84, w: 20, h: 16 },
-  { word: "steady", c: 1, x: 58, y: 80, w: 18, h: 20 },
-  { word: "honest", c: 0, x: 76, y: 80, w: 24, h: 20 },
+  { word: "", c: 1, x: 28, y: 76, w: 20, h: 24 },
+  { word: "fair", c: 2, x: 48, y: 76, w: 18, h: 24 },
+  { word: "", c: 4, x: 66, y: 82, w: 16, h: 18 },
+  { word: "traction", c: 3, x: 82, y: 78, w: 18, h: 22 },
 ];
 
 const textColor = (hex: string) => (hex === "#E9F2DC" || hex === "#E9D019" || hex === "#FF5700" ? "#111" : "#fff");
@@ -49,7 +36,7 @@ export default function Home() {
           const bg = colors[b.c];
           return (
             <section
-              key={`${b.word}-${i}`}
+              key={`${b.word || "blk"}-${i}`}
               style={{
                 position: "absolute",
                 left: `${b.x}%`,
