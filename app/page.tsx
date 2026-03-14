@@ -8,30 +8,19 @@ const colors = ["#D90000", "#FF5700", "#E9D019", "#E9F2DC", "#4A9BB8", "#000000"
 const blocks = [
   { word: "truth", c: 0, x: 0, y: 0, w: 26, h: 22 },
   { word: "method", c: 5, x: 26, y: 0, w: 18, h: 16 },
-  { word: "compassion", c: 3, x: 44, y: 0, w: 22, h: 18 },
   { word: "humility", c: 4, x: 66, y: 0, w: 34, h: 24 },
 
   { word: "clarity", c: 1, x: 0, y: 22, w: 20, h: 20 },
-  { word: "accountability", c: 2, x: 20, y: 16, w: 24, h: 24 },
-  { word: "no gossip", c: 5, x: 44, y: 18, w: 20, h: 16 },
   { word: "courage", c: 0, x: 64, y: 24, w: 18, h: 18 },
-  { word: "curiosity", c: 3, x: 82, y: 24, w: 18, h: 16 },
-
-  { word: "integration", c: 4, x: 0, y: 42, w: 32, h: 20 },
-  { word: "discipline", c: 1, x: 32, y: 40, w: 18, h: 22 },
-  { word: "pacifism", c: 2, x: 50, y: 34, w: 16, h: 18 },
-  { word: "comrade", c: 0, x: 66, y: 42, w: 20, h: 20 },
-  { word: "awareness", c: 5, x: 86, y: 40, w: 14, h: 22 },
+  { word: "curious", c: 3, x: 82, y: 24, w: 18, h: 16 },
 
   { word: "focus", c: 2, x: 0, y: 62, w: 18, h: 16 },
-  { word: "kindness", c: 3, x: 18, y: 62, w: 22, h: 16 },
-  { word: "precision", c: 4, x: 40, y: 62, w: 16, h: 14 },
+  { word: "kind", c: 3, x: 18, y: 62, w: 22, h: 16 },
   { word: "builder", c: 1, x: 56, y: 62, w: 18, h: 16 },
   { word: "balance", c: 0, x: 74, y: 62, w: 26, h: 16 },
 
-  { word: "consistency", c: 5, x: 0, y: 78, w: 28, h: 22 },
-  { word: "ownership", c: 1, x: 28, y: 76, w: 20, h: 24 },
-  { word: "fairness", c: 2, x: 48, y: 76, w: 18, h: 24 },
+  { word: "own", c: 1, x: 28, y: 76, w: 20, h: 24 },
+  { word: "fair", c: 2, x: 48, y: 76, w: 18, h: 24 },
   { word: "candor", c: 4, x: 66, y: 82, w: 16, h: 18 },
   { word: "traction", c: 3, x: 82, y: 78, w: 18, h: 22 },
 ];
