@@ -11,6 +11,8 @@ import {
   ArrowRight,
   User,
   Mail,
+  CheckCircle2,
+  CircleSlash2,
 } from "lucide-react";
 import CopyEmailButton from "./CopyEmailButton";
 import { blogPosts } from "./blogPosts";
@@ -210,7 +212,7 @@ export default function Bos360Page() {
       <section className="mx-auto max-w-6xl px-6 py-12">
         <div className="grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
-            <h3 className="text-xl font-bold text-orange-200">Who this is for</h3>
+            <h3 className="inline-flex items-center gap-2 text-xl font-bold text-orange-200"><CheckCircle2 size={18} aria-hidden />Who this is for</h3>
             <ul className="mt-4 space-y-2 text-slate-300">
               <li>• Founder-led or growth-stage companies (roughly $2M–$50M).</li>
               <li>• Leadership teams with strong intent but inconsistent execution.</li>
@@ -219,7 +221,7 @@ export default function Bos360Page() {
             </ul>
           </div>
           <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
-            <h3 className="text-xl font-bold text-slate-100">Who this is not for</h3>
+            <h3 className="inline-flex items-center gap-2 text-xl font-bold text-slate-100"><CircleSlash2 size={18} aria-hidden />Who this is not for</h3>
             <ul className="mt-4 space-y-2 text-slate-300">
               <li>• Teams looking for motivation without implementation.</li>
               <li>• Organizations unwilling to commit to weekly/quarterly cadence.</li>
