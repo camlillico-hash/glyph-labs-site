@@ -342,7 +342,7 @@ export default function Bos360Page() {
                 />
               </div>
               <span className="block font-semibold text-orange-200">
-                — Shelby Thompson, Owner at NAV360; BOS360 Coach
+                — Shelby Hacala, Owner at NAV360; BOS360 Coach
               </span>
             </div>
           </blockquote>
