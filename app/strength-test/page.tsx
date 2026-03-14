@@ -138,11 +138,16 @@ export default function StrengthTestPage() {
         <section className="mx-auto flex min-h-screen max-w-3xl items-center px-6 py-10">
           <div className="w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8 text-center">
             <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">Assessment</p>
-            <h1 className="mt-2 text-3xl font-bold">Strength Test</h1>
+            <h1 className="mt-2 text-3xl font-bold">How strong is your business?</h1>
             <p className="mx-auto mt-4 max-w-xl text-slate-300">
-              Answer 20 questions across Business, Brand, Team, Strategy, Execution, and Culture.
-              You’ll see your full score breakdown at the end.
+              Take the Strength Test to quickly identify strengths and growth areas across your organization.
             </p>
+            <div className="mx-auto mt-5 max-w-xl space-y-2 text-left text-sm text-slate-300">
+              <p>• 20 questions, scored 0–5.</p>
+              <p>• Covers 3 Core Pillars: <span className="font-semibold text-slate-100">Business, Brand, Team</span>.</p>
+              <p>• Plus 3 Bonding Forces: <span className="font-semibold text-slate-100">Strategy, Execution, Culture</span>.</p>
+              <p>• Finish in a few minutes and get an instant score breakdown.</p>
+            </div>
             <button
               type="button"
               className="mt-8 rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black"
