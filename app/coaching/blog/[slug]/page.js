@@ -10,11 +10,11 @@ export async function generateMetadata({ params }) {
   const post = getPostBySlug(resolvedParams?.slug);
 
   if (!post) {
-    return { title: "Article not found | Coaching" };
+    return { title: "Glyph Labs | Coaching" };
   }
 
   return {
-    title: `${post.title} | Glyph Labs Insights`,
+    title: "Glyph Labs | Coaching",
     description: post.description,
     robots: { index: false, follow: false },
   };

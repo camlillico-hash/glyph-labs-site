@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Cam Lillico",
+  title: "Glyph Labs",
   description: "Cam values in color.",
 };
 
