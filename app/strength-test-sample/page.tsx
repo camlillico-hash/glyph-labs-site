@@ -9,6 +9,15 @@ const sectionMax: Record<SectionKey, number> = {
   Culture: 15,
 };
 
+const sectionIcons: Record<SectionKey, string> = {
+  Business: "💼",
+  Brand: "🏷️",
+  Team: "👥",
+  Strategy: "🧭",
+  Execution: "⚙️",
+  Culture: "🌱",
+};
+
 const sectionDescriptions: Record<SectionKey, string> = {
   Business:
     "Strengthening this component means shaping the organization to be predictable and profitable, with a proven flywheel that creates value and consistently generates cash to fuel growth.",
@@ -169,7 +178,7 @@ export default function StrengthTestSamplePage() {
 
             return (
               <article key={section} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-                <h2 className="text-2xl font-semibold uppercase tracking-wide">{section}</h2>
+                <h2 className="inline-flex items-center gap-2 text-2xl font-semibold uppercase tracking-wide"><span aria-hidden>{sectionIcons[section]}</span>{section}</h2>
                 <p className="mt-3 text-lg leading-relaxed text-slate-300">{sectionDescriptions[section]}</p>
                 <div className="mt-5 text-center">
                   <p className="text-3xl font-bold" style={{ color }}>{percent}%</p>
