@@ -115,11 +115,13 @@ export default function StrengthTestPage() {
     return entries.map((section) => {
       const value = subtotals[section];
       const percent = Math.round((value / sectionMax[section]) * 100);
-      const length = (value / 100) * circumference;
+      const share = total > 0 ? value / total : 0;
+      const length = share * circumference;
       const slice = {
         section,
         value,
         percent,
+        share,
         color: scoreColor(percent),
         label: scoreLabel(percent),
         radius,
@@ -130,7 +132,7 @@ export default function StrengthTestPage() {
       offset += length;
       return slice;
     });
-  }, [subtotals]);
+  }, [subtotals, total]);
 
   const choose = (score: number) => {
     if (!current) return;
@@ -194,7 +196,7 @@ export default function StrengthTestPage() {
           </div>
 
           <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
-            <div className="grid gap-6 md:grid-cols-[320px_1fr] md:items-center">
+            <div className="grid gap-6 md:grid-cols-[340px_1fr] md:items-start">
               <div className="flex flex-col items-center">
                 <svg width="280" height="280" viewBox="0 0 280 280" aria-label="Section score donut chart">
                   <g transform="rotate(-90 140 140)">
@@ -218,24 +220,24 @@ export default function StrengthTestPage() {
                   <text x="140" y="126" textAnchor="middle" fontSize="13" fill="#64748b">Your Overall Score</text>
                   <text x="140" y="160" textAnchor="middle" fontSize="44" fontWeight="700" fill={totalColor}>{total}%</text>
                 </svg>
+
+                <div className="mt-4 grid w-full grid-cols-2 gap-x-4 gap-y-2 border-t border-slate-200 pt-3 text-xs">
+                  {pieSlices.map((s) => (
+                    <div key={s.section} className="flex items-center justify-between gap-2 text-slate-700">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
+                        {s.section}
+                      </span>
+                      <span className="font-semibold">{s.value}/{sectionMax[s.section]}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div>
                 <p className="text-sm uppercase tracking-[0.12em] text-slate-500">Overall Rating</p>
                 <p className="mt-1 text-4xl font-bold" style={{ color: totalColor }}>{totalLabel}</p>
                 <p className="mt-3 text-slate-600">Results are based on your responses across the six BOS360 dimensions.</p>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {pieSlices.map((s) => (
-                    <div key={s.section} className="rounded-xl border border-slate-200 p-3">
-                      <p className="text-sm font-semibold text-slate-700">{s.section}</p>
-                      <p className="mt-1 text-3xl font-bold" style={{ color: s.color }}>{s.percent}%</p>
-                      <span className="mt-1 inline-block rounded px-2 py-0.5 text-xs font-semibold text-white" style={{ backgroundColor: s.color }}>
-                        {s.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
