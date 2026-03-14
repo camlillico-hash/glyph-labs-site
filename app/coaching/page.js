@@ -445,6 +445,10 @@ export default function Bos360Page() {
           </div>
         </div>
       </section>
+
+      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
+        © {new Date().getFullYear()} Glyph Labs. All rights reserved.
+      </footer>
     </main>
   );
 }

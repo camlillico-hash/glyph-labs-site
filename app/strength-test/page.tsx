@@ -164,7 +164,7 @@ export default function StrengthTestPage() {
   if (!started) {
     return (
       <main className="min-h-screen bg-[#06090f] text-slate-100">
-        <section className="mx-auto flex min-h-screen max-w-3xl items-center px-6 py-10">
+        <section className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl items-center px-6 py-10">
           <div className="w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8 text-center">
             <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">Assessment</p>
             <h1 className="mt-2 text-3xl font-bold">How strong is your business?</h1>
@@ -186,6 +186,9 @@ export default function StrengthTestPage() {
             </button>
           </div>
         </section>
+        <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
+          © {new Date().getFullYear()} Glyph Labs. All rights reserved.
+        </footer>
       </main>
     );
   }
@@ -395,6 +398,10 @@ export default function StrengthTestPage() {
           </div>
         </div>
       </section>
+
+      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
+        © {new Date().getFullYear()} Glyph Labs. All rights reserved.
+      </footer>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-800 bg-[#06090f]/95 px-4 py-2 backdrop-blur">
         <div className="mx-auto flex w-full max-w-3xl items-center gap-3">
