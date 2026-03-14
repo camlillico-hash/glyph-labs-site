@@ -1,43 +1,76 @@
 export const metadata = {
   title: "Cam Lillico",
-  description: "Solid-colour philosophy index.",
+  description: "Cam values in color.",
 };
 
-const palette = [
-  { name: "Double Decker Red", hex: "#D90000", text: "#ffffff" },
-  { name: "Waterloo Sunset", hex: "#FF5700", text: "#111111" },
-  { name: "Crown Jewels Gold", hex: "#E9D019", text: "#111111" },
-  { name: "St Paul's White", hex: "#E9F2DC", text: "#111111" },
-  { name: "Shard Glass", hex: "#4A9BB8", text: "#ffffff" },
-  { name: "Cab Black", hex: "#000000", text: "#ffffff" },
+const colors = ["#D90000", "#FF5700", "#E9D019", "#E9F2DC", "#4A9BB8", "#000000"];
+
+const blocks = [
+  { word: "truth", c: 0, x: 0, y: 0, w: 26, h: 22 },
+  { word: "method", c: 5, x: 26, y: 0, w: 18, h: 16 },
+  { word: "compassion", c: 3, x: 44, y: 0, w: 22, h: 18 },
+  { word: "humility", c: 4, x: 66, y: 0, w: 34, h: 24 },
+
+  { word: "clarity", c: 1, x: 0, y: 22, w: 20, h: 20 },
+  { word: "accountability", c: 2, x: 20, y: 16, w: 24, h: 24 },
+  { word: "no gossip", c: 5, x: 44, y: 18, w: 20, h: 16 },
+  { word: "courage", c: 0, x: 64, y: 24, w: 18, h: 18 },
+  { word: "curiosity", c: 3, x: 82, y: 24, w: 18, h: 16 },
+
+  { word: "integration", c: 4, x: 0, y: 42, w: 32, h: 20 },
+  { word: "discipline", c: 1, x: 32, y: 40, w: 18, h: 22 },
+  { word: "pacifism", c: 2, x: 50, y: 34, w: 16, h: 18 },
+  { word: "comrade", c: 0, x: 66, y: 42, w: 20, h: 20 },
+  { word: "awareness", c: 5, x: 86, y: 40, w: 14, h: 22 },
+
+  { word: "focus", c: 2, x: 0, y: 62, w: 18, h: 16 },
+  { word: "kindness", c: 3, x: 18, y: 62, w: 22, h: 16 },
+  { word: "precision", c: 4, x: 40, y: 62, w: 16, h: 14 },
+  { word: "builder", c: 1, x: 56, y: 62, w: 18, h: 16 },
+  { word: "balance", c: 0, x: 74, y: 62, w: 26, h: 16 },
+
+  { word: "consistency", c: 5, x: 0, y: 78, w: 28, h: 22 },
+  { word: "ownership", c: 1, x: 28, y: 76, w: 20, h: 24 },
+  { word: "fairness", c: 2, x: 48, y: 76, w: 18, h: 24 },
+  { word: "candor", c: 4, x: 66, y: 82, w: 16, h: 18 },
+  { word: "traction", c: 3, x: 82, y: 78, w: 18, h: 22 },
 ];
+
+const textColor = (hex: string) => (hex === "#E9F2DC" || hex === "#E9D019" || hex === "#FF5700" ? "#111" : "#fff");
 
 export default function Home() {
   return (
-    <main style={{ minHeight: "100vh", backgroundColor: "#000000", padding: "8px" }}>
-      <div style={{ display: "flex", minHeight: "calc(100vh - 16px)", gap: "8px" }}>
-        {palette.map((c, i) => (
-          <section
-            key={c.name}
-            style={{
-              flex: 1,
-              backgroundColor: c.hex,
-              color: c.text,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: i % 2 === 0 ? "space-between" : "center",
-              alignItems: "center",
-              padding: "1rem 0.5rem",
-              textAlign: "center",
-            }}
-          >
-            {i % 2 === 0 ? <div style={{ fontSize: "0.7rem", letterSpacing: "0.08em" }}>PHILOSOPHY</div> : null}
-            <h1 style={{ margin: 0, fontSize: "clamp(0.9rem, 1.6vw, 1.3rem)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-              {c.name}
-            </h1>
-            {i % 2 === 0 ? <div style={{ fontSize: "0.75rem" }}>{c.hex}</div> : null}
-          </section>
-        ))}
+    <main style={{ width: "100vw", height: "100dvh", overflow: "hidden", background: "#000" }}>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+        {blocks.map((b, i) => {
+          const bg = colors[b.c];
+          return (
+            <section
+              key={`${b.word}-${i}`}
+              style={{
+                position: "absolute",
+                left: `${b.x}%`,
+                top: `${b.y}%`,
+                width: `${b.w}%`,
+                height: `${b.h}%`,
+                backgroundColor: bg,
+                color: textColor(bg),
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                fontWeight: 800,
+                fontSize: "clamp(10px, 1.2vw, 20px)",
+                lineHeight: 1,
+                textAlign: "center",
+                padding: "4px",
+              }}
+            >
+              {b.word}
+            </section>
+          );
+        })}
       </div>
     </main>
   );
