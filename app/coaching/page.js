@@ -278,7 +278,7 @@ export default function Bos360Page() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
             “Cam helped us get brutally clear on priorities and gave our leadership team a practical operating cadence we could actually sustain. Execution quality improved almost immediately.”
             <div className="mt-4 space-y-3 not-italic">
@@ -326,6 +326,23 @@ export default function Bos360Page() {
               </div>
               <span className="block font-semibold text-orange-200">
                 — Roy Firestein, CEO at Autohost
+              </span>
+            </div>
+          </blockquote>
+
+          <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
+            “Cam leads with humility and creates the kind of environment where leadership teams can have open, honest conversations without defensiveness. He facilitates with clarity, asks sharp questions, and helps teams turn insight into real execution.”
+            <div className="mt-4 space-y-3 not-italic">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
+                <img
+                  src="/logos/nav360.png"
+                  alt="NAV360 logo"
+                  className="h-5 w-auto object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <span className="block font-semibold text-orange-200">
+                — Shelby Thompson, Owner at NAV360; BOS360 Coach
               </span>
             </div>
           </blockquote>
