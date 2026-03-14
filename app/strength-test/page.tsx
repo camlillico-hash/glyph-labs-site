@@ -96,6 +96,16 @@ export default function StrengthTestPage() {
   const [index, setIndex] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [started, setStarted] = useState(false);
+  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [leadError, setLeadError] = useState("");
+  const [leadForm, setLeadForm] = useState({
+    firstName: "",
+    lastName: "",
+    company: "",
+    email: "",
+    phone: "",
+  });
 
   const current = questions[index];
   const selected = current ? answers[current.id] : undefined;
@@ -161,6 +171,35 @@ export default function StrengthTestPage() {
     if (index > 0) setIndex((i) => i - 1);
   };
 
+  const submitLead = async (e: any) => {
+    e.preventDefault();
+    setLeadError("");
+
+    if (!leadForm.firstName || !leadForm.lastName || !leadForm.company || !leadForm.email) {
+      setLeadError("Please complete all required fields.");
+      return;
+    }
+
+    setLeadSubmitting(true);
+    try {
+      const res = await fetch("/api/strength-test/lead", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(leadForm),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "Unable to start test right now.");
+      }
+      setShowLeadModal(false);
+      setStarted(true);
+    } catch (err: any) {
+      setLeadError(err?.message || "Unable to start test right now.");
+    } finally {
+      setLeadSubmitting(false);
+    }
+  };
+
   if (!started) {
     return (
       <main className="min-h-screen bg-[#06090f] text-slate-100">
@@ -180,11 +219,76 @@ export default function StrengthTestPage() {
             <button
               type="button"
               className="mt-8 rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black"
-              onClick={() => setStarted(true)}
+              onClick={() => setShowLeadModal(true)}
             >
               Start Test
             </button>
           </div>
+
+          {showLeadModal ? (
+            <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4">
+              <div className="w-full max-w-md rounded-2xl bg-white p-5 text-slate-900 shadow-2xl">
+                <p className="text-lg font-semibold">Fill in the information below to get started.</p>
+                <form className="mt-4 space-y-3" onSubmit={submitLead}>
+                  <input
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    placeholder="First name*"
+                    value={leadForm.firstName}
+                    onChange={(e) => setLeadForm((p) => ({ ...p, firstName: e.target.value }))}
+                    required
+                  />
+                  <input
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    placeholder="Last name*"
+                    value={leadForm.lastName}
+                    onChange={(e) => setLeadForm((p) => ({ ...p, lastName: e.target.value }))}
+                    required
+                  />
+                  <input
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    placeholder="Company*"
+                    value={leadForm.company}
+                    onChange={(e) => setLeadForm((p) => ({ ...p, company: e.target.value }))}
+                    required
+                  />
+                  <input
+                    type="email"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    placeholder="Email*"
+                    value={leadForm.email}
+                    onChange={(e) => setLeadForm((p) => ({ ...p, email: e.target.value }))}
+                    required
+                  />
+                  <input
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    placeholder="Phone (optional)"
+                    value={leadForm.phone}
+                    onChange={(e) => setLeadForm((p) => ({ ...p, phone: e.target.value }))}
+                  />
+
+                  {leadError ? <p className="text-sm text-rose-600">{leadError}</p> : null}
+
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      className="flex-1 rounded border border-slate-300 px-3 py-2 text-sm"
+                      onClick={() => setShowLeadModal(false)}
+                      disabled={leadSubmitting}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 rounded bg-cyan-500 px-3 py-2 text-sm font-semibold text-black disabled:opacity-50"
+                      disabled={leadSubmitting}
+                    >
+                      {leadSubmitting ? "Starting..." : "Start"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          ) : null}
         </section>
         <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
           © {new Date().getFullYear()} Glyph Labs. All rights reserved.
