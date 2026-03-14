@@ -42,20 +42,32 @@ const sectionMax: Record<SectionKey, number> = {
   Culture: 15,
 };
 
-const sectionColors: Record<SectionKey, string> = {
-  Business: "#D90000",
-  Brand: "#FF5700",
-  Team: "#E9D019",
-  Strategy: "#4A9BB8",
-  Execution: "#7DD3FC",
-  Culture: "#22C55E",
-};
-
 function scoreColor(total: number) {
-  if (total <= 50) return "#ef4444";
-  if (total <= 84) return "#facc15";
-  return "#22c55e";
+  if (total <= 50) return "#e11d48";
+  if (total <= 84) return "#f59e0b";
+  return "#65a30d";
 }
+
+function scoreLabel(total: number) {
+  if (total <= 50) return "Weak";
+  if (total <= 84) return "Moderate";
+  return "Strong";
+}
+
+const sectionDescriptions: Record<SectionKey, string> = {
+  Business:
+    "Strengthening this component means shaping the organization to be predictable and profitable, with a proven flywheel that creates value and consistently generates cash to fuel growth.",
+  Brand:
+    "Strengthening the brand means ensuring your company is understood and appreciated both internally and externally, with a clear identity brought to life across touchpoints.",
+  Team:
+    "Beyond having the right people in the right seats, a strong team is happy and high-performing. They work well together and improve individually and collectively over time.",
+  Strategy:
+    "Strengthening this component means getting everyone 100% aligned with where you are going and how you plan to get there. It provides direction and decision clarity.",
+  Execution:
+    "This is instilling simplicity, focus, discipline, and accountability throughout the company so everyone executes on vision day after day and momentum compounds.",
+  Culture:
+    "This is your unique vibe that sets you apart and defines who you are. It is essential for a healthy, high-performing team and sustaining authentic momentum.",
+};
 
 function polarToCartesian(cx: number, cy: number, r: number, angle: number) {
   const rad = (angle - 90) * (Math.PI / 180);
@@ -96,7 +108,7 @@ export default function StrengthTestPage() {
 
   const pieSlices = useMemo(() => {
     const entries = Object.keys(subtotals) as SectionKey[];
-    const radius = 86;
+    const radius = 94;
     const circumference = 2 * Math.PI * radius;
     let offset = 0;
 
@@ -108,7 +120,8 @@ export default function StrengthTestPage() {
         section,
         value,
         percent,
-        color: sectionColors[section],
+        color: scoreColor(percent),
+        label: scoreLabel(percent),
         radius,
         circumference,
         dashArray: `${length} ${Math.max(circumference - length, 0)}`,
@@ -163,76 +176,101 @@ export default function StrengthTestPage() {
 
   if (submitted) {
     const totalColor = scoreColor(total);
-    return (
-      <main className="min-h-screen bg-[#06090f] text-slate-100">
-        <section className="mx-auto max-w-4xl px-6 py-10">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-            <h1 className="text-3xl font-bold">Strength Test Results</h1>
+    const totalLabel = scoreLabel(total);
 
-            <div className="mt-6 grid gap-6 md:grid-cols-[300px_1fr]">
+    return (
+      <main className="min-h-screen bg-[#f5f5f5] text-slate-900">
+        <div className="bg-[#ef7d2d] px-6 py-6 text-center">
+          <p className="text-3xl italic tracking-wide text-white">accelerate your growth, simplify your life</p>
+        </div>
+
+        <section className="mx-auto max-w-4xl px-6 py-8">
+          <h1 className="text-4xl font-semibold leading-tight">Thank you for taking the <span className="font-bold">Strength Test</span></h1>
+
+          <div className="mt-6 flex flex-wrap items-center gap-6 text-sm">
+            <p className="inline-flex items-center gap-2"><span className="inline-block h-4 w-4 rounded-full bg-rose-600" /> Weak</p>
+            <p className="inline-flex items-center gap-2"><span className="inline-block h-4 w-4 rounded-full bg-amber-500" /> Moderate</p>
+            <p className="inline-flex items-center gap-2"><span className="inline-block h-4 w-4 rounded-full bg-lime-600" /> Strong</p>
+          </div>
+
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
+            <div className="grid gap-6 md:grid-cols-[320px_1fr] md:items-center">
               <div className="flex flex-col items-center">
-                <svg width="260" height="260" viewBox="0 0 260 260" aria-label="Section score donut chart">
-                  <g transform="rotate(-90 130 130)">
-                    <circle cx="130" cy="130" r="86" fill="none" stroke="#0f172a" strokeWidth="28" />
+                <svg width="280" height="280" viewBox="0 0 280 280" aria-label="Section score donut chart">
+                  <g transform="rotate(-90 140 140)">
+                    <circle cx="140" cy="140" r="94" fill="none" stroke="#f1f5f9" strokeWidth="30" />
                     {pieSlices.map((s) => (
                       <circle
                         key={s.section}
-                        cx="130"
-                        cy="130"
-                        r={s.radius}
+                        cx="140"
+                        cy="140"
+                        r="94"
                         fill="none"
                         stroke={s.color}
-                        strokeWidth="28"
-                        strokeLinecap="butt"
+                        strokeWidth="30"
+                        strokeLinecap="round"
                         strokeDasharray={s.dashArray}
                         strokeDashoffset={s.dashOffset}
                       />
                     ))}
                   </g>
-                  <circle cx="130" cy="130" r="56" fill="#06090f" />
-                  <text x="130" y="120" textAnchor="middle" fontSize="12" fill="#94a3b8">Overall Score</text>
-                  <text x="130" y="147" textAnchor="middle" fontSize="28" fontWeight="700" fill={totalColor}>{total}%</text>
+                  <circle cx="140" cy="140" r="56" fill="white" />
+                  <text x="140" y="126" textAnchor="middle" fontSize="13" fill="#64748b">Your Overall Score</text>
+                  <text x="140" y="160" textAnchor="middle" fontSize="44" fontWeight="700" fill={totalColor}>{total}%</text>
                 </svg>
-                <p className="mt-2 text-sm text-slate-400">Section distribution</p>
               </div>
 
               <div>
-                <p className="text-sm text-slate-300">Total Score</p>
-                <p className="mt-1 text-5xl font-bold" style={{ color: totalColor }}>
-                  {total} / 100
-                </p>
-                <p className="mt-1 text-sm text-slate-400">
-                  {total <= 50 ? "At-risk zone" : total <= 84 ? "Developing zone" : "Strong zone"}
-                </p>
+                <p className="text-sm uppercase tracking-[0.12em] text-slate-500">Overall Rating</p>
+                <p className="mt-1 text-4xl font-bold" style={{ color: totalColor }}>{totalLabel}</p>
+                <p className="mt-3 text-slate-600">Results are based on your responses across the six BOS360 dimensions.</p>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {pieSlices.map((s) => (
-                    <div key={s.section} className="rounded-lg border border-slate-800 p-3">
-                      <p className="text-sm text-slate-300 inline-flex items-center gap-2">
-                        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-                        {s.section}
-                      </p>
-                      <p className="text-xl font-semibold">
-                        {s.value} / {sectionMax[s.section]}
-                      </p>
-                      <p className="text-xs text-slate-400">{s.percent}% of section max</p>
+                    <div key={s.section} className="rounded-xl border border-slate-200 p-3">
+                      <p className="text-sm font-semibold text-slate-700">{s.section}</p>
+                      <p className="mt-1 text-3xl font-bold" style={{ color: s.color }}>{s.percent}%</p>
+                      <span className="mt-1 inline-block rounded px-2 py-0.5 text-xs font-semibold text-white" style={{ backgroundColor: s.color }}>
+                        {s.label}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-
-            <button
-              type="button"
-              className="mt-6 rounded border border-slate-700 px-3 py-2 text-sm hover:border-slate-500"
-              onClick={() => {
-                setSubmitted(false);
-                setIndex(0);
-              }}
-            >
-              Review answers
-            </button>
           </div>
+
+          <div className="mt-8 space-y-4">
+            {(Object.keys(subtotals) as SectionKey[]).map((section) => {
+              const percent = Math.round((subtotals[section] / sectionMax[section]) * 100);
+              const color = scoreColor(percent);
+              const label = scoreLabel(percent);
+
+              return (
+                <article key={section} className="rounded-2xl bg-white p-6 shadow-sm">
+                  <h2 className="text-2xl font-semibold uppercase tracking-wide">{section}</h2>
+                  <p className="mt-3 text-lg leading-relaxed text-slate-700">{sectionDescriptions[section]}</p>
+                  <div className="mt-5 text-center">
+                    <p className="text-3xl font-bold" style={{ color }}>{percent}%</p>
+                    <span className="mt-1 inline-block rounded px-3 py-1 text-sm font-semibold text-white" style={{ backgroundColor: color }}>
+                      {label}
+                    </span>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            className="mt-6 rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:border-slate-500"
+            onClick={() => {
+              setSubmitted(false);
+              setIndex(0);
+            }}
+          >
+            Review answers
+          </button>
         </section>
       </main>
     );
