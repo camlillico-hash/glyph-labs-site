@@ -41,9 +41,9 @@ export default function StrengthTestSamplePage() {
   const subtotals: Record<SectionKey, number> = {
     Business: 18,  // 90% strong
     Brand: 6,      // 40% weak
-    Team: 13,      // 87% strong
+    Team: 11,      // 73% moderate
     Strategy: 7,   // 47% weak
-    Execution: 10, // 50% weak
+    Execution: 14, // 70% moderate
     Culture: 14,   // 93% strong
   };
 
@@ -98,18 +98,30 @@ export default function StrengthTestSamplePage() {
                 <g transform="rotate(-90 140 140)">
                   <circle cx="140" cy="140" r="94" fill="none" stroke="#f1f5f9" strokeWidth="30" />
                   {slices.map((s) => (
-                    <circle
-                      key={s.section}
-                      cx="140"
-                      cy="140"
-                      r="94"
-                      fill="none"
-                      stroke={s.color}
-                      strokeWidth="30"
-                      strokeLinecap="round"
-                      strokeDasharray={s.dashArray}
-                      strokeDashoffset={s.dashOffset}
-                    />
+                    <g key={s.section}>
+                      <circle
+                        cx="140"
+                        cy="140"
+                        r="94"
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth="34"
+                        strokeLinecap="round"
+                        strokeDasharray={s.dashArray}
+                        strokeDashoffset={s.dashOffset}
+                      />
+                      <circle
+                        cx="140"
+                        cy="140"
+                        r="94"
+                        fill="none"
+                        stroke={s.color}
+                        strokeWidth="28"
+                        strokeLinecap="round"
+                        strokeDasharray={s.dashArray}
+                        strokeDashoffset={s.dashOffset}
+                      />
+                    </g>
                   ))}
                 </g>
                 <circle cx="140" cy="140" r="56" fill="white" />
