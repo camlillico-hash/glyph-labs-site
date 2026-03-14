@@ -238,8 +238,10 @@ export default function StrengthTestPage() {
     );
   }
 
+  const completionPct = Math.round((completed / questions.length) * 100);
+
   return (
-    <main className="min-h-screen bg-[#06090f] text-slate-100">
+    <main className="min-h-screen bg-[#06090f] pb-16 text-slate-100">
       <section className="mx-auto max-w-3xl px-6 py-10">
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           <div className="mb-5 flex items-center justify-between">
@@ -307,6 +309,15 @@ export default function StrengthTestPage() {
           </div>
         </div>
       </section>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-800 bg-[#06090f]/95 px-4 py-2 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-3xl items-center gap-3">
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
+            <div className="h-full rounded-full bg-cyan-400 transition-all duration-300" style={{ width: `${completionPct}%` }} />
+          </div>
+          <p className="w-14 text-right text-xs text-slate-300">{completionPct}%</p>
+        </div>
+      </div>
     </main>
   );
 }
