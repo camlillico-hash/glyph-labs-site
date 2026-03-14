@@ -77,13 +77,9 @@ export default function StrengthTestSamplePage() {
   const totalLabel = scoreLabel(total);
 
   return (
-    <main className="min-h-screen bg-[#f5f5f5] text-slate-900">
-      <div className="bg-[#ef7d2d] px-6 py-6 text-center">
-        <p className="text-3xl italic tracking-wide text-white">accelerate your growth, simplify your life</p>
-      </div>
-
+    <main className="min-h-screen bg-[#06090f] text-slate-100">
       <section className="mx-auto max-w-4xl px-6 py-8">
-        <h1 className="text-4xl font-semibold leading-tight">Thank you for taking the <span className="font-bold">Strength Test</span></h1>
+        <h1 className="text-4xl font-semibold leading-tight">Strength Test: Your Results</h1>
 
         <div className="mt-6 flex flex-wrap items-center gap-6 text-sm">
           <p className="inline-flex items-center gap-2"><span className="inline-block h-4 w-4 rounded-full bg-rose-600" /> Weak</p>
@@ -91,12 +87,12 @@ export default function StrengthTestSamplePage() {
           <p className="inline-flex items-center gap-2"><span className="inline-block h-4 w-4 rounded-full bg-lime-600" /> Strong</p>
         </div>
 
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
+        <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
           <div className="grid gap-6 md:grid-cols-[340px_1fr] md:items-start">
             <div className="flex flex-col items-center">
               <svg width="280" height="280" viewBox="0 0 280 280" aria-label="Section score donut chart">
                 <g transform="rotate(-90 140 140)">
-                  <circle cx="140" cy="140" r="94" fill="none" stroke="#f1f5f9" strokeWidth="30" />
+                  <circle cx="140" cy="140" r="94" fill="none" stroke="#1e293b" strokeWidth="30" />
                   {slices.map((s) => (
                     <g key={s.section}>
                       <circle
@@ -106,7 +102,7 @@ export default function StrengthTestSamplePage() {
                         fill="none"
                         stroke="#ffffff"
                         strokeWidth="34"
-                        strokeLinecap="round"
+                        strokeLinecap="butt"
                         strokeDasharray={s.dashArray}
                         strokeDashoffset={s.dashOffset}
                       />
@@ -117,21 +113,21 @@ export default function StrengthTestSamplePage() {
                         fill="none"
                         stroke={s.color}
                         strokeWidth="28"
-                        strokeLinecap="round"
+                        strokeLinecap="butt"
                         strokeDasharray={s.dashArray}
                         strokeDashoffset={s.dashOffset}
                       />
                     </g>
                   ))}
                 </g>
-                <circle cx="140" cy="140" r="56" fill="white" />
-                <text x="140" y="126" textAnchor="middle" fontSize="13" fill="#64748b">Your Overall Score</text>
-                <text x="140" y="160" textAnchor="middle" fontSize="44" fontWeight="700" fill={totalColor}>{total}%</text>
+                <circle cx="140" cy="140" r="56" fill="#06090f" />
+                <text x="140" y="124" textAnchor="middle" fontSize="13" fontWeight="700" fill="#cbd5e1">Your Overall Score</text>
+                <text x="140" y="166" textAnchor="middle" fontSize="44" fontWeight="700" fill={totalColor}> {total}%</text>
               </svg>
 
-              <div className="mt-4 grid w-full grid-cols-2 gap-x-4 gap-y-2 border-t border-slate-200 pt-3 text-xs">
+              <div className="mt-4 grid w-full grid-cols-2 gap-x-4 gap-y-2 border-t border-slate-700 pt-3 text-xs">
                 {slices.map((s) => (
-                  <div key={s.section} className="flex items-center justify-between gap-2 text-slate-700">
+                  <div key={s.section} className="flex items-center justify-between gap-2 text-slate-300">
                     <span className="inline-flex items-center gap-1.5">
                       <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
                       {s.section}
@@ -145,7 +141,7 @@ export default function StrengthTestSamplePage() {
             <div>
               <p className="text-sm uppercase tracking-[0.12em] text-slate-500">Overall Rating</p>
               <p className="mt-1 text-4xl font-bold" style={{ color: totalColor }}>{totalLabel}</p>
-              <p className="mt-3 text-slate-600">Results are based on your responses across the six BOS360 dimensions.</p>
+              <p className="mt-3 text-slate-400">Results are based on your responses across the six BOS360 dimensions.</p>
             </div>
           </div>
         </div>
@@ -157,9 +153,9 @@ export default function StrengthTestSamplePage() {
             const label = scoreLabel(percent);
 
             return (
-              <article key={section} className="rounded-2xl bg-white p-6 shadow-sm">
+              <article key={section} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
                 <h2 className="text-2xl font-semibold uppercase tracking-wide">{section}</h2>
-                <p className="mt-3 text-lg leading-relaxed text-slate-700">{sectionDescriptions[section]}</p>
+                <p className="mt-3 text-lg leading-relaxed text-slate-300">{sectionDescriptions[section]}</p>
                 <div className="mt-5 text-center">
                   <p className="text-3xl font-bold" style={{ color }}>{percent}%</p>
                   <span className="mt-1 inline-block rounded px-3 py-1 text-sm font-semibold text-white" style={{ backgroundColor: color }}>
@@ -170,7 +166,24 @@ export default function StrengthTestSamplePage() {
             );
           })}
         </div>
+
+        <div className="mt-8 rounded-2xl border border-slate-700 bg-slate-900/70 p-6 text-center">
+          <p className="text-2xl font-semibold">Ready to strengthen your next 90 days?</p>
+          <p className="mt-2 text-slate-300">Book a discovery meeting and we’ll walk through your results together.</p>
+          <a
+            href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black"
+          >
+            Book a Meeting
+          </a>
+        </div>
       </section>
+
+      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
+        © {new Date().getFullYear()} Glyph Labs. All rights reserved.
+      </footer>
     </main>
   );
 }
