@@ -46,7 +46,7 @@ const process = [
     text: "A focused intro call to confirm fit, context, and whether your leadership team is ready for consistent implementation.",
   },
   {
-    title: "Free 90-Min Discovery",
+    title: "90-Min Discovery",
     text: "A structured session with your leadership team to diagnose friction points, alignment gaps, and execution bottlenecks.",
   },
   {
@@ -244,8 +244,13 @@ export default function Bos360Page() {
                 key={step.title}
                 className="rounded-2xl border border-neutral-700 bg-neutral-900 p-5"
               >
-                <p className="text-sm font-semibold uppercase tracking-wider text-orange-300">
+                <p className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-orange-300">
                   Step {i + 1}
+                  {i === 1 ? (
+                    <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200">
+                      No cost
+                    </span>
+                  ) : null}
                 </p>
                 <h3 className="mt-2 text-xl font-semibold text-slate-100 md:text-2xl">{step.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">{step.text}</p>
