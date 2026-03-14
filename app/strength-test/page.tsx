@@ -234,12 +234,16 @@ export default function StrengthTestPage() {
               <p>• Covers 3 Core Pillars: <span className="font-semibold text-slate-100">Business, Brand, Team</span>.</p>
               <p>• Plus 3 Bonding Forces: <span className="font-semibold text-slate-100">Strategy, Execution, Culture</span>.</p>
               <p>• Finish in a few minutes and get an instant score breakdown.</p>
-              <p className="pt-1 text-xs text-slate-400">Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.</p>
-              <span className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-full border border-neutral-700 bg-neutral-900/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-200">
-                <User size={11} aria-hidden />
-                <Mail size={11} aria-hidden />
-                Name + email required
-              </span>
+              <div className="mt-2 inline-flex max-w-xl flex-col items-center justify-center gap-1 rounded-xl border border-neutral-700 bg-neutral-900/85 px-3 py-2 text-slate-200">
+                <span className="inline-flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em]">
+                  <User size={11} aria-hidden />
+                  <Mail size={11} aria-hidden />
+                  Name + email required
+                </span>
+                <span className="text-center text-[11px] leading-snug text-slate-300">
+                  Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.
+                </span>
+              </div>
             </div>
             <button
               type="button"
