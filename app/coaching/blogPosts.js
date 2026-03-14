@@ -207,7 +207,7 @@ export const blogPosts = [
     description:
       "When executives prioritize departments over the leadership team, alignment breaks. Company performance follows leadership team health.",
     thumbnail:
-      "https://images.unsplash.com/photo-1552664730-6f6c3d6b7b26?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
     readTime: "6 min read",
     category: "Leadership Team",
     publishedAt: "March 23, 2026",
