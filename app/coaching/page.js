@@ -40,28 +40,20 @@ const pillars = [
 
 const process = [
   {
-    title: "Clarify the Vision",
-    text: "Define a clear 3-Year and 1-Year direction with measurable targets. Align the leadership team around purpose, priorities, and what success actually looks like.",
+    title: "Warm Intro Conversation",
+    text: "A focused intro call to confirm fit, context, and whether your leadership team is ready for disciplined implementation.",
   },
   {
-    title: "Strengthen the Team",
-    text: "Build trust, encourage healthy conflict, and ensure the right people are in the right seats. High performance starts with a cohesive leadership team.",
+    title: "Free 90-Min Discovery",
+    text: "A structured session with your leadership team to diagnose friction points, alignment gaps, and execution bottlenecks.",
   },
   {
-    title: "Pressure-Test the Strategy",
-    text: "Assess strengths, gaps, market trends, and key risks. Refine the strategic plan so it’s focused, differentiated, and executable.",
+    title: "Launch Phase (One-Time, 3 Days)",
+    text: "An intensive foundational build to install clarity, accountability, and operating structure your team can actually run.",
   },
   {
-    title: "Set Quarterly Priorities (Rocks)",
-    text: "Translate strategy into 3–5 critical priorities per quarter. Assign clear ownership and measurable outcomes.",
-  },
-  {
-    title: "Execute with Discipline",
-    text: "Establish a consistent meeting rhythm, track weekly metrics, and tackle issues head-on using structured problem solving.",
-  },
-  {
-    title: "Repeat & Elevate",
-    text: "Every 90 days, recalibrate. Reinforce what’s working, fix what’s not, and raise the standard of clarity, accountability, and performance.",
+    title: "Annual Rhythm",
+    text: "5-session cadence: one 2-day Annual plus three single-day Quarterlies to keep priorities clear and execution compounding.",
   },
 ];
 
@@ -123,6 +115,9 @@ export default function Bos360Page() {
             <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
           </a>
           <div className="flex items-center gap-2 whitespace-nowrap">
+            <a href="/strength-test" className="rounded-lg border border-cyan-400/50 px-3 py-2 text-xs font-semibold text-cyan-200 hover:bg-cyan-500/10">
+              Start Strength Test
+            </a>
             <a
               href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
               target="_blank"
@@ -130,9 +125,6 @@ export default function Bos360Page() {
               className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
             >
               Book a Discovery Call
-            </a>
-            <a href="/strength-test" className="rounded-lg border border-cyan-400/50 px-3 py-2 text-xs font-semibold text-cyan-200 hover:bg-cyan-500/10">
-              Start Strength Test
             </a>
           </div>
         </div>
@@ -146,11 +138,7 @@ export default function Bos360Page() {
         </p>
 
         <h1 className="mt-6 max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-          I work with companies at
-          <span className="bg-gradient-to-r from-orange-200 via-[#ed7d31] to-orange-600 bg-clip-text text-transparent">
-            {" "}$2M to $50M revenue
-          </span>{" "}
-          to scale with clarity, execution, and accountability.
+          Build a leadership team that executes with clarity, discipline, and momentum.
         </h1>
 
         <div className="mt-6 flex max-w-4xl items-center gap-4 md:gap-5">
@@ -161,8 +149,8 @@ export default function Bos360Page() {
             loading="eager"
           />
           <p className="text-lg text-slate-300">
-            I partner with founders and leadership teams to align priorities, build
-            execution discipline, and create measurable momentum—without adding chaos.
+            I help growth-stage founders and leadership teams install a practical operating cadence so priorities are clear,
+            accountability is real, and execution improves week by week.
           </p>
         </div>
 
@@ -215,6 +203,29 @@ export default function Bos360Page() {
               <p className="mt-3 text-slate-300">{item.text}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      {/* FIT */}
+      <section className="mx-auto max-w-6xl px-6 py-12">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
+            <h3 className="text-xl font-bold text-orange-200">Who this is for</h3>
+            <ul className="mt-4 space-y-2 text-slate-300">
+              <li>• Founder-led or growth-stage companies (roughly $2M–$50M).</li>
+              <li>• Leadership teams with strong intent but inconsistent execution.</li>
+              <li>• Teams ready for candid conversations and real accountability.</li>
+              <li>• Companies that want operating discipline without bureaucracy.</li>
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
+            <h3 className="text-xl font-bold text-slate-100">Who this is not for</h3>
+            <ul className="mt-4 space-y-2 text-slate-300">
+              <li>• Teams looking for motivation without implementation.</li>
+              <li>• Organizations unwilling to commit to weekly/quarterly cadence.</li>
+              <li>• Founders wanting outsourced decision-making instead of alignment.</li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -280,7 +291,7 @@ export default function Bos360Page() {
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
-            “Cam helped us get brutally clear on priorities and gave our leadership team a practical operating cadence we could actually sustain. Execution quality improved almost immediately.”
+“Within one quarter, our team moved from reactive meetings to clear weekly priorities and cleaner ownership. Cam helped us install a cadence we could actually sustain.”
             <div className="mt-4 space-y-3 not-italic">
               <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
                 <img
@@ -297,7 +308,7 @@ export default function Bos360Page() {
           </blockquote>
 
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
-            “What stood out was the balance of strategy and accountability. Cam challenged our assumptions, tightened ownership, and helped us move from busy to effective.”
+“Cam balanced strategy with accountability. He challenged assumptions, clarified ownership, and helped us move from busy activity to focused execution.”
             <div className="mt-4 space-y-3 not-italic">
               <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
                 <img
@@ -314,7 +325,7 @@ export default function Bos360Page() {
           </blockquote>
 
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
-            “Cam brought structure without bureaucracy. We left each session with clear decisions, named owners, and real momentum—exactly what we needed at our stage.”
+“Cam brought structure without bureaucracy. We left each session with clear decisions, named owners, and measurable momentum at the stage we needed it most.”
             <div className="mt-4 space-y-3 not-italic">
               <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
                 <img
