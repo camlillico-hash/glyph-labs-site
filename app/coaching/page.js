@@ -1,3 +1,15 @@
+import {
+  BadgeCheck,
+  BookOpen,
+  Compass,
+  Gauge,
+  Gem,
+  Home,
+  Layers,
+  Star,
+  Workflow,
+  ArrowRight,
+} from "lucide-react";
 import CopyEmailButton from "./CopyEmailButton";
 import { blogPosts } from "./blogPosts";
 
@@ -8,17 +20,17 @@ export const metadata = {
 
 const pillars = [
   {
-    icon: "◉",
+    Icon: Compass,
     title: "Strategic Clarity",
     text: "Get your leadership team aligned on where you’re going, what matters most now, and what to deprioritize.",
   },
   {
-    icon: "▶",
+    Icon: Workflow,
     title: "Execution Discipline",
     text: "Turn strategy into focused weekly execution with practical operating rhythms your team can actually sustain.",
   },
   {
-    icon: "★",
+    Icon: Gauge,
     title: "Leadership Accountability",
     text: "Build a high-performance culture where ownership is clear, progress is measurable, and momentum compounds.",
   },
@@ -93,7 +105,7 @@ export default function Bos360Page() {
         title="Philosophy"
         className="fixed bottom-3 right-3 z-20 text-[10px] tracking-[0.25em] uppercase text-slate-500/35 transition hover:text-[#ed7d31]/80"
       >
-        ◌
+        <Home size={12} />
       </a>
 
       {/* Background glow accents */}
@@ -102,10 +114,35 @@ export default function Bos360Page() {
         <div className="absolute top-1/3 -right-32 h-96 w-96 rounded-full bg-neutral-600/20 blur-3xl" />
       </div>
 
+      {/* HEADER */}
+      <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+          <p className="inline-flex items-center gap-2 text-sm font-semibold text-orange-200">
+            <Gem size={16} className="text-[#ed7d31]" /> Glyph Labs Coaching
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
+            >
+              Book a Discovery Call
+            </a>
+            <a href="#proof" className="rounded-lg border border-neutral-600 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-neutral-800">
+              Why Work With Cam
+            </a>
+            <a href="/strength-test" className="rounded-lg border border-cyan-400/50 px-3 py-2 text-xs font-semibold text-cyan-200 hover:bg-cyan-500/10">
+              Start Strength Test
+            </a>
+          </div>
+        </div>
+      </header>
+
       {/* HERO */}
-      <section className="mx-auto max-w-6xl px-6 pb-8 pt-24 md:pb-10 md:pt-32">
+      <section className="mx-auto max-w-6xl px-6 pb-8 pt-16 md:pb-10 md:pt-20">
         <p className="inline-flex items-center gap-2 rounded-full border border-neutral-600 bg-neutral-800/85 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-200">
-          <span aria-hidden>◉</span>
+          <BadgeCheck size={14} aria-hidden />
           Glyph Labs Business Coaching
         </p>
 
@@ -130,51 +167,12 @@ export default function Bos360Page() {
           </p>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-4">
-          <a
-            href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-xl bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-90"
-          >
-            Book a Discovery Call
-          </a>
-          <a
-            href="#proof"
-            className="rounded-xl border border-neutral-600 px-6 py-3 text-sm font-semibold text-slate-200 transition hover:bg-neutral-800"
-          >
-            Why Work With Cam
-          </a>
-        </div>
-      </section>
-
-      {/* STRENGTH TEST CTA */}
-      <section className="mx-auto max-w-6xl px-6 pb-4">
-        <div className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 shadow-lg shadow-black/30 md:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange-200">Free Diagnostic</p>
-          <h2 className="mt-2 text-2xl font-bold md:text-3xl">Take the Strength Test before we talk.</h2>
-          <p className="mt-3 max-w-4xl text-slate-300">
-            In 3–5 minutes, you’ll get a clear baseline across Business, Brand, Team, Strategy, Execution, and Culture.
-            It helps us focus your discovery call on the real bottlenecks instead of surface symptoms.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <a
-              href="/strength-test"
-              className="rounded-xl bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:opacity-90"
-            >
-              Start the Strength Test
-            </a>
-            <span className="inline-flex items-center rounded-xl border border-neutral-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
-              20 questions · instant results
-            </span>
-          </div>
-        </div>
       </section>
 
       {/* PILLARS */}
       <section className="mx-auto max-w-6xl px-6 py-10 md:py-12">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-[#ed7d31]">◉</span>
+          <Compass size={22} aria-hidden className="text-[#ed7d31]" />
           What I Help You Solve
         </h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -184,7 +182,7 @@ export default function Bos360Page() {
               className="group rounded-2xl border border-neutral-600 bg-neutral-900/80 p-6 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-neutral-500"
             >
               <h3 className="flex items-center gap-2 text-xl font-semibold text-slate-100">
-                <span aria-hidden className="text-[#ed7d31]">{item.icon}</span>
+                <item.Icon size={18} aria-hidden className="text-[#ed7d31]" />
                 {item.title}
               </h3>
               <p className="mt-3 text-slate-300">{item.text}</p>
@@ -197,7 +195,7 @@ export default function Bos360Page() {
       <section className="border-y border-neutral-700 bg-neutral-900/40 py-16">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-            <span aria-hidden className="text-[#ed7d31]">▶</span>
+            <Workflow size={22} aria-hidden className="text-[#ed7d31]" />
             My BOS360 Coaching Approach
           </h2>
           <ol className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -217,7 +215,7 @@ export default function Bos360Page() {
 
           <div className="mt-8 max-w-4xl rounded-2xl border border-neutral-600 bg-neutral-900/85 p-5 shadow-lg shadow-black/30">
             <p className="text-base font-medium leading-relaxed text-slate-100 md:text-lg">
-              <span className="mr-2 text-[#ed7d31]">◉</span>
+              <Layers size={16} className="mr-2 inline text-[#ed7d31]" />
               BOS360 is a practical operating system for leadership teams who want
               <span className="font-semibold text-orange-200"> traction</span>
               <span className="text-slate-400"> — not </span>
@@ -230,7 +228,7 @@ export default function Bos360Page() {
       {/* PROOF */}
       <section id="proof" className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-[#ed7d31]">★</span>
+          <Star size={22} aria-hidden className="text-[#ed7d31]" />
           Why Founders Work With Me
         </h2>
 
@@ -380,7 +378,7 @@ export default function Bos360Page() {
 
           <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-8">
             <h3 className="flex items-center gap-2 text-2xl font-semibold">
-              <span aria-hidden className="text-[#ed7d31]">➤</span>
+              <ArrowRight size={18} aria-hidden className="text-[#ed7d31]" />
               Ready to Scale with More Clarity?
             </h3>
             <p className="mt-3 text-slate-300">
@@ -404,7 +402,7 @@ export default function Bos360Page() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-          <span aria-hidden className="text-[#ed7d31]">▮</span>
+          <BookOpen size={22} aria-hidden className="text-[#ed7d31]" />
           Recommended reads
         </h2>
         <p className="mt-3 max-w-4xl text-slate-300">
@@ -431,7 +429,7 @@ export default function Bos360Page() {
       <section className="border-t border-neutral-700 bg-neutral-900/40 py-16">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-            <span aria-hidden className="text-[#ed7d31]">✦</span>
+            <Gem size={22} aria-hidden className="text-[#ed7d31]" />
             Glyph Coaching
           </h2>
           <p className="mt-3 max-w-4xl text-slate-300">
