@@ -43,7 +43,7 @@ const pillars = [
 const process = [
   {
     title: "Warm Intro Conversation",
-    text: "A focused intro call to confirm fit, context, and whether your leadership team is ready for disciplined implementation.",
+    text: "A focused intro call to confirm fit, context, and whether your leadership team is ready for consistent implementation.",
   },
   {
     title: "Free 90-Min Discovery",
