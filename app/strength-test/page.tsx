@@ -204,8 +204,8 @@ export default function StrengthTestPage() {
 
   if (!started) {
     return (
-      <main className="min-h-screen bg-[#06090f] text-slate-100">
-        <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
+      <main className="flex h-[100dvh] flex-col overflow-hidden bg-[#06090f] text-slate-100">
+        <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
             <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
               <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
@@ -221,7 +221,7 @@ export default function StrengthTestPage() {
           </div>
         </header>
 
-        <section className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl items-center px-6 py-10">
+        <section className="mx-auto flex w-full max-w-3xl flex-1 items-center px-6 py-6">
           <div className="w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8 text-center">
             <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">Assessment</p>
             <h1 className="mt-2 text-3xl font-bold">How strong is your business?</h1>
@@ -322,7 +322,7 @@ export default function StrengthTestPage() {
             </div>
           ) : null}
         </section>
-        <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
+        <footer className="hidden border-t border-slate-800 py-6 text-center text-xs text-slate-400 md:block">
           © {new Date().getFullYear()} Glyph Labs. All rights reserved.
         </footer>
       </main>
@@ -482,8 +482,8 @@ export default function StrengthTestPage() {
   const completionPct = Math.round((completed / questions.length) * 100);
 
   return (
-    <main className="min-h-screen bg-[#06090f] pb-16 text-slate-100">
-      <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
+    <main className="h-[100dvh] overflow-hidden bg-[#06090f] text-slate-100">
+      <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
           <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
             <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
@@ -499,8 +499,8 @@ export default function StrengthTestPage() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-3xl px-6 py-10">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+      <section className="mx-auto flex h-[calc(100dvh-118px)] w-full max-w-3xl items-center px-6 py-4 md:h-auto md:block md:py-10">
+        <div className="max-h-full w-full overflow-y-auto rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           {leadThanks ? (
             <div className="mb-4 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
               Thanks — details received. Let’s run your Strength Test.
@@ -573,7 +573,7 @@ export default function StrengthTestPage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
+      <footer className="hidden border-t border-slate-800 py-6 text-center text-xs text-slate-400 md:block">
         © {new Date().getFullYear()} Glyph Labs. All rights reserved.
       </footer>
 
