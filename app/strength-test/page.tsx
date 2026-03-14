@@ -205,6 +205,22 @@ export default function StrengthTestPage() {
   if (!started) {
     return (
       <main className="min-h-screen bg-[#06090f] text-slate-100">
+        <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+            <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
+              <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+            </a>
+            <a
+              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
+            >
+              Book a Discovery Call
+            </a>
+          </div>
+        </header>
+
         <section className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl items-center px-6 py-10">
           <div className="w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8 text-center">
             <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">Assessment</p>
@@ -307,6 +323,22 @@ export default function StrengthTestPage() {
 
     return (
       <main className="min-h-screen bg-[#06090f] text-slate-100">
+        <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+            <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
+              <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+            </a>
+            <a
+              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
+            >
+              Book a Discovery Call
+            </a>
+          </div>
+        </header>
+
         <section className="mx-auto max-w-4xl px-6 py-8">
           <h1 className="text-4xl font-semibold leading-tight">Strength Test: Your Results</h1>
 
@@ -439,6 +471,22 @@ export default function StrengthTestPage() {
 
   return (
     <main className="min-h-screen bg-[#06090f] pb-16 text-slate-100">
+      <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+          <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
+            <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+          </a>
+          <a
+            href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
+          >
+            Book a Discovery Call
+          </a>
+        </div>
+      </header>
+
       <section className="mx-auto max-w-3xl px-6 py-10">
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           {leadThanks ? (
