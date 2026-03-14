@@ -177,7 +177,7 @@ export default function Bos360Page() {
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <a
               href="/strength-test"
-              className="rounded-xl bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+              className="rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-5 py-2.5 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-500/15"
             >
               <span className="block">Start the Strength Test</span>
               <span className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-200">
@@ -421,7 +421,7 @@ export default function Bos360Page() {
               </a>
               <a
                 href="/strength-test"
-                className="rounded-lg border border-neutral-600 bg-neutral-900 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-neutral-800"
+                className="rounded-lg border border-cyan-400/50 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-500/15"
               >
                 Start the Strength Test
               </a>
