@@ -9,6 +9,8 @@ import {
   Star,
   Workflow,
   ArrowRight,
+  User,
+  Mail,
 } from "lucide-react";
 import CopyEmailButton from "./CopyEmailButton";
 import { blogPosts } from "./blogPosts";
@@ -172,13 +174,18 @@ export default function Bos360Page() {
             In 3–5 minutes, you’ll get a clear baseline across Business, Brand, Team, Strategy, Execution, and Culture.
             It helps us focus your discovery call on the real bottlenecks instead of surface symptoms.
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             <a
               href="/strength-test"
               className="rounded-xl bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:opacity-90"
             >
               Start the Strength Test
             </a>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-cyan-200">
+              <User size={12} aria-hidden />
+              <Mail size={12} aria-hidden />
+              Name + email required
+            </span>
             <span className="inline-flex items-center rounded-xl border border-neutral-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
               20 questions · instant results
             </span>
