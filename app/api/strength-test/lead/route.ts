@@ -14,6 +14,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailValid) {
+      return NextResponse.json({ error: "Please enter a valid email" }, { status: 400 });
+    }
+
+    if (phone) {
+      const phoneValid = /^\+?[0-9()\-\s]{7,20}$/.test(phone);
+      if (!phoneValid) {
+        return NextResponse.json({ error: "Please enter a valid phone number" }, { status: 400 });
+      }
+    }
+
     const timestamp = now();
     const store = await getStore();
 
