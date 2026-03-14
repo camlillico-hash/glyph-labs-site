@@ -126,8 +126,8 @@ export default function Bos360Page() {
             >
               Book a Discovery Call
             </a>
-            <a href="#proof" className="rounded-lg border border-neutral-600 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-neutral-800">
-              Why Work With Cam
+            <a href="/strength-test" className="rounded-lg border border-cyan-400/50 px-3 py-2 text-xs font-semibold text-cyan-200 hover:bg-cyan-500/10">
+              Start Strength Test
             </a>
           </div>
         </div>
