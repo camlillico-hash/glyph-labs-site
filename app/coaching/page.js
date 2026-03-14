@@ -118,7 +118,10 @@ export default function Bos360Page() {
 
       {/* HEADER */}
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-end gap-3 px-6 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+          <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
+            <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+          </a>
           <div className="flex items-center gap-2 whitespace-nowrap">
             <a
               href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
