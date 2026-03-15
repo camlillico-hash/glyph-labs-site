@@ -185,7 +185,12 @@ export default async function CrmHome() {
       </section>
 
       <section className="crm-card p-4">
-        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Crosshair size={18} /> Transition Dashboard</h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="inline-flex items-center gap-2 text-lg font-semibold"><Crosshair size={18} /> Revenue Targets</h2>
+          <Link href="/crm/settings" className="rounded border border-neutral-700 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-neutral-500">
+            Change targets
+          </Link>
+        </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-lg border border-neutral-800 p-3">
             <p className="text-xs text-slate-400">Active clients</p>
