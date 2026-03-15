@@ -113,6 +113,29 @@ export default async function CrmHome() {
     fitCompletedToWon: fitCompletedCount > 0 ? Math.round((wonCount / fitCompletedCount) * 100) : 0,
   };
 
+  // Transition plan dashboard metrics
+  const recurringRevenue = wonDeals.reduce((sum, d) => sum + Number(d.annualFee || 0), 0);
+  const annualizedRevenue = Math.round(recurringRevenue);
+  const potentialClients = openDeals.filter((d) => ["Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"].includes(d.stage)).length;
+
+  const reducedHoursReady = activeClients >= 4 && annualizedRevenue >= 100000;
+  const fullExitReady = activeClients >= 6 && annualizedRevenue >= 150000 && potentialClients >= 2;
+
+  const warmLeadsYtd = store.contacts.filter((c) => ["Attempting", "Connected", "Discovery meeting booked"].includes(c.status || "")).length;
+  const introMeetingsYtd = store.deals.filter((d) => ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)"]
+    .includes(d.stage)).length;
+  const discoveriesYtd = store.deals.filter((d) => ["Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)"]
+    .includes(d.stage)).length;
+  const clientsClosedYtd = wonDeals.length;
+
+  const outreachThisWeek = activitiesThisWeek.filter((a) => ["email", "call", "text", "linkedin"].includes(a.type)).length;
+  const meetingsThisWeek = activitiesThisWeek.filter((a) => a.type === "meeting").length;
+  const followupsThisWeek = (store.tasks || []).filter((t) => {
+    const ts = new Date(t.updatedAt || t.createdAt).getTime();
+    return Number.isFinite(ts) && ts >= oneWeekAgo && ["email", "call", "text", "linkedin"].includes(t.type || "");
+  }).length;
+  const introRequestsThisWeek = activitiesThisWeek.filter((a) => /intro/i.test(a.note || "")).length;
+
   return (
     <div className="space-y-6">
       <div>
@@ -126,6 +149,57 @@ export default async function CrmHome() {
           <p className="text-sm font-semibold text-slate-300 inline-flex items-center gap-1.5">Status report from <span className={`${glyphMood.nameColor} inline-flex items-center gap-1`}>Sgt. Glyph <GlyphMoodIcon size={14} /></span></p>
           <p className="mt-2 text-slate-100">{glyphMood.text}</p>
         </Link>
+      </section>
+
+      <section className="crm-card p-4">
+        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Crosshair size={18} /> Transition Dashboard</h2>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-lg border border-neutral-800 p-3">
+            <p className="text-xs text-slate-400">Active clients</p>
+            <p className="text-2xl font-bold">{activeClients} <span className="text-sm text-slate-400">/ 6</span></p>
+          </div>
+          <div className="rounded-lg border border-neutral-800 p-3">
+            <p className="text-xs text-slate-400">Annualized coaching revenue</p>
+            <p className="text-2xl font-bold">${annualizedRevenue.toLocaleString()} <span className="text-sm text-slate-400">/ $150k</span></p>
+          </div>
+          <div className="rounded-lg border border-neutral-800 p-3">
+            <p className="text-xs text-slate-400">Pipeline potentials</p>
+            <p className="text-2xl font-bold">{potentialClients} <span className="text-sm text-slate-400">/ 2+</span></p>
+          </div>
+          <div className="rounded-lg border border-neutral-800 p-3">
+            <p className="text-xs text-slate-400">Discovery sessions (YTD)</p>
+            <p className="text-2xl font-bold">{discoveriesYtd} <span className="text-sm text-slate-400">/ 3–4</span></p>
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <div className={`rounded-lg border p-3 ${reducedHoursReady ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}>
+            <p className="text-sm font-semibold">Trigger 1 — Reduced Hours</p>
+            <p className="text-xs text-slate-300 mt-1">Needs: 4 active clients + ~$100k annualized.</p>
+            <p className="mt-1 text-sm">Status: <span className="font-semibold">{reducedHoursReady ? "Ready" : "Not yet"}</span></p>
+          </div>
+          <div className={`rounded-lg border p-3 ${fullExitReady ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}>
+            <p className="text-sm font-semibold">Trigger 2 — Full Exit</p>
+            <p className="text-xs text-slate-300 mt-1">Needs: 6 clients + $150k recurring + 2+ potentials.</p>
+            <p className="mt-1 text-sm">Status: <span className="font-semibold">{fullExitReady ? "Ready" : "Not yet"}</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section className="crm-card p-4">
+        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CheckSquare size={18} /> Weekly KPI Scoreboard</h2>
+        <div className="grid gap-2 text-sm md:grid-cols-2 xl:grid-cols-4">
+          <KpiRow label="Warm outreach conversations" value={outreachThisWeek} target="2" ok={outreachThisWeek >= 2} />
+          <KpiRow label="Intro meetings" value={meetingsThisWeek} target="0–1" ok={meetingsThisWeek <= 1} />
+          <KpiRow label="Follow-ups" value={followupsThisWeek} target="3–5" ok={followupsThisWeek >= 3} />
+          <KpiRow label="Introductions requested" value={introRequestsThisWeek} target="1–2" ok={introRequestsThisWeek >= 1} />
+        </div>
+        <div className="mt-3 grid gap-2 text-xs text-slate-400 md:grid-cols-4">
+          <p>Warm leads YTD: <span className="text-slate-200 font-semibold">{warmLeadsYtd}</span> / 12–16</p>
+          <p>Intro meetings YTD: <span className="text-slate-200 font-semibold">{introMeetingsYtd}</span> / 6–8</p>
+          <p>Discoveries YTD: <span className="text-slate-200 font-semibold">{discoveriesYtd}</span> / 3–4</p>
+          <p>Clients closed YTD: <span className="text-slate-200 font-semibold">{clientsClosedYtd}</span> / 3–4</p>
+        </div>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
@@ -251,5 +325,14 @@ function Card({ icon, label, value, href }: { icon: React.ReactNode; label: stri
       <p className="text-sm text-slate-400 inline-flex items-center gap-1.5">{icon} {label}</p>
       <p className="mt-2 text-3xl font-bold">{value}</p>
     </Link>
+  );
+}
+
+function KpiRow({ label, value, target, ok }: { label: string; value: number; target: string; ok: boolean }) {
+  return (
+    <div className={`rounded-lg border px-3 py-2 ${ok ? "border-emerald-500/40 bg-emerald-500/10" : "border-rose-500/40 bg-rose-500/10"}`}>
+      <p className="text-xs text-slate-300">{label}</p>
+      <p className="mt-1 text-lg font-bold">{value} <span className="text-xs font-normal text-slate-400">(target {target})</span></p>
+    </div>
   );
 }
