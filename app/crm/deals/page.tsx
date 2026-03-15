@@ -142,7 +142,7 @@ export default function DealsPage() {
           {rows.map((d) => {
             const editing = editingId === d.id;
             return (
-              <tr key={d.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
+              <tr key={d.id} className="border-b border-neutral-900 hover:bg-neutral-900/60" onDoubleClick={() => setEditing(d)}>
                 <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(d)}>{editing ? <input className="crm-input" value={inlineDraft.name || ""} onChange={(e)=>setInlineDraft({...inlineDraft, name:e.target.value})} /> : <button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(d);}}>{d.name || "Untitled deal"}</button>}</td>
                 <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <select className="crm-input" value={inlineDraft.contactId || ""} onChange={(e)=>setInlineDraft({...inlineDraft, contactId:e.target.value})}><option value="">Select linked contact *</option>{contacts.map((c) => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}</select> : (d.contactId ? <a className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} href={`/crm/contacts?contactId=${d.contactId}`}>{contactName(d.contactId)}</a> : "—")}</td>
                 <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(d)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (d.company || "—")}</td>
