@@ -72,7 +72,12 @@ export default async function CrmHome() {
 
   let glyphMood = { icon: Hammer, color: "text-sky-300", nameColor: "text-sky-300", text: "Not bad, but not legendary. Move 1 deal stage and clear 2 tasks before day-end." };
   if (overdueTasks.length > 0 || staleDeals > 0 || staleDays > 2 || openDeals.length === 0) {
-    glyphMood = { icon: Flame, color: "text-rose-300", nameColor: "text-rose-300", text: `You’re coasting. ${overdueTasks.length} overdue task(s), ${staleDeals} stale deal(s). Quit flirting with the to-do list and execute.` };
+    const warnings: string[] = [];
+    if (overdueTasks.length > 0) warnings.push(`${overdueTasks.length} overdue task(s)`);
+    if (staleDeals > 0) warnings.push(`${staleDeals} stale deal(s)`);
+
+    const warningText = warnings.length > 0 ? `${warnings.join(", ")}. ` : "";
+    glyphMood = { icon: Flame, color: "text-rose-300", nameColor: "text-rose-300", text: `You’re coasting. ${warningText}Quit flirting with the to-do list and execute.` };
     if (openDeals.length === 0 && store.contacts.length > 0) glyphMood.text = "No open deals? That’s not a pipeline, that’s fan fiction. Promote a contact to Warm intro booked right now.";
     if (store.contacts.length === 0) glyphMood.text = "Pipeline starts with people. Add 3 contacts today and stop pretending strategy is outreach.";
   }
