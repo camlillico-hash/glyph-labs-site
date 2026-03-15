@@ -63,6 +63,7 @@ export default function ContactsPage() {
   const [importError, setImportError] = useState("");
   const [showOpenContacts, setShowOpenContacts] = useState(true);
   const [showConverted, setShowConverted] = useState(true);
+  const [showClients, setShowClients] = useState(true);
   const [showDisqualified, setShowDisqualified] = useState(true);
   const [showDetailSection, setShowDetailSection] = useState(true);
   const [showActivitiesSection, setShowActivitiesSection] = useState(true);
@@ -81,6 +82,14 @@ export default function ContactsPage() {
   const openItems = useMemo(() => items.filter((c) => !["Warm intro booked", "Not right now", "Pipeline Seeder"].includes(c.status || "New")), [items]);
   const sorted = useMemo(() => [...openItems], [openItems]);
   const convertedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Warm intro booked"), [items]);
+  const clientContactIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const d of deals || []) {
+      if (["Launch days paid", "Launch paid (won)"].includes(d.stage) && d.contactId) ids.add(d.contactId);
+    }
+    return ids;
+  }, [deals]);
+  const clientItems = useMemo(() => items.filter((c) => clientContactIds.has(c.id)), [items, clientContactIds]);
   const disqualifiedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Not right now"), [items]);
 
 
@@ -302,11 +311,23 @@ export default function ContactsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowConverted((v) => !v)}>
             {showConverted ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Warm intros ({convertedItems.length})
+            Converted ({convertedItems.length})
           </button>
           {showConverted && (
             convertedItems.length > 0 ? renderContactsTable(convertedItems) : (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No warm intros yet.</div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No converted contacts yet.</div>
+            )
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-cyan-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowClients((v) => !v)}>
+            {showClients ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            Clients ({clientItems.length})
+          </button>
+          {showClients && (
+            clientItems.length > 0 ? renderContactsTable(clientItems) : (
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client contacts yet.</div>
             )
           )}
         </div>
