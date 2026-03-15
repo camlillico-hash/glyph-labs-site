@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BriefcaseBusiness, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Archive, ChevronDown, ChevronRight } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 
-const STAGES = ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)", "Lost"];
+const STAGES = ["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Lost"];
 const CLIENT_STAGES = ["Launch", "Active rhythm"];
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
@@ -50,7 +50,7 @@ export default function DealsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const visibleDeals = useMemo(() => deals.filter((d) => d.stage !== "Launch paid (won)" && d.stage !== "Lost"), [deals]);
+  const visibleDeals = useMemo(() => deals.filter((d) => !["Launch days paid", "Launch paid (won)", "Lost"].includes(d.stage)), [deals]);
   const sortedDeals = useMemo(() => [...visibleDeals], [visibleDeals]);
   const lostDeals = useMemo(() => deals.filter((d) => d.stage === "Lost"), [deals]);
 
@@ -73,7 +73,7 @@ export default function DealsPage() {
   function openTray(deal: any) { setSelected(deal); setDraft({ ...deal }); setEditMode(false); setCreateMode(false); setTrayError(""); }
   function closeTray() { setSelected(null); setDraft(null); setEditMode(false); setCreateMode(false); setTrayError(""); }
 
-  const stageWeight = (stage: string) => stage === "Discovery meeting booked" ? 10 : stage === "Discovery meeting completed" ? 15 : stage === "Fit meeting booked" ? 25 : stage === "Fit meeting completed" ? 35 : stage === "Proposal / commitment" ? 50 : stage === "Launch paid (won)" ? 100 : 0;
+  const stageWeight = (stage: string) => stage === "Warm intro booked" ? 10 : stage === "Warm intro completed" ? 15 : stage === "90-min disco booked" ? 25 : stage === "90-min disco completed" ? 35 : stage === "Proposal / commitment" ? 50 : stage === "Launch days paid" ? 100 : 0;
 
   async function moveDealStage(dealId: string, stage: string, targetIndex?: number) {
     const deal = deals.find((d) => d.id === dealId);
@@ -244,7 +244,7 @@ export default function DealsPage() {
                             <td className="px-3 py-2 text-slate-300">{linkedDeal?.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/contacts?contactId=${linkedDeal.contactId}`}>{contactName(linkedDeal.contactId)}</a> : "—"}</td>
                             <td className="px-3 py-2 text-slate-300">{s.company || "—"}</td>
                             <td className="px-3 py-2 text-slate-300">{money(s.value)}</td>
-                            <td className="px-3 py-2 text-emerald-300">Launch paid (won)</td>
+                            <td className="px-3 py-2 text-emerald-300">Launch days paid</td>
                             <td className="px-3 py-2 text-slate-400">{s.wonAt ? new Date(s.wonAt).toLocaleDateString() : "—"}</td>
                             <td className="px-3 py-2"><div className="flex gap-2"><button className="crm-btn-ghost inline-flex items-center gap-1" title="Open tray" aria-label="Open tray" onClick={() => { if (linkedDeal) openTray(linkedDeal); }}><SquareArrowOutUpRight size={14} /></button><button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1" title="Remove" aria-label="Remove" onClick={() => removeDealStamp(s.id)}><Trash2 size={13} /></button></div></td>
                           </tr>

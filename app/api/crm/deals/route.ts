@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { DEAL_STAGES, DEAL_STAGE_WEIGHTS, getStore, id, now, saveStore } from "@/lib/crm-store";
 
 function upsertDealStamp(store: any, deal: any) {
-  if (deal.stage !== "Launch paid (won)") return;
+  if (!["Launch days paid", "Launch paid (won)"].includes(deal.stage)) return;
   const idx = (store.dealStamps || []).findIndex((s: any) => s.dealId === deal.id);
   const stamp = {
     id: idx >= 0 ? store.dealStamps[idx].id : id(),
@@ -23,7 +23,12 @@ function normalizeStage(value: any) {
     "90-minute booked": "Fit meeting booked",
     "90-minute complete": "Fit meeting completed",
     "Verbal Yes": "Proposal / commitment",
-    "Client signed (won)": "Launch paid (won)",
+    "Client signed (won)": "Launch days paid",
+    "Discovery meeting booked": "Warm intro booked",
+    "Discovery meeting completed": "Warm intro completed",
+    "Fit meeting booked": "90-min disco booked",
+    "Fit meeting completed": "90-min disco completed",
+    "Launch paid (won)": "Launch days paid",
   };
   const v = legacyMap[String(value || "").trim()] || String(value || "").trim();
   if (!v) return DEAL_STAGES[0];
@@ -36,7 +41,7 @@ function normalizePrimaryPain(value: any) {
 }
 
 function normalizeClientStage(stage: string, clientStage: any) {
-  if (stage !== "Launch paid (won)") return undefined;
+  if (!["Launch days paid", "Launch paid (won)"].includes(stage)) return undefined;
   const v = String(clientStage || "").trim();
   if (v === "Launch" || v === "Active rhythm") return v;
   return "Launch";
@@ -57,7 +62,7 @@ export async function GET() {
 }
 
 export async function POST() {
-  return NextResponse.json({ error: "Direct deal creation is disabled. Move a contact to Discovery meeting booked to create a deal." }, { status: 403 });
+  return NextResponse.json({ error: "Direct deal creation is disabled. Move a contact to Warm intro booked to create a deal." }, { status: 403 });
 }
 
 export async function PUT(req: Request) {

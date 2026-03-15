@@ -29,8 +29,8 @@ export default async function CrmHome() {
   const currentMs = new Date(now()).getTime();
   const oneWeekAgo = currentMs - 7 * 24 * 60 * 60 * 1000;
 
-  const openDeals = store.deals.filter((d) => d.stage !== "Launch paid (won)" && d.stage !== "Lost");
-  const wonDeals = store.deals.filter((d) => d.stage === "Launch paid (won)");
+  const openDeals = store.deals.filter((d) => !["Launch days paid", "Launch paid (won)", "Lost"].includes(d.stage));
+  const wonDeals = store.deals.filter((d) => ["Launch days paid", "Launch paid (won)"].includes(d.stage));
   const lostDeals = store.deals.filter((d) => d.stage === "Lost");
   const activeClients = wonDeals.length;
 
@@ -67,7 +67,7 @@ export default async function CrmHome() {
   let glyphMood = { icon: Hammer, color: "text-sky-300", nameColor: "text-sky-300", text: "Not bad, but not legendary. Move 1 deal stage and clear 2 tasks before day-end." };
   if (overdueTasks.length > 0 || staleDeals > 0 || staleDays > 2 || openDeals.length === 0) {
     glyphMood = { icon: Flame, color: "text-rose-300", nameColor: "text-rose-300", text: `You’re coasting. ${overdueTasks.length} overdue task(s), ${staleDeals} stale deal(s). Quit flirting with the to-do list and execute.` };
-    if (openDeals.length === 0 && store.contacts.length > 0) glyphMood.text = "No open deals? That’s not a pipeline, that’s fan fiction. Promote a contact to Discovery right now.";
+    if (openDeals.length === 0 && store.contacts.length > 0) glyphMood.text = "No open deals? That’s not a pipeline, that’s fan fiction. Promote a contact to Warm intro booked right now.";
     if (store.contacts.length === 0) glyphMood.text = "Pipeline starts with people. Add 3 contacts today and stop pretending strategy is outreach.";
   }
   if (wonDeals.length >= 1 && doneTasks >= 5 && overdueTasks.length === 0 && staleDeals === 0 && staleDays <= 1) {
@@ -78,7 +78,7 @@ export default async function CrmHome() {
   }
   const GlyphMoodIcon = glyphMood.icon;
 
-  const openStageSet = new Set(["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"]);
+  const openStageSet = new Set(["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed"]);
   const weightedByStage = DEAL_STAGES.filter((stage) => openStageSet.has(stage)).map((stage) => {
     const deals = (store.deals || []).filter((d) => d.stage === stage);
     const total = deals.reduce((sum, d) => sum + Number(d.value || 0), 0);
@@ -92,20 +92,20 @@ export default async function CrmHome() {
     weighted: acc.weighted + row.weighted,
   }), { count: 0, total: 0, weighted: 0 });
 
-  const discoveryCompletedSet = new Set(["Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)"]);
-  const fitBookedSet = new Set(["Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)"]);
-  const fitCompletedSet = new Set(["Fit meeting completed", "Proposal / commitment", "Launch paid (won)"]);
+  const discoveryCompletedSet = new Set(["Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Launch paid (won)"]);
+  const fitBookedSet = new Set(["90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Fit meeting booked", "Fit meeting completed", "Launch paid (won)"]);
+  const fitCompletedSet = new Set(["90-min disco completed", "Proposal / commitment", "Launch days paid", "Fit meeting completed", "Launch paid (won)"]);
 
   const discoveryCompletedCount = store.deals.filter((d) => discoveryCompletedSet.has(d.stage)).length;
   const fitBookedCount = store.deals.filter((d) => fitBookedSet.has(d.stage)).length;
   const fitCompletedCount = store.deals.filter((d) => fitCompletedSet.has(d.stage)).length;
   const wonCount = activeClients;
 
-  const connectedCount = store.contacts.filter((c) => c.status === "Connected" || c.status === "Discovery meeting booked").length;
-  const discoveryBookedContacts = store.contacts.filter((c) => c.status === "Discovery meeting booked").length;
-  const attemptingOrLaterNonLost = store.contacts.filter((c) => ["Attempting", "Connected", "Discovery meeting booked"].includes(c.status || "")).length;
+  const connectedCount = store.contacts.filter((c) => ["Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Discovery meeting booked"].includes(c.status || "")).length;
+  const discoveryBookedContacts = store.contacts.filter((c) => ["Warm intro booked", "Discovery meeting booked"].includes(c.status || "")).length;
+  const attemptingOrLaterNonLost = store.contacts.filter((c) => ["Attempting", "Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Discovery meeting booked"].includes(c.status || "")).length;
   // Treat any later non-lost stage as having achieved "Connected", even if status was skipped.
-  const countedAsConnected = store.contacts.filter((c) => ["Connected", "Discovery meeting booked"].includes(c.status || "")).length;
+  const countedAsConnected = store.contacts.filter((c) => ["Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Discovery meeting booked"].includes(c.status || "")).length;
 
   const conversion = {
     attemptingToConnected: attemptingOrLaterNonLost > 0 ? Math.round((countedAsConnected / attemptingOrLaterNonLost) * 100) : 0,
@@ -304,9 +304,9 @@ export default async function CrmHome() {
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Percent size={18} /> Conversion rates</h2>
         <ul className="space-y-2 text-sm">
           <li className="flex items-center justify-between"><span>Attempting → Connected</span><span className="font-semibold">{conversion.attemptingToConnected}%</span></li>
-          <li className="flex items-center justify-between"><span>Connected → Discovery booked</span><span className="font-semibold">{conversion.connectedToDiscoveryBooked}%</span></li>
-          <li className="flex items-center justify-between"><span>Discovery completed → Fit booked</span><span className="font-semibold">{conversion.discoveryToFitBooked}%</span></li>
-          <li className="flex items-center justify-between"><span>Fit completed → Won</span><span className="font-semibold">{conversion.fitCompletedToWon}%</span></li>
+          <li className="flex items-center justify-between"><span>Connected → Warm intro booked</span><span className="font-semibold">{conversion.connectedToDiscoveryBooked}%</span></li>
+          <li className="flex items-center justify-between"><span>Warm intro completed → 90-min disco booked</span><span className="font-semibold">{conversion.discoveryToFitBooked}%</span></li>
+          <li className="flex items-center justify-between"><span>90-min disco completed → Won</span><span className="font-semibold">{conversion.fitCompletedToWon}%</span></li>
         </ul>
       </Link>
 
