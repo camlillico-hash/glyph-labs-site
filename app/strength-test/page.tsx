@@ -208,9 +208,14 @@ export default function StrengthTestPage() {
       <main className="flex h-[100dvh] flex-col overflow-hidden bg-[#06090f] text-slate-100">
         <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-            <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
-              <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
-            </a>
+            <div className="inline-flex items-center gap-2" aria-label="Glyph Labs Strength Test">
+              <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching home">
+                <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+              </a>
+              <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-cyan-200">
+                Glyph Labs Strength Test
+              </span>
+            </div>
             <a
               href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
               target="_blank"
@@ -355,9 +360,14 @@ export default function StrengthTestPage() {
       <main className="min-h-screen bg-[#06090f] text-slate-100">
         <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-            <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
-              <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
-            </a>
+            <div className="inline-flex items-center gap-2" aria-label="Glyph Labs Strength Test">
+              <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching home">
+                <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+              </a>
+              <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-cyan-200">
+                Glyph Labs Strength Test
+              </span>
+            </div>
             <a
               href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
               target="_blank"

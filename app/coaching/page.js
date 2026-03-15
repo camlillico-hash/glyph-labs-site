@@ -1,5 +1,4 @@
 import {
-  BadgeCheck,
   BookOpen,
   Compass,
   Gauge,
@@ -113,9 +112,14 @@ export default function Bos360Page() {
       {/* HEADER */}
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-          <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
-            <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
-          </a>
+          <div className="inline-flex items-center gap-2" aria-label="Glyph Labs Coaching">
+            <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching home">
+              <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+            </a>
+            <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-orange-200">
+              Glyph Labs Business Coaching
+            </span>
+          </div>
           <div className="flex items-center gap-2 whitespace-nowrap">
             <a href="/strength-test" className="rounded-lg border border-cyan-400/50 px-3 py-2 text-xs font-semibold text-cyan-200 hover:bg-cyan-500/10">
               Start Strength Test
@@ -133,13 +137,8 @@ export default function Bos360Page() {
       </header>
 
       {/* HERO */}
-      <section className="mx-auto max-w-6xl px-6 pb-8 pt-16 md:pb-10 md:pt-20">
-        <p className="inline-flex items-center gap-2 rounded-full border border-neutral-600 bg-neutral-800/85 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-200">
-          <BadgeCheck size={14} aria-hidden />
-          Glyph Labs Business Coaching
-        </p>
-
-        <h1 className="mt-6 max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+      <section className="mx-auto max-w-6xl px-6 pb-8 pt-10 md:pb-10 md:pt-12">
+        <h1 className="max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
           Build a leadership team that executes with clarity, discipline, and momentum.
         </h1>
 
