@@ -7,6 +7,7 @@ export const metadata = {
 import Link from "next/link";
 import { getStore, now, DEAL_STAGES } from "@/lib/crm-store";
 import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3 } from "lucide-react";
+import KpiScoreboard from "./KpiScoreboard";
 
 export default async function CrmHome() {
   let storeRaw: any = null;
@@ -49,6 +50,7 @@ export default async function CrmHome() {
     .sort((a, b) => new Date(a.dueDate || "").getTime() - new Date(b.dueDate || "").getTime());
 
   const contactMap = new Map((store.contacts || []).map((c) => [c.id, `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unknown contact"]));
+  const contactStatusMap = new Map((store.contacts || []).map((c) => [c.id, c.status || "New"]));
 
   const staleDeals = openDeals.filter((d) => {
     const t = new Date(d.updatedAt || d.createdAt).getTime();
@@ -161,13 +163,69 @@ export default async function CrmHome() {
     .includes(d.stage)).length;
   const clientsClosedYtd = wonDeals.length;
 
-  const outreachThisWeek = activitiesThisWeek.filter((a) => ["email", "call", "text", "linkedin"].includes(a.type)).length;
-  const meetingsThisWeek = activitiesThisWeek.filter((a) => a.type === "meeting").length;
-  const followupsThisWeek = (store.tasks || []).filter((t) => {
+  const outreachActivityRecords = activitiesThisWeek.filter((a) => ["email", "call", "text", "linkedin"].includes(a.type));
+  const meetingsActivityRecords = activitiesThisWeek.filter((a) => a.type === "meeting");
+  const followupTaskRecords = (store.tasks || []).filter((t) => {
     const ts = new Date(t.updatedAt || t.createdAt).getTime();
     return Number.isFinite(ts) && ts >= oneWeekAgo && ["email", "call", "text", "linkedin"].includes(t.type || "");
-  }).length;
-  const introRequestsThisWeek = activitiesThisWeek.filter((a) => /intro/i.test(a.note || "")).length;
+  });
+  const introRequestActivityRecords = activitiesThisWeek.filter((a) => /intro/i.test(a.note || ""));
+
+  const outreachThisWeek = outreachActivityRecords.length;
+  const meetingsThisWeek = meetingsActivityRecords.length;
+  const followupsThisWeek = followupTaskRecords.length;
+  const introRequestsThisWeek = introRequestActivityRecords.length;
+
+  const kpiItems = [
+    {
+      key: "outreach",
+      label: "Warm outreach conversations",
+      value: outreachThisWeek,
+      target: `${weeklyOutreachTarget}`,
+      ok: outreachThisWeek >= weeklyOutreachTarget,
+      records: outreachActivityRecords.map((a) => ({
+        id: `activity-${a.id}`,
+        name: contactMap.get(a.contactId || "") || "Unknown contact",
+        status: contactStatusMap.get(a.contactId || "") || a.type || "activity",
+      })),
+    },
+    {
+      key: "meetings",
+      label: "Intro meetings",
+      value: meetingsThisWeek,
+      target: `${weeklyIntroTarget}`,
+      ok: meetingsThisWeek >= weeklyIntroTarget,
+      records: meetingsActivityRecords.map((a) => ({
+        id: `meeting-${a.id}`,
+        name: contactMap.get(a.contactId || "") || "Unknown contact",
+        status: contactStatusMap.get(a.contactId || "") || "meeting",
+      })),
+    },
+    {
+      key: "followups",
+      label: "Follow-ups",
+      value: followupsThisWeek,
+      target: `${weeklyFollowupsTarget}`,
+      ok: followupsThisWeek >= weeklyFollowupsTarget,
+      records: followupTaskRecords.map((t) => ({
+        id: `task-${t.id}`,
+        name: t.title || contactMap.get(t.relatedId || "") || "Follow-up task",
+        status: t.status || (t.done ? "Completed" : "Not started"),
+      })),
+    },
+    {
+      key: "intros",
+      label: "Introductions requested",
+      value: introRequestsThisWeek,
+      target: `${weeklyIntroRequestsTarget}`,
+      ok: introRequestsThisWeek >= weeklyIntroRequestsTarget,
+      records: introRequestActivityRecords.map((a) => ({
+        id: `intro-${a.id}`,
+        name: contactMap.get(a.contactId || "") || "Unknown contact",
+        status: contactStatusMap.get(a.contactId || "") || "intro requested",
+      })),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -226,12 +284,7 @@ export default async function CrmHome() {
 
       <section className="crm-card p-4">
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CheckSquare size={18} /> Weekly KPI Scoreboard</h2>
-        <div className="grid gap-2 text-sm md:grid-cols-2 xl:grid-cols-4">
-          <KpiRow label="Warm outreach conversations" value={outreachThisWeek} target={`${weeklyOutreachTarget}`} ok={outreachThisWeek >= weeklyOutreachTarget} />
-          <KpiRow label="Intro meetings" value={meetingsThisWeek} target={`${weeklyIntroTarget}`} ok={meetingsThisWeek >= weeklyIntroTarget} />
-          <KpiRow label="Follow-ups" value={followupsThisWeek} target={`${weeklyFollowupsTarget}`} ok={followupsThisWeek >= weeklyFollowupsTarget} />
-          <KpiRow label="Introductions requested" value={introRequestsThisWeek} target={`${weeklyIntroRequestsTarget}`} ok={introRequestsThisWeek >= weeklyIntroRequestsTarget} />
-        </div>
+        <KpiScoreboard items={kpiItems} />
         <div className="mt-3 grid gap-2 text-xs text-slate-400 md:grid-cols-4">
           <p>Warm leads YTD: <span className="text-slate-200 font-semibold">{warmLeadsYtd}</span> / {annualWarmTarget}</p>
           <p>Intro meetings YTD: <span className="text-slate-200 font-semibold">{introMeetingsYtd}</span> / {annualIntroTarget}</p>
@@ -363,14 +416,5 @@ function Card({ icon, label, value, href }: { icon: React.ReactNode; label: stri
       <p className="text-sm text-slate-400 inline-flex items-center gap-1.5">{icon} {label}</p>
       <p className="mt-2 text-3xl font-bold">{value}</p>
     </Link>
-  );
-}
-
-function KpiRow({ label, value, target, ok }: { label: string; value: number; target: string; ok: boolean }) {
-  return (
-    <div className={`rounded-lg border px-3 py-2 ${ok ? "border-emerald-500/40 bg-emerald-500/10" : "border-rose-500/40 bg-rose-500/10"}`}>
-      <p className="text-xs text-slate-300">{label}</p>
-      <p className="mt-1 text-lg font-bold">{value} <span className="text-xs font-normal text-slate-400">(target {target})</span></p>
-    </div>
   );
 }
