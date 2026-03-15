@@ -13,6 +13,7 @@ type KpiItem = {
   label: string;
   value: number | string;
   target?: string;
+  ok?: boolean;
   records: KpiRecord[];
 };
 
@@ -27,7 +28,7 @@ export default function KpiScoreboard({ items }: { items: KpiItem[] }) {
           <button
             key={item.key}
             type="button"
-            className="rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 py-2 text-left transition hover:-translate-y-0.5 hover:border-neutral-500"
+            className={`rounded-lg border px-3 py-2 text-left transition hover:-translate-y-0.5 ${item.ok === undefined ? "border-neutral-700 bg-neutral-900/70 hover:border-neutral-500" : item.ok ? "border-emerald-500/40 bg-emerald-500/10 hover:border-emerald-400/60" : "border-rose-500/40 bg-rose-500/10 hover:border-rose-400/60"}`}
             onClick={() => setActiveKey(item.key)}
           >
             <p className="text-xs text-slate-300">{item.label}</p>

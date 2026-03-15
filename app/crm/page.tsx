@@ -183,6 +183,7 @@ export default async function CrmHome() {
       label: "Activities (weekly)",
       value: weeklyActivitiesRecords.length,
       target: "20",
+      ok: weeklyActivitiesRecords.length >= 20,
       records: weeklyActivitiesRecords.map((a) => ({
         id: `activity-${a.id}`,
         name: contactMap.get(a.contactId || "") || a.note || "Activity",
@@ -194,6 +195,7 @@ export default async function CrmHome() {
       label: "New contacts added (weekly)",
       value: weeklyNewContactsRecords.length,
       target: "3",
+      ok: weeklyNewContactsRecords.length >= 3,
       records: weeklyNewContactsRecords.map((c) => ({
         id: `contact-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
@@ -205,6 +207,7 @@ export default async function CrmHome() {
       label: "New deals created (weekly)",
       value: weeklyNewDealsRecords.length,
       target: "1",
+      ok: weeklyNewDealsRecords.length >= 1,
       records: weeklyNewDealsRecords.map((d) => ({
         id: `deal-${d.id}`,
         name: d.name || "Untitled deal",
@@ -234,6 +237,7 @@ export default async function CrmHome() {
       label: "Warm intros (monthly)",
       value: monthlyWarmIntrosRecords.length,
       target: "2",
+      ok: monthlyWarmIntrosRecords.length >= 2,
       records: monthlyWarmIntrosRecords.map((c) => ({
         id: `mwarm-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
@@ -245,6 +249,7 @@ export default async function CrmHome() {
       label: "Discovery (monthly)",
       value: monthlyDiscoveryRecords.length,
       target: "1",
+      ok: monthlyDiscoveryRecords.length >= 1,
       records: monthlyDiscoveryRecords.map((d) => ({
         id: `mdisc-${d.id}`,
         name: d.name || "Untitled deal",
@@ -256,6 +261,7 @@ export default async function CrmHome() {
       label: "New pipeline (monthly)",
       value: `$${Math.round(monthlyPipelineValue / 1000)}K`,
       target: "$45K",
+      ok: monthlyPipelineValue >= 45000,
       records: monthlyPipelineRecords.map((d) => ({
         id: `mpipe-${d.id}`,
         name: d.name || "Untitled deal",
