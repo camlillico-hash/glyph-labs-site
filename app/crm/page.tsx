@@ -29,6 +29,10 @@ export default async function CrmHome() {
 
   const currentMs = new Date(now()).getTime();
   const oneWeekAgo = currentMs - 7 * 24 * 60 * 60 * 1000;
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const monthStartMs = monthStart.getTime();
 
   const openDeals = store.deals.filter((d) => !["Launch days paid", "Launch paid (won)", "Lost"].includes(d.stage));
   const wonDeals = store.deals.filter((d) => ["Launch days paid", "Launch paid (won)"].includes(d.stage));
@@ -163,69 +167,61 @@ export default async function CrmHome() {
     .includes(d.stage)).length;
   const clientsClosedYtd = wonDeals.length;
 
-  const outreachActivityRecords = activitiesThisWeek.filter((a) => ["email", "call", "text", "linkedin"].includes(a.type));
-  const meetingsActivityRecords = activitiesThisWeek.filter((a) => a.type === "meeting");
-  const followupTaskRecords = (store.tasks || []).filter((t) => {
-    const ts = new Date(t.updatedAt || t.createdAt).getTime();
-    return Number.isFinite(ts) && ts >= oneWeekAgo && ["email", "call", "text", "linkedin"].includes(t.type || "");
+  const weeklyActivitiesRecords = activitiesThisWeek;
+  const weeklyNewContactsRecords = (store.contacts || []).filter((c) => {
+    const ms = new Date(c.createdAt || c.updatedAt).getTime();
+    return Number.isFinite(ms) && ms >= oneWeekAgo;
   });
-  const introRequestActivityRecords = activitiesThisWeek.filter((a) => /intro/i.test(a.note || ""));
-
-  const outreachThisWeek = outreachActivityRecords.length;
-  const meetingsThisWeek = meetingsActivityRecords.length;
-  const followupsThisWeek = followupTaskRecords.length;
-  const introRequestsThisWeek = introRequestActivityRecords.length;
+  const weeklyNewDealsRecords = (store.deals || []).filter((d) => {
+    const ms = new Date(d.createdAt || d.updatedAt).getTime();
+    return Number.isFinite(ms) && ms >= oneWeekAgo;
+  });
 
   const kpiItems = [
     {
-      key: "outreach",
-      label: "Warm outreach conversations",
-      value: outreachThisWeek,
-      target: `${weeklyOutreachTarget}`,
-      ok: outreachThisWeek >= weeklyOutreachTarget,
-      records: outreachActivityRecords.map((a) => ({
+      key: "weekly-activities",
+      label: "Activities (weekly)",
+      value: weeklyActivitiesRecords.length,
+      records: weeklyActivitiesRecords.map((a) => ({
         id: `activity-${a.id}`,
-        name: contactMap.get(a.contactId || "") || "Unknown contact",
-        status: contactStatusMap.get(a.contactId || "") || a.type || "activity",
+        name: contactMap.get(a.contactId || "") || a.note || "Activity",
+        status: a.type || "activity",
       })),
     },
     {
-      key: "meetings",
-      label: "Intro meetings",
-      value: meetingsThisWeek,
-      target: `${weeklyIntroTarget}`,
-      ok: meetingsThisWeek >= weeklyIntroTarget,
-      records: meetingsActivityRecords.map((a) => ({
-        id: `meeting-${a.id}`,
-        name: contactMap.get(a.contactId || "") || "Unknown contact",
-        status: contactStatusMap.get(a.contactId || "") || "meeting",
+      key: "weekly-contacts",
+      label: "New contacts added (weekly)",
+      value: weeklyNewContactsRecords.length,
+      records: weeklyNewContactsRecords.map((c) => ({
+        id: `contact-${c.id}`,
+        name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
+        status: c.status || "New",
       })),
     },
     {
-      key: "followups",
-      label: "Follow-ups",
-      value: followupsThisWeek,
-      target: `${weeklyFollowupsTarget}`,
-      ok: followupsThisWeek >= weeklyFollowupsTarget,
-      records: followupTaskRecords.map((t) => ({
-        id: `task-${t.id}`,
-        name: t.title || contactMap.get(t.relatedId || "") || "Follow-up task",
-        status: t.status || (t.done ? "Completed" : "Not started"),
-      })),
-    },
-    {
-      key: "intros",
-      label: "Introductions requested",
-      value: introRequestsThisWeek,
-      target: `${weeklyIntroRequestsTarget}`,
-      ok: introRequestsThisWeek >= weeklyIntroRequestsTarget,
-      records: introRequestActivityRecords.map((a) => ({
-        id: `intro-${a.id}`,
-        name: contactMap.get(a.contactId || "") || "Unknown contact",
-        status: contactStatusMap.get(a.contactId || "") || "intro requested",
+      key: "weekly-deals",
+      label: "New deals created (weekly)",
+      value: weeklyNewDealsRecords.length,
+      records: weeklyNewDealsRecords.map((d) => ({
+        id: `deal-${d.id}`,
+        name: d.name || "Untitled deal",
+        status: d.stage || "—",
       })),
     },
   ];
+
+  const monthlyWarmIntrosRecords = (store.contacts || []).filter((c) => {
+    const ms = new Date(c.updatedAt || c.createdAt).getTime();
+    return Number.isFinite(ms) && ms >= monthStartMs && ["Warm intro booked", "Discovery meeting booked"].includes(c.status || "");
+  });
+  const monthlyDiscoveryRecords = (store.deals || []).filter((d) => {
+    const ms = new Date(d.updatedAt || d.createdAt).getTime();
+    return Number.isFinite(ms) && ms >= monthStartMs && ["90-min disco booked", "90-min disco completed", "Fit meeting booked", "Fit meeting completed"].includes(d.stage || "");
+  });
+  const monthlyPipelineRecords = (store.deals || []).filter((d) => {
+    const ms = new Date(d.createdAt || d.updatedAt).getTime();
+    return Number.isFinite(ms) && ms >= monthStartMs && !["Launch days paid", "Launch paid (won)", "Lost"].includes(d.stage || "");
+  });
 
   return (
     <div className="space-y-6">
@@ -285,11 +281,19 @@ export default async function CrmHome() {
       <section className="crm-card p-4">
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CheckSquare size={18} /> Weekly KPI Scoreboard</h2>
         <KpiScoreboard items={kpiItems} />
-        <div className="mt-3 grid gap-2 text-xs text-slate-400 md:grid-cols-4">
-          <p>Warm leads YTD: <span className="text-slate-200 font-semibold">{warmLeadsYtd}</span> / {annualWarmTarget}</p>
-          <p>Intro meetings YTD: <span className="text-slate-200 font-semibold">{introMeetingsYtd}</span> / {annualIntroTarget}</p>
-          <p>Discoveries YTD: <span className="text-slate-200 font-semibold">{discoveriesYtd}</span> / {annualDiscoveryTarget}</p>
-          <p>Clients closed YTD: <span className="text-slate-200 font-semibold">{clientsClosedYtd}</span> / {annualCloseTarget}</p>
+        <div className="mt-4 grid gap-2 text-sm md:grid-cols-3">
+          <div className="rounded-lg border border-neutral-800 px-3 py-2">
+            <p className="text-xs text-slate-400">Warm intros (monthly)</p>
+            <p className="text-xl font-bold">{monthlyWarmIntrosRecords.length}</p>
+          </div>
+          <div className="rounded-lg border border-neutral-800 px-3 py-2">
+            <p className="text-xs text-slate-400">Discovery (monthly)</p>
+            <p className="text-xl font-bold">{monthlyDiscoveryRecords.length}</p>
+          </div>
+          <div className="rounded-lg border border-neutral-800 px-3 py-2">
+            <p className="text-xs text-slate-400">New pipeline (monthly)</p>
+            <p className="text-xl font-bold">{monthlyPipelineRecords.length}</p>
+          </div>
         </div>
       </section>
 
