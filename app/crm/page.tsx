@@ -182,6 +182,7 @@ export default async function CrmHome() {
       key: "weekly-activities",
       label: "Activities (weekly)",
       value: weeklyActivitiesRecords.length,
+      target: "20",
       records: weeklyActivitiesRecords.map((a) => ({
         id: `activity-${a.id}`,
         name: contactMap.get(a.contactId || "") || a.note || "Activity",
@@ -192,6 +193,7 @@ export default async function CrmHome() {
       key: "weekly-contacts",
       label: "New contacts added (weekly)",
       value: weeklyNewContactsRecords.length,
+      target: "3",
       records: weeklyNewContactsRecords.map((c) => ({
         id: `contact-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
@@ -202,6 +204,7 @@ export default async function CrmHome() {
       key: "weekly-deals",
       label: "New deals created (weekly)",
       value: weeklyNewDealsRecords.length,
+      target: "1",
       records: weeklyNewDealsRecords.map((d) => ({
         id: `deal-${d.id}`,
         name: d.name || "Untitled deal",
@@ -222,6 +225,44 @@ export default async function CrmHome() {
     const ms = new Date(d.createdAt || d.updatedAt).getTime();
     return Number.isFinite(ms) && ms >= monthStartMs && !["Launch days paid", "Launch paid (won)", "Lost"].includes(d.stage || "");
   });
+
+
+  const monthlyPipelineValue = monthlyPipelineRecords.reduce((sum, d) => sum + Number(d.value || 0), 0);
+  const monthlyItems = [
+    {
+      key: "monthly-warm-intros",
+      label: "Warm intros (monthly)",
+      value: monthlyWarmIntrosRecords.length,
+      target: "2",
+      records: monthlyWarmIntrosRecords.map((c) => ({
+        id: `mwarm-${c.id}`,
+        name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
+        status: c.status || "New",
+      })),
+    },
+    {
+      key: "monthly-discovery",
+      label: "Discovery (monthly)",
+      value: monthlyDiscoveryRecords.length,
+      target: "1",
+      records: monthlyDiscoveryRecords.map((d) => ({
+        id: `mdisc-${d.id}`,
+        name: d.name || "Untitled deal",
+        status: d.stage || "—",
+      })),
+    },
+    {
+      key: "monthly-pipeline",
+      label: "New pipeline (monthly)",
+      value: `$${Math.round(monthlyPipelineValue / 1000)}K`,
+      target: "$45K",
+      records: monthlyPipelineRecords.map((d) => ({
+        id: `mpipe-${d.id}`,
+        name: d.name || "Untitled deal",
+        status: `$${Math.round(Number(d.value || 0)).toLocaleString()} • ${d.stage || "—"}`,
+      })),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -281,19 +322,9 @@ export default async function CrmHome() {
       <section className="crm-card p-4">
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CheckSquare size={18} /> Weekly KPI Scoreboard</h2>
         <KpiScoreboard items={kpiItems} />
-        <div className="mt-4 grid gap-2 text-sm md:grid-cols-3">
-          <div className="rounded-lg border border-neutral-800 px-3 py-2">
-            <p className="text-xs text-slate-400">Warm intros (monthly)</p>
-            <p className="text-xl font-bold">{monthlyWarmIntrosRecords.length}</p>
-          </div>
-          <div className="rounded-lg border border-neutral-800 px-3 py-2">
-            <p className="text-xs text-slate-400">Discovery (monthly)</p>
-            <p className="text-xl font-bold">{monthlyDiscoveryRecords.length}</p>
-          </div>
-          <div className="rounded-lg border border-neutral-800 px-3 py-2">
-            <p className="text-xs text-slate-400">New pipeline (monthly)</p>
-            <p className="text-xl font-bold">{monthlyPipelineRecords.length}</p>
-          </div>
+        <div className="mt-4">
+          <h3 className="mb-2 text-sm font-semibold text-slate-300">Monthly KPIs</h3>
+          <KpiScoreboard items={monthlyItems} />
         </div>
       </section>
 

@@ -11,7 +11,8 @@ type KpiRecord = {
 type KpiItem = {
   key: string;
   label: string;
-  value: number;
+  value: number | string;
+  target?: string;
   records: KpiRecord[];
 };
 
@@ -30,7 +31,7 @@ export default function KpiScoreboard({ items }: { items: KpiItem[] }) {
             onClick={() => setActiveKey(item.key)}
           >
             <p className="text-xs text-slate-300">{item.label}</p>
-            <p className="mt-1 text-2xl font-bold text-slate-100">{item.value}</p>
+            <p className="mt-1 text-2xl font-bold text-slate-100">{item.value} {item.target ? <span className="text-xs font-normal text-slate-400">(target {item.target})</span> : null}</p>
           </button>
         ))}
       </div>
