@@ -6,7 +6,7 @@ import ConfirmDialog from "../ConfirmDialog";
 import Papa from "papaparse";
 
 type Contact = any;
-const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"];
+const CONTACT_STAGES = ["New", "Attempting", "Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Not right now"];
 const CONTACT_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
 const DISQUALIFICATION_REASONS = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Other"];
@@ -14,7 +14,7 @@ const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"], ["lastName", "Last name", "text"], ["email", "Email", "email"],
   ["phone", "Phone", "text"],
-  ["linkedin", "LinkedIn", "text"], ["company", "Company", "text"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"],
+  ["linkedin", "LinkedIn", "text"], ["company", "Company", "text"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
 ];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 const prettyType = (v?: string) => String(v || "").split("_").map((s) => s ? s[0].toUpperCase() + s.slice(1) : s).join(" ");
@@ -78,9 +78,9 @@ export default function ContactsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const openItems = useMemo(() => items.filter((c) => (c.status || "New") !== "Discovery meeting booked" && (c.status || "New") !== "Not right now"), [items]);
+  const openItems = useMemo(() => items.filter((c) => !["Warm intro booked", "Not right now", "Pipeline Seeder"].includes(c.status || "New")), [items]);
   const sorted = useMemo(() => [...openItems], [openItems]);
-  const convertedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Discovery meeting booked"), [items]);
+  const convertedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Warm intro booked"), [items]);
   const disqualifiedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Not right now"), [items]);
 
 
@@ -302,11 +302,11 @@ export default function ContactsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowConverted((v) => !v)}>
             {showConverted ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Converted ({convertedItems.length})
+            Warm intros ({convertedItems.length})
           </button>
           {showConverted && (
             convertedItems.length > 0 ? renderContactsTable(convertedItems) : (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No converted contacts yet.</div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No warm intros yet.</div>
             )
           )}
         </div>
@@ -391,7 +391,7 @@ export default function ContactsPage() {
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? "New contact" : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex flex-wrap gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(false)}><Save size={14} className="text-emerald-300" /></button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(true)}><Save size={14} className="text-emerald-300" /></button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
-              {!createMode && selected?.status === "Discovery meeting booked" && (
+              {!createMode && selected?.status === "Warm intro booked" && (
                 <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this contact and return it to Open contacts?", () => { unconvertFromTray(); })}>
                   Unconvert
                 </button>
@@ -417,8 +417,10 @@ export default function ContactsPage() {
                         <option value="">Select primary pain</option>
                         {PRIMARY_PAIN_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
                       </select>
+                     ) : k === "seederNotes" ? (
+                      <textarea className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
                     ) : (
-                      <input type={type === "select" ? "text" : type} className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
+                      <input type={type === "select" ? "text" : type} className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: type === "number" ? Number(e.target.value || 0) : e.target.value })} />
                     )
                   ) : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft[k] || "—"}</p>}
                 </div>

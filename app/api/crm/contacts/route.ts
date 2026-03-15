@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
 import { CONTACT_STAGES, DEAL_STAGES, getStore, id, now, saveStore } from "@/lib/crm-store";
 
-function normalizeStatus(value: string | undefined) {
+
+function mapContactStatus(value: string | undefined) {
   const v = String(value || "").trim();
   if (!v) return "New";
+  if (v === "Discovery meeting booked") return "Warm intro booked";
+  if (v === "Lost") return "Not right now";
+  return v;
+}
+
+function normalizeStatus(value: string | undefined) {
+  const v = mapContactStatus(value);
   return (CONTACT_STAGES as readonly string[]).includes(v) ? v : "New";
 }
 
@@ -17,7 +25,7 @@ function normalizeEmail(value: any) {
 }
 
 function statusNeedsEmail(status: string) {
-  return ["Connected", "Discovery meeting booked", "Not right now"].includes(status);
+  return ["Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Not right now"].includes(status);
 }
 
 function normalizeDisqualificationReason(value: any) {
@@ -45,7 +53,7 @@ function syncContactStamp(store: any, previous: any | null, contact: any) {
   const stamps = store.contactStamps || (store.contactStamps = []);
   const idx = stamps.findIndex((s: any) => s.contactId === contact.id);
 
-  if (contact.status === "Discovery meeting booked") {
+  if (contact.status === "Warm intro booked") {
     const stamp = {
       id: idx >= 0 ? stamps[idx].id : id(),
       contactId: contact.id,
@@ -60,7 +68,7 @@ function syncContactStamp(store: any, previous: any | null, contact: any) {
     return;
   }
 
-  const wasConverted = previous?.status === "Discovery meeting booked";
+  const wasConverted = previous?.status === "Warm intro booked";
   if (idx >= 0 && wasConverted) {
     store.contactStamps = stamps.filter((s: any) => s.contactId !== contact.id);
   }
@@ -97,8 +105,16 @@ function maybeCreateNurtureTaskForContact(store: any, previous: any | null, cont
   });
 }
 
+
+function applySeederDefaults(contact: any) {
+  if (contact.status === "Pipeline Seeder" && !contact.nextReachOutAt) {
+    contact.nextReachOutAt = plusMonthsIsoDate(now(), 6);
+  }
+  return contact;
+}
+
 function maybeCreateDealForDiscovery(store: any, contact: any) {
-  if (contact.status !== "Discovery meeting booked") return;
+  if (contact.status !== "Warm intro booked") return;
   const exists = store.deals.some((d: any) => d.contactId === contact.id && d.stage !== "Lost");
   if (exists) return;
 
@@ -115,7 +131,7 @@ function maybeCreateDealForDiscovery(store: any, contact: any) {
     leadSource: contact.leadSource || "",
     createdAt: now(),
     updatedAt: now(),
-    nextStep: "Run discovery meeting",
+    nextStep: "Run warm intro meeting",
   });
 }
 
@@ -157,7 +173,8 @@ export async function POST(req: Request) {
   if (email && store.contacts.some((c: any) => normalizeEmail(c.email) === email)) {
     return NextResponse.json({ error: "A contact with this email already exists" }, { status: 400 });
   }
-  const record = { id: id(), createdAt: now(), updatedAt: now(), status, ...body, email, disqualificationReason, whatNow, primaryPain: normalizePrimaryPain(body.primaryPain) };
+  const record = { id: id(), createdAt: now(), updatedAt: now(), status, ...body, email, disqualificationReason, whatNow, referralCount: Number(body.referralCount || 0), nextReachOutAt: body.nextReachOutAt || undefined, seederNotes: body.seederNotes || undefined, primaryPain: normalizePrimaryPain(body.primaryPain) };
+  applySeederDefaults(record);
   maybeCreateDealForDiscovery(store, record);
   maybeCreateNurtureTaskForContact(store, null, record);
   syncContactStamp(store, null, record);
@@ -193,7 +210,8 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "A contact with this email already exists" }, { status: 400 });
   }
   const previous = store.contacts[idx];
-  const updated = { ...store.contacts[idx], ...body, status, email, disqualificationReason, whatNow, primaryPain: normalizePrimaryPain(body.primaryPain), updatedAt: now() };
+  const updated = { ...store.contacts[idx], ...body, status, email, disqualificationReason, whatNow, referralCount: Number(body.referralCount || 0), nextReachOutAt: body.nextReachOutAt || undefined, seederNotes: body.seederNotes || undefined, primaryPain: normalizePrimaryPain(body.primaryPain), updatedAt: now() };
+  applySeederDefaults(updated);
   maybeCreateDealForDiscovery(store, updated);
   maybeCreateNurtureTaskForContact(store, previous, updated);
   syncContactStamp(store, previous, updated);

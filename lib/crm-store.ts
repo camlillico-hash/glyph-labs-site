@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Pool } from "pg";
 
-export type Contact = { id: string; firstName?: string; lastName?: string; email?: string; phone?: string; linkedin?: string; company?: string; title?: string; type?: string; leadSource?: string; primaryPain?: "Execution" | "Strategy" | "Culture"; status?: string; disqualificationReason?: "Couldn't connect" | "Went cold" | "Said no" | "Not the right person" | "Other"; whatNow?: "Leave them" | "Nurture (future)"; tags?: string[]; notes?: string; lastActivityDate?: string; lastActivityType?: string; createdAt: string; updatedAt: string; };
+export type Contact = { id: string; firstName?: string; lastName?: string; email?: string; phone?: string; linkedin?: string; company?: string; title?: string; type?: string; leadSource?: string; primaryPain?: "Execution" | "Strategy" | "Culture"; status?: string; disqualificationReason?: "Couldn't connect" | "Went cold" | "Said no" | "Not the right person" | "Other"; whatNow?: "Leave them" | "Nurture (future)"; referralCount?: number; nextReachOutAt?: string; seederNotes?: string; tags?: string[]; notes?: string; lastActivityDate?: string; lastActivityType?: string; createdAt: string; updatedAt: string; };
 export type Deal = { id: string; name?: string; contactId?: string; company?: string; stage: string; clientStage?: "Launch" | "Active rhythm"; primaryPain?: "Execution" | "Strategy" | "Culture"; leadSource?: string; launchIncluded?: "Yes" | "No"; dailyRate?: number; launchFee?: number; annualFee?: number; value?: number; launchDay1Date?: string; launchDay2Date?: string; launchDay3Date?: string; nextQuarterlyDate?: string; nextAnnualDay1Date?: string; nextAnnualDay2Date?: string; probability?: number; expectedCloseDate?: string; nextStep?: string; lastActivityAt?: string; notes?: string; createdAt: string; updatedAt: string; };
 export type Task = { id: string; title: string; type?: "email" | "call" | "text" | "linkedin" | "in_person" | "meeting" | "task_completed"; relatedType?: "contact" | "deal"; relatedId?: string; dueDate?: string; status?: "Overdue" | "Not started" | "Completed" | "Canceled"; followUpForContactId?: string; followUpKind?: "nurture_reactivate"; done: boolean; notes?: string; createdAt: string; updatedAt: string; };
 export type GmailMessage = { id: string; threadId?: string; from?: string; to?: string; subject?: string; date?: string; snippet?: string; };
@@ -61,17 +61,17 @@ function mapDealStage(stage?: string) {
 
 const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], gmail: { messages: [] }, targets: defaultTargets, targetsHistory: [] };
 
-export const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"] as const;
+export const CONTACT_STAGES = ["New", "Attempting", "Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Not right now"] as const;
 
-export const DEAL_STAGES = ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)", "Lost"] as const;
+export const DEAL_STAGES = ["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Lost"] as const;
 
 export const DEAL_STAGE_WEIGHTS: Record<string, number> = {
-  "Discovery meeting booked": 10,
-  "Discovery meeting completed": 15,
-  "Fit meeting booked": 25,
-  "Fit meeting completed": 35,
+  "Warm intro booked": 10,
+  "Warm intro completed": 15,
+  "90-min disco booked": 25,
+  "90-min disco completed": 35,
   "Proposal / commitment": 50,
-  "Launch paid (won)": 100,
+  "Launch days paid": 100,
   "Lost": 0,
 };
 
@@ -97,9 +97,18 @@ function mapLegacyDealStage(stage: string | undefined) {
 }
 
 function normalizeStore(store: CrmStore): CrmStore {
+  const contacts = (store.contacts || []).map((c) => ({
+    ...c,
+    status: mapContactStatus(c.status),
+    referralCount: Number((c as any).referralCount || 0),
+    nextReachOutAt: (c as any).nextReachOutAt || undefined,
+    seederNotes: (c as any).seederNotes || undefined,
+  }));
+
   const deals = (store.deals || []).map((d) => {
-    const stage = mapLegacyDealStage(d.stage);
-    const clientStage = stage === "Launch paid (won)" ? (d.clientStage || "Launch") : d.clientStage;
+    const legacyStage = mapLegacyDealStage(d.stage);
+    const stage = mapDealStage(legacyStage);
+    const clientStage = stage === "Launch days paid" ? (d.clientStage || "Launch") : d.clientStage;
     const launchIncluded: "Yes" | "No" = d.launchIncluded === "No" ? "No" : "Yes";
     const dailyRate = Number(d.dailyRate || 5000);
     const launchFee = launchIncluded === "Yes" ? dailyRate * 3 : 0;
@@ -109,6 +118,7 @@ function normalizeStore(store: CrmStore): CrmStore {
   });
   return {
     ...store,
+    contacts,
     deals,
     dealStamps: store.dealStamps || [],
     contactStamps: store.contactStamps || [],
