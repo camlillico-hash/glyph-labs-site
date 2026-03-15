@@ -4,16 +4,20 @@ import { Settings, Mail, Database } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-function Field({ label, name, value }: { label: string; name: string; value: number }) {
+function Field({ label, name, value, prefix, suffix }: { label: string; name: string; value: number; prefix?: string; suffix?: string }) {
   return (
     <label className="text-sm">
       <span className="mb-1 block text-slate-300">{label}</span>
-      <input
-        name={name}
-        defaultValue={String(value)}
-        inputMode="numeric"
-        className="w-full rounded border border-neutral-700 bg-neutral-900 px-3 py-2 text-slate-100"
-      />
+      <div className="relative">
+        {prefix ? <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{prefix}</span> : null}
+        {suffix ? <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">{suffix}</span> : null}
+        <input
+          name={name}
+          defaultValue={String(value)}
+          inputMode="numeric"
+          className={`w-full rounded border border-neutral-700 bg-neutral-900 py-2 text-slate-100 ${prefix ? "pl-7" : "pl-3"} ${suffix ? "pr-8" : "pr-3"}`}
+        />
+      </div>
     </label>
   );
 }
@@ -87,13 +91,13 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
         {searchParams?.targets === "saved" && <p className="mt-2 text-sm text-emerald-300">Inputs saved and dashboard recalculated.</p>}
         {searchParams?.targets === "error" && <p className="mt-2 text-sm text-rose-300">Could not save inputs{searchParams?.reason ? `: ${decodeURIComponent(searchParams.reason)}` : "."}</p>}
         <form action="/api/crm/targets" method="post" className="mt-3 grid gap-3 md:grid-cols-2">
-          <Field label="Recurring revenue goal (annual CAD)" name="revenueGoalAnnual" value={targets.revenueGoalAnnual} />
-          <Field label="Average revenue per client (annual CAD)" name="avgRevenuePerClientAnnual" value={targets.avgRevenuePerClientAnnual} />
+          <Field label="Recurring revenue goal (annual CAD)" name="revenueGoalAnnual" value={targets.revenueGoalAnnual} prefix="$" />
+          <Field label="Average revenue per client (annual CAD)" name="avgRevenuePerClientAnnual" value={targets.avgRevenuePerClientAnnual} prefix="$" />
           <DateField label="Target date" name="targetDate" value={targets.targetDate} />
 
-          <Field label="Warm lead → Intro conversion (%)" name="convWarmToIntro" value={targets.convWarmToIntro} />
-          <Field label="Intro → Discovery conversion (%)" name="convIntroToDiscovery" value={targets.convIntroToDiscovery} />
-          <Field label="Discovery → Won conversion (%)" name="convDiscoveryToWon" value={targets.convDiscoveryToWon} />
+          <Field label="Warm lead → Intro conversion" name="convWarmToIntro" value={targets.convWarmToIntro} suffix="%" />
+          <Field label="Intro → Discovery conversion" name="convIntroToDiscovery" value={targets.convIntroToDiscovery} suffix="%" />
+          <Field label="Discovery → Won conversion" name="convDiscoveryToWon" value={targets.convDiscoveryToWon} suffix="%" />
 
           <div className="md:col-span-2">
             <button className="crm-btn text-sm">Save planning inputs</button>
