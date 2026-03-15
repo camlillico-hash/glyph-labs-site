@@ -406,52 +406,64 @@ export default function Bos360Page() {
               </p>
             </div>
 
-            <div className="mt-6 grid gap-3">
+            <div className="mt-6 grid gap-2 sm:grid-cols-3">
               <a
                 href="https://bos360.ca"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-3 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+                className="flex min-h-[52px] items-center justify-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-xs font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
               >
-                <img src="/badge-bos360.jpg" alt="BOS360" className="h-8 w-8 rounded object-cover" />
+                <img src="/badge-bos360.jpg" alt="BOS360" className="h-6 w-6 rounded object-cover" />
                 Certified Coach
               </a>
               <a
                 href="https://innovationcluster.ca/programs/mentors-advisors"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-3 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+                className="flex min-h-[52px] items-center justify-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-xs font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
               >
-                <img src="/badge-innovation-cluster.jpg" alt="Innovation Cluster" className="h-8 w-8 rounded object-cover" />
+                <img src="/badge-innovation-cluster.jpg" alt="Innovation Cluster" className="h-6 w-6 rounded object-cover" />
                 Expert in Residence
               </a>
               <a
                 href="https://www.eosworldwide.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-4 py-3 text-sm font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
+                className="flex min-h-[52px] items-center justify-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-xs font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
               >
-                <img src="/badge-eos.jpg" alt="EOS" className="h-8 w-8 rounded object-cover" />
+                <img src="/badge-eos.jpg" alt="EOS" className="h-6 w-6 rounded object-cover" />
                 EOS expert past 6 years
               </a>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-8">
-            <h3 className="flex items-center gap-2 text-2xl font-semibold">
-              <ArrowRight size={18} aria-hidden className="text-[#ed7d31]" />
+          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-10">
+            <h3 className="flex items-center gap-2 text-3xl font-semibold">
+              <ArrowRight size={20} aria-hidden className="text-[#ed7d31]" />
               Ready to Scale with More Clarity?
             </h3>
-            <a
-              href="/strength-test"
-              className="mt-4 inline-flex rounded-lg border border-cyan-400/50 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-500/15"
-            >
-              Start the Strength Test
-            </a>
             <p className="mt-3 text-slate-300">
               Let’s talk about your current stage, your next growth targets, and the
               operating cadence to get you there.
             </p>
+
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <a
+                href="/strength-test"
+                className="w-[260px] rounded-xl bg-gradient-to-r from-cyan-300 via-cyan-500 to-blue-600 px-5 py-2.5 text-center text-slate-950 transition hover:opacity-90"
+              >
+                <span className="block text-base font-extrabold">Start the Strength Test</span>
+                <span className="mt-1 inline-flex items-center justify-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/85 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] text-slate-200">
+                  <User size={10} aria-hidden />
+                  <Mail size={10} aria-hidden />
+                  Name + email required
+                </span>
+              </a>
+              <span className="inline-flex w-[260px] items-center justify-center whitespace-nowrap rounded-xl border border-neutral-600 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
+                20 questions · instant results
+              </span>
+            </div>
+
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
