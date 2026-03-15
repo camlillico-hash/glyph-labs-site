@@ -86,7 +86,7 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
 
 
       <section className="crm-card p-4">
-        <h2 className="font-semibold"><span className="inline-flex items-center gap-1.5"><Settings size={15} /> Transition planning inputs</span></h2>
+        <h2 className="font-semibold"><span className="inline-flex items-center gap-1.5"><Settings size={15} /> Revenue target inputs</span></h2>
         <p className="mt-1 text-xs text-slate-400">Only key levers are editable. Dashboard targets are auto-calculated.</p>
         {searchParams?.targets === "saved" && <p className="mt-2 text-sm text-emerald-300">Inputs saved and dashboard recalculated.</p>}
         {searchParams?.targets === "error" && <p className="mt-2 text-sm text-rose-300">Could not save inputs{searchParams?.reason ? `: ${decodeURIComponent(searchParams.reason)}` : "."}</p>}
