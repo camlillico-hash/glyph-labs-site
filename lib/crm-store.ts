@@ -42,6 +42,23 @@ export const defaultTargets: TransitionTargets = {
   convDiscoveryToWon: 80,
 };
 
+function mapContactStatus(status?: string) {
+  if (!status) return "New";
+  if (status === "Discovery meeting booked") return "Warm intro booked";
+  if (status === "Lost") return "Not right now";
+  return status;
+}
+
+function mapDealStage(stage?: string) {
+  if (!stage) return "Warm intro booked";
+  if (stage === "Discovery meeting booked") return "Warm intro booked";
+  if (stage === "Discovery meeting completed") return "Warm intro completed";
+  if (stage === "Fit meeting booked") return "90-min disco booked";
+  if (stage === "Fit meeting completed") return "90-min disco completed";
+  if (stage === "Launch paid (won)") return "Launch days paid";
+  return stage;
+}
+
 const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], gmail: { messages: [] }, targets: defaultTargets, targetsHistory: [] };
 
 export const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"] as const;

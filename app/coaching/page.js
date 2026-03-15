@@ -503,7 +503,7 @@ export default function Bos360Page() {
             Short practical notes on management, strategy, execution, leadership, and communication.
           </p>
 
-          <div className="mt-5 space-y-3">
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
             {blogPosts.map((post) => (
               <a
                 key={post.slug}

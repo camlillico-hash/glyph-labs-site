@@ -127,7 +127,7 @@ export default async function CrmHome() {
 
   const recurringRevenue = wonDeals.reduce((sum, d) => sum + Number(d.annualFee || 0), 0);
   const annualizedRevenue = Math.round(recurringRevenue);
-  const potentialClients = openDeals.filter((d) => ["Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"].includes(d.stage)).length;
+  const potentialClients = openDeals.filter((d) => ["Warm intro completed", "90-min disco booked", "90-min disco completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"].includes(d.stage)).length;
 
   const requiredClients = Math.max(1, Math.ceil((targets.revenueGoalAnnual || 0) / Math.max(1, targets.avgRevenuePerClientAnnual || 1)));
   const targetDateMs = new Date(targets.targetDate).getTime();
@@ -154,10 +154,10 @@ export default async function CrmHome() {
   const reducedHoursReady = activeClients >= Math.max(4, Math.ceil(requiredClients * 0.6)) && annualizedRevenue >= Math.round(targets.revenueGoalAnnual * 0.67);
   const fullExitReady = activeClients >= requiredClients && annualizedRevenue >= targets.revenueGoalAnnual && potentialClients >= 2;
 
-  const warmLeadsYtd = store.contacts.filter((c) => ["Attempting", "Connected", "Discovery meeting booked"].includes(c.status || "")).length;
-  const introMeetingsYtd = store.deals.filter((d) => ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)"]
+  const warmLeadsYtd = store.contacts.filter((c) => ["Attempting", "Connected", "Warm intro booked", "Discovery meeting booked"].includes(c.status || "")).length;
+  const introMeetingsYtd = store.deals.filter((d) => ["Warm intro booked", "Warm intro completed", "Discovery meeting booked", "Discovery meeting completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Launch paid (won)"]
     .includes(d.stage)).length;
-  const discoveriesYtd = store.deals.filter((d) => ["Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)"]
+  const discoveriesYtd = store.deals.filter((d) => ["90-min disco booked", "90-min disco completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch days paid", "Launch paid (won)"]
     .includes(d.stage)).length;
   const clientsClosedYtd = wonDeals.length;
 
