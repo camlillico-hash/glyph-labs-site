@@ -17,6 +17,13 @@ const contactFields: Array<[string, string, string]> = [
   ["linkedin", "LinkedIn", "text"], ["company", "Company", "text"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
 ];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
+const stageColorClass = (stage: string) => {
+  if (stage === "New") return "text-slate-300";
+  if (["Attempting", "Connected"].includes(stage)) return "text-sky-300";
+  if (["Pipeline Seeding", "Warm intro booked"].includes(stage)) return "text-emerald-300";
+  if (["Pipeline Seeder", "Not right now"].includes(stage)) return "text-amber-300";
+  return "text-slate-300";
+};
 const prettyType = (v?: string) => String(v || "").split("_").map((s) => s ? s[0].toUpperCase() + s.slice(1) : s).join(" ");
 const openPicker = (e: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
   const el = e.currentTarget as HTMLInputElement & { showPicker?: () => void };
@@ -46,7 +53,7 @@ export default function ContactsPage() {
   const [draggingContactId, setDraggingContactId] = useState<string | null>(null);
   const [hoverStatus, setHoverStatus] = useState<string | null>(null);
   const [hoverDrop, setHoverDrop] = useState<{ status: string; index: number } | null>(null);
-  const [view, setView] = useState<"bucket" | "table">("table");
+  const [view, setView] = useState<"bucket" | "table">("bucket");
 
   const [selected, setSelected] = useState<Contact | null>(null);
   const [draft, setDraft] = useState<any>(null);
@@ -256,7 +263,7 @@ export default function ContactsPage() {
           <div className="flex gap-4 min-w-max">
             {CONTACT_STAGES.map((stage, i) => (
               <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStatus === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStatus(stage)} onDragLeave={() => setHoverStatus((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }}>
-                <h3 className="mb-3 font-semibold text-emerald-300">{stageLabel(stage, i)}</h3>
+                <h3 className={`mb-3 font-semibold ${stageColorClass(stage)}`}>{stageLabel(stage, i)}</h3>
                 <div className="min-h-10">
                   {(() => {
                     const stageContacts = sorted.filter((c) => (c.status || "New") === stage);
@@ -276,7 +283,7 @@ export default function ContactsPage() {
                               {c.linkedin && <p className="truncate text-xs text-slate-400">{c.linkedin}</p>}
                               <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
                               <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
-                              <p className="mt-1 truncate text-[11px] text-emerald-300">Gmail: {c.email ? gmail.filter((m) => `${m.from || ""} ${m.to || ""}`.toLowerCase().includes(String(c.email).toLowerCase())).length : 0}</p>
+                              <p className="mt-1 truncate text-[11px] text-emerald-300">Activities: {(activities || []).filter((a:any) => a.contactId === c.id).length}</p>
                               <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); setMovePicker({ open: true, contactId: c.id }); }}>
                                 Move
                               </button>
