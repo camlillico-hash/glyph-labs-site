@@ -238,7 +238,7 @@ export default function Bos360Page() {
             <Workflow size={22} aria-hidden className="text-[#ed7d31]" />
             My BOS360 Coaching Approach
           </h2>
-          <ol className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <ol className="mt-8 grid gap-4 md:grid-cols-2">
             {process.map((step, i) => (
               <li
                 key={step.title}
