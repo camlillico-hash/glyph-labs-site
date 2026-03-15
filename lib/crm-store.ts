@@ -246,7 +246,8 @@ export async function getStore(): Promise<CrmStore> {
     try {
       return await getStorePg();
     } catch (error) {
-      console.error("[crm-store] Postgres read failed, falling back to file storage", error);
+      console.error("[crm-store] Postgres read failed", error);
+      if (process.env.VERCEL) throw error;
       return getStoreFile();
     }
   }
@@ -258,7 +259,8 @@ export async function saveStore(store: CrmStore) {
     try {
       return await saveStorePg(store);
     } catch (error) {
-      console.error("[crm-store] Postgres write failed, falling back to file storage", error);
+      console.error("[crm-store] Postgres write failed", error);
+      if (process.env.VERCEL) throw error;
       return saveStoreFile(store);
     }
   }
