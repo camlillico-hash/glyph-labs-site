@@ -140,7 +140,7 @@ export default function Bos360Page() {
       {/* HERO */}
       <section className="mx-auto max-w-6xl px-6 pb-8 pt-10 md:pb-10 md:pt-12">
         <h1 className="max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-          Build a leadership team that executes with clarity, discipline, and momentum.
+          Build a <span className="text-orange-200">leadership team</span> that <span className="bg-gradient-to-r from-cyan-300 via-cyan-500 to-blue-500 bg-clip-text text-transparent">executes with clarity</span>, discipline, and momentum.
         </h1>
 
         <div className="mt-6 flex max-w-4xl items-center gap-4 md:gap-5">
