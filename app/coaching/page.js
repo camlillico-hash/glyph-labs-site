@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import CopyEmailButton from "./CopyEmailButton";
 import { blogPosts } from "./blogPosts";
+import BlogPreviewGrid from "./BlogPreviewGrid";
 
 export const metadata = {
   title: "Coaching",
@@ -514,34 +515,7 @@ export default function Bos360Page() {
             Short practical notes on management, strategy, execution, leadership, and communication.
           </p>
 
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {blogPosts.map((post) => (
-              <a
-                key={post.slug}
-                href={`/coaching/blog/${post.slug}`}
-                className="group flex flex-col gap-3 rounded-xl border border-neutral-700 bg-neutral-900 p-3 transition hover:border-neutral-500 md:flex-row md:items-center"
-              >
-                <img
-                  src={post.thumbnail}
-                  alt={post.title}
-                  className="h-24 w-full rounded-lg border border-neutral-700 object-cover md:h-20 md:w-36"
-                  loading="lazy"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-orange-200/90">
-                    {post.category} · {post.readTime}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-slate-400">
-                    {post.publishedAt} · {post.publishedBy || "Cam Lillico"}
-                  </p>
-                  <h3 className="mt-0.5 text-lg font-semibold leading-tight text-slate-100 transition group-hover:text-orange-100">
-                    {post.title}
-                  </h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-300">{post.description}</p>
-                </div>
-              </a>
-            ))}
-          </div>
+          <BlogPreviewGrid posts={blogPosts} />
         </div>
       </section>
 
