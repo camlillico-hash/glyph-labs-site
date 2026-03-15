@@ -12,60 +12,37 @@ export type DealStamp = { id: string; dealId: string; name?: string; company?: s
 export type ContactStamp = { id: string; contactId: string; name?: string; company?: string; email?: string; wonAt: string; removedAt?: string };
 
 export type TransitionTargets = {
-  activeClientsTarget: number;
-  reducedHoursClients: number;
-  reducedHoursRevenue: number;
-  fullExitClients: number;
-  fullExitRevenue: number;
-  fullExitPotentials: number;
-  warmLeadsAnnualMin: number;
-  warmLeadsAnnualMax: number;
-  introMeetingsAnnualMin: number;
-  introMeetingsAnnualMax: number;
-  discoveriesAnnualMin: number;
-  discoveriesAnnualMax: number;
-  clientsClosedAnnualMin: number;
-  clientsClosedAnnualMax: number;
-  weeklyOutreach: number;
-  weeklyIntroMin: number;
-  weeklyIntroMax: number;
-  weeklyFollowupsMin: number;
-  weeklyFollowupsMax: number;
-  weeklyIntroRequestsMin: number;
-  weeklyIntroRequestsMax: number;
+  revenueGoalAnnual: number;
+  avgRevenuePerClientAnnual: number;
+  targetDate: string;
+  convWarmToIntro: number;
+  convIntroToDiscovery: number;
+  convDiscoveryToWon: number;
 };
 
-type CrmStore = { contacts: Contact[]; contactStamps: ContactStamp[]; deals: Deal[]; dealStamps: DealStamp[]; tasks: Task[]; activities: Activity[]; gmail: { connectedAt?: string; lastSyncedAt?: string; messages: GmailMessage[]; tokens?: { access_token?: string; refresh_token?: string; expiry_date?: number; }; }; targets?: TransitionTargets; };
+export type TransitionTargetsHistoryEntry = {
+  changedAt: string;
+  changedFields: string[];
+  before: Partial<TransitionTargets>;
+  after: Partial<TransitionTargets>;
+};
+
+type CrmStore = { contacts: Contact[]; contactStamps: ContactStamp[]; deals: Deal[]; dealStamps: DealStamp[]; tasks: Task[]; activities: Activity[]; gmail: { connectedAt?: string; lastSyncedAt?: string; messages: GmailMessage[]; tokens?: { access_token?: string; refresh_token?: string; expiry_date?: number; }; }; targets?: TransitionTargets; targetsHistory?: TransitionTargetsHistoryEntry[]; };
 
 const dataRoot = process.env.VERCEL ? "/tmp" : process.cwd();
 const dataDir = path.join(dataRoot, "data");
 const dbPath = path.join(dataDir, "crm.json");
 
 export const defaultTargets: TransitionTargets = {
-  activeClientsTarget: 6,
-  reducedHoursClients: 4,
-  reducedHoursRevenue: 100000,
-  fullExitClients: 6,
-  fullExitRevenue: 150000,
-  fullExitPotentials: 2,
-  warmLeadsAnnualMin: 12,
-  warmLeadsAnnualMax: 16,
-  introMeetingsAnnualMin: 6,
-  introMeetingsAnnualMax: 8,
-  discoveriesAnnualMin: 3,
-  discoveriesAnnualMax: 4,
-  clientsClosedAnnualMin: 3,
-  clientsClosedAnnualMax: 4,
-  weeklyOutreach: 2,
-  weeklyIntroMin: 0,
-  weeklyIntroMax: 1,
-  weeklyFollowupsMin: 3,
-  weeklyFollowupsMax: 5,
-  weeklyIntroRequestsMin: 1,
-  weeklyIntroRequestsMax: 2,
+  revenueGoalAnnual: 160000,
+  avgRevenuePerClientAnnual: 25000,
+  targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
+  convWarmToIntro: 50,
+  convIntroToDiscovery: 50,
+  convDiscoveryToWon: 80,
 };
 
-const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], gmail: { messages: [] }, targets: defaultTargets };
+const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], gmail: { messages: [] }, targets: defaultTargets, targetsHistory: [] };
 
 export const CONTACT_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"] as const;
 
@@ -113,7 +90,14 @@ function normalizeStore(store: CrmStore): CrmStore {
     const amount = launchFee + annualFee;
     return { ...d, stage, clientStage, launchIncluded, dailyRate, launchFee, annualFee, value: amount, probability: DEAL_STAGE_WEIGHTS[stage] ?? 0 };
   });
-  return { ...store, deals, dealStamps: store.dealStamps || [], contactStamps: store.contactStamps || [], targets: { ...defaultTargets, ...(store.targets || {}) } };
+  return {
+    ...store,
+    deals,
+    dealStamps: store.dealStamps || [],
+    contactStamps: store.contactStamps || [],
+    targets: { ...defaultTargets, ...(store.targets || {}) },
+    targetsHistory: Array.isArray(store.targetsHistory) ? store.targetsHistory : [],
+  };
 }
 
 async function ensureSchema() {
@@ -168,7 +152,7 @@ async function ensureSchema() {
 async function getStorePg(): Promise<CrmStore> {
   if (!pool) throw new Error("No database");
   await ensureSchema();
-  const [contactsQ, contactStampsQ, dealsQ, dealStampsQ, tasksQ, activitiesQ, gmailQ, targetsQ] = await Promise.all([
+  const [contactsQ, contactStampsQ, dealsQ, dealStampsQ, tasksQ, activitiesQ, gmailQ, targetsQ, targetsHistoryQ] = await Promise.all([
     pool.query("select data from crm_contacts order by updated_at desc"),
     pool.query("select data from crm_contact_stamps order by updated_at desc"),
     pool.query("select data from crm_deals order by updated_at desc"),
@@ -177,9 +161,11 @@ async function getStorePg(): Promise<CrmStore> {
     pool.query("select data from crm_activities order by occurred_at desc nulls last, updated_at desc"),
     pool.query("select data from crm_meta where key='gmail' limit 1"),
     pool.query("select data from crm_meta where key='targets' limit 1"),
+    pool.query("select data from crm_meta where key='targets_history' limit 1"),
   ]);
   const gmailData = gmailQ.rows[0]?.data || { messages: [] };
   const targetsData = targetsQ.rows[0]?.data || defaultTargets;
+  const targetsHistoryData = targetsHistoryQ.rows[0]?.data || [];
   return normalizeStore({
     contacts: contactsQ.rows.map((r: any) => r.data),
     contactStamps: contactStampsQ.rows.map((r: any) => r.data),
@@ -189,6 +175,7 @@ async function getStorePg(): Promise<CrmStore> {
     activities: activitiesQ.rows.map((r: any) => r.data),
     gmail: { ...gmailData, messages: gmailData.messages || [] },
     targets: { ...defaultTargets, ...targetsData },
+    targetsHistory: Array.isArray(targetsHistoryData) ? targetsHistoryData : [],
   });
 }
 
@@ -224,6 +211,10 @@ async function saveStorePg(store: CrmStore) {
     await client.query(
       "insert into crm_meta (key, data, updated_at) values ('targets', $1, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
       [store.targets || defaultTargets]
+    );
+    await client.query(
+      "insert into crm_meta (key, data, updated_at) values ('targets_history', $1, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
+      [store.targetsHistory || []]
     );
     await client.query("commit");
   } catch (e) {

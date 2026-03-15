@@ -18,34 +18,34 @@ function Field({ label, name, value }: { label: string; name: string; value: num
   );
 }
 
+function DateField({ label, name, value }: { label: string; name: string; value: string }) {
+  return (
+    <label className="text-sm">
+      <span className="mb-1 block text-slate-300">{label}</span>
+      <input
+        type="date"
+        name={name}
+        defaultValue={value}
+        className="w-full rounded border border-neutral-700 bg-neutral-900 px-3 py-2 text-slate-100"
+      />
+    </label>
+  );
+}
+
 export default async function SettingsPage({ searchParams }: { searchParams?: { gmail?: string; reason?: string; count?: string; activities?: string; targets?: string } }) {
   const store = await getStore();
   const ready = gmailReady();
   const mode = storageMode();
   const targets = {
-    activeClientsTarget: 6,
-    reducedHoursClients: 4,
-    reducedHoursRevenue: 100000,
-    fullExitClients: 6,
-    fullExitRevenue: 150000,
-    fullExitPotentials: 2,
-    warmLeadsAnnualMin: 12,
-    warmLeadsAnnualMax: 16,
-    introMeetingsAnnualMin: 6,
-    introMeetingsAnnualMax: 8,
-    discoveriesAnnualMin: 3,
-    discoveriesAnnualMax: 4,
-    clientsClosedAnnualMin: 3,
-    clientsClosedAnnualMax: 4,
-    weeklyOutreach: 2,
-    weeklyIntroMin: 0,
-    weeklyIntroMax: 1,
-    weeklyFollowupsMin: 3,
-    weeklyFollowupsMax: 5,
-    weeklyIntroRequestsMin: 1,
-    weeklyIntroRequestsMax: 2,
+    revenueGoalAnnual: 160000,
+    avgRevenuePerClientAnnual: 25000,
+    targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
+    convWarmToIntro: 50,
+    convIntroToDiscovery: 50,
+    convDiscoveryToWon: 80,
     ...(store.targets || {}),
   };
+  const targetsHistory = Array.isArray(store.targetsHistory) ? store.targetsHistory : [];
 
   return (
     <div className="space-y-6">
@@ -82,38 +82,39 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
 
 
       <section className="crm-card p-4">
-        <h2 className="font-semibold"><span className="inline-flex items-center gap-1.5"><Settings size={15} /> Transition targets</span></h2>
-        {searchParams?.targets === "saved" && <p className="mt-2 text-sm text-emerald-300">Targets saved.</p>}
-        {searchParams?.targets === "error" && <p className="mt-2 text-sm text-rose-300">Could not save targets{searchParams?.reason ? `: ${decodeURIComponent(searchParams.reason)}` : "."}</p>}
+        <h2 className="font-semibold"><span className="inline-flex items-center gap-1.5"><Settings size={15} /> Transition planning inputs</span></h2>
+        <p className="mt-1 text-xs text-slate-400">Only key levers are editable. Dashboard targets are auto-calculated.</p>
+        {searchParams?.targets === "saved" && <p className="mt-2 text-sm text-emerald-300">Inputs saved and dashboard recalculated.</p>}
+        {searchParams?.targets === "error" && <p className="mt-2 text-sm text-rose-300">Could not save inputs{searchParams?.reason ? `: ${decodeURIComponent(searchParams.reason)}` : "."}</p>}
         <form action="/api/crm/targets" method="post" className="mt-3 grid gap-3 md:grid-cols-2">
-          <Field label="Active clients target" name="activeClientsTarget" value={targets.activeClientsTarget} />
-          <Field label="Reduced-hours clients" name="reducedHoursClients" value={targets.reducedHoursClients} />
-          <Field label="Reduced-hours revenue" name="reducedHoursRevenue" value={targets.reducedHoursRevenue} />
-          <Field label="Full-exit clients" name="fullExitClients" value={targets.fullExitClients} />
-          <Field label="Full-exit revenue" name="fullExitRevenue" value={targets.fullExitRevenue} />
-          <Field label="Full-exit potentials" name="fullExitPotentials" value={targets.fullExitPotentials} />
+          <Field label="Recurring revenue goal (annual CAD)" name="revenueGoalAnnual" value={targets.revenueGoalAnnual} />
+          <Field label="Average revenue per client (annual CAD)" name="avgRevenuePerClientAnnual" value={targets.avgRevenuePerClientAnnual} />
+          <DateField label="Target date" name="targetDate" value={targets.targetDate} />
 
-          <Field label="Warm leads annual min" name="warmLeadsAnnualMin" value={targets.warmLeadsAnnualMin} />
-          <Field label="Warm leads annual max" name="warmLeadsAnnualMax" value={targets.warmLeadsAnnualMax} />
-          <Field label="Intro meetings annual min" name="introMeetingsAnnualMin" value={targets.introMeetingsAnnualMin} />
-          <Field label="Intro meetings annual max" name="introMeetingsAnnualMax" value={targets.introMeetingsAnnualMax} />
-          <Field label="Discoveries annual min" name="discoveriesAnnualMin" value={targets.discoveriesAnnualMin} />
-          <Field label="Discoveries annual max" name="discoveriesAnnualMax" value={targets.discoveriesAnnualMax} />
-          <Field label="Clients closed annual min" name="clientsClosedAnnualMin" value={targets.clientsClosedAnnualMin} />
-          <Field label="Clients closed annual max" name="clientsClosedAnnualMax" value={targets.clientsClosedAnnualMax} />
-
-          <Field label="Weekly outreach target" name="weeklyOutreach" value={targets.weeklyOutreach} />
-          <Field label="Weekly intro min" name="weeklyIntroMin" value={targets.weeklyIntroMin} />
-          <Field label="Weekly intro max" name="weeklyIntroMax" value={targets.weeklyIntroMax} />
-          <Field label="Weekly follow-ups min" name="weeklyFollowupsMin" value={targets.weeklyFollowupsMin} />
-          <Field label="Weekly follow-ups max" name="weeklyFollowupsMax" value={targets.weeklyFollowupsMax} />
-          <Field label="Weekly intro requests min" name="weeklyIntroRequestsMin" value={targets.weeklyIntroRequestsMin} />
-          <Field label="Weekly intro requests max" name="weeklyIntroRequestsMax" value={targets.weeklyIntroRequestsMax} />
+          <Field label="Warm lead → Intro conversion (%)" name="convWarmToIntro" value={targets.convWarmToIntro} />
+          <Field label="Intro → Discovery conversion (%)" name="convIntroToDiscovery" value={targets.convIntroToDiscovery} />
+          <Field label="Discovery → Won conversion (%)" name="convDiscoveryToWon" value={targets.convDiscoveryToWon} />
 
           <div className="md:col-span-2">
-            <button className="crm-btn text-sm">Save transition targets</button>
+            <button className="crm-btn text-sm">Save planning inputs</button>
           </div>
         </form>
+
+        <details className="mt-4 rounded border border-neutral-700 p-3">
+          <summary className="cursor-pointer text-sm font-semibold text-slate-200">Change log</summary>
+          <div className="mt-3 space-y-3 text-xs">
+            {targetsHistory.length === 0 ? (
+              <p className="text-slate-400">No changes recorded yet.</p>
+            ) : (
+              targetsHistory.map((entry: any, idx: number) => (
+                <div key={idx} className="rounded border border-neutral-800 p-2">
+                  <p className="text-slate-300">{new Date(entry.changedAt).toLocaleString("en-CA", { timeZone: "America/Toronto" })} ET</p>
+                  <p className="mt-1 text-slate-400">Changed: {(entry.changedFields || []).join(", ")}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </details>
       </section>
 
       <section className="crm-card p-4">

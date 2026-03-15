@@ -1,26 +1,57 @@
 import { NextResponse } from "next/server";
 import { defaultTargets, getStore, saveStore } from "@/lib/crm-store";
 
-const numericKeys = Object.keys(defaultTargets) as Array<keyof typeof defaultTargets>;
+const numericKeys = [
+  "revenueGoalAnnual",
+  "avgRevenuePerClientAnnual",
+  "convWarmToIntro",
+  "convIntroToDiscovery",
+  "convDiscoveryToWon",
+] as const;
 
 export async function GET() {
   const store = await getStore();
-  return NextResponse.json({ targets: { ...defaultTargets, ...(store.targets || {}) } });
+  return NextResponse.json({
+    targets: { ...defaultTargets, ...(store.targets || {}) },
+    targetsHistory: store.targetsHistory || [],
+  });
 }
 
 export async function POST(req: Request) {
   try {
     const form = await req.formData();
     const store = await getStore();
-    const next = { ...defaultTargets, ...(store.targets || {}) } as Record<string, number>;
+    const previous = { ...defaultTargets, ...(store.targets || {}) } as Record<string, any>;
+    const next = { ...previous } as Record<string, any>;
 
     for (const key of numericKeys) {
-      const raw = String(form.get(key as string) ?? "").trim();
+      const raw = String(form.get(key) ?? "").trim();
       const parsed = Number(raw);
       if (Number.isFinite(parsed) && parsed >= 0) next[key] = parsed;
     }
 
+    const targetDateRaw = String(form.get("targetDate") ?? "").trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(targetDateRaw)) next.targetDate = targetDateRaw;
+
+    // Clamp conversion rates to 0..100
+    for (const key of ["convWarmToIntro", "convIntroToDiscovery", "convDiscoveryToWon"]) {
+      next[key] = Math.max(0, Math.min(100, Number(next[key] || 0)));
+    }
+
+    const changedFields = Object.keys(next).filter((k) => String(previous[k]) !== String(next[k]));
+
     store.targets = next as any;
+    if (changedFields.length > 0) {
+      const history = Array.isArray(store.targetsHistory) ? store.targetsHistory : [];
+      history.unshift({
+        changedAt: new Date().toISOString(),
+        changedFields,
+        before: Object.fromEntries(changedFields.map((k) => [k, previous[k]])),
+        after: Object.fromEntries(changedFields.map((k) => [k, next[k]])),
+      });
+      store.targetsHistory = history.slice(0, 50);
+    }
+
     await saveStore(store);
 
     return NextResponse.redirect(new URL("/crm/settings?targets=saved", req.url), 303);
