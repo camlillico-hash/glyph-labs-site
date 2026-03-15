@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getStore, id, now, saveStore } from "@/lib/crm-store";
 
 const TASK_STATUSES = ["Not started", "Completed", "Canceled"] as const;
-const TASK_TYPES = ["email", "call", "text", "linkedin", "in_person", "meeting", "task_completed"] as const;
+const TASK_TYPES = ["email", "call", "text", "linkedin", "in_person", "meeting", "to_do", "task_completed"] as const;
 
 function normalizeStatus(body: any) {
   const v = String(body.status || "").trim();

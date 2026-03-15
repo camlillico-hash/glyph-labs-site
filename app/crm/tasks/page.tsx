@@ -5,7 +5,7 @@ import { CheckSquare, Plus, Save, Trash2, LayoutGrid, List, X, Pencil, Circle, C
 import ConfirmDialog from "../ConfirmDialog";
 
 const TASK_STATUSES = ["Overdue", "Not started", "Completed", "Canceled"];
-const TASK_TYPES = ["email", "call", "text", "linkedin", "in_person", "meeting", "task_completed"];
+const TASK_TYPES = ["email", "call", "text", "linkedin", "in_person", "meeting", "to_do", "task_completed"];
 const prettyType = (v?: string) => String(v || "").split("_").map((s) => s ? s[0].toUpperCase() + s.slice(1) : s).join(" ");
 const typeIcon = (v?: string) => {
   const t = String(v || "");
@@ -15,6 +15,7 @@ const typeIcon = (v?: string) => {
   if (t === "linkedin") return Linkedin;
   if (t === "in_person") return Users;
   if (t === "meeting") return CalendarCheck2;
+  if (t === "to_do") return CheckSquare;
   if (t === "task_completed") return CheckCheck;
   return CalendarCheck2;
 };
