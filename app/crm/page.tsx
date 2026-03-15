@@ -17,12 +17,13 @@ export default async function CrmHome() {
     storeRaw = {};
   }
 
-  const store: { contacts: any[]; deals: any[]; tasks: any[]; activities: any[]; gmail: any } = {
+  const store: { contacts: any[]; deals: any[]; tasks: any[]; activities: any[]; gmail: any; targets?: any } = {
     contacts: Array.isArray(storeRaw?.contacts) ? storeRaw.contacts : [],
     deals: Array.isArray(storeRaw?.deals) ? storeRaw.deals : [],
     tasks: Array.isArray(storeRaw?.tasks) ? storeRaw.tasks : [],
     activities: Array.isArray(storeRaw?.activities) ? storeRaw.activities : [],
     gmail: storeRaw?.gmail && typeof storeRaw.gmail === "object" ? storeRaw.gmail : { messages: [] },
+    targets: storeRaw?.targets && typeof storeRaw.targets === "object" ? storeRaw.targets : undefined,
   };
 
   const currentMs = new Date(now()).getTime();
@@ -114,12 +115,37 @@ export default async function CrmHome() {
   };
 
   // Transition plan dashboard metrics
+  const targets = {
+    activeClientsTarget: 6,
+    reducedHoursClients: 4,
+    reducedHoursRevenue: 100000,
+    fullExitClients: 6,
+    fullExitRevenue: 150000,
+    fullExitPotentials: 2,
+    warmLeadsAnnualMin: 12,
+    warmLeadsAnnualMax: 16,
+    introMeetingsAnnualMin: 6,
+    introMeetingsAnnualMax: 8,
+    discoveriesAnnualMin: 3,
+    discoveriesAnnualMax: 4,
+    clientsClosedAnnualMin: 3,
+    clientsClosedAnnualMax: 4,
+    weeklyOutreach: 2,
+    weeklyIntroMin: 0,
+    weeklyIntroMax: 1,
+    weeklyFollowupsMin: 3,
+    weeklyFollowupsMax: 5,
+    weeklyIntroRequestsMin: 1,
+    weeklyIntroRequestsMax: 2,
+    ...(store.targets || {}),
+  };
+
   const recurringRevenue = wonDeals.reduce((sum, d) => sum + Number(d.annualFee || 0), 0);
   const annualizedRevenue = Math.round(recurringRevenue);
   const potentialClients = openDeals.filter((d) => ["Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"].includes(d.stage)).length;
 
-  const reducedHoursReady = activeClients >= 4 && annualizedRevenue >= 100000;
-  const fullExitReady = activeClients >= 6 && annualizedRevenue >= 150000 && potentialClients >= 2;
+  const reducedHoursReady = activeClients >= targets.reducedHoursClients && annualizedRevenue >= targets.reducedHoursRevenue;
+  const fullExitReady = activeClients >= targets.fullExitClients && annualizedRevenue >= targets.fullExitRevenue && potentialClients >= targets.fullExitPotentials;
 
   const warmLeadsYtd = store.contacts.filter((c) => ["Attempting", "Connected", "Discovery meeting booked"].includes(c.status || "")).length;
   const introMeetingsYtd = store.deals.filter((d) => ["Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch paid (won)"]
@@ -156,31 +182,31 @@ export default async function CrmHome() {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-lg border border-neutral-800 p-3">
             <p className="text-xs text-slate-400">Active clients</p>
-            <p className="text-2xl font-bold">{activeClients} <span className="text-sm text-slate-400">/ 6</span></p>
+            <p className="text-2xl font-bold">{activeClients} <span className="text-sm text-slate-400">/ {targets.activeClientsTarget}</span></p>
           </div>
           <div className="rounded-lg border border-neutral-800 p-3">
             <p className="text-xs text-slate-400">Annualized coaching revenue</p>
-            <p className="text-2xl font-bold">${annualizedRevenue.toLocaleString()} <span className="text-sm text-slate-400">/ $150k</span></p>
+            <p className="text-2xl font-bold">${annualizedRevenue.toLocaleString()} <span className="text-sm text-slate-400">/ ${Math.round(targets.fullExitRevenue / 1000)}k</span></p>
           </div>
           <div className="rounded-lg border border-neutral-800 p-3">
             <p className="text-xs text-slate-400">Pipeline potentials</p>
-            <p className="text-2xl font-bold">{potentialClients} <span className="text-sm text-slate-400">/ 2+</span></p>
+            <p className="text-2xl font-bold">{potentialClients} <span className="text-sm text-slate-400">/ {targets.fullExitPotentials}+</span></p>
           </div>
           <div className="rounded-lg border border-neutral-800 p-3">
             <p className="text-xs text-slate-400">Discovery sessions (YTD)</p>
-            <p className="text-2xl font-bold">{discoveriesYtd} <span className="text-sm text-slate-400">/ 3–4</span></p>
+            <p className="text-2xl font-bold">{discoveriesYtd} <span className="text-sm text-slate-400">/ {targets.discoveriesAnnualMin}–{targets.discoveriesAnnualMax}</span></p>
           </div>
         </div>
 
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           <div className={`rounded-lg border p-3 ${reducedHoursReady ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}>
             <p className="text-sm font-semibold">Trigger 1 — Reduced Hours</p>
-            <p className="text-xs text-slate-300 mt-1">Needs: 4 active clients + ~$100k annualized.</p>
+            <p className="text-xs text-slate-300 mt-1">Needs: {targets.reducedHoursClients} active clients + ~${Math.round(targets.reducedHoursRevenue / 1000)}k annualized.</p>
             <p className="mt-1 text-sm">Status: <span className="font-semibold">{reducedHoursReady ? "Ready" : "Not yet"}</span></p>
           </div>
           <div className={`rounded-lg border p-3 ${fullExitReady ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}>
             <p className="text-sm font-semibold">Trigger 2 — Full Exit</p>
-            <p className="text-xs text-slate-300 mt-1">Needs: 6 clients + $150k recurring + 2+ potentials.</p>
+            <p className="text-xs text-slate-300 mt-1">Needs: {targets.fullExitClients} clients + ${Math.round(targets.fullExitRevenue / 1000)}k recurring + {targets.fullExitPotentials}+ potentials.</p>
             <p className="mt-1 text-sm">Status: <span className="font-semibold">{fullExitReady ? "Ready" : "Not yet"}</span></p>
           </div>
         </div>
@@ -189,16 +215,16 @@ export default async function CrmHome() {
       <section className="crm-card p-4">
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CheckSquare size={18} /> Weekly KPI Scoreboard</h2>
         <div className="grid gap-2 text-sm md:grid-cols-2 xl:grid-cols-4">
-          <KpiRow label="Warm outreach conversations" value={outreachThisWeek} target="2" ok={outreachThisWeek >= 2} />
-          <KpiRow label="Intro meetings" value={meetingsThisWeek} target="0–1" ok={meetingsThisWeek <= 1} />
-          <KpiRow label="Follow-ups" value={followupsThisWeek} target="3–5" ok={followupsThisWeek >= 3} />
-          <KpiRow label="Introductions requested" value={introRequestsThisWeek} target="1–2" ok={introRequestsThisWeek >= 1} />
+          <KpiRow label="Warm outreach conversations" value={outreachThisWeek} target={`${targets.weeklyOutreach}`} ok={outreachThisWeek >= targets.weeklyOutreach} />
+          <KpiRow label="Intro meetings" value={meetingsThisWeek} target={`${targets.weeklyIntroMin}–${targets.weeklyIntroMax}`} ok={meetingsThisWeek >= targets.weeklyIntroMin && meetingsThisWeek <= targets.weeklyIntroMax} />
+          <KpiRow label="Follow-ups" value={followupsThisWeek} target={`${targets.weeklyFollowupsMin}–${targets.weeklyFollowupsMax}`} ok={followupsThisWeek >= targets.weeklyFollowupsMin} />
+          <KpiRow label="Introductions requested" value={introRequestsThisWeek} target={`${targets.weeklyIntroRequestsMin}–${targets.weeklyIntroRequestsMax}`} ok={introRequestsThisWeek >= targets.weeklyIntroRequestsMin} />
         </div>
         <div className="mt-3 grid gap-2 text-xs text-slate-400 md:grid-cols-4">
-          <p>Warm leads YTD: <span className="text-slate-200 font-semibold">{warmLeadsYtd}</span> / 12–16</p>
-          <p>Intro meetings YTD: <span className="text-slate-200 font-semibold">{introMeetingsYtd}</span> / 6–8</p>
-          <p>Discoveries YTD: <span className="text-slate-200 font-semibold">{discoveriesYtd}</span> / 3–4</p>
-          <p>Clients closed YTD: <span className="text-slate-200 font-semibold">{clientsClosedYtd}</span> / 3–4</p>
+          <p>Warm leads YTD: <span className="text-slate-200 font-semibold">{warmLeadsYtd}</span> / {targets.warmLeadsAnnualMin}–{targets.warmLeadsAnnualMax}</p>
+          <p>Intro meetings YTD: <span className="text-slate-200 font-semibold">{introMeetingsYtd}</span> / {targets.introMeetingsAnnualMin}–{targets.introMeetingsAnnualMax}</p>
+          <p>Discoveries YTD: <span className="text-slate-200 font-semibold">{discoveriesYtd}</span> / {targets.discoveriesAnnualMin}–{targets.discoveriesAnnualMax}</p>
+          <p>Clients closed YTD: <span className="text-slate-200 font-semibold">{clientsClosedYtd}</span> / {targets.clientsClosedAnnualMin}–{targets.clientsClosedAnnualMax}</p>
         </div>
       </section>
 
