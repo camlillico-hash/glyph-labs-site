@@ -115,9 +115,9 @@ export default function Bos360Page() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
           <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Coaching">
             <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
-              <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
+              <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-7 w-7 object-contain sm:h-8 sm:w-8" />
             </a>
-            <span className="max-w-[170px] truncate rounded-full border border-neutral-600 bg-neutral-800/85 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-orange-200 sm:max-w-none sm:px-3 sm:text-[11px] sm:tracking-widest">
+            <span className="hidden rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-orange-200 sm:inline-flex">
               Cam Lillico Business Coaching
             </span>
           </div>
@@ -136,6 +136,12 @@ export default function Bos360Page() {
           </div>
         </div>
       </header>
+
+      <div className="mx-auto max-w-6xl px-6 pt-2 sm:hidden">
+        <span className="inline-flex rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-orange-200">
+          Cam Lillico Business Coaching
+        </span>
+      </div>
 
       {/* HERO */}
       <section className="mx-auto max-w-6xl px-6 pb-8 pt-10 md:pb-10 md:pt-12">
