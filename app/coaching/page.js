@@ -276,6 +276,16 @@ export default function Bos360Page() {
               <span className="text-slate-400"> — not </span>
               <span className="font-semibold text-orange-200">theory</span>.
             </p>
+            <div className="mt-3">
+              <a
+                href="https://bos360.ca"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex rounded-md border border-neutral-500/60 px-2.5 py-1 text-[11px] font-medium text-slate-300 transition hover:border-neutral-400 hover:text-slate-100"
+              >
+                Learn more
+              </a>
+            </div>
           </div>
         </div>
       </section>
