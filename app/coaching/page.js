@@ -8,8 +8,6 @@ import {
   Star,
   Workflow,
   ArrowRight,
-  User,
-  Mail,
   CheckCircle2,
   CircleSlash2,
 } from "lucide-react";
@@ -458,32 +456,22 @@ export default function Bos360Page() {
               operating cadence to get you there.
             </p>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <a
-                href="/strength-test"
-                className="w-[260px] rounded-xl bg-gradient-to-r from-cyan-300 via-cyan-500 to-blue-600 px-5 py-2.5 text-center text-slate-950 transition hover:opacity-90"
-              >
-                <span className="block text-base font-extrabold">Start the Strength Test</span>
-              </a>
-              <span className="inline-flex w-[260px] flex-col items-center justify-center rounded-xl border border-neutral-600 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
-                20 questions · instant results
-                <span className="mt-1 inline-flex items-center justify-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/85 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] text-slate-200">
-                  <User size={10} aria-hidden />
-                  <Mail size={10} aria-hidden />
-                  Name + email required
-                </span>
-              </span>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6">
               <a
                 href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:opacity-90"
+                className="inline-flex rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:opacity-90"
               >
                 Book an Intro Call
               </a>
+              <p className="mt-3 text-sm text-slate-300">
+                Prefer to self-assess first?{" "}
+                <a href="/strength-test" className="font-semibold text-cyan-200 underline-offset-2 hover:underline">
+                  Take the Strength Test
+                </a>
+                .
+              </p>
             </div>
           </div>
         </div>
