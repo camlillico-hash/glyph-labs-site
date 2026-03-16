@@ -1,6 +1,6 @@
 "use client";
 
-import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail } from "lucide-react";
+import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail, Download } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type SectionKey = "Business" | "Brand" | "Team" | "Strategy" | "Execution" | "Culture";
@@ -100,6 +100,7 @@ export default function StrengthTestPage() {
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadError, setLeadError] = useState("");
   const [leadThanks, setLeadThanks] = useState(false);
+  const [resultPdfUrl, setResultPdfUrl] = useState("");
   const [resultSaving, setResultSaving] = useState(false);
   const [resultError, setResultError] = useState("");
   const [leadForm, setLeadForm] = useState({
@@ -203,6 +204,8 @@ export default function StrengthTestPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data?.error || "Failed to save results");
       }
+      const data = await res.json().catch(() => ({}));
+      setResultPdfUrl(String(data?.pdfUrl || ""));
       setSubmitted(true);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to save results";
@@ -488,6 +491,22 @@ export default function StrengthTestPage() {
                 <p className="text-sm uppercase tracking-[0.12em] text-slate-500">Overall Rating</p>
                 <p className="mt-1 text-4xl font-bold" style={{ color: totalColor }}>{totalLabel}</p>
                 <p className="mt-3 text-slate-400">Results are based on your responses across the six BOS360 dimensions.</p>
+
+                <div className="mt-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3 text-sm text-slate-200">
+                  Your results have been sent to Cam. He’ll review them and follow up to discuss potential next steps.
+                </div>
+
+                {resultPdfUrl ? (
+                  <a
+                    href={resultPdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-1.5 rounded border border-slate-600 px-3 py-1.5 text-sm font-semibold text-slate-200 hover:bg-slate-800"
+                  >
+                    <Download size={15} aria-hidden />
+                    Download my results
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>
