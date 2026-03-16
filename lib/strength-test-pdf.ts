@@ -1,3 +1,4 @@
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export type SubmissionPdfInput = {
   name: string;
@@ -17,53 +18,90 @@ export type SubmissionPdfInput = {
   }>;
 };
 
+const PAGE_W = 612;
+const PAGE_H = 792;
+const MARGIN = 48;
+const LINE = 16;
+
+function drawLine(page: any, font: any, text: string, x: number, y: number, size = 11) {
+  page.drawText(text, { x, y, size, font, color: rgb(0.08, 0.08, 0.08) });
+}
+
+function wrapText(text: string, maxChars = 95) {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let current = "";
+  for (const w of words) {
+    const next = current ? `${current} ${w}` : w;
+    if (next.length > maxChars) {
+      if (current) lines.push(current);
+      current = w;
+    } else {
+      current = next;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
 export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<Buffer> {
-  const pdfkitModule = await import("pdfkit");
-  const PDFDocumentCtor = ((pdfkitModule as unknown as { default?: new (opts?: object) => any }).default ||
-    (pdfkitModule as unknown as new (opts?: object) => any));
+  const pdf = await PDFDocument.create();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
-  const doc = new PDFDocumentCtor({ size: "LETTER", margin: 50 });
-  const chunks: Buffer[] = [];
+  const page1 = pdf.addPage([PAGE_W, PAGE_H]);
+  let y = PAGE_H - MARGIN;
 
-  doc.on("data", (chunk: Uint8Array) => chunks.push(Buffer.from(chunk)));
+  drawLine(page1, bold, "BOS360 Strength Test Results", MARGIN, y, 20);
+  y -= 28;
+  drawLine(page1, font, `Submitted: ${new Date(input.submittedAt).toLocaleString("en-CA", { timeZone: "UTC" })} UTC`, MARGIN, y);
+  y -= LINE;
+  drawLine(page1, font, `Name: ${input.name}`, MARGIN, y);
+  y -= LINE;
+  drawLine(page1, font, `Company: ${input.company}`, MARGIN, y);
+  y -= LINE;
+  drawLine(page1, font, `Email: ${input.email}`, MARGIN, y);
+  if (input.phone) {
+    y -= LINE;
+    drawLine(page1, font, `Phone: ${input.phone}`, MARGIN, y);
+  }
 
-  doc.fontSize(20).text("BOS360 Strength Test Results", { align: "left" });
-  doc.moveDown(0.5);
-  doc.fontSize(11).fillColor("#444").text(`Submitted: ${new Date(input.submittedAt).toLocaleString("en-CA", { timeZone: "UTC" })} UTC`);
-  doc.text(`Name: ${input.name}`);
-  doc.text(`Company: ${input.company}`);
-  doc.text(`Email: ${input.email}`);
-  if (input.phone) doc.text(`Phone: ${input.phone}`);
-
-  doc.moveDown();
-  doc.fillColor("#000").fontSize(16).text(`Overall Score: ${input.overallScore}% (${input.overallLabel})`);
-  doc.moveDown(0.5);
-  doc.fontSize(12).text("Section Scores", { underline: true });
+  y -= 28;
+  drawLine(page1, bold, `Overall Score: ${input.overallScore}% (${input.overallLabel})`, MARGIN, y, 15);
+  y -= 26;
+  drawLine(page1, bold, "Section Scores", MARGIN, y, 12);
+  y -= 18;
 
   for (const [section, score] of Object.entries(input.sectionScores)) {
     const max = input.sectionMax[section] || 0;
     const pct = max > 0 ? Math.round((score / max) * 100) : 0;
-    doc.text(`• ${section}: ${score}/${max} (${pct}%)`);
+    drawLine(page1, font, `• ${section}: ${score}/${max} (${pct}%)`, MARGIN, y);
+    y -= LINE;
   }
 
-  doc.moveDown();
-  doc.fontSize(11).fillColor("#333").text("Summary: This page mirrors the high-level results shown to the prospect at completion.");
+  y -= 10;
+  drawLine(page1, font, "Summary: This page mirrors the high-level results shown to the prospect at completion.", MARGIN, y, 10);
 
-  doc.addPage();
-  doc.fillColor("#000").fontSize(18).text("Question-by-Question Responses");
-  doc.moveDown(0.6);
+  let page = pdf.addPage([PAGE_W, PAGE_H]);
+  y = PAGE_H - MARGIN;
+  drawLine(page, bold, "Question-by-Question Responses", MARGIN, y, 18);
+  y -= 26;
 
   for (const a of input.answers) {
-    doc.fontSize(10).fillColor("#666").text(`${a.questionId}. [${a.section}]`);
-    doc.fontSize(11).fillColor("#000").text(a.questionText);
-    doc.fontSize(11).fillColor("#111").text(`Score: ${a.score}/5`);
-    doc.moveDown(0.5);
+    if (y < MARGIN + 80) {
+      page = pdf.addPage([PAGE_W, PAGE_H]);
+      y = PAGE_H - MARGIN;
+    }
+    drawLine(page, bold, `${a.questionId}. [${a.section}]`, MARGIN, y, 10);
+    y -= 14;
+    for (const line of wrapText(a.questionText)) {
+      drawLine(page, font, line, MARGIN, y, 11);
+      y -= 14;
+    }
+    drawLine(page, font, `Score: ${a.score}/5`, MARGIN, y, 11);
+    y -= 18;
   }
 
-  doc.end();
-
-  return await new Promise((resolve, reject) => {
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-  });
+  const bytes = await pdf.save();
+  return Buffer.from(bytes);
 }
