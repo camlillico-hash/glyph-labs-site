@@ -89,6 +89,36 @@ const reads = [
     rating: "4.1 Goodreads",
     cover: "https://covers.openlibrary.org/b/isbn/0787960756-L.jpg",
   },
+  {
+    title: "Turning the Flywheel",
+    author: "Jim Collins",
+    rating: "4.2 Goodreads",
+    cover: "https://covers.openlibrary.org/b/isbn/0062933795-L.jpg",
+  },
+  {
+    title: "Start to Scale",
+    author: "Matt Rodrigues",
+    rating: "4.4 Goodreads",
+    cover: "https://covers.openlibrary.org/b/title/Start%20to%20Scale-L.jpg",
+  },
+  {
+    title: "Start with Why",
+    author: "Simon Sinek",
+    rating: "4.1 Goodreads",
+    cover: "https://covers.openlibrary.org/b/isbn/1591846447-L.jpg",
+  },
+  {
+    title: "Good to Great",
+    author: "Jim Collins",
+    rating: "4.1 Goodreads",
+    cover: "https://covers.openlibrary.org/b/isbn/0066620996-L.jpg",
+  },
+  {
+    title: "Crossing the Chasm",
+    author: "Geoffrey A. Moore",
+    rating: "4.0 Goodreads",
+    cover: "https://covers.openlibrary.org/b/isbn/0062292986-L.jpg",
+  },
 ];
 
 export default function Bos360Page() {
@@ -498,7 +528,7 @@ export default function Bos360Page() {
           Core books I use for planning, leadership alignment, and execution coaching.
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {reads.map((book) => (
+          {reads.slice(0, 5).map((book) => (
             <article key={book.title} className="rounded-xl border border-neutral-700 bg-neutral-900 p-3">
               <img
                 src={book.cover}
@@ -512,6 +542,30 @@ export default function Bos360Page() {
             </article>
           ))}
         </div>
+
+        {reads.length > 5 ? (
+          <details className="mt-4 group">
+            <summary className="cursor-pointer list-none text-sm font-semibold text-cyan-200">
+              <span className="group-open:hidden">Show more reads</span>
+              <span className="hidden group-open:inline">Show fewer reads</span>
+            </summary>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {reads.slice(5).map((book) => (
+                <article key={book.title} className="rounded-xl border border-neutral-700 bg-neutral-900 p-3">
+                  <img
+                    src={book.cover}
+                    alt={`${book.title} cover`}
+                    className="h-36 w-full rounded-md border border-neutral-700 object-cover bg-neutral-950"
+                    loading="lazy"
+                  />
+                  <h3 className="mt-2 text-[13px] font-semibold leading-tight text-slate-100">{book.title}</h3>
+                  <p className="mt-0.5 text-[11px] text-slate-300">{book.author}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-orange-200">{book.rating}</p>
+                </article>
+              ))}
+            </div>
+          </details>
+        ) : null}
       </section>
 
       <section className="border-t border-neutral-700 bg-neutral-900/40 py-12">
