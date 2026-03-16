@@ -97,7 +97,7 @@ const reads = [
   },
   {
     title: "Start to Scale",
-    author: "Matt Rodrigues",
+    author: "Verne Harnish",
     rating: "4.4 Goodreads",
     cover: "https://covers.openlibrary.org/b/title/Start%20to%20Scale-L.jpg",
   },
