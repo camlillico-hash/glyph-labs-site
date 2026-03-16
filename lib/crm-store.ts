@@ -42,7 +42,6 @@ export type StrengthTestSubmission = {
   sectionScores: Record<string, number>;
   answers: StrengthTestAnswer[];
   status: "pending_pdf" | "complete" | "pdf_failed";
-  pdfBase64?: string;
   pdfFilename?: string;
 };
 

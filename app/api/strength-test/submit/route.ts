@@ -1,21 +1,6 @@
 import { NextResponse } from "next/server";
-import { buildStrengthTestPdf } from "@/lib/strength-test-pdf";
 import { getStore, id, now, saveStore, type StrengthTestAnswer, type StrengthTestSubmission } from "@/lib/crm-store";
 
-const sectionMax: Record<string, number> = {
-  Business: 20,
-  Brand: 15,
-  Team: 15,
-  Strategy: 15,
-  Execution: 20,
-  Culture: 15,
-};
-
-function scoreLabel(total: number) {
-  if (total <= 50) return "Weak";
-  if (total <= 84) return "Moderate";
-  return "Strong";
-}
 
 export async function POST(req: Request) {
   try {
@@ -57,19 +42,6 @@ export async function POST(req: Request) {
     const submissionId = id();
     const pdfFilename = `strength-test-${contact.lastName || "lead"}-${submissionId}.pdf`.replace(/\s+/g, "-").toLowerCase();
 
-    const pdfBuffer = await buildStrengthTestPdf({
-      name: `${firstName} ${lastName}`.trim(),
-      company,
-      email,
-      phone,
-      submittedAt: timestamp,
-      overallScore,
-      overallLabel: scoreLabel(overallScore),
-      sectionScores,
-      sectionMax,
-      answers,
-    });
-
     const submission: StrengthTestSubmission = {
       id: submissionId,
       contactId: contact.id,
@@ -78,7 +50,6 @@ export async function POST(req: Request) {
       sectionScores,
       answers,
       status: "complete",
-      pdfBase64: pdfBuffer.toString("base64"),
       pdfFilename,
     };
 

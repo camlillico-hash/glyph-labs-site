@@ -44,7 +44,7 @@ function wrapText(text: string, maxChars = 95) {
   return lines;
 }
 
-export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<Buffer> {
+export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -103,5 +103,5 @@ export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<B
   }
 
   const bytes = await pdf.save();
-  return Buffer.from(bytes);
+  return bytes;
 }

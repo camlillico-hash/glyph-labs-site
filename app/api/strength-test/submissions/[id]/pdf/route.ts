@@ -1,5 +1,21 @@
 import { NextResponse } from "next/server";
+import { buildStrengthTestPdf } from "@/lib/strength-test-pdf";
 import { getStore } from "@/lib/crm-store";
+
+const sectionMax: Record<string, number> = {
+  Business: 20,
+  Brand: 15,
+  Team: 15,
+  Strategy: 15,
+  Execution: 20,
+  Culture: 15,
+};
+
+function scoreLabel(total: number) {
+  if (total <= 50) return "Weak";
+  if (total <= 84) return "Moderate";
+  return "Strong";
+}
 
 export async function GET(_: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -7,14 +23,29 @@ export async function GET(_: Request, context: { params: Promise<{ id: string }>
     const store = await getStore();
     const submission = (store.strengthTests || []).find((s) => s.id === id);
 
-    if (!submission || !submission.pdfBase64) {
+    if (!submission) {
       return NextResponse.json({ error: "PDF not found" }, { status: 404 });
     }
 
-    const filename = submission.pdfFilename || `strength-test-${submission.id}.pdf`;
-    const buffer = Buffer.from(submission.pdfBase64, "base64");
+    const contact = (store.contacts || []).find((c) => c.id === submission.contactId);
+    const name = `${contact?.firstName || ""} ${contact?.lastName || ""}`.trim() || "Lead";
 
-    return new NextResponse(buffer, {
+    const buffer = await buildStrengthTestPdf({
+      name,
+      company: contact?.company || "",
+      email: contact?.email || "",
+      phone: contact?.phone || "",
+      submittedAt: submission.submittedAt,
+      overallScore: submission.overallScore,
+      overallLabel: scoreLabel(submission.overallScore),
+      sectionScores: submission.sectionScores,
+      sectionMax,
+      answers: submission.answers,
+    });
+
+    const filename = submission.pdfFilename || `strength-test-${submission.id}.pdf`;
+
+    return new Response(buffer as unknown as BodyInit, {
       headers: {
         "content-type": "application/pdf",
         "content-disposition": `inline; filename="${filename}"`,
