@@ -255,20 +255,20 @@ async function saveStorePg(store: CrmStore) {
       await client.query("insert into crm_activities (id, data, updated_at, occurred_at) values ($1,$2,now(),$3)", [a.id, a, a.occurredAt || null]);
     }
     await client.query(
-      "insert into crm_meta (key, data, updated_at) values ('gmail', $1, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
-      [store.gmail]
+      "insert into crm_meta (key, data, updated_at) values ('gmail', $1::jsonb, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
+      [JSON.stringify(store.gmail)]
     );
     await client.query(
-      "insert into crm_meta (key, data, updated_at) values ('targets', $1, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
-      [store.targets || defaultTargets]
+      "insert into crm_meta (key, data, updated_at) values ('targets', $1::jsonb, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
+      [JSON.stringify(store.targets || defaultTargets)]
     );
     await client.query(
-      "insert into crm_meta (key, data, updated_at) values ('targets_history', $1, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
-      [store.targetsHistory || []]
+      "insert into crm_meta (key, data, updated_at) values ('targets_history', $1::jsonb, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
+      [JSON.stringify(store.targetsHistory || [])]
     );
     await client.query(
-      "insert into crm_meta (key, data, updated_at) values ('strength_tests', $1, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
-      [store.strengthTests || []]
+      "insert into crm_meta (key, data, updated_at) values ('strength_tests', $1::jsonb, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
+      [JSON.stringify(store.strengthTests || [])]
     );
     await client.query("commit");
   } catch (e) {
