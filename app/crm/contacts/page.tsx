@@ -75,6 +75,7 @@ export default function ContactsPage() {
   const [showDetailSection, setShowDetailSection] = useState(true);
   const [showActivitiesSection, setShowActivitiesSection] = useState(true);
   const [showDealsSection, setShowDealsSection] = useState(true);
+  const [removingFromOpenIds, setRemovingFromOpenIds] = useState<string[]>([]);
 
   const load = async () => {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
@@ -86,9 +87,10 @@ export default function ContactsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const openItems = useMemo(() => items.filter((c) => !["Warm intro booked", "Not right now", "Pipeline Seeder"].includes(c.status || "New")), [items]);
+  const isTerminalStatus = (status?: string) => ["Warm intro booked", "Pipeline Seeder", "Not right now"].includes(status || "New");
+  const openItems = useMemo(() => items.filter((c) => !isTerminalStatus(c.status) || !c.openBoardHidden), [items]);
   const sorted = useMemo(() => [...openItems], [openItems]);
-  const convertedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Warm intro booked"), [items]);
+  const convertedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden), [items]);
   const clientContactIds = useMemo(() => {
     const ids = new Set<string>();
     for (const d of deals || []) {
@@ -97,7 +99,7 @@ export default function ContactsPage() {
     return ids;
   }, [deals]);
   const clientItems = useMemo(() => items.filter((c) => clientContactIds.has(c.id)), [items, clientContactIds]);
-  const disqualifiedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Not right now"), [items]);
+  const disqualifiedItems = useMemo(() => items.filter((c) => (["Not right now", "Pipeline Seeder"].includes(c.status || "New") && c.openBoardHidden)), [items]);
 
 
   const selectedActivities = useMemo(() => {
@@ -149,7 +151,7 @@ export default function ContactsPage() {
       const moving = prev.find((c) => c.id === contactId);
       if (!moving) return prev;
       const others = prev.filter((c) => c.id !== contactId);
-      const updated = { ...moving, status };
+      const updated = { ...moving, status, openBoardHidden: false };
       if (targetIndex === undefined) return [...others, updated];
 
       const next: any[] = [];
@@ -166,8 +168,23 @@ export default function ContactsPage() {
       if (!inserted) next.push(updated);
       return next;
     });
-    await fetch("/api/crm/contacts", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...contact, status }) });
+    await fetch("/api/crm/contacts", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...contact, status, openBoardHidden: false }) });
     await load();
+  }
+
+  async function removeFromOpen(contact: any) {
+    setRemovingFromOpenIds((prev) => [...prev, contact.id]);
+    setTimeout(async () => {
+      const payload = { ...contact, openBoardHidden: true };
+      setItems((prev) => prev.map((c) => (c.id === contact.id ? payload : c)));
+      await fetch('/api/crm/contacts', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      await load();
+      setRemovingFromOpenIds((prev) => prev.filter((id) => id !== contact.id));
+    }, 220);
   }
 
   async function saveContact(createAnother = false) {
@@ -277,13 +294,31 @@ export default function ContactsPage() {
                               onDragEnter={() => setHoverDrop({ status: stage, index: idx })}
                               onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage, idx); setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }}
                             />
-                            <button draggable onDragStart={() => setDraggingContactId(c.id)} onDragEnd={() => { setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }} className={`crm-card w-full min-w-0 p-3 text-left cursor-grab transition-all duration-150 ${draggingContactId === c.id ? "scale-[1.02] opacity-70" : ""}`} onClick={() => openTray(c)}>
+                            <button draggable onDragStart={() => setDraggingContactId(c.id)} onDragEnd={() => { setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }} className={`crm-card w-full min-w-0 p-3 text-left cursor-grab transition-all duration-300 ${draggingContactId === c.id ? "scale-[1.02] opacity-70" : ""} ${removingFromOpenIds.includes(c.id) ? "opacity-0 scale-95" : "opacity-100"}`} onClick={() => openTray(c)}>
                               <p className="truncate font-semibold">{c.firstName} {c.lastName}</p>
                               <p className="truncate text-xs text-slate-400 inline-flex items-center gap-1.5">{c.email || "No email"}{c.email && <a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={12} /></a>}</p>
                               {c.linkedin && <p className="truncate text-xs text-slate-400">{c.linkedin}</p>}
                               <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
                               <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
                               <p className="mt-1 truncate text-[11px] text-emerald-300">Activities: {(activities || []).filter((a:any) => a.contactId === c.id).length}</p>
+                              {c.status === "Warm intro booked" ? (
+                                <button
+                                  type="button"
+                                  className="mt-2 inline-flex rounded border border-emerald-500/50 bg-emerald-500/10 px-2 py-1 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/20"
+                                  onClick={(e) => { e.stopPropagation(); removeFromOpen(c); }}
+                                >
+                                  Convert now
+                                </button>
+                              ) : null}
+                              {["Pipeline Seeder", "Not right now"].includes(c.status || "") ? (
+                                <button
+                                  type="button"
+                                  className="mt-2 inline-flex rounded border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-500/20"
+                                  onClick={(e) => { e.stopPropagation(); removeFromOpen(c); }}
+                                >
+                                  Remove from open
+                                </button>
+                              ) : null}
                               <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); setMovePicker({ open: true, contactId: c.id }); }}>
                                 Move
                               </button>
