@@ -17,7 +17,7 @@ import { blogPosts } from "./blogPosts";
 import BlogPreviewGrid from "./BlogPreviewGrid";
 
 export const metadata = {
-  title: "Coaching",
+  title: "Coaching | Cam Lillico",
   robots: { index: false, follow: false },
 };
 

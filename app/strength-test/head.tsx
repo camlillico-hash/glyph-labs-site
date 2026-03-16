@@ -1,7 +1,7 @@
 export default function Head() {
   return (
     <>
-      <title>Cam Lillico | Coaching</title>
+      <title>Coaching | Cam Lillico</title>
       <link rel="icon" href="/strength-test/icon.png?v=2" sizes="any" />
       <link rel="shortcut icon" href="/strength-test/icon.png?v=2" />
     </>
