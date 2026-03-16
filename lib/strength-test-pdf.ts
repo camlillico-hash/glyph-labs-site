@@ -43,6 +43,11 @@ function scoreColor(score: number) {
   return rgb(0.45, 0.70, 0.16); // green
 }
 
+function drawFooter(page: any, font: any) {
+  page.drawText("Prepared by Cam Lillico Coaching", { x: MARGIN, y: 22, size: 9.5, font, color: rgb(0.4, 0.4, 0.45) });
+  page.drawText("camlillico.com", { x: PAGE_W - MARGIN - 75, y: 22, size: 9.5, font, color: rgb(0.4, 0.4, 0.45) });
+}
+
 export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -97,11 +102,11 @@ export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<U
     y -= 24;
   }
 
-  page1.drawText("Prepared by Cam Lillico Coaching", { x: MARGIN, y: 34, size: 9.5, font, color: rgb(0.4, 0.4, 0.45) });
-  page1.drawText("camlillico.com", { x: PAGE_W - MARGIN - 75, y: 34, size: 9.5, font, color: rgb(0.4, 0.4, 0.45) });
+  drawFooter(page1, font);
 
   // PAGE 2+ — detailed Q&A
   let page = pdf.addPage([PAGE_W, PAGE_H]);
+  drawFooter(page, font);
   let qy = PAGE_H - MARGIN;
   page.drawText("Question-by-Question Responses", { x: MARGIN, y: qy, size: 18, font: bold, color: rgb(0.1, 0.1, 0.12) });
   qy -= 26;
@@ -112,6 +117,7 @@ export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<U
 
     if (qy < MARGIN + blockHeight) {
       page = pdf.addPage([PAGE_W, PAGE_H]);
+      drawFooter(page, font);
       qy = PAGE_H - MARGIN;
       page.drawText("Question-by-Question Responses (cont.)", { x: MARGIN, y: qy, size: 14, font: bold, color: rgb(0.1, 0.1, 0.12) });
       qy -= 22;
