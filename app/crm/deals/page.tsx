@@ -178,7 +178,7 @@ export default function DealsPage() {
             <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStage === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStage(stage)} onDragLeave={() => setHoverStage((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingDealId) return; await moveDealStage(draggingDealId, stage); setDraggingDealId(null); setHoverStage(null); setHoverDrop(null); }}>
               <h3 className="mb-3 inline-flex items-center gap-1.5 font-semibold text-emerald-300">
                 {stageLabel(stage, STAGES.indexOf(stage))}
-                <span className="rounded-full border border-neutral-700 bg-neutral-900 px-1.5 py-0.5 text-[10px] text-slate-300">
+                <span className="rounded-full border border-neutral-500 bg-neutral-800 px-2 py-0.5 text-xs font-semibold leading-none text-slate-100">
                   {sortedDeals.filter((d) => d.stage === stage).length}
                 </span>
               </h3>
