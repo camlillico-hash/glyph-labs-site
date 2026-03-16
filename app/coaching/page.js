@@ -348,7 +348,7 @@ export default function Bos360Page() {
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
-“Within one quarter, our team moved from reactive meetings to clear weekly priorities and cleaner ownership. Cam helped us install a cadence we could actually sustain.”
+“Cam creates the space for open, honest dialogue while keeping the team aligned and accountable. He brings structure without overcomplicating things, and the result is clearer decisions and stronger follow-through.”
             <div className="mt-4 space-y-3 not-italic">
               <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
                 <img
