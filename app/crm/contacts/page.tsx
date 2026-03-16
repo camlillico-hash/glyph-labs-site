@@ -280,7 +280,12 @@ export default function ContactsPage() {
           <div className="flex gap-4 min-w-max">
             {CONTACT_STAGES.map((stage, i) => (
               <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStatus === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStatus(stage)} onDragLeave={() => setHoverStatus((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }}>
-                <h3 className={`mb-3 font-semibold ${stageColorClass(stage)}`}>{stageLabel(stage, i)}</h3>
+                <h3 className={`mb-3 inline-flex items-center gap-1.5 font-semibold ${stageColorClass(stage)}`}>
+                  {stageLabel(stage, i)}
+                  <span className="rounded-full border border-neutral-700 bg-neutral-900 px-1.5 py-0.5 text-[10px] text-slate-300">
+                    {sorted.filter((c) => (c.status || "New") === stage).length}
+                  </span>
+                </h3>
                 <div className="min-h-10">
                   {(() => {
                     const stageContacts = sorted.filter((c) => (c.status || "New") === stage);

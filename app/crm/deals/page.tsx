@@ -176,7 +176,12 @@ export default function DealsPage() {
         <div className="overflow-x-auto pb-2"><div className="flex gap-4 min-w-max">
           {STAGES.map((stage) => (
             <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStage === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStage(stage)} onDragLeave={() => setHoverStage((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingDealId) return; await moveDealStage(draggingDealId, stage); setDraggingDealId(null); setHoverStage(null); setHoverDrop(null); }}>
-              <h3 className="mb-3 font-semibold text-emerald-300">{stageLabel(stage, STAGES.indexOf(stage))}</h3>
+              <h3 className="mb-3 inline-flex items-center gap-1.5 font-semibold text-emerald-300">
+                {stageLabel(stage, STAGES.indexOf(stage))}
+                <span className="rounded-full border border-neutral-700 bg-neutral-900 px-1.5 py-0.5 text-[10px] text-slate-300">
+                  {sortedDeals.filter((d) => d.stage === stage).length}
+                </span>
+              </h3>
               <div className="min-h-10">
                 {(() => {
                   const stageDeals = sortedDeals.filter((d) => d.stage === stage);
@@ -278,7 +283,12 @@ export default function DealsPage() {
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={saveDeal}><Save size={14} className="text-emerald-300" /></button>{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
               {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" title="Delete" aria-label="Delete" onClick={() => askConfirm("Are you sure you want to delete this record?", () => { deleteFromTray(); })}><Trash2 size={14} /></button>}
             </div>
-            <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
+            <div
+              className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10"
+              onDoubleClick={() => {
+                if (!editMode && !createMode) setEditMode(true);
+              }}
+            >
               <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Contact details</h3>
               <Field label="Deal name" editMode={editMode || createMode}><input className="crm-input" value={draft.name || ""} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></Field>
               <Field label="Company" editMode={editMode || createMode} read={!(editMode || createMode) ? (draft.company || "—") : undefined}><input className="crm-input" value={draft.company || ""} onChange={(e) => setDraft({ ...draft, company: e.target.value })} /></Field>
