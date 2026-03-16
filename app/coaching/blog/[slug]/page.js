@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { blogPosts, getPostBySlug } from "../../blogPosts";
 
@@ -30,10 +31,10 @@ export default async function BlogPostPage({ params }) {
     <main className="min-h-screen bg-neutral-950 text-slate-100">
       <section className="mx-auto max-w-3xl px-6 pb-16 pt-24 md:pt-28">
         <a
-          href="/coaching"
-          className="inline-flex items-center gap-2 text-sm font-medium text-orange-200 transition hover:text-orange-100"
+          href="/coaching#leadership-insights"
+          className="inline-flex items-center gap-2 rounded-lg border border-orange-300/40 bg-orange-500/10 px-3 py-1.5 text-sm font-semibold text-orange-100 transition hover:bg-orange-500/20"
         >
-          <span aria-hidden>⬤</span>
+          <ArrowLeft size={16} aria-hidden />
           Back to Coaching
         </a>
 

@@ -569,7 +569,7 @@ export default function Bos360Page() {
         ) : null}
       </section>
 
-      <section className="border-t border-neutral-700 bg-neutral-900/40 py-12">
+      <section id="leadership-insights" className="scroll-mt-24 border-t border-neutral-700 bg-neutral-900/40 py-12">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
             <Gem size={22} aria-hidden className="text-[#ed7d31]" />
