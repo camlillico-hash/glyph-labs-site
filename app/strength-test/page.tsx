@@ -165,6 +165,9 @@ export default function StrengthTestPage() {
   const choose = (score: number) => {
     if (!current) return;
     setAnswers((prev) => ({ ...prev, [current.id]: score }));
+    if (index < questions.length - 1) {
+      setTimeout(() => setIndex((i) => Math.min(i + 1, questions.length - 1)), 80);
+    }
   };
 
   const next = () => {
@@ -564,7 +567,8 @@ export default function StrengthTestPage() {
       </header>
 
       <section className="mx-auto flex h-[calc(100dvh-118px)] w-full max-w-3xl items-center px-6 py-4 md:h-auto md:block md:py-10">
-        <div className="max-h-full w-full overflow-y-auto rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="w-full">
+          <div className="max-h-full w-full overflow-y-auto rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           {leadThanks && index === 0 ? (
             <div className="mb-4 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
               Thanks — details received. Let’s run your Strength Test.
@@ -637,21 +641,20 @@ export default function StrengthTestPage() {
               </div>
             )}
           </div>
+          </div>
+
+          <div className="mt-3 flex items-center gap-3 rounded-lg border border-slate-800 bg-[#06090f]/80 px-3 py-2">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
+              <div className="h-full rounded-full bg-cyan-400 transition-all duration-300" style={{ width: `${completionPct}%` }} />
+            </div>
+            <p className="w-14 text-right text-xs text-slate-300">{completionPct}%</p>
+          </div>
         </div>
       </section>
 
       <footer className="hidden border-t border-slate-800 py-6 text-center text-xs text-slate-400 md:block">
         © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
       </footer>
-
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-800 bg-[#06090f]/95 px-4 py-2 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-3">
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
-            <div className="h-full rounded-full bg-cyan-400 transition-all duration-300" style={{ width: `${completionPct}%` }} />
-          </div>
-          <p className="w-14 text-right text-xs text-slate-300">{completionPct}%</p>
-        </div>
-      </div>
     </main>
   );
 }
