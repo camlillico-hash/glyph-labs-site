@@ -72,18 +72,6 @@ const reads = [
     cover: "https://covers.openlibrary.org/b/isbn/0986019526-L.jpg",
   },
   {
-    title: "Superabound",
-    author: "Aquin & Haas",
-    rating: "4.9/5 Amazon",
-    cover: "/books/superabound.jpg",
-  },
-  {
-    title: "The Science of Scaling",
-    author: "Dr. Benjamin Hardy",
-    rating: "4.3 Goodreads",
-    cover: "/books/science-of-scaling.jpg",
-  },
-  {
     title: "The Five Dysfunctions of a Team",
     author: "Patrick Lencioni",
     rating: "4.1 Goodreads",
@@ -96,10 +84,10 @@ const reads = [
     cover: "https://covers.openlibrary.org/b/isbn/0062933795-L.jpg",
   },
   {
-    title: "Start to Scale",
-    author: "Verne Harnish",
-    rating: "4.4 Goodreads",
-    cover: "https://covers.openlibrary.org/b/title/Start%20to%20Scale-L.jpg",
+    title: "Good to Great",
+    author: "Jim Collins",
+    rating: "4.1 Goodreads",
+    cover: "https://covers.openlibrary.org/b/isbn/0066620996-L.jpg",
   },
   {
     title: "Start with Why",
@@ -108,16 +96,28 @@ const reads = [
     cover: "https://covers.openlibrary.org/b/isbn/1591846447-L.jpg",
   },
   {
-    title: "Good to Great",
-    author: "Jim Collins",
-    rating: "4.1 Goodreads",
-    cover: "https://covers.openlibrary.org/b/isbn/0066620996-L.jpg",
+    title: "Start to Scale",
+    author: "Verne Harnish",
+    rating: "4.4 Goodreads",
+    cover: "https://covers.openlibrary.org/b/title/Start%20to%20Scale-L.jpg",
   },
   {
     title: "Crossing the Chasm",
     author: "Geoffrey A. Moore",
     rating: "4.0 Goodreads",
     cover: "https://covers.openlibrary.org/b/isbn/0062292986-L.jpg",
+  },
+  {
+    title: "The Science of Scaling",
+    author: "Dr. Benjamin Hardy",
+    rating: "4.3 Goodreads",
+    cover: "/books/science-of-scaling.jpg",
+  },
+  {
+    title: "Superabound",
+    author: "Aquin & Haas",
+    rating: "4.9/5 Amazon",
+    cover: "/books/superabound.jpg",
   },
 ];
 
