@@ -100,6 +100,8 @@ export default function StrengthTestPage() {
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadError, setLeadError] = useState("");
   const [leadThanks, setLeadThanks] = useState(false);
+  const [resultSaving, setResultSaving] = useState(false);
+  const [resultError, setResultError] = useState("");
   const [leadForm, setLeadForm] = useState({
     firstName: "",
     lastName: "",
@@ -171,6 +173,40 @@ export default function StrengthTestPage() {
 
   const back = () => {
     if (index > 0) setIndex((i) => i - 1);
+  };
+
+  const submitResults = async () => {
+    setResultError("");
+    setResultSaving(true);
+    try {
+      const payload = {
+        ...leadForm,
+        overallScore: total,
+        sectionScores: subtotals,
+        answers: questions.map((q) => ({
+          questionId: q.id,
+          section: q.section,
+          questionText: q.text,
+          score: answers[q.id] ?? 0,
+        })),
+      };
+
+      const res = await fetch("/api/strength-test/submit", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "Failed to save results");
+      }
+      setSubmitted(true);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to save results";
+      setResultError(message);
+    } finally {
+      setResultSaving(false);
+    }
   };
 
   const submitLead = async (e: any) => {
@@ -588,14 +624,17 @@ export default function StrengthTestPage() {
                 Next
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={() => setSubmitted(true)}
-                disabled={completed < questions.length}
-                className="rounded bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                See Results
-              </button>
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={submitResults}
+                  disabled={completed < questions.length || resultSaving}
+                  className="rounded bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {resultSaving ? "Saving..." : "See Results"}
+                </button>
+                {resultError ? <p className="mt-2 text-xs text-rose-300">{resultError}</p> : null}
+              </div>
             )}
           </div>
         </div>
