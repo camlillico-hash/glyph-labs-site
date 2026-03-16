@@ -113,12 +113,12 @@ export default function Bos360Page() {
       {/* HEADER */}
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-          <div className="inline-flex items-center gap-2" aria-label="Glyph Labs Coaching">
-            <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching home">
-              <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+          <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Coaching">
+            <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
+              <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
             </a>
-            <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-orange-200">
-              Glyph Labs Business Coaching
+            <span className="max-w-[170px] truncate rounded-full border border-neutral-600 bg-neutral-800/85 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-orange-200 sm:max-w-none sm:px-3 sm:text-[11px] sm:tracking-widest">
+              Cam Lillico Business Coaching
             </span>
           </div>
           <div className="flex items-center gap-2 whitespace-nowrap">
@@ -246,11 +246,6 @@ export default function Bos360Page() {
               >
                 <p className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-orange-300">
                   Step {i + 1}
-                  {i === 1 ? (
-                    <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-200">
-                      No cost
-                    </span>
-                  ) : null}
                 </p>
                 <h3 className="mt-2 text-xl font-semibold text-slate-100 md:text-2xl">{step.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">{step.text}</p>
@@ -509,7 +504,7 @@ export default function Bos360Page() {
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
             <Gem size={22} aria-hidden className="text-[#ed7d31]" />
-            Glyph Coaching
+            Leadership Insights
           </h2>
           <p className="mt-2 max-w-4xl text-sm text-slate-300">
             Short practical notes on management, strategy, execution, leadership, and communication.
@@ -520,7 +515,7 @@ export default function Bos360Page() {
       </section>
 
       <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
-        © {new Date().getFullYear()} Glyph Labs. All rights reserved.
+        © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
       </footer>
     </main>
   );
