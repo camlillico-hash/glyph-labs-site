@@ -84,16 +84,21 @@ export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<U
 
   page1.drawRectangle({ x: 0, y: PAGE_H - 96, width: PAGE_W, height: 96, color: rgb(0.03, 0.06, 0.10) });
 
+  let brandTextX = MARGIN;
   try {
     const logoPath = path.join(process.cwd(), "public", "logos", "glyphlabs-coaching-mark.png");
     const logoBytes = await readFile(logoPath);
     const logo = await pdf.embedPng(logoBytes);
-    page1.drawImage(logo, { x: MARGIN, y: PAGE_H - 72, width: 28, height: 28 });
+    const logoHeight = 20;
+    const logoWidth = (logo.width / logo.height) * logoHeight;
+    const logoY = PAGE_H - 44;
+    page1.drawImage(logo, { x: MARGIN, y: logoY, width: logoWidth, height: logoHeight });
+    brandTextX = MARGIN + logoWidth + 10;
   } catch {
     // non-fatal if logo is unavailable
   }
 
-  page1.drawText("Cam Lillico Business Coaching", { x: MARGIN + 36, y: PAGE_H - 38, size: 12, font: bold, color: rgb(1, 1, 1) });
+  page1.drawText("Cam Lillico Business Coaching", { x: brandTextX, y: PAGE_H - 38, size: 12, font: bold, color: rgb(1, 1, 1) });
   page1.drawText("BOS360 Strength Test Report", { x: MARGIN, y: PAGE_H - 66, size: 22, font: bold, color: rgb(1, 1, 1) });
 
   let y = PAGE_H - 130;
