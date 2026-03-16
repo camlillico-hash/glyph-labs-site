@@ -282,7 +282,7 @@ export default function ContactsPage() {
               <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStatus === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStatus(stage)} onDragLeave={() => setHoverStatus((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }}>
                 <h3 className={`mb-3 inline-flex items-center gap-1.5 font-semibold ${stageColorClass(stage)}`}>
                   {stageLabel(stage, i)}
-                  <span className="border-b border-slate-300 text-sm font-bold leading-none text-slate-100">
+                  <span className="border-b border-slate-300 text-base font-semibold leading-none text-slate-100">
                     {sorted.filter((c) => (c.status || "New") === stage).length}
                   </span>
                 </h3>
