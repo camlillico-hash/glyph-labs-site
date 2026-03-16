@@ -222,7 +222,7 @@ export default function StrengthTestPage() {
               rel="noopener noreferrer"
               className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
             >
-              Book a Discovery Call
+              Book an Intro Call
             </a>
           </div>
         </header>
@@ -374,7 +374,7 @@ export default function StrengthTestPage() {
               rel="noopener noreferrer"
               className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
             >
-              Book a Discovery Call
+              Book an Intro Call
             </a>
           </div>
         </header>
@@ -522,7 +522,7 @@ export default function StrengthTestPage() {
             rel="noopener noreferrer"
             className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
           >
-            Book a Discovery Call
+            Book an Intro Call
           </a>
         </div>
       </header>

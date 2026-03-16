@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   CircleSlash2,
 } from "lucide-react";
-import CopyEmailButton from "./CopyEmailButton";
 import { blogPosts } from "./blogPosts";
 import BlogPreviewGrid from "./BlogPreviewGrid";
 
@@ -131,7 +130,7 @@ export default function Bos360Page() {
               rel="noopener noreferrer"
               className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
             >
-              Book a Discovery Call
+              Book an Intro Call
             </a>
           </div>
         </div>
@@ -179,14 +178,14 @@ export default function Bos360Page() {
               className="w-[260px] rounded-xl bg-gradient-to-r from-cyan-300 via-cyan-500 to-blue-600 px-5 py-2.5 text-center text-slate-950 transition hover:opacity-90"
             >
               <span className="block text-base font-extrabold">Start the Strength Test</span>
+            </a>
+            <span className="inline-flex w-[260px] flex-col items-center justify-center rounded-xl border border-neutral-600 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
+              20 questions · instant results
               <span className="mt-1 inline-flex items-center justify-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/85 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] text-slate-200">
                 <User size={10} aria-hidden />
                 <Mail size={10} aria-hidden />
                 Name + email required
               </span>
-            </a>
-            <span className="inline-flex w-[260px] items-center justify-center whitespace-nowrap rounded-xl border border-neutral-600 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
-              20 questions · instant results
             </span>
           </div>
         </div>
@@ -248,11 +247,21 @@ export default function Bos360Page() {
             {process.map((step, i) => (
               <li
                 key={step.title}
-                className="rounded-2xl border border-neutral-700 bg-neutral-900 p-5"
+                className="relative rounded-2xl border border-neutral-700 bg-neutral-900 p-5"
               >
                 <p className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-orange-300">
                   Step {i + 1}
                 </p>
+                {i === 0 ? (
+                  <a
+                    href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute right-4 top-4 rounded-md border border-orange-300/40 bg-orange-400/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-orange-200 hover:bg-orange-400/20"
+                  >
+                    Book an Intro Call
+                  </a>
+                ) : null}
                 <h3 className="mt-2 text-xl font-semibold text-slate-100 md:text-2xl">{step.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">{step.text}</p>
               </li>
@@ -455,14 +464,14 @@ export default function Bos360Page() {
                 className="w-[260px] rounded-xl bg-gradient-to-r from-cyan-300 via-cyan-500 to-blue-600 px-5 py-2.5 text-center text-slate-950 transition hover:opacity-90"
               >
                 <span className="block text-base font-extrabold">Start the Strength Test</span>
+              </a>
+              <span className="inline-flex w-[260px] flex-col items-center justify-center rounded-xl border border-neutral-600 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
+                20 questions · instant results
                 <span className="mt-1 inline-flex items-center justify-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/85 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] text-slate-200">
                   <User size={10} aria-hidden />
                   <Mail size={10} aria-hidden />
                   Name + email required
                 </span>
-              </a>
-              <span className="inline-flex w-[260px] items-center justify-center whitespace-nowrap rounded-xl border border-neutral-600 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
-                20 questions · instant results
               </span>
             </div>
 
@@ -473,9 +482,8 @@ export default function Bos360Page() {
                 rel="noopener noreferrer"
                 className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:opacity-90"
               >
-                Book a Discovery Call
+                Book an Intro Call
               </a>
-              <CopyEmailButton email="cam@camlillico.com" />
             </div>
           </div>
         </div>
