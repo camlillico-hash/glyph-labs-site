@@ -516,14 +516,14 @@ export default function StrengthTestPage() {
 
           <div className="mt-8 rounded-2xl border border-slate-700 bg-slate-900/70 p-6 text-center">
             <p className="text-2xl font-semibold">Ready to strengthen your next 90 days?</p>
-            <p className="mt-2 text-slate-300">Book a discovery meeting and we’ll walk through your results together.</p>
+            <p className="mt-2 text-slate-300">Book an intro call and we’ll walk through your results together.</p>
             <a
               href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 inline-block rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black"
             >
-              Book a Meeting
+              Book an Intro Call
             </a>
           </div>
 
