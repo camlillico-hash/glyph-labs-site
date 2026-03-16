@@ -208,12 +208,12 @@ export default function StrengthTestPage() {
       <main className="flex h-[100dvh] flex-col overflow-hidden bg-[#06090f] text-slate-100">
         <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-            <div className="inline-flex items-center gap-2" aria-label="Glyph Labs Strength Test">
-              <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching home">
-                <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+            <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Strength Test">
+              <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
+                <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
               </a>
-              <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-cyan-200">
-                Glyph Labs Strength Test
+              <span className="max-w-[170px] truncate rounded-full border border-neutral-600 bg-neutral-800/85 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-cyan-200 sm:max-w-none sm:px-3 sm:text-[11px] sm:tracking-widest">
+                Cam Lillico Strength Test
               </span>
             </div>
             <a
@@ -346,7 +346,7 @@ export default function StrengthTestPage() {
           ) : null}
         </section>
         <footer className="hidden border-t border-slate-800 py-6 text-center text-xs text-slate-400 md:block">
-          © {new Date().getFullYear()} Glyph Labs. All rights reserved.
+          © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
         </footer>
       </main>
     );
@@ -360,12 +360,12 @@ export default function StrengthTestPage() {
       <main className="min-h-screen bg-[#06090f] text-slate-100">
         <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-            <div className="inline-flex items-center gap-2" aria-label="Glyph Labs Strength Test">
-              <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching home">
-                <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+            <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Strength Test">
+              <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
+                <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
               </a>
-              <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-cyan-200">
-                Glyph Labs Strength Test
+              <span className="max-w-[170px] truncate rounded-full border border-neutral-600 bg-neutral-800/85 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-cyan-200 sm:max-w-none sm:px-3 sm:text-[11px] sm:tracking-widest">
+                Cam Lillico Strength Test
               </span>
             </div>
             <a
@@ -501,7 +501,7 @@ export default function StrengthTestPage() {
         </section>
 
         <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
-          © {new Date().getFullYear()} Glyph Labs. All rights reserved.
+          © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
         </footer>
       </main>
     );
@@ -513,8 +513,8 @@ export default function StrengthTestPage() {
     <main className="h-[100dvh] overflow-hidden bg-[#06090f] text-slate-100">
       <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-          <a href="/coaching" className="inline-flex items-center" aria-label="Glyph Labs Coaching">
-            <img src="/logos/glyphlabs-coaching-mark.png" alt="Glyph Labs mark" className="h-8 w-8 object-contain" />
+          <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching">
+            <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
           </a>
           <a
             href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
@@ -602,7 +602,7 @@ export default function StrengthTestPage() {
       </section>
 
       <footer className="hidden border-t border-slate-800 py-6 text-center text-xs text-slate-400 md:block">
-        © {new Date().getFullYear()} Glyph Labs. All rights reserved.
+        © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
       </footer>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-800 bg-[#06090f]/95 px-4 py-2 backdrop-blur">
