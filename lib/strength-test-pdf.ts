@@ -20,12 +20,7 @@ export type SubmissionPdfInput = {
 
 const PAGE_W = 612;
 const PAGE_H = 792;
-const MARGIN = 48;
-const LINE = 16;
-
-function drawLine(page: any, font: any, text: string, x: number, y: number, size = 11) {
-  page.drawText(text, { x, y, size, font, color: rgb(0.08, 0.08, 0.08) });
-}
+const MARGIN = 44;
 
 function wrapText(text: string, maxChars = 95) {
   const words = text.split(" ");
@@ -36,12 +31,16 @@ function wrapText(text: string, maxChars = 95) {
     if (next.length > maxChars) {
       if (current) lines.push(current);
       current = w;
-    } else {
-      current = next;
-    }
+    } else current = next;
   }
   if (current) lines.push(current);
   return lines;
+}
+
+function scoreColor(score: number) {
+  if (score <= 50) return rgb(0.88, 0.16, 0.26); // rose
+  if (score <= 84) return rgb(0.96, 0.62, 0.14); // amber
+  return rgb(0.45, 0.70, 0.16); // green
 }
 
 export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<Uint8Array> {
@@ -49,59 +48,86 @@ export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<U
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
+  // PAGE 1 — branded summary
   const page1 = pdf.addPage([PAGE_W, PAGE_H]);
-  let y = PAGE_H - MARGIN;
 
-  drawLine(page1, bold, "BOS360 Strength Test Results", MARGIN, y, 20);
-  y -= 28;
-  drawLine(page1, font, `Submitted: ${new Date(input.submittedAt).toLocaleString("en-CA", { timeZone: "UTC" })} UTC`, MARGIN, y);
-  y -= LINE;
-  drawLine(page1, font, `Name: ${input.name}`, MARGIN, y);
-  y -= LINE;
-  drawLine(page1, font, `Company: ${input.company}`, MARGIN, y);
-  y -= LINE;
-  drawLine(page1, font, `Email: ${input.email}`, MARGIN, y);
+  page1.drawRectangle({ x: 0, y: PAGE_H - 96, width: PAGE_W, height: 96, color: rgb(0.93, 0.49, 0.19) });
+  page1.drawText("Cam Lillico Business Coaching", { x: MARGIN, y: PAGE_H - 38, size: 12, font: bold, color: rgb(1, 1, 1) });
+  page1.drawText("BOS360 Strength Test Report", { x: MARGIN, y: PAGE_H - 66, size: 22, font: bold, color: rgb(1, 1, 1) });
+
+  let y = PAGE_H - 130;
+
+  page1.drawRectangle({ x: MARGIN, y: y - 72, width: PAGE_W - MARGIN * 2, height: 72, color: rgb(0.95, 0.97, 1) });
+  page1.drawText(`Name: ${input.name}`, { x: MARGIN + 12, y: y - 24, size: 11, font: bold, color: rgb(0.1, 0.1, 0.12) });
+  page1.drawText(`Company: ${input.company || "—"}`, { x: MARGIN + 12, y: y - 40, size: 10.5, font, color: rgb(0.2, 0.2, 0.25) });
+  page1.drawText(`Email: ${input.email || "—"}`, { x: MARGIN + 12, y: y - 55, size: 10.5, font, color: rgb(0.2, 0.2, 0.25) });
+  page1.drawText(`Submitted: ${new Date(input.submittedAt).toLocaleString("en-CA", { timeZone: "UTC" })} UTC`, {
+    x: PAGE_W - MARGIN - 250,
+    y: y - 24,
+    size: 10,
+    font,
+    color: rgb(0.2, 0.2, 0.25),
+  });
   if (input.phone) {
-    y -= LINE;
-    drawLine(page1, font, `Phone: ${input.phone}`, MARGIN, y);
+    page1.drawText(`Phone: ${input.phone}`, { x: PAGE_W - MARGIN - 250, y: y - 40, size: 10.5, font, color: rgb(0.2, 0.2, 0.25) });
   }
 
-  y -= 28;
-  drawLine(page1, bold, `Overall Score: ${input.overallScore}% (${input.overallLabel})`, MARGIN, y, 15);
-  y -= 26;
-  drawLine(page1, bold, "Section Scores", MARGIN, y, 12);
-  y -= 18;
+  y -= 98;
+
+  page1.drawRectangle({ x: MARGIN, y: y - 84, width: PAGE_W - MARGIN * 2, height: 84, color: rgb(0.07, 0.10, 0.16) });
+  page1.drawText("Overall Rating", { x: MARGIN + 12, y: y - 22, size: 11, font, color: rgb(0.72, 0.79, 0.89) });
+  page1.drawText(`${input.overallScore}%  (${input.overallLabel})`, {
+    x: MARGIN + 12,
+    y: y - 54,
+    size: 26,
+    font: bold,
+    color: scoreColor(input.overallScore),
+  });
+
+  y -= 108;
+  page1.drawText("Section Scores", { x: MARGIN, y, size: 14, font: bold, color: rgb(0.1, 0.1, 0.12) });
+  y -= 16;
 
   for (const [section, score] of Object.entries(input.sectionScores)) {
     const max = input.sectionMax[section] || 0;
-    const pct = max > 0 ? Math.round((score / max) * 100) : 0;
-    drawLine(page1, font, `• ${section}: ${score}/${max} (${pct}%)`, MARGIN, y);
-    y -= LINE;
+    const pct = max ? Math.round((score / max) * 100) : 0;
+    page1.drawRectangle({ x: MARGIN, y: y - 20, width: PAGE_W - MARGIN * 2, height: 20, color: rgb(0.97, 0.97, 0.98) });
+    page1.drawText(section, { x: MARGIN + 10, y: y - 14, size: 10.5, font: bold, color: rgb(0.15, 0.15, 0.2) });
+    page1.drawText(`${score}/${max} (${pct}%)`, { x: PAGE_W - MARGIN - 95, y: y - 14, size: 10.5, font, color: rgb(0.15, 0.15, 0.2) });
+    y -= 24;
   }
 
-  y -= 10;
-  drawLine(page1, font, "Summary: This page mirrors the high-level results shown to the prospect at completion.", MARGIN, y, 10);
+  page1.drawText("Prepared by Cam Lillico Coaching", { x: MARGIN, y: 34, size: 9.5, font, color: rgb(0.4, 0.4, 0.45) });
+  page1.drawText("camlillico.com", { x: PAGE_W - MARGIN - 75, y: 34, size: 9.5, font, color: rgb(0.4, 0.4, 0.45) });
 
+  // PAGE 2+ — detailed Q&A
   let page = pdf.addPage([PAGE_W, PAGE_H]);
-  y = PAGE_H - MARGIN;
-  drawLine(page, bold, "Question-by-Question Responses", MARGIN, y, 18);
-  y -= 26;
+  let qy = PAGE_H - MARGIN;
+  page.drawText("Question-by-Question Responses", { x: MARGIN, y: qy, size: 18, font: bold, color: rgb(0.1, 0.1, 0.12) });
+  qy -= 26;
 
   for (const a of input.answers) {
-    if (y < MARGIN + 80) {
+    const lines = wrapText(a.questionText, 88);
+    const blockHeight = 18 + lines.length * 13 + 18;
+
+    if (qy < MARGIN + blockHeight) {
       page = pdf.addPage([PAGE_W, PAGE_H]);
-      y = PAGE_H - MARGIN;
+      qy = PAGE_H - MARGIN;
+      page.drawText("Question-by-Question Responses (cont.)", { x: MARGIN, y: qy, size: 14, font: bold, color: rgb(0.1, 0.1, 0.12) });
+      qy -= 22;
     }
-    drawLine(page, bold, `${a.questionId}. [${a.section}]`, MARGIN, y, 10);
-    y -= 14;
-    for (const line of wrapText(a.questionText)) {
-      drawLine(page, font, line, MARGIN, y, 11);
-      y -= 14;
+
+    page.drawRectangle({ x: MARGIN, y: qy - blockHeight + 6, width: PAGE_W - MARGIN * 2, height: blockHeight, color: rgb(0.98, 0.98, 0.99) });
+    page.drawText(`${a.questionId}. ${a.section}`, { x: MARGIN + 10, y: qy - 12, size: 10.5, font: bold, color: rgb(0.18, 0.18, 0.24) });
+    let ly = qy - 26;
+    for (const line of lines) {
+      page.drawText(line, { x: MARGIN + 10, y: ly, size: 10.5, font, color: rgb(0.15, 0.15, 0.2) });
+      ly -= 13;
     }
-    drawLine(page, font, `Score: ${a.score}/5`, MARGIN, y, 11);
-    y -= 18;
+    page.drawText(`Score: ${a.score}/5`, { x: MARGIN + 10, y: ly - 2, size: 10.5, font: bold, color: scoreColor(Math.round((a.score / 5) * 100)) });
+
+    qy -= blockHeight + 10;
   }
 
-  const bytes = await pdf.save();
-  return bytes;
+  return await pdf.save();
 }
