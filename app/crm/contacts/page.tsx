@@ -60,7 +60,7 @@ export default function ContactsPage() {
   const [editMode, setEditMode] = useState(false);
   const [createMode, setCreateMode] = useState(false);
   const [trayError, setTrayError] = useState("");
-  const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; action: (() => void) | null }>({ open: false, message: "", action: null });
+  const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; action: (() => void) | null; confirmLabel?: string }>({ open: false, message: "", action: null, confirmLabel: "Delete" });
   const [movePicker, setMovePicker] = useState<{ open: boolean; contactId?: string }>({ open: false });
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -228,8 +228,8 @@ export default function ContactsPage() {
     setDraft({ ...updated });
   }
 
-  function askConfirm(message: string, action: () => void) {
-    setConfirmState({ open: true, message, action });
+  function askConfirm(message: string, action: () => void, confirmLabel = "Delete") {
+    setConfirmState({ open: true, message, action, confirmLabel });
   }
 
   const renderContactsTable = (rows: Contact[]) => (
@@ -460,7 +460,7 @@ export default function ContactsPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(false)}><Save size={14} className="text-emerald-300" /></button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(true)}><Save size={14} className="text-emerald-300" /></button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
               {!createMode && selected?.status === "Warm intro booked" && (
-                <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this contact and return it to Open contacts?", () => { unconvertFromTray(); })}>
+                <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this contact and return it to Open contacts?", () => { unconvertFromTray(); }, "Unconvert")}>
                   Unconvert
                 </button>
               )}
@@ -621,11 +621,11 @@ export default function ContactsPage() {
       <ConfirmDialog
         open={confirmState.open}
         message={confirmState.message}
-        confirmLabel="Delete"
-        onCancel={() => setConfirmState({ open: false, message: "", action: null })}
+        confirmLabel={confirmState.confirmLabel || "Delete"}
+        onCancel={() => setConfirmState({ open: false, message: "", action: null, confirmLabel: "Delete" })}
         onConfirm={() => {
           const action = confirmState.action;
-          setConfirmState({ open: false, message: "", action: null });
+          setConfirmState({ open: false, message: "", action: null, confirmLabel: "Delete" });
           action?.();
         }}
       />
