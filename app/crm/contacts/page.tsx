@@ -492,15 +492,32 @@ export default function ContactsPage() {
                   }}>Save activity</button>
 
                   <div className="mt-3 space-y-2">
-                    {selectedActivities.map((a: any) => (
-                      <div key={a.id} className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-emerald-300 inline-flex items-center gap-1.5">{(() => { const I = activityTypeIcon(a.type); return <I size={12} />; })()}{prettyType(String(a.type))}</span>
-                          <span className="text-slate-400">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</span>
+                    {selectedActivities.map((a: any) => {
+                      const note = String(a.note || "");
+                      const pdfPathMatch = note.match(/(\/api\/strength-test\/submissions\/[^\s]+\/pdf)/);
+                      const pdfPath = pdfPathMatch ? pdfPathMatch[1] : "";
+                      const cleanNote = pdfPath ? note.replace(`PDF: ${pdfPath}`, "").trim() : note;
+
+                      return (
+                        <div key={a.id} className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-emerald-300 inline-flex items-center gap-1.5">{(() => { const I = activityTypeIcon(a.type); return <I size={12} />; })()}{prettyType(String(a.type))}</span>
+                            <span className="text-slate-400">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</span>
+                          </div>
+                          <p className="mt-1 text-slate-300">{cleanNote || "—"}</p>
+                          {pdfPath ? (
+                            <a
+                              href={pdfPath}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-2 inline-flex rounded border border-cyan-400/40 bg-cyan-500/10 px-2 py-1 text-[11px] font-semibold text-cyan-200 hover:bg-cyan-500/20"
+                            >
+                              View PDF
+                            </a>
+                          ) : null}
                         </div>
-                        <p className="mt-1 text-slate-300">{a.note || "—"}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {selectedActivities.length === 0 && <p className="text-xs text-slate-500">No activities yet.</p>}
                   </div>
                 </div>}
