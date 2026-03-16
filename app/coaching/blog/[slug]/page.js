@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowUp } from "lucide-react";
 import { notFound } from "next/navigation";
 import { blogPosts, getPostBySlug } from "../../blogPosts";
 
@@ -28,7 +28,7 @@ export default async function BlogPostPage({ params }) {
   if (!post) notFound();
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-slate-100">
+    <main id="top" className="min-h-screen bg-neutral-950 text-slate-100">
       <section className="mx-auto max-w-3xl px-6 pb-16 pt-24 md:pt-28">
         <a
           href="/coaching#leadership-insights"
@@ -58,7 +58,21 @@ export default async function BlogPostPage({ params }) {
             <p key={paragraph}>{paragraph}</p>
           ))}
         </article>
+
+        <div className="mt-10 flex justify-end">
+          <a
+            href="#top"
+            className="inline-flex items-center gap-2 rounded-lg border border-neutral-600 bg-neutral-900/80 px-3 py-1.5 text-sm font-semibold text-slate-200 transition hover:border-neutral-400 hover:bg-neutral-800"
+          >
+            <ArrowUp size={15} aria-hidden />
+            Back to top
+          </a>
+        </div>
       </section>
+
+      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
+        © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
+      </footer>
     </main>
   );
 }

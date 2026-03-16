@@ -8,7 +8,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
     readTime: "5 min read",
     category: "Strategy",
-    publishedAt: "March 14, 2026",
+    publishedAt: "October 8, 2025",
     publishedBy: "Cam Lillico",
     body: [
       "A founder told me, \"We\u2019re busy all day, but I can\u2019t tell if we\u2019re actually winning.\" If you\u2019ve ever had that feeling, you\u2019re not broken. You\u2019re likely running without a true North Star.",
@@ -36,7 +36,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
     readTime: "4–5 min read",
     category: "Execution",
-    publishedAt: "March 15, 2026",
+    publishedAt: "November 2, 2025",
     publishedBy: "Cam Lillico",
     body: [
       "Inspiration is great for kickoff meetings. Discipline is what gets you to December.",
@@ -62,7 +62,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
     readTime: "4 min read",
     category: "Leadership",
-    publishedAt: "March 16, 2026",
+    publishedAt: "November 28, 2025",
     publishedBy: "Cam Lillico",
     body: [
       "Founders often tell me, \"I don\u2019t want process to slow us down.\" I get it. Nobody starts a company to build bureaucracy. But there\u2019s a difference between bureaucracy and structure.",
@@ -86,7 +86,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
     readTime: "3–4 min read",
     category: "Decision Making",
-    publishedAt: "March 17, 2026",
+    publishedAt: "December 15, 2025",
     publishedBy: "Cam Lillico",
     body: [
       "Most companies don\u2019t lose because they made one bad decision. They lose because they delayed ten obvious ones.",
@@ -110,7 +110,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80",
     readTime: "4–5 min read",
     category: "Leadership",
-    publishedAt: "March 18, 2026",
+    publishedAt: "January 6, 2026",
     publishedBy: "Cam Lillico",
     body: [
       "Most leadership principles I trust now were not learned from a podcast. They were learned by getting something wrong in the real world.",
@@ -137,7 +137,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1551836022-4c4c79ecde51?auto=format&fit=crop&w=1200&q=80",
     readTime: "3–4 min read",
     category: "Culture",
-    publishedAt: "March 19, 2026",
+    publishedAt: "January 28, 2026",
     publishedBy: "Cam Lillico",
     body: [
       "Teams don\u2019t rise to motivational speeches. They rise to daily standards.",
@@ -161,7 +161,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80",
     readTime: "3 min read",
     category: "Leadership",
-    publishedAt: "March 20, 2026",
+    publishedAt: "February 9, 2026",
     publishedBy: "Cam Lillico",
     body: [
       "Big decisions are rarely blocked by missing data. They\u2019re usually blocked by human fear.",
@@ -184,7 +184,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
     readTime: "2–3 min read",
     category: "Leadership Health",
-    publishedAt: "March 21, 2026",
+    publishedAt: "February 21, 2026",
     publishedBy: "Cam Lillico",
     body: [
       "Many leaders still believe credibility means always looking certain. In real organizations, that posture eventually breaks trust.",
@@ -207,7 +207,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80",
     readTime: "2 min read",
     category: "Founder Mindset",
-    publishedAt: "March 22, 2026",
+    publishedAt: "March 3, 2026",
     publishedBy: "Cam Lillico",
     body: [
       "If you feel like everyone else has a cleaner playbook than you do, welcome to entrepreneurship.",
@@ -229,7 +229,7 @@ export const blogPosts = [
       "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
     readTime: "1 min read",
     category: "Leadership Team",
-    publishedAt: "March 23, 2026",
+    publishedAt: "March 14, 2026",
     publishedBy: "Cam Lillico",
     body: [
       "Your first team is not your department. It is your leadership team.",
