@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const PDFDocument = require("pdfkit");
 
 export type SubmissionPdfInput = {
   name: string;
@@ -20,7 +18,11 @@ export type SubmissionPdfInput = {
 };
 
 export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<Buffer> {
-  const doc = new PDFDocument({ size: "LETTER", margin: 50 });
+  const pdfkitModule = await import("pdfkit");
+  const PDFDocumentCtor = ((pdfkitModule as unknown as { default?: new (opts?: object) => any }).default ||
+    (pdfkitModule as unknown as new (opts?: object) => any));
+
+  const doc = new PDFDocumentCtor({ size: "LETTER", margin: 50 });
   const chunks: Buffer[] = [];
 
   doc.on("data", (chunk: Uint8Array) => chunks.push(Buffer.from(chunk)));
