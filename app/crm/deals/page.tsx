@@ -176,9 +176,15 @@ export default function DealsPage() {
         <div className="overflow-x-auto pb-2"><div className="flex gap-4 min-w-max">
           {STAGES.map((stage) => (
             <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStage === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStage(stage)} onDragLeave={() => setHoverStage((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingDealId) return; await moveDealStage(draggingDealId, stage); setDraggingDealId(null); setHoverStage(null); setHoverDrop(null); }}>
-              <h3 className="mb-3 inline-flex items-center gap-1.5 font-semibold text-emerald-300">
+              <h3
+                className="mb-3 inline-flex items-center gap-1.5 font-semibold text-emerald-300"
+                style={{ fontFamily: "var(--font-libre-franklin), sans-serif" }}
+              >
                 {stageLabel(stage, STAGES.indexOf(stage))}
-                <span className="border-b border-slate-300 text-base font-semibold leading-none text-slate-100">
+                <span
+                  className="border-b border-slate-300 text-base font-semibold leading-none text-slate-100"
+                  style={{ fontFamily: "var(--font-libre-franklin), sans-serif" }}
+                >
                   {sortedDeals.filter((d) => d.stage === stage).length}
                 </span>
               </h3>
