@@ -8,6 +8,8 @@ import {
   Star,
   Workflow,
   ArrowRight,
+  User,
+  Mail,
   CheckCircle2,
   CircleSlash2,
 } from "lucide-react";
