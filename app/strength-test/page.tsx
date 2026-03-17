@@ -269,51 +269,75 @@ export default function StrengthTestPage() {
           </div>
         </header>
 
-        <section className="mx-auto flex w-full max-w-3xl flex-1 items-center px-6 py-6">
-          <div className="w-full rounded-xl border border-slate-800 bg-slate-900/60 p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-300">Strength Test</p>
-            <h1 className="mt-2 text-3xl font-bold">Assessing your organization</h1>
-            <p className="mt-3 max-w-2xl text-slate-300">
-              Take the BOS360™ Strength Test to identify your organization’s core strengths and growth areas. Unlock your business potential quickly with instant insights into performance — fast, easy, and free.
-            </p>
+        <section className="mx-auto flex w-full max-w-5xl flex-1 items-center px-6 py-6">
+          <div className="w-full rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-2xl shadow-black/30 md:p-8">
+            <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-300">Strength Test</p>
+                <h1 className="mt-2 text-3xl font-bold md:text-4xl">Assessing your organization</h1>
+                <p className="mt-3 max-w-2xl text-slate-300">
+                  Take the BOS360™ Strength Test to identify your organization’s core strengths and growth areas. Unlock your business potential quickly with instant insights into performance — fast, easy, and free.
+                </p>
 
-            <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950/55 p-4">
-              <p className="text-sm font-semibold text-slate-100">How it works</p>
-              <p className="mt-2 text-sm text-slate-300">
-                Take a few minutes to answer 20 questions across 3 foundational pillars and their bonding forces. Each question reflects an important aspect of organizational health and helps surface where your business excels and where it needs focus.
-              </p>
-              <p className="mt-3 text-sm text-slate-300">
-                The most successful organizations simultaneously build three Core Pillars: <span className="font-semibold text-slate-100">Business, Brand, Team</span> — by strengthening the Three Bonding Forces: <span className="font-semibold text-slate-100">Strategy, Execution, Culture</span>.
-              </p>
+                <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950/55 p-4">
+                  <p className="text-sm font-semibold text-slate-100">How it works</p>
+                  <p className="mt-2 text-sm text-slate-300">
+                    Take a few minutes to answer 20 questions across 3 foundational pillars and their bonding forces. Each question reflects an important aspect of organizational health and helps surface where your business excels and where it needs focus.
+                  </p>
+                  <p className="mt-3 text-sm text-slate-300">
+                    The most successful organizations simultaneously build three Core Pillars: <span className="font-semibold text-slate-100">Business, Brand, Team</span> — by strengthening the Three Bonding Forces: <span className="font-semibold text-slate-100">Strategy, Execution, Culture</span>.
+                  </p>
+                </div>
+
+                <div className="mt-5 grid gap-2 text-xs text-slate-300 sm:grid-cols-2">
+                  <p><span className="font-semibold text-slate-100">BUSINESS:</span> Profitable, growing, managing cash predictably</p>
+                  <p><span className="font-semibold text-slate-100">BRAND:</span> Clear and consistent internally and externally</p>
+                  <p><span className="font-semibold text-slate-100">TEAM:</span> Right people in the right seats</p>
+                  <p><span className="font-semibold text-slate-100">STRATEGY:</span> Decisive, aligned and inspired</p>
+                  <p><span className="font-semibold text-slate-100">EXECUTION:</span> Accountability and discipline</p>
+                  <p><span className="font-semibold text-slate-100">CULTURE:</span> Happy and high performing</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-4 text-center">
+                  <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Sample results preview</p>
+                  <svg viewBox="0 0 240 240" className="mx-auto mt-2 h-44 w-44" aria-label="Sample donut chart">
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#1e293b" strokeWidth="28" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#65a30d" strokeWidth="24" strokeDasharray="140 287" strokeDashoffset="0" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#f59e0b" strokeWidth="24" strokeDasharray="92 287" strokeDashoffset="-140" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#e11d48" strokeWidth="24" strokeDasharray="55 287" strokeDashoffset="-232" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="42" fill="#06090f" />
+                    <text x="120" y="114" textAnchor="middle" fontSize="10" fill="#94a3b8">Overall</text>
+                    <text x="120" y="134" textAnchor="middle" fontSize="22" fontWeight="700" fill="#67e8f9">78%</text>
+                  </svg>
+                  <div className="mt-2 grid grid-cols-3 gap-2 text-[10px] text-slate-300">
+                    <span className="inline-flex items-center justify-center gap-1"><span className="h-2 w-2 rounded-full bg-lime-600" />Strong</span>
+                    <span className="inline-flex items-center justify-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-500" />Moderate</span>
+                    <span className="inline-flex items-center justify-center gap-1"><span className="h-2 w-2 rounded-full bg-rose-600" />Weak</span>
+                  </div>
+                </div>
+
+                <div className="inline-flex w-full flex-col items-start gap-1 rounded-xl border border-neutral-700 bg-neutral-900/85 px-3 py-2 text-slate-200">
+                  <span className="inline-flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em]">
+                    <User size={11} aria-hidden />
+                    <Mail size={11} aria-hidden />
+                    Name + email required
+                  </span>
+                  <span className="text-[11px] leading-snug text-slate-300">
+                    Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="w-full rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-cyan-400"
+                  onClick={() => setShowLeadModal(true)}
+                >
+                  Take the assessment
+                </button>
+              </div>
             </div>
-
-            <div className="mt-5 grid gap-2 text-xs text-slate-300 sm:grid-cols-2">
-              <p><span className="font-semibold text-slate-100">BUSINESS:</span> Profitable, growing, managing cash predictably</p>
-              <p><span className="font-semibold text-slate-100">BRAND:</span> Clear and consistent internally and externally</p>
-              <p><span className="font-semibold text-slate-100">TEAM:</span> Right people in the right seats</p>
-              <p><span className="font-semibold text-slate-100">STRATEGY:</span> Decisive, aligned and inspired</p>
-              <p><span className="font-semibold text-slate-100">EXECUTION:</span> Accountability and discipline</p>
-              <p><span className="font-semibold text-slate-100">CULTURE:</span> Happy and high performing</p>
-            </div>
-
-            <div className="mt-4 inline-flex max-w-xl flex-col items-start gap-1 rounded-xl border border-neutral-700 bg-neutral-900/85 px-3 py-2 text-slate-200">
-              <span className="inline-flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em]">
-                <User size={11} aria-hidden />
-                <Mail size={11} aria-hidden />
-                Name + email required
-              </span>
-              <span className="text-[11px] leading-snug text-slate-300">
-                Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.
-              </span>
-            </div>
-
-            <button
-              type="button"
-              className="mt-8 rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black"
-              onClick={() => setShowLeadModal(true)}
-            >
-              Take the assessment
-            </button>
           </div>
 
           {showLeadModal ? (
