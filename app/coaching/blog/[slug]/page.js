@@ -28,6 +28,8 @@ export default async function BlogPostPage({ params }) {
 
   if (!post) notFound();
 
+  const morePosts = blogPosts.filter((p) => p.slug !== post.slug).slice(0, 6);
+
   return (
     <main id="top" className="coaching-theme min-h-screen bg-neutral-950 text-slate-100">
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
@@ -83,6 +85,29 @@ export default async function BlogPostPage({ params }) {
             <p key={paragraph}>{paragraph}</p>
           ))}
         </article>
+
+        {morePosts.length > 0 ? (
+          <section id="more-leadership-insights" className="mt-12 border-t border-neutral-700 pt-8">
+            <h2 className="text-2xl font-bold">More Leadership Insights</h2>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {morePosts.map((item) => (
+                <a
+                  key={item.slug}
+                  href={`/coaching/blog/${item.slug}`}
+                  className="group rounded-xl border border-neutral-700 bg-neutral-900/70 p-3 transition hover:border-neutral-500"
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-orange-200/85">
+                    {item.category} · {item.readTime}
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold leading-tight text-slate-100 transition group-hover:text-orange-100">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 line-clamp-2 text-xs text-slate-400">{item.description}</p>
+                </a>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <div className="mt-10 flex justify-end">
           <a
