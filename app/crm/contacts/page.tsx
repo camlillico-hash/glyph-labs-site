@@ -9,7 +9,7 @@ type Contact = any;
 const CONTACT_STAGES = ["New", "Attempting", "Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Not right now"];
 const CONTACT_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
-const DISQUALIFICATION_REASONS = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Shouldn't reach out just yet", "Other"];
+const DISQUALIFICATION_REASONS = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Shouldn't reach out just yet", "Done tapping network for now.", "Other"];
 const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"], ["lastName", "Last name", "text"], ["email", "Email", "email"],
@@ -76,6 +76,13 @@ export default function ContactsPage() {
   const [showActivitiesSection, setShowActivitiesSection] = useState(true);
   const [showDealsSection, setShowDealsSection] = useState(true);
   const [removingFromOpenIds, setRemovingFromOpenIds] = useState<string[]>([]);
+  const [dqModal, setDqModal] = useState<{ open: boolean; contactId?: string; status?: string; targetIndex?: number; disqualificationReason: string; whatNow: string; error?: string; saving?: boolean }>({
+    open: false,
+    disqualificationReason: "",
+    whatNow: "",
+    error: "",
+    saving: false,
+  });
 
   const load = async () => {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
@@ -147,6 +154,26 @@ export default function ContactsPage() {
   async function moveContactStage(contactId: string, status: string, targetIndex?: number) {
     const contact = items.find((c) => c.id === contactId);
     if (!contact || (contact.status || "New") === status) return;
+
+    if (status === "Not right now") {
+      const hasDQ = Boolean(String(contact.disqualificationReason || "").trim());
+      const hasWhatNow = Boolean(String(contact.whatNow || "").trim());
+      if (!hasDQ || !hasWhatNow) {
+        setMovePicker({ open: false });
+        setDqModal({
+          open: true,
+          contactId,
+          status,
+          targetIndex,
+          disqualificationReason: String(contact.disqualificationReason || ""),
+          whatNow: String(contact.whatNow || ""),
+          error: "",
+          saving: false,
+        });
+        return;
+      }
+    }
+
     setItems((prev) => {
       const moving = prev.find((c) => c.id === contactId);
       if (!moving) return prev;
@@ -169,6 +196,47 @@ export default function ContactsPage() {
       return next;
     });
     await fetch("/api/crm/contacts", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...contact, status, openBoardHidden: false }) });
+    await load();
+  }
+
+  async function saveDisqualificationModal() {
+    if (!dqModal.contactId) return;
+    const disqualificationReason = String(dqModal.disqualificationReason || "").trim();
+    const whatNow = String(dqModal.whatNow || "").trim();
+    if (!disqualificationReason || !whatNow) {
+      setDqModal((prev) => ({ ...prev, error: "Both fields are required." }));
+      return;
+    }
+
+    const contact = items.find((c) => c.id === dqModal.contactId);
+    if (!contact) {
+      setDqModal({ open: false, disqualificationReason: "", whatNow: "", error: "", saving: false });
+      return;
+    }
+
+    setDqModal((prev) => ({ ...prev, saving: true, error: "" }));
+
+    const payload = {
+      ...contact,
+      status: dqModal.status || "Not right now",
+      disqualificationReason,
+      whatNow,
+      openBoardHidden: false,
+    };
+
+    const res = await fetch('/api/crm/contacts', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      setDqModal((prev) => ({ ...prev, saving: false, error: j.error || "Could not move contact." }));
+      return;
+    }
+
+    setDqModal({ open: false, disqualificationReason: "", whatNow: "", error: "", saving: false });
     await load();
   }
 
@@ -605,6 +673,45 @@ export default function ContactsPage() {
               {trayError && <p className="text-sm text-red-300">{trayError}</p>}
             </div>
           </aside>
+        </div>
+      )}
+
+      {dqModal.open && (
+        <div className="fixed inset-0 z-[75]">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setDqModal({ open: false, disqualificationReason: "", whatNow: "", error: "", saving: false })} />
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-neutral-700 bg-neutral-900 p-4 shadow-2xl">
+            <h3 className="text-sm font-semibold text-slate-100">Complete disqualification details</h3>
+            <p className="mt-1 text-xs text-slate-400">To move this contact to Not right now, please complete both required fields.</p>
+            <div className="mt-3 space-y-2">
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Disqualification reason *</label>
+                <select
+                  className="crm-input"
+                  value={dqModal.disqualificationReason}
+                  onChange={(e) => setDqModal((prev) => ({ ...prev, disqualificationReason: e.target.value, error: "" }))}
+                >
+                  <option value="">Select reason</option>
+                  {DISQUALIFICATION_REASONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">What now? *</label>
+                <select
+                  className="crm-input"
+                  value={dqModal.whatNow}
+                  onChange={(e) => setDqModal((prev) => ({ ...prev, whatNow: e.target.value, error: "" }))}
+                >
+                  <option value="">Select next path</option>
+                  {WHAT_NOW_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            {dqModal.error ? <p className="mt-2 text-sm text-red-300">{dqModal.error}</p> : null}
+            <div className="mt-4 flex justify-end gap-2">
+              <button className="crm-btn-ghost" onClick={() => setDqModal({ open: false, disqualificationReason: "", whatNow: "", error: "", saving: false })}>Cancel</button>
+              <button className="crm-btn" disabled={dqModal.saving} onClick={saveDisqualificationModal}>{dqModal.saving ? "Saving..." : "Save and move"}</button>
+            </div>
+          </div>
         </div>
       )}
 
