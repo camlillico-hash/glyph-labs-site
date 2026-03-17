@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowUp } from "lucide-react";
 import { notFound } from "next/navigation";
+import ThemeToggle from "@/app/components/ThemeToggle";
 import { blogPosts, getPostBySlug } from "../../blogPosts";
 
 export function generateStaticParams() {
@@ -28,8 +29,32 @@ export default async function BlogPostPage({ params }) {
   if (!post) notFound();
 
   return (
-    <main id="top" className="min-h-screen bg-neutral-950 text-slate-100">
-      <section className="mx-auto max-w-3xl px-6 pb-16 pt-24 md:pt-28">
+    <main id="top" className="coaching-theme min-h-screen bg-neutral-950 text-slate-100">
+      <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+          <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Coaching">
+            <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
+              <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-7 w-7 object-contain sm:h-8 sm:w-8" />
+            </a>
+            <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-orange-200">
+              Cam Lillico Business Coaching
+            </span>
+          </div>
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <ThemeToggle />
+            <a
+              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
+            >
+              Book an Intro Call
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <section className="mx-auto max-w-3xl px-6 pb-16 pt-10 md:pt-12">
         <a
           href="/coaching#leadership-insights"
           className="inline-flex items-center gap-2 rounded-lg border border-orange-300/40 bg-orange-500/10 px-3 py-1.5 text-sm font-semibold text-orange-100 transition hover:bg-orange-500/20"
