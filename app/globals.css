@@ -198,6 +198,10 @@ html.theme-light .strength-theme [class*="text-orange-300"] {
   color: #c2410c !important;
 }
 
+html.theme-light .coaching-theme [class*="text-orange-100"] {
+  color: #9a3412 !important;
+}
+
 /* Fix header coaching badge contrast in light mode */
 html.theme-light .coaching-theme header span[class*="bg-neutral-800"],
 html.theme-light .strength-theme header span[class*="bg-neutral-800"] {
