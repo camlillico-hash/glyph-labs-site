@@ -115,9 +115,13 @@ function mapLegacyDealStage(stage: string | undefined) {
 }
 
 function normalizeStore(store: CrmStore): CrmStore {
+  const strengthTests = Array.isArray(store.strengthTests) ? store.strengthTests : [];
+  const testedContactIds = new Set(strengthTests.map((s) => s.contactId));
+
   const contacts = (store.contacts || []).map((c) => ({
     ...c,
     status: mapContactStatus(c.status),
+    strengthTest: testedContactIds.has(c.id) ? "Yes" : ((c as any).strengthTest || null),
     referralCount: Number((c as any).referralCount || 0),
     nextReachOutAt: (c as any).nextReachOutAt || undefined,
     seederNotes: (c as any).seederNotes || undefined,
@@ -140,7 +144,7 @@ function normalizeStore(store: CrmStore): CrmStore {
     deals,
     dealStamps: store.dealStamps || [],
     contactStamps: store.contactStamps || [],
-    strengthTests: Array.isArray(store.strengthTests) ? store.strengthTests : [],
+    strengthTests,
     targets: { ...defaultTargets, ...(store.targets || {}) },
     targetsHistory: Array.isArray(store.targetsHistory) ? store.targetsHistory : [],
   };

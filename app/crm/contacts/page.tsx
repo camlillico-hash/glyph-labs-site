@@ -14,7 +14,7 @@ const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"], ["lastName", "Last name", "text"], ["email", "Email", "email"],
   ["phone", "Phone", "text"],
-  ["linkedin", "LinkedIn", "text"], ["company", "Company", "text"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
+  ["linkedin", "LinkedIn", "text"], ["company", "Company", "text"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["strengthTest", "Strength Test", "select"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
 ];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 const stageColorClass = (stage: string) => {
@@ -563,6 +563,11 @@ export default function ContactsPage() {
                       <select className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value || undefined })}>
                         <option value="">Select primary pain</option>
                         {PRIMARY_PAIN_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    ) : k === "strengthTest" ? (
+                      <select className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value || null })}>
+                        <option value="">No</option>
+                        <option value="Yes">Yes</option>
                       </select>
                      ) : k === "seederNotes" ? (
                       <textarea className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
