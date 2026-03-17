@@ -232,3 +232,14 @@ html.theme-light .strength-theme .progress-shell .bg-slate-800 {
 html.theme-light .strength-theme .progress-shell .text-slate-300 {
   color: #334155 !important;
 }
+
+html.theme-light .coaching-theme .article-toggle {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+html.theme-light .coaching-theme .article-toggle:hover {
+  background: #cbd5e1 !important;
+  border-color: #64748b !important;
+  color: #0f172a !important;
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
@@ -24,15 +25,15 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="inline-flex items-center gap-2 rounded-full border border-slate-600 bg-slate-900/70 px-2 py-1 text-[11px] font-semibold text-slate-200 hover:bg-slate-800"
+      className="inline-flex items-center rounded-full border border-slate-600 bg-slate-900/70 p-1 text-slate-200 hover:bg-slate-800"
       aria-label="Toggle light mode"
       title={light ? "Switch to dark" : "Switch to light"}
     >
-      <span className="text-[10px] uppercase tracking-wide">{light ? "Light" : "Dark"}</span>
-      <span className={`relative h-5 w-9 rounded-full transition ${light ? "bg-cyan-500/90" : "bg-slate-600"}`}>
-        <span
-          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition ${light ? "left-4" : "left-0.5"}`}
-        />
+      <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${light ? "bg-cyan-500 text-slate-950" : "text-slate-400"}`}>
+        <Sun size={14} />
+      </span>
+      <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${!light ? "bg-slate-700 text-white" : "text-slate-500"}`}>
+        <Moon size={14} />
       </span>
     </button>
   );

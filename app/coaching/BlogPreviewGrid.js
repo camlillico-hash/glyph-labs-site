@@ -46,7 +46,7 @@ export default function BlogPreviewGrid({ posts }) {
           <button
             type="button"
             onClick={() => setShowAll((v) => !v)}
-            className="rounded-lg border border-neutral-600 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-neutral-400 hover:bg-neutral-800"
+            className="article-toggle rounded-lg border border-neutral-600 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-neutral-400 hover:bg-neutral-800"
           >
             {showAll ? "Show fewer articles" : `Show ${posts.length - previewCount} more articles`}
           </button>
