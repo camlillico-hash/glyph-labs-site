@@ -380,6 +380,11 @@ export default function ContactsPage() {
                               <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
                               <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
                               <p className="mt-1 truncate text-[11px] text-emerald-300">Activities: {(activities || []).filter((a:any) => a.contactId === c.id).length}</p>
+                              {c.strengthTest === "Yes" ? (
+                                <span className="mt-1 inline-flex rounded border border-cyan-500/50 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-cyan-200">
+                                  Strength Test
+                                </span>
+                              ) : null}
                               {c.status === "Warm intro booked" ? (
                                 <button
                                   type="button"

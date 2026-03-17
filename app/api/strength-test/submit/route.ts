@@ -33,10 +33,14 @@ export async function POST(req: Request) {
         type: "Prospect",
         leadSource: "Strength Test",
         status: "New",
+        strengthTest: "Yes",
         createdAt: timestamp,
         updatedAt: timestamp,
       };
       store.contacts.unshift(contact);
+    } else {
+      contact.strengthTest = "Yes";
+      contact.updatedAt = timestamp;
     }
 
     const submissionId = id();
