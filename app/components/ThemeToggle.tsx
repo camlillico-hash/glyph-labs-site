@@ -8,8 +8,7 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     const saved = localStorage.getItem("site-theme");
-    const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-    const isLight = saved ? saved === "light" : prefersLight;
+    const isLight = saved ? saved === "light" : true;
     document.documentElement.classList.toggle("theme-light", isLight);
     setLight(isLight);
   }, []);
