@@ -94,7 +94,7 @@ export default async function BlogPostPage({ params }) {
                 <a
                   key={item.slug}
                   href={`/coaching/blog/${item.slug}`}
-                  className="group rounded-xl border border-neutral-700 bg-neutral-900/70 p-3 transition hover:border-neutral-500"
+                  className="blog-card group rounded-xl border border-neutral-700 bg-neutral-900/70 p-3 transition hover:border-neutral-500"
                 >
                   <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-orange-200/85">
                     {item.category} · {item.readTime}
