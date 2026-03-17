@@ -642,13 +642,13 @@ export default function StrengthTestPage() {
 
       <section className="mx-auto flex h-[calc(100dvh-118px)] w-full max-w-3xl items-center px-6 py-4 md:h-auto md:block md:py-10">
         <div className="w-full">
-          <div className="max-h-full w-full overflow-y-auto rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           {leadThanks && index === 0 ? (
-            <div className="thanks-bar mb-4 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+            <div className="thanks-bar mb-3 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
               Thanks — details received. Let’s run your Strength Test.
             </div>
           ) : null}
 
+          <div className="max-h-full w-full overflow-y-auto rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           <div className="mb-5 flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Strength Test</p>
             <p className="text-xs text-slate-400">
