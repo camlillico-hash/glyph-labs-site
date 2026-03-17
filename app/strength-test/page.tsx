@@ -294,12 +294,12 @@ export default function StrengthTestPage() {
                 </div>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-100"><span className="inline-flex items-center gap-1.5 font-semibold"><BriefcaseBusiness size={14} /> BUSINESS:</span> Profitable, growing, managing cash predictably</div>
-                  <div className="rounded-lg border border-sky-500/45 bg-sky-500/10 px-3 py-2.5 text-sm text-sky-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Tag size={14} /> BRAND:</span> Clear and consistent internally and externally</div>
-                  <div className="rounded-lg border border-violet-500/45 bg-violet-500/10 px-3 py-2.5 text-sm text-violet-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Users size={14} /> TEAM:</span> Right people in the right seats</div>
-                  <div className="rounded-lg border border-orange-500/45 bg-orange-500/10 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Compass size={14} /> STRATEGY:</span> Decisive, aligned and inspired</div>
-                  <div className="rounded-lg border border-cyan-500/45 bg-cyan-500/10 px-3 py-2.5 text-sm text-cyan-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Cog size={14} /> EXECUTION:</span> Accountability and discipline</div>
-                  <div className="rounded-lg border border-rose-500/45 bg-rose-500/10 px-3 py-2.5 text-sm text-rose-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Sprout size={14} /> CULTURE:</span> Happy and high performing</div>
+                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><BriefcaseBusiness size={14} /> BUSINESS:</span> Profitable, growing, managing cash predictably</div>
+                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Tag size={14} /> BRAND:</span> Clear and consistent internally and externally</div>
+                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Users size={14} /> TEAM:</span> Right people in the right seats</div>
+                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Compass size={14} /> STRATEGY:</span> Decisive, aligned and inspired</div>
+                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Cog size={14} /> EXECUTION:</span> Accountability and discipline</div>
+                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Sprout size={14} /> CULTURE:</span> Happy and high performing</div>
                 </div>
               </div>
 
@@ -515,8 +515,8 @@ export default function StrengthTestPage() {
                     const p2 = polarToCartesian(140, 140, 110, angle);
                     return <line key={`sep-${s.section}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="#ffffff" strokeWidth="2" />;
                   })}
-                  <circle cx="140" cy="140" r="56" fill="#06090f" />
-                  <text x="140" y="124" textAnchor="middle" fontSize="13" fontWeight="700" fill="#cbd5e1">Your Overall Score</text>
+                  <circle cx="140" cy="140" r="56" fill="#ffffff" />
+                  <text x="140" y="124" textAnchor="middle" fontSize="13" fontWeight="700" fill="#334155">Your Overall Score</text>
                   <text x="140" y="166" textAnchor="middle" fontSize="44" fontWeight="700" fill={totalColor}> {total}%</text>
                 </svg>
 
@@ -638,7 +638,7 @@ export default function StrengthTestPage() {
         <div className="w-full">
           <div className="max-h-full w-full overflow-y-auto rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           {leadThanks && index === 0 ? (
-            <div className="mb-4 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+            <div className="thanks-bar mb-4 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
               Thanks — details received. Let’s run your Strength Test.
             </div>
           ) : null}
@@ -711,7 +711,7 @@ export default function StrengthTestPage() {
           </div>
           </div>
 
-          <div className="mt-3 flex items-center gap-3 rounded-lg border border-slate-800 bg-[#06090f]/80 px-3 py-2">
+          <div className="progress-shell mt-3 flex items-center gap-3 rounded-lg border border-slate-800 bg-[#06090f]/80 px-3 py-2">
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-800">
               <div className="h-full rounded-full bg-cyan-400 transition-all duration-300" style={{ width: `${completionPct}%` }} />
             </div>
