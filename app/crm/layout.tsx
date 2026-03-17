@@ -11,6 +11,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
   const isLogin = pathname === "/crm/login";
   const [role, setRole] = useState<string>("");
   const [sgtColor, setSgtColor] = useState<string>("text-sky-300");
+  const [sgtMood, setSgtMood] = useState<string>("on_it");
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|; )crm_role=([^;]+)/);
@@ -23,9 +24,17 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
       .then((d) => {
         const c = d?.iconColor;
         setSgtColor(c === "red" ? "text-rose-300" : c === "green" ? "text-emerald-300" : "text-sky-300");
+        setSgtMood(d?.mood || "on_it");
       })
       .catch(() => {});
   }, [pathname]);
+
+  const footerLine =
+    sgtMood === "fired_up"
+      ? "Discipline check: clean up stale deals and overdue tasks before end of day."
+      : sgtMood === "crushing"
+        ? "Momentum check: protect your standards and keep pipeline pressure on."
+        : "Steady check: move one deal stage and close two meaningful tasks today.";
 
   return (
     <main className="crm-shell flex min-h-screen flex-col text-slate-100">
@@ -58,7 +67,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
               <p>© {new Date().getFullYear()} Glyph CRM</p>
             </div>
             <p className="ml-auto max-w-[58%] pl-3 text-left text-[10px] leading-tight text-slate-400 sm:max-w-none sm:pl-6 sm:text-sm">
-              <span className={`font-semibold ${sgtColor}`}>Sgt. Glyph</span> says: if your pipeline is empty, your excuses are full. Fix it.
+              <span className={`font-semibold ${sgtColor}`}>Sgt. Glyph</span> says: {footerLine}
             </p>
           </div>
         </footer>

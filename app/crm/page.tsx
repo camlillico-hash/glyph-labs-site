@@ -6,6 +6,7 @@ export const metadata = {
 
 import Link from "next/link";
 import { getStore, now, DEAL_STAGES } from "@/lib/crm-store";
+import { computeCoachMood } from "@/lib/coach-mood";
 import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3 } from "lucide-react";
 import KpiScoreboard from "./KpiScoreboard";
 
@@ -70,24 +71,21 @@ export default async function CrmHome() {
   const latestWonAt = wonDeals.map((d) => d.updatedAt || d.createdAt).filter(Boolean).sort().reverse()[0];
   const latestWonHours = latestWonAt ? (currentMs - new Date(latestWonAt).getTime()) / (1000 * 60 * 60) : 999;
 
-  let glyphMood = { icon: Hammer, color: "text-sky-300", nameColor: "text-sky-300", text: "Not bad, but not legendary. Move 1 deal stage and clear 2 tasks before day-end." };
-  if (overdueTasks.length > 0 || staleDeals > 0 || staleDays > 2 || openDeals.length === 0) {
-    const warnings: string[] = [];
-    if (overdueTasks.length > 0) warnings.push(`${overdueTasks.length} overdue task(s)`);
-    if (staleDeals > 0) warnings.push(`${staleDeals} stale deal(s)`);
+  const coach = computeCoachMood(store);
+  const GlyphMoodIcon = coach.icon === "flame" ? Flame : coach.icon === "heart" ? Heart : Hammer;
+  const commandPostLineByMood =
+    coach.mood === "fired_up"
+      ? "Immediate action required: clear overdue commitments and move at least one deal forward today."
+      : coach.mood === "crushing"
+        ? "Strong operating rhythm. Protect momentum and keep your standards high."
+        : "Steady execution mode. Keep deal velocity up and avoid idle pipeline stages.";
 
-    const warningText = warnings.length > 0 ? `${warnings.join(", ")}. ` : "";
-    glyphMood = { icon: Flame, color: "text-rose-300", nameColor: "text-rose-300", text: `You’re coasting. ${warningText}Quit flirting with the to-do list and execute.` };
-    if (openDeals.length === 0 && store.contacts.length > 0) glyphMood.text = "No open deals? That’s not a pipeline, that’s fan fiction. Promote a contact to Warm intro booked right now.";
-    if (store.contacts.length === 0) glyphMood.text = "Pipeline starts with people. Add 3 contacts today and stop pretending strategy is outreach.";
-  }
-  if (wonDeals.length >= 1 && doneTasks >= 5 && overdueTasks.length === 0 && staleDeals === 0 && staleDays <= 1) {
-    glyphMood = { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: "Elite consistency. Celebrate for 30 seconds, then top up pipeline while conversion is hot." };
-  }
-  if (latestWonHours <= 24) {
-    glyphMood = { icon: Heart, color: "text-emerald-300", nameColor: "text-emerald-300", text: "New client closed — nasty work. Take a breath, then get back to prospecting before comfort makes you soft." };
-  }
-  const GlyphMoodIcon = glyphMood.icon;
+  const glyphMood = {
+    color: coach.iconColor === "red" ? "text-rose-300" : coach.iconColor === "green" ? "text-emerald-300" : "text-sky-300",
+    nameColor: coach.iconColor === "red" ? "text-rose-300" : coach.iconColor === "green" ? "text-emerald-300" : "text-sky-300",
+    text: commandPostLineByMood,
+    statusLabel: coach.statusLabel,
+  };
 
   const openStageSet = new Set(["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed"]);
   const weightedByStage = DEAL_STAGES.filter((stage) => openStageSet.has(stage)).map((stage) => {
@@ -286,7 +284,8 @@ export default async function CrmHome() {
         <Card icon={<Activity size={16} />} label="Activities this week" value={activitiesThisWeek.length} href="/crm/activities" />
         <Link href="/crm/activities" className="crm-card block p-4 hover:-translate-y-0.5 lg:col-span-2">
           <p className="text-sm font-semibold text-slate-300 inline-flex items-center gap-1.5">Status report from <span className={`${glyphMood.nameColor} inline-flex items-center gap-1`}>Sgt. Glyph <GlyphMoodIcon size={14} /></span></p>
-          <p className="mt-2 text-slate-100">{glyphMood.text}</p>
+          <p className={`mt-2 text-sm font-semibold ${glyphMood.color}`}>{glyphMood.statusLabel}</p>
+          <p className="mt-1 text-slate-100">{glyphMood.text}</p>
         </Link>
       </section>
 
