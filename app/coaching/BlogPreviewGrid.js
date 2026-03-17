@@ -18,7 +18,7 @@ export default function BlogPreviewGrid({ posts }) {
           <a
             key={post.slug}
             href={`/coaching/blog/${post.slug}`}
-            className="group flex flex-col gap-3 rounded-xl border border-neutral-700/90 bg-neutral-900/70 p-3 transition hover:border-neutral-500 md:flex-row md:items-center"
+            className="blog-card group flex flex-col gap-3 rounded-xl border border-neutral-700/90 bg-neutral-900/70 p-3 transition hover:border-neutral-500 md:flex-row md:items-center"
           >
             <img
               src={post.thumbnail}
