@@ -31,7 +31,7 @@ function statusNeedsEmail(status: string) {
 function normalizeDisqualificationReason(value: any) {
   const raw = String(value || "").trim();
   const v = raw.replace(/[’`]/g, "'");
-  const allowed = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Shouldn't reach out just yet", "Done tapping network for now.", "Other"];
+  const allowed = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Shouldn't reach out just yet", "Done tapping network for now.", "Test Lead or Bad Data", "Other"];
   return allowed.includes(v) ? v : undefined;
 }
 
