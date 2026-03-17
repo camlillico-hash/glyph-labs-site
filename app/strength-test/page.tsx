@@ -280,7 +280,7 @@ export default function StrengthTestPage() {
                 <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-300"><Sparkles size={13} /> Strength Test</p>
                 <h1 className="mt-2 text-3xl font-bold md:text-4xl">Assessing your organization</h1>
                 <p className="mt-3 max-w-2xl text-slate-300">
-                  Take the BOS360™ Strength Test to identify your organization’s core strengths and growth areas. Unlock your business potential quickly with instant insights into performance — fast, easy, and free.
+                  Take the <strong className="font-semibold text-slate-100">BOS360™ Strength Test</strong> to identify your organization’s core strengths and growth areas. Unlock your business potential quickly with instant insights into performance — fast, easy, and free.
                 </p>
 
                 <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950/55 p-4">
@@ -307,12 +307,12 @@ export default function StrengthTestPage() {
                 <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-4 text-center">
                   <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Sample results preview</p>
                   <svg viewBox="0 0 240 240" className="mx-auto mt-2 h-44 w-44" aria-label="Sample donut chart">
-                    <circle cx="120" cy="120" r="68" fill="none" stroke="#1e293b" strokeWidth="28" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#ffffff" strokeWidth="28" />
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#65a30d" strokeWidth="24" strokeDasharray="140 287" strokeDashoffset="0" transform="rotate(-90 120 120)" />
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#f59e0b" strokeWidth="24" strokeDasharray="92 287" strokeDashoffset="-140" transform="rotate(-90 120 120)" />
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#e11d48" strokeWidth="24" strokeDasharray="55 287" strokeDashoffset="-232" transform="rotate(-90 120 120)" />
-                    <circle cx="120" cy="120" r="42" fill="#06090f" />
-                    <text x="120" y="114" textAnchor="middle" fontSize="10" fill="#94a3b8">Overall</text>
+                    <circle cx="120" cy="120" r="42" fill="#ffffff" />
+                    <text x="120" y="114" textAnchor="middle" fontSize="10" fill="#334155">Overall</text>
                     <text x="120" y="134" textAnchor="middle" fontSize="22" fontWeight="700" fill="#67e8f9">78%</text>
                   </svg>
                   <div className="mt-2 grid grid-cols-3 gap-2 text-[10px] text-slate-300">
