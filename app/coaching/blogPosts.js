@@ -242,6 +242,38 @@ export const blogPosts = [
       "If the leadership team is aligned, the business can absorb almost any challenge. If it isn\u2019t, even strong strategy will underperform.",
     ],
   },
+  {
+    slug: "why-communication-breaks-as-you-grow",
+    title: "Why Communication Breaks as You Grow (And What Metcalfe’s Law Gets Right—and Wrong)",
+    description:
+      "As organizations scale, communication paths multiply faster than clarity. Here’s how to redesign communication before it becomes the bottleneck.",
+    thumbnail:
+      "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80",
+    readTime: "6–7 min read",
+    category: "Communication",
+    publishedAt: "March 17, 2026",
+    publishedBy: "Cam Lillico",
+    body: [
+      "At five people, communication feels easy. Everyone is in the loop, decisions happen quickly, and alignment comes naturally. At ten, it’s still manageable. But somewhere between twenty and fifty people, something begins to shift. Meetings multiply, Slack channels become noisy, decisions slow down, and people start saying things like, ‘I thought someone else owned that.’",
+      "Most leaders assume this is a people problem. It isn’t. It’s a systems problem—and part of it can be explained by a concept called Metcalfe’s Law.",
+      "Metcalfe’s Law suggests that the value of a network grows with the square of the number of its participants. In simple terms, as you add more people, the number of potential communication paths grows exponentially. Five people create ten possible communication paths. Ten people create forty-five. Fifty people create over a thousand.",
+      "On the surface, that sounds like a good thing. More connection should mean more collaboration, more alignment, and more value. But inside a business, that assumption doesn’t hold.",
+      "The flaw is simple: Metcalfe’s Law assumes that every connection is valuable. In organizations, most aren’t. Not every conversation is relevant, necessary, or useful. As companies grow, the number of potential interactions explodes—but the amount of meaningful communication does not. What actually increases is noise, duplication, misalignment, and decision friction.",
+      "This is why growing teams often feel like they’re communicating more than ever, yet getting less done. The real issue isn’t headcount. It’s unstructured communication.",
+      "As organizations scale, they tend to default to more of everything—more meetings, more messages, more people copied on emails, more real-time conversations. Without realizing it, they’re increasing the number of communication paths unnecessarily. The system becomes overloaded, and what once felt fast and fluid starts to feel heavy and slow.",
+      "Every new hire doesn’t just add output. They add coordination overhead, communication complexity, and decision dependencies. And these don’t scale linearly. They compound. That’s the hidden cost of growth that most leaders underestimate.",
+      "Eventually, there’s a tipping point. Alignment starts to drop. Decisions take longer. Accountability becomes less clear. Founders often feel it first—they’re suddenly out of the loop on things they used to know instinctively. Then the leadership team feels it. Then the entire organization does.",
+      "At that point, the instinct is to communicate more. But that’s almost always the wrong move. High-performing teams don’t try to keep up with the growing demand for communication. They redesign how communication works.",
+      "They start by keeping communication focused. Not everyone needs to be involved in everything, and smaller, clearly defined teams naturally reduce unnecessary communication paths.",
+      "They also clarify ownership. When ownership is unclear, communication expands to compensate. People check in more, duplicate work, or wait for direction. When ownership is clear, communication tightens. Fewer conversations are needed because fewer people are guessing.",
+      "They also shift away from constant talking toward clarity. Most teams rely too heavily on meetings and real-time updates, which creates repetition and fragmentation. Strong teams lean more on documented decisions, written context, and clearly defined expectations. This reduces the need to repeat conversations and ensures alignment doesn’t depend on who was in the room.",
+      "Finally, they introduce structured communication rhythms. Instead of constant, reactive communication, they create predictable forums—weekly leadership meetings, clear agendas, and defined time for solving issues. This contains communication instead of allowing it to spread across the organization.",
+      "The biggest shift for leaders is recognizing that more communication is not the goal. Better communication is. And often, that means less of it.",
+      "So, is Metcalfe’s Law useful in a business context? Yes—but not because it tells you networks become more valuable as they grow. It’s useful because it highlights how quickly complexity compounds. It’s less a rule to follow and more a warning to pay attention.",
+      "Growth doesn’t just scale opportunity. It scales confusion. And if you don’t design your communication systems intentionally, communication itself becomes the bottleneck to growth.",
+      "The role of a leader isn’t to ensure everyone is talking. It’s to ensure the right people are having the right conversations at the right time. That’s what keeps a growing company aligned—and moving forward.",
+    ],
+  },
 ];
 
 export function getPostBySlug(slug) {
