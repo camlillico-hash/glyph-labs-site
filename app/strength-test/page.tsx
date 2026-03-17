@@ -656,10 +656,12 @@ export default function StrengthTestPage() {
             </p>
           </div>
 
-          <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{current.section}</p>
-          <h1 className="mt-2 text-xl font-semibold leading-relaxed">
-            {current.id}. {current.text}
-          </h1>
+          <div className="min-h-[132px]">
+            <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{current.section}</p>
+            <h1 className="mt-2 text-xl font-semibold leading-relaxed">
+              {current.id}. {current.text}
+            </h1>
+          </div>
 
           <div className="mt-6 flex flex-wrap gap-2">
             {[0, 1, 2, 3, 4, 5].map((score) => {
@@ -681,6 +683,7 @@ export default function StrengthTestPage() {
               );
             })}
           </div>
+          <p className="mt-2 text-xs text-slate-400">0 = Not in place · 5 = Consistently true</p>
 
           <div className="mt-8 flex items-center justify-between">
             <button
