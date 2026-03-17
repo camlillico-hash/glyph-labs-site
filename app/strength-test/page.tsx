@@ -306,19 +306,25 @@ export default function StrengthTestPage() {
               <div className="space-y-4">
                 <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-4 text-center">
                   <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Sample results preview</p>
-                  <svg viewBox="0 0 240 240" className="mx-auto mt-2 h-44 w-44" aria-label="Sample donut chart">
+                  <svg viewBox="0 0 240 240" className="mx-auto mt-2 h-44 w-44" aria-label="Sample donut chart with 6 sections">
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#ffffff" strokeWidth="28" />
-                    <circle cx="120" cy="120" r="68" fill="none" stroke="#65a30d" strokeWidth="24" strokeDasharray="140 287" strokeDashoffset="0" transform="rotate(-90 120 120)" />
-                    <circle cx="120" cy="120" r="68" fill="none" stroke="#f59e0b" strokeWidth="24" strokeDasharray="92 287" strokeDashoffset="-140" transform="rotate(-90 120 120)" />
-                    <circle cx="120" cy="120" r="68" fill="none" stroke="#e11d48" strokeWidth="24" strokeDasharray="55 287" strokeDashoffset="-232" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#f97316" strokeWidth="24" strokeDasharray="82 427" strokeDashoffset="0" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#38bdf8" strokeWidth="24" strokeDasharray="71 427" strokeDashoffset="-82" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#8b5cf6" strokeWidth="24" strokeDasharray="66 427" strokeDashoffset="-153" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#eab308" strokeWidth="24" strokeDasharray="74 427" strokeDashoffset="-219" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#22c55e" strokeWidth="24" strokeDasharray="62 427" strokeDashoffset="-293" transform="rotate(-90 120 120)" />
+                    <circle cx="120" cy="120" r="68" fill="none" stroke="#14b8a6" strokeWidth="24" strokeDasharray="72 427" strokeDashoffset="-355" transform="rotate(-90 120 120)" />
                     <circle cx="120" cy="120" r="42" fill="#ffffff" />
                     <text x="120" y="114" textAnchor="middle" fontSize="10" fill="#334155">Overall</text>
                     <text x="120" y="134" textAnchor="middle" fontSize="22" fontWeight="700" fill="#67e8f9">78%</text>
                   </svg>
-                  <div className="mt-2 grid grid-cols-3 gap-2 text-[10px] text-slate-300">
-                    <span className="inline-flex items-center justify-center gap-1"><span className="h-2 w-2 rounded-full bg-lime-600" />Strong</span>
-                    <span className="inline-flex items-center justify-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-500" />Moderate</span>
-                    <span className="inline-flex items-center justify-center gap-1"><span className="h-2 w-2 rounded-full bg-rose-600" />Weak</span>
+                  <div className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-slate-400">
+                    <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-orange-500" />Business</span>
+                    <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-sky-400" />Brand</span>
+                    <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-violet-500" />Team</span>
+                    <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-yellow-500" />Strategy</span>
+                    <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" />Execution</span>
+                    <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-teal-500" />Culture</span>
                   </div>
                 </div>
 
