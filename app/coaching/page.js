@@ -269,10 +269,20 @@ export default function Bos360Page() {
       {/* PROCESS */}
       <section className="border-y border-neutral-700 bg-neutral-900/40 py-16">
         <div className="mx-auto max-w-6xl px-6">
-          <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
-            <Workflow size={22} aria-hidden className="text-[#ed7d31]" />
-            My BOS360 Coaching Approach
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
+              <Workflow size={22} aria-hidden className="text-[#ed7d31]" />
+              The BOS360 Coaching Approach
+            </h2>
+            <a
+              href="https://bos360.ca"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-cyan-200/90 underline-offset-2 transition hover:text-cyan-100 hover:underline"
+            >
+              Learn more about the BOS360 Framework
+            </a>
+          </div>
           <ol className="mt-8 grid gap-4 md:grid-cols-2">
             {process.map((step, i) => (
               <li
