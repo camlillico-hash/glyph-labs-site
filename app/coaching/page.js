@@ -272,7 +272,7 @@ export default function Bos360Page() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="flex items-center gap-3 text-3xl font-bold md:text-4xl">
               <Workflow size={22} aria-hidden className="text-[#ed7d31]" />
-              The BOS360 Coaching Approach
+              The BOS360™ Coaching Approach
             </h2>
             <a
               href="https://bos360.ca"
@@ -280,7 +280,7 @@ export default function Bos360Page() {
               rel="noopener noreferrer"
               className="text-sm font-medium text-cyan-200/90 underline-offset-2 transition hover:text-cyan-100 hover:underline"
             >
-              Learn more about the BOS360 Framework
+              Learn more about the BOS360™ Framework
             </a>
           </div>
           <ol className="mt-8 grid gap-4 md:grid-cols-2">
@@ -311,7 +311,7 @@ export default function Bos360Page() {
           <div className="mt-8 max-w-4xl rounded-2xl border border-neutral-600 bg-neutral-900/85 p-5 shadow-lg shadow-black/30">
             <p className="text-base font-medium leading-relaxed text-slate-100 md:text-lg">
               <Layers size={16} className="mr-2 inline text-[#ed7d31]" />
-              BOS360 is a practical operating system for leadership teams who want
+              BOS360™ is a practical operating system for leadership teams who want
               <span className="font-semibold text-orange-200"> traction</span>
               <span className="text-slate-400"> — not </span>
               <span className="font-semibold text-orange-200">theory</span>.
@@ -349,7 +349,7 @@ export default function Bos360Page() {
             </p>
           </div>
           <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-6">
-            <p className="text-2xl font-bold text-[#ed7d31]">BOS360 Framework</p>
+            <p className="text-2xl font-bold text-[#ed7d31]">BOS360™ Framework</p>
             <p className="mt-2 text-slate-300">
               Proven methodology built around alignment, discipline, and accountability
             </p>
@@ -420,7 +420,7 @@ export default function Bos360Page() {
                 />
               </div>
               <span className="block font-semibold text-orange-200">
-                — Shelby Hacala, Owner, NAV360 & BOS360
+                — Shelby Hacala, Owner, NAV360 & BOS360™
               </span>
             </div>
           </blockquote>
@@ -453,7 +453,7 @@ export default function Bos360Page() {
             </h2>
             <div className="mt-5 space-y-4 text-slate-300">
               <p>
-                Cam is a certified BOS360 facilitator and seasoned revenue leader who helps
+                Cam is a certified BOS360™ facilitator and seasoned revenue leader who helps
                 CEOs and leadership teams turn vision into disciplined execution. With nearly
                 a decade of hands-on experience running annual and quarterly planning sessions,
                 he combines structured frameworks with calm, unbiased facilitation to drive
@@ -475,7 +475,7 @@ export default function Bos360Page() {
                 rel="noopener noreferrer"
                 className="flex min-h-[52px] items-center justify-center gap-2 rounded-lg border border-[#ed7d31]/45 bg-[#ed7d31]/12 px-3 py-2 text-xs font-semibold text-orange-100 transition hover:bg-[#ed7d31]/20"
               >
-                <img src="/badge-bos360.jpg" alt="BOS360" className="h-6 w-6 rounded object-cover" />
+                <img src="/badge-bos360.jpg" alt="BOS360™" className="h-6 w-6 rounded object-cover" />
                 Certified Coach
               </a>
               <a

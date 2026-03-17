@@ -99,7 +99,7 @@ export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<U
   }
 
   page1.drawText("Cam Lillico Business Coaching", { x: brandTextX, y: PAGE_H - 38, size: 12, font: bold, color: rgb(1, 1, 1) });
-  page1.drawText("BOS360 Strength Test Report", { x: MARGIN, y: PAGE_H - 66, size: 22, font: bold, color: rgb(1, 1, 1) });
+  page1.drawText("BOS360™ Strength Test Report", { x: MARGIN, y: PAGE_H - 66, size: 22, font: bold, color: rgb(1, 1, 1) });
 
   let y = PAGE_H - 130;
 

@@ -490,7 +490,7 @@ export default function StrengthTestPage() {
               <div>
                 <p className="text-sm uppercase tracking-[0.12em] text-slate-500">Overall Rating</p>
                 <p className="mt-1 text-4xl font-bold" style={{ color: totalColor }}>{totalLabel}</p>
-                <p className="mt-3 text-slate-400">Results are based on your responses across the six BOS360 dimensions.</p>
+                <p className="mt-3 text-slate-400">Results are based on your responses across the six BOS360™ dimensions.</p>
 
                 <div className="mt-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3 text-sm text-slate-200">
                   Your results have been sent to Cam. He’ll review them and follow up to discuss potential next steps.
