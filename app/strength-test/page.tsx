@@ -247,7 +247,7 @@ export default function StrengthTestPage() {
 
   if (!started) {
     return (
-      <main className="flex h-[100dvh] flex-col overflow-hidden bg-[#06090f] text-slate-100">
+      <main className="min-h-screen bg-[#06090f] text-slate-100">
         <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
             <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Business Coaching">
@@ -269,7 +269,7 @@ export default function StrengthTestPage() {
           </div>
         </header>
 
-        <section className="mx-auto flex w-full max-w-5xl flex-1 items-center px-6 py-6">
+        <section className="mx-auto w-full max-w-5xl px-6 py-6 md:py-10">
           <div className="w-full rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-2xl shadow-black/30 md:p-8">
             <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">
               <div>
