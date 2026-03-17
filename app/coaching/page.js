@@ -289,7 +289,7 @@ export default function Bos360Page() {
             {process.map((step, i) => (
               <li
                 key={step.title}
-                className="relative rounded-2xl border border-neutral-700 bg-neutral-900 p-5"
+                className="step-card relative rounded-2xl border border-neutral-700 bg-neutral-900 p-5"
               >
                 <p className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-orange-300">
                   Step {i + 1}
@@ -501,7 +501,7 @@ export default function Bos360Page() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 p-10">
+          <div className="cta-focus-box rounded-2xl border border-neutral-700 bg-neutral-900 p-10">
             <h3 className="flex items-center gap-2 text-3xl font-semibold">
               <ArrowRight size={20} aria-hidden className="text-[#ed7d31]" />
               Ready to Scale with More Clarity?

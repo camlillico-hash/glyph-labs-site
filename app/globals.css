@@ -243,3 +243,18 @@ html.theme-light .coaching-theme .article-toggle:hover {
   border-color: #64748b !important;
   color: #0f172a !important;
 }
+
+html.theme-light .coaching-theme .step-card {
+  background: #e5e7eb !important;
+  border-color: #cbd5e1 !important;
+}
+html.theme-light .coaching-theme .step-card:hover {
+  background: #dfe3ea !important;
+  border-color: #94a3b8 !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+html.theme-light .coaching-theme .cta-focus-box {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+}
