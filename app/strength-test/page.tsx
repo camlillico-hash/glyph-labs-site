@@ -2,6 +2,7 @@
 
 import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail, Download, Sparkles, Layers } from "lucide-react";
 import { useMemo, useState } from "react";
+import ThemeToggle from "@/app/components/ThemeToggle";
 
 type SectionKey = "Business" | "Brand" | "Team" | "Strategy" | "Execution" | "Culture";
 
@@ -247,7 +248,7 @@ export default function StrengthTestPage() {
 
   if (!started) {
     return (
-      <main className="min-h-screen bg-[#06090f] text-slate-100">
+      <main className="strength-theme min-h-screen bg-[#06090f] text-slate-100">
         <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
             <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Business Coaching">
@@ -438,7 +439,7 @@ export default function StrengthTestPage() {
     const totalLabel = scoreLabel(total);
 
     return (
-      <main className="min-h-screen bg-[#06090f] text-slate-100">
+      <main className="strength-theme min-h-screen bg-[#06090f] text-slate-100">
         <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
             <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Business Coaching">
@@ -607,20 +608,23 @@ export default function StrengthTestPage() {
   const completionPct = Math.round((completed / questions.length) * 100);
 
   return (
-    <main className="h-[100dvh] overflow-hidden bg-[#06090f] text-slate-100">
+    <main className="strength-theme h-[100dvh] overflow-hidden bg-[#06090f] text-slate-100">
       <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
           <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching">
             <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
           </a>
-          <a
-            href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
-          >
-            Book an Intro Call
-          </a>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <a
+              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
+            >
+              Book an Intro Call
+            </a>
+          </div>
         </div>
       </header>
 

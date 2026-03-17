@@ -142,3 +142,58 @@ h1, h2, h3, h4, h5, h6, thead th {
   opacity: 1;
   cursor: pointer;
 }
+
+/* Light mode (coaching + strength test surfaces) */
+html.theme-light,
+html.theme-light body {
+  background: #f4f7fb;
+  color: #0f172a;
+}
+
+html.theme-light .coaching-theme,
+html.theme-light .strength-theme {
+  background: #f4f7fb !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .coaching-theme [class*="bg-neutral-9"],
+html.theme-light .coaching-theme [class*="bg-slate-9"],
+html.theme-light .strength-theme [class*="bg-neutral-9"],
+html.theme-light .strength-theme [class*="bg-slate-9"] {
+  background-color: #ffffff !important;
+}
+
+html.theme-light .coaching-theme [class*="border-neutral"],
+html.theme-light .coaching-theme [class*="border-slate"],
+html.theme-light .strength-theme [class*="border-neutral"],
+html.theme-light .strength-theme [class*="border-slate"] {
+  border-color: #dbe3ef !important;
+}
+
+html.theme-light .coaching-theme [class*="text-slate-"],
+html.theme-light .strength-theme [class*="text-slate-"] {
+  color: #334155 !important;
+}
+
+html.theme-light .coaching-theme h1,
+html.theme-light .coaching-theme h2,
+html.theme-light .coaching-theme h3,
+html.theme-light .strength-theme h1,
+html.theme-light .strength-theme h2,
+html.theme-light .strength-theme h3 {
+  color: #0f172a !important;
+}
+
+html.theme-light .coaching-theme [class*="text-cyan-200"],
+html.theme-light .strength-theme [class*="text-cyan-200"],
+html.theme-light .coaching-theme [class*="text-cyan-300"],
+html.theme-light .strength-theme [class*="text-cyan-300"] {
+  color: #0e7490 !important;
+}
+
+html.theme-light .coaching-theme [class*="text-orange-200"],
+html.theme-light .coaching-theme [class*="text-orange-300"],
+html.theme-light .strength-theme [class*="text-orange-200"],
+html.theme-light .strength-theme [class*="text-orange-300"] {
+  color: #c2410c !important;
+}
