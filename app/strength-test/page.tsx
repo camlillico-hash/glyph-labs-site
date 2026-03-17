@@ -289,13 +289,13 @@ export default function StrengthTestPage() {
                   </p>
                 </div>
 
-                <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">BUSINESS:</span> Profitable, growing, managing cash predictably</div>
-                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">BRAND:</span> Clear and consistent internally and externally</div>
-                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">TEAM:</span> Right people in the right seats</div>
-                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">STRATEGY:</span> Decisive, aligned and inspired</div>
-                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">EXECUTION:</span> Accountability and discipline</div>
-                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">CULTURE:</span> Happy and high performing</div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-100"><span className="inline-flex items-center gap-1.5 font-semibold"><BriefcaseBusiness size={14} /> BUSINESS:</span> Profitable, growing, managing cash predictably</div>
+                  <div className="rounded-lg border border-sky-500/45 bg-sky-500/10 px-3 py-2.5 text-sm text-sky-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Tag size={14} /> BRAND:</span> Clear and consistent internally and externally</div>
+                  <div className="rounded-lg border border-violet-500/45 bg-violet-500/10 px-3 py-2.5 text-sm text-violet-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Users size={14} /> TEAM:</span> Right people in the right seats</div>
+                  <div className="rounded-lg border border-orange-500/45 bg-orange-500/10 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Compass size={14} /> STRATEGY:</span> Decisive, aligned and inspired</div>
+                  <div className="rounded-lg border border-cyan-500/45 bg-cyan-500/10 px-3 py-2.5 text-sm text-cyan-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Cog size={14} /> EXECUTION:</span> Accountability and discipline</div>
+                  <div className="rounded-lg border border-rose-500/45 bg-rose-500/10 px-3 py-2.5 text-sm text-rose-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Sprout size={14} /> CULTURE:</span> Happy and high performing</div>
                 </div>
               </div>
 
