@@ -259,14 +259,17 @@ export default function StrengthTestPage() {
                 Cam Lillico Business Coaching
               </span>
             </div>
-            <a
-              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
-            >
-              Book an Intro Call
-            </a>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <a
+                href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
+              >
+                Book an Intro Call
+              </a>
+            </div>
           </div>
         </header>
 
@@ -450,14 +453,17 @@ export default function StrengthTestPage() {
                 Cam Lillico Business Coaching
               </span>
             </div>
-            <a
-              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
-            >
-              Book an Intro Call
-            </a>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <a
+                href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
+              >
+                Book an Intro Call
+              </a>
+            </div>
           </div>
         </header>
 

@@ -24,10 +24,16 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="rounded-md border border-slate-600 px-2.5 py-1 text-xs font-semibold text-slate-200 hover:bg-slate-800"
+      className="inline-flex items-center gap-2 rounded-full border border-slate-600 bg-slate-900/70 px-2 py-1 text-[11px] font-semibold text-slate-200 hover:bg-slate-800"
       aria-label="Toggle light mode"
+      title={light ? "Switch to dark" : "Switch to light"}
     >
-      {light ? "Light" : "Dark"}
+      <span className="text-[10px] uppercase tracking-wide">{light ? "Light" : "Dark"}</span>
+      <span className={`relative h-5 w-9 rounded-full transition ${light ? "bg-cyan-500/90" : "bg-slate-600"}`}>
+        <span
+          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition ${light ? "left-4" : "left-0.5"}`}
+        />
+      </span>
     </button>
   );
 }
