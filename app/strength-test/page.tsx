@@ -1,6 +1,6 @@
 "use client";
 
-import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail, Download } from "lucide-react";
+import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail, Download, Sparkles, Layers } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type SectionKey = "Business" | "Brand" | "Team" | "Strategy" | "Execution" | "Culture";
@@ -273,14 +273,14 @@ export default function StrengthTestPage() {
           <div className="w-full rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-2xl shadow-black/30 md:p-8">
             <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-300">Strength Test</p>
+                <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-300"><Sparkles size={13} /> Strength Test</p>
                 <h1 className="mt-2 text-3xl font-bold md:text-4xl">Assessing your organization</h1>
                 <p className="mt-3 max-w-2xl text-slate-300">
                   Take the BOS360™ Strength Test to identify your organization’s core strengths and growth areas. Unlock your business potential quickly with instant insights into performance — fast, easy, and free.
                 </p>
 
                 <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950/55 p-4">
-                  <p className="text-sm font-semibold text-slate-100">How it works</p>
+                  <p className="inline-flex items-center gap-2 text-sm font-semibold text-slate-100"><Layers size={14} className="text-cyan-300" />How it works</p>
                   <p className="mt-2 text-sm text-slate-300">
                     Take a few minutes to answer 20 questions across 3 foundational pillars and their bonding forces. Each question reflects an important aspect of organizational health and helps surface where your business excels and where it needs focus.
                   </p>
@@ -289,13 +289,13 @@ export default function StrengthTestPage() {
                   </p>
                 </div>
 
-                <div className="mt-5 grid gap-2 text-xs text-slate-300 sm:grid-cols-2">
-                  <p><span className="font-semibold text-slate-100">BUSINESS:</span> Profitable, growing, managing cash predictably</p>
-                  <p><span className="font-semibold text-slate-100">BRAND:</span> Clear and consistent internally and externally</p>
-                  <p><span className="font-semibold text-slate-100">TEAM:</span> Right people in the right seats</p>
-                  <p><span className="font-semibold text-slate-100">STRATEGY:</span> Decisive, aligned and inspired</p>
-                  <p><span className="font-semibold text-slate-100">EXECUTION:</span> Accountability and discipline</p>
-                  <p><span className="font-semibold text-slate-100">CULTURE:</span> Happy and high performing</p>
+                <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">BUSINESS:</span> Profitable, growing, managing cash predictably</div>
+                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">BRAND:</span> Clear and consistent internally and externally</div>
+                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">TEAM:</span> Right people in the right seats</div>
+                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">STRATEGY:</span> Decisive, aligned and inspired</div>
+                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">EXECUTION:</span> Accountability and discipline</div>
+                  <div className="rounded-lg border border-slate-700 bg-slate-950/45 px-3 py-2 text-xs text-slate-300"><span className="font-semibold text-slate-100">CULTURE:</span> Happy and high performing</div>
                 </div>
               </div>
 
@@ -318,6 +318,14 @@ export default function StrengthTestPage() {
                   </div>
                 </div>
 
+                <button
+                  type="button"
+                  className="w-full cursor-pointer rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-cyan-400"
+                  onClick={() => setShowLeadModal(true)}
+                >
+                  Take the assessment
+                </button>
+
                 <div className="inline-flex w-full flex-col items-start gap-1 rounded-xl border border-neutral-700 bg-neutral-900/85 px-3 py-2 text-slate-200">
                   <span className="inline-flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em]">
                     <User size={11} aria-hidden />
@@ -328,14 +336,6 @@ export default function StrengthTestPage() {
                     Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.
                   </span>
                 </div>
-
-                <button
-                  type="button"
-                  className="w-full rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-cyan-400"
-                  onClick={() => setShowLeadModal(true)}
-                >
-                  Take the assessment
-                </button>
               </div>
             </div>
           </div>
