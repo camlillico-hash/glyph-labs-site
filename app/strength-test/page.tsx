@@ -623,9 +623,14 @@ export default function StrengthTestPage() {
     <main className="strength-theme h-[100dvh] overflow-hidden bg-[#06090f] text-slate-100">
       <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-          <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching">
-            <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
-          </a>
+          <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Business Coaching">
+            <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
+              <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
+            </a>
+            <span className="max-w-[170px] truncate rounded-full border border-neutral-600 bg-neutral-800/85 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-cyan-200 sm:max-w-none sm:px-3 sm:text-[11px] sm:tracking-widest">
+              Cam Lillico Business Coaching
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <a
