@@ -246,6 +246,19 @@ html.theme-light .strength-theme .download-results-btn:hover {
   color: #0f172a !important;
 }
 
+/* Light mode hover states for strength test interactive elements */
+html.theme-light .strength-theme button[class*="h-10 w-10"]:hover:not([class*="border-cyan"]),
+html.theme-light .strength-theme [class*="rounded"][class*="border-slate-700"][class*="px-3"][class*="py-2"]:hover {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .strength-theme .rounded.bg-cyan-500:hover {
+  background: #0ea5e9 !important;
+  box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3) !important;
+}
+
 html.theme-light .coaching-theme .article-toggle {
   background: #e2e8f0 !important;
   border-color: #94a3b8 !important;
