@@ -592,7 +592,7 @@ export default function StrengthTestPage() {
               href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-block rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black"
+              className="mt-4 inline-block rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black transition-all duration-150 hover:bg-cyan-400 hover:shadow-lg hover:shadow-cyan-500/25"
             >
               Book an Intro Call
             </a>
@@ -676,10 +676,10 @@ export default function StrengthTestPage() {
                   key={score}
                   type="button"
                   onClick={() => choose(score)}
-                  className={`h-10 w-10 rounded border text-sm ${
+                  className={`h-10 w-10 rounded border text-sm transition-all duration-150 cursor-pointer ${
                     active
                       ? "border-cyan-300 bg-cyan-400/20 text-cyan-200"
-                      : "border-slate-700 text-slate-300 hover:border-slate-500"
+                      : "border-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-800 hover:text-white hover:shadow-md hover:shadow-cyan-500/10"
                   }`}
                   aria-label={`Question ${current.id} score ${score}`}
                 >
@@ -695,7 +695,7 @@ export default function StrengthTestPage() {
               type="button"
               onClick={back}
               disabled={index === 0}
-              className="rounded border border-slate-700 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded border border-slate-700 px-3 py-2 text-sm transition-all duration-150 cursor-pointer hover:border-slate-500 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-700 disabled:hover:bg-transparent"
             >
               Back
             </button>
