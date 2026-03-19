@@ -169,7 +169,7 @@ export default function Bos360Page() {
       </header>
 
       <div className="mx-auto max-w-6xl px-6 pt-2 sm:hidden">
-        <span className="inline-flex rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-orange-200">
+        <span className="mobile-coaching-badge inline-flex rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-orange-200">
           Cam Lillico Business Coaching
         </span>
       </div>
