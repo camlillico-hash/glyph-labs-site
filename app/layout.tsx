@@ -48,16 +48,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="theme-light">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  localStorage.setItem('site-theme', 'light');
+                  var theme = localStorage.getItem('site-theme');
+                  if (!theme) {
+                    theme = 'light';
+                    localStorage.setItem('site-theme', 'light');
+                  }
+                  document.documentElement.classList.add('theme-' + theme);
+                } catch (e) {
                   document.documentElement.classList.add('theme-light');
-                } catch (e) {}
+                }
               })();
             `,
           }}

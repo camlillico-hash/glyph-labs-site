@@ -28,12 +28,27 @@ body {
   font-family: var(--font-libre-franklin), sans-serif;
 }
 
+/* Dark mode body */
+html.theme-dark,
+html.theme-dark body {
+  background: #0a0a0a;
+  color: #e2e8f0;
+}
+
 /* CRM UI treatments */
 .crm-shell {
   background:
     radial-gradient(900px 420px at 0% -10%, rgba(3, 103, 52, 0.15), transparent 55%),
     radial-gradient(700px 360px at 100% 0%, rgba(237, 125, 49, 0.1), transparent 60%),
     #f4f7fb;
+}
+
+/* Dark mode for CRM */
+html.theme-dark .crm-shell {
+  background:
+    radial-gradient(900px 420px at 0% -10%, rgba(3, 103, 52, 0.08), transparent 55%),
+    radial-gradient(700px 360px at 100% 0%, rgba(237, 125, 49, 0.06), transparent 60%),
+    #0a0a0a;
 }
 
 .crm-card {
@@ -100,6 +115,46 @@ body {
   font-size: .72rem;
   text-transform: uppercase;
   letter-spacing: .09em;
+  color: #64748b;
+}
+
+/* Dark mode CRM components */
+html.theme-dark .crm-card {
+  border: 1px solid #2a2a2a;
+  background: rgba(30, 30, 30, 0.9);
+}
+html.theme-dark .crm-card:hover { border-color: #404040; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+
+html.theme-dark .crm-input {
+  border: 1px solid #3a3a3a;
+  background: #1a1a1a;
+  color: #e2e8f0;
+}
+html.theme-dark .crm-input:focus { border-color: #0ea560; box-shadow: 0 0 0 3px rgba(14,165,96,.25); }
+
+html.theme-dark .crm-btn {
+  background: linear-gradient(90deg, #0a7a42, #036734);
+}
+html.theme-dark .crm-btn:hover { opacity: .9; }
+
+html.theme-dark .crm-btn-ghost {
+  border: 1px solid #3a3a3a;
+  color: #94a3b8;
+}
+html.theme-dark .crm-btn-ghost:hover {
+  background: rgba(255,255,255,.06);
+  border-color: #525252;
+  color: #e2e8f0;
+}
+
+html.theme-dark .crm-nav-link {
+  color: #94a3b8;
+}
+html.theme-dark .crm-nav-link:hover { background: rgba(255,255,255,.06); color: #e2e8f0; }
+
+html.theme-dark .crm-kicker {
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.05);
   color: #64748b;
 }
 

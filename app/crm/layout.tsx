@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ThemeProvider } from "../theme-provider";
 import Nav from "./Nav";
 import CoachWidget from "./CoachWidget";
 
-export default function CrmLayout({ children }: { children: React.ReactNode }) {
+function CrmLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLogin = pathname === "/crm/login";
   const [role, setRole] = useState<string>("");
@@ -73,5 +74,13 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
         </footer>
       )}
     </main>
+  );
+}
+
+export default function CrmLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider defaultTheme="dark">
+      <CrmLayoutContent>{children}</CrmLayoutContent>
+    </ThemeProvider>
   );
 }
