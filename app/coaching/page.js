@@ -360,11 +360,11 @@ export default function Bos360Page() {
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
 “Cam creates the space for open, honest dialogue while keeping the team aligned and accountable. He brings structure without overcomplicating things, and the result is clearer decisions and stronger follow-through.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl bg-white px-4 py-2">
                 <img
                   src="/logos/kira-talent.png"
                   alt="Kira Talent logo"
-                  className="h-5 w-auto object-contain"
+                  className="h-8 w-auto object-contain"
                   loading="lazy"
                 />
               </div>
@@ -377,11 +377,11 @@ export default function Bos360Page() {
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
 “Cam balanced strategy with accountability. He challenged assumptions, clarified ownership, and helped us move from busy activity to focused execution.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl bg-white px-4 py-2">
                 <img
                   src="/logos/ctc-communications.png"
                   alt="CTC Communications logo"
-                  className="h-4 w-auto object-contain"
+                  className="h-8 w-auto object-contain"
                   loading="lazy"
                 />
               </div>
@@ -394,11 +394,11 @@ export default function Bos360Page() {
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
 “Cam brought structure without bureaucracy. We left each session with clear decisions, named owners, and measurable momentum at the stage we needed it most.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl bg-white px-4 py-2">
                 <img
                   src="/logos/autohost.png"
                   alt="Autohost logo"
-                  className="h-5 w-auto object-contain"
+                  className="h-8 w-auto object-contain"
                   loading="lazy"
                 />
               </div>
@@ -411,16 +411,16 @@ export default function Bos360Page() {
           <blockquote className="rounded-2xl border border-neutral-600 bg-neutral-900/85 p-6 italic text-slate-100">
             “Cam leads with humility and creates the kind of environment where leadership teams can have open, honest conversations without defensiveness. He facilitates with clarity, asks sharp questions, and helps teams turn insight into real execution.”
             <div className="mt-4 space-y-3 not-italic">
-              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 shadow-lg shadow-black/25 ring-1 ring-neutral-500/25">
+              <div className="inline-flex h-14 w-40 items-center justify-center rounded-xl bg-white px-4 py-2">
                 <img
                   src="/logos/nav360.png"
                   alt="NAV360 logo"
-                  className="h-5 w-auto object-contain"
+                  className="h-8 w-auto object-contain"
                   loading="lazy"
                 />
               </div>
               <span className="block font-semibold text-orange-200">
-                — Shelby Hacala, Owner, NAV360 & BOS360™
+                — Shelby Hacala, Founder, Nav360
               </span>
             </div>
           </blockquote>
