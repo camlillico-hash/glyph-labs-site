@@ -17,13 +17,6 @@ html {
   --font-mono: var(--font-libre-franklin);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 html, body {
   background: #f4f7fb;
   overscroll-behavior-y: none;
