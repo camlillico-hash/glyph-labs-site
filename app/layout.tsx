@@ -48,7 +48,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="theme-light">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  localStorage.setItem('site-theme', 'light');
+                  document.documentElement.classList.add('theme-light');
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${libreFranklin.variable} ${playfairDisplay.variable} antialiased`}
       >
