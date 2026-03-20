@@ -48,27 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('site-theme');
-                  if (!theme) {
-                    theme = 'light';
-                    localStorage.setItem('site-theme', 'light');
-                  }
-                  document.documentElement.classList.add('theme-' + theme);
-                } catch (e) {
-                  document.documentElement.classList.add('theme-light');
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
+    <html lang="en" className="theme-light" suppressHydrationWarning>
       <body
         className={`${libreFranklin.variable} ${playfairDisplay.variable} antialiased`}
       >

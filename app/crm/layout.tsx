@@ -79,7 +79,7 @@ function CrmLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function CrmLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider defaultTheme="dark">
+    <ThemeProvider defaultTheme="dark" enableOverride>
       <CrmLayoutContent>{children}</CrmLayoutContent>
     </ThemeProvider>
   );
