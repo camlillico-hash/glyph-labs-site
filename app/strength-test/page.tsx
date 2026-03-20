@@ -2,7 +2,7 @@
 
 import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail, Download, Sparkles, Layers } from "lucide-react";
 import { useMemo, useState } from "react";
-import ThemeToggle from "@/app/components/ThemeToggle";
+
 
 type SectionKey = "Business" | "Brand" | "Team" | "Strategy" | "Execution" | "Culture";
 
@@ -260,7 +260,6 @@ export default function StrengthTestPage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
               <a
                 href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
                 target="_blank"
@@ -460,7 +459,6 @@ export default function StrengthTestPage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
               <a
                 href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
                 target="_blank"
@@ -632,7 +630,6 @@ export default function StrengthTestPage() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <a
               href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
               target="_blank"

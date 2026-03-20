@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowUp } from "lucide-react";
 import { notFound } from "next/navigation";
-import ThemeToggle from "@/app/components/ThemeToggle";
+
 import { blogPosts, getPostBySlug } from "../../blogPosts";
 
 export function generateStaticParams() {
@@ -43,7 +43,6 @@ export default async function BlogPostPage({ params }) {
             </span>
           </div>
           <div className="flex items-center gap-2 whitespace-nowrap">
-            <ThemeToggle />
             <a
               href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
               target="_blank"

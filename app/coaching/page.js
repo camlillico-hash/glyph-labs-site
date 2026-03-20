@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { blogPosts } from "./blogPosts";
 import BlogPreviewGrid from "./BlogPreviewGrid";
-import ThemeToggle from "@/app/components/ThemeToggle";
 
 export const metadata = {
   title: "Coaching | Cam Lillico",
@@ -152,7 +151,6 @@ export default function Bos360Page() {
             </span>
           </div>
           <div className="flex items-center gap-2 whitespace-nowrap">
-            <ThemeToggle />
             <a href="/strength-test" className="rounded-lg border border-cyan-400/50 px-3 py-2 text-xs font-semibold text-cyan-200 hover:bg-cyan-500/10">
               Start Strength Test
             </a>
