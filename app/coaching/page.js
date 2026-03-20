@@ -186,7 +186,7 @@ export default function Bos360Page() {
             loading="eager"
           />
           <p className="text-lg text-slate-300">
-            I help growth-stage founders and leadership teams install a practical operating cadence so priorities are clear,
+            As a certified BOS360TM coach I help growth-stage founders and leadership teams install a practical operating cadence so priorities are clear,
             accountability is real, and execution improves week by week.
           </p>
         </div>
