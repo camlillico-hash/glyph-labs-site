@@ -3,7 +3,7 @@ import CrmShell from "./CrmShell";
 
 export const metadata: Metadata = {
   title: {
-    default: "CRM | Glyph Labs",
+    default: "CRM",
     template: "%s | Glyph Labs",
   },
 };
