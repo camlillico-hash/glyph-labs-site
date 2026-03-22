@@ -3,7 +3,6 @@ import {
   Compass,
   Gauge,
   Gem,
-  Home,
   Layers,
   Star,
   Workflow,
@@ -124,14 +123,6 @@ const reads = [
 export default function Bos360Page() {
   return (
     <main className="coaching-theme min-h-screen bg-neutral-950 text-slate-100">
-      <a
-        href="/"
-        aria-label="Navigate to philosophy page"
-        title="Philosophy"
-        className="fixed bottom-3 right-3 z-20 text-[10px] tracking-[0.25em] uppercase text-slate-500/35 transition hover:text-[#ed7d31]/80"
-      >
-        <Home size={12} />
-      </a>
 
       {/* Background glow accents */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
