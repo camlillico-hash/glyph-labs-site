@@ -25,13 +25,26 @@ export const metadata: Metadata = {
     "Glyph Labs is a studio for practical insight, building tools and frameworks that reveal patterns, simplify complexity, and improve decision-making.",
   applicationName: "Glyph Labs",
   icons: {
+    // Cache-bust favicons aggressively (Chrome is notoriously sticky here).
     icon: [
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon.ico" },
+      {
+        url: "/favicon-32x32.png?v=6a82c6f",
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: "/favicon-16x16.png?v=6a82c6f",
+        sizes: "16x16",
+        type: "image/png",
+      },
+      { url: "/favicon.ico?v=6a82c6f" },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      {
+        url: "/apple-touch-icon.png?v=6a82c6f",
+        sizes: "180x180",
+        type: "image/png",
+      },
     ],
   },
   manifest: "/site.webmanifest",
