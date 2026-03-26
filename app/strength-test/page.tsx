@@ -1,7 +1,12 @@
 "use client";
 
+import type { Metadata } from "next";
 import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail, Download, Sparkles, Layers } from "lucide-react";
 import { useMemo, useState } from "react";
+
+export const metadata: Metadata = {
+  title: "Cam Lillico | Strength Test",
+};
 
 
 type SectionKey = "Business" | "Brand" | "Team" | "Strategy" | "Execution" | "Culture";
