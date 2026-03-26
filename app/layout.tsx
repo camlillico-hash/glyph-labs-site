@@ -17,10 +17,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: {
-    default: "Glyph Labs",
-    template: "%s | Glyph Labs",
-  },
+  // NOTE: Most pages set their own explicit title. We intentionally avoid a title
+  // template here because it can cause confusing tab titles (especially on Safari)
+  // when combined with route-level <head.tsx> or page metadata.
+  title: "Glyph Labs",
   description:
     "Glyph Labs is a studio for practical insight, building tools and frameworks that reveal patterns, simplify complexity, and improve decision-making.",
   applicationName: "Glyph Labs",
