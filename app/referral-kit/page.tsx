@@ -96,7 +96,7 @@ export default function ReferralKitPage() {
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Note!</p>
                   <p className="mt-1 text-sm leading-relaxed text-slate-700">
-                    This page is meant for you (the helpful referrer) to identify people in your network and do a quick yet meaningful intro outreach.
+                    This page is meant for you (the helpful referrer) to identify people in your network and do a quick yet meaningful intro for me.
                   </p>
                 </div>
               </div>
