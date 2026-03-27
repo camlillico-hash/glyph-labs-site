@@ -73,22 +73,16 @@ export default function ReferralKitPage() {
         <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12">
           <div className="md:col-span-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-              EXECUTIVECOACHING360
+              Referral Enablement Tool
+            </p>
+
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-600">
+              This page is meant to help trusted partners connect the right founders to Cam.
             </p>
 
             <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
-              Cam — BOS360
-              <br />
-              Coach for Scaling
-              <br />
-              Founders
+              Referral Kit: Connect Founders to Clarity, Momentum and Health
             </h1>
-
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-slate-600">
-              Helping leadership teams gain clarity, momentum,
-              <br className="hidden sm:block" />
-              and health through a proven operating system.
-            </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <a
@@ -123,40 +117,33 @@ export default function ReferralKitPage() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-7">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                THE INTRODUCTION
+                THE FRAMEWORK
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight">Focusing on $2M–$50M Founder-Led Companies</h2>
 
               <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                BOS360 is a comprehensive business operating system designed to
-                bring more focus, transparency, and alignment to growth-stage
-                founder-led companies by helping them install a cadence around
-                priorities, people, and performance.
+                BOS360 is a comprehensive business operating system designed for founders who have successfully reached product-market fit but are now feeling the weight of complexity as they scale.
               </p>
 
               <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                I work directly with founders/leadership teams to implement a
-                proven cadence of annual planning, quarterly priorities, weekly
-                accountability, and team performance habits. BOS360 is built on
-                the principles of EOS, but is structured to match founder-led
-                realities.
+                I work directly with leadership teams to install a repeatable cadence of accountability, vision alignment, and issue resolution. This isn’t just theory—it’s a practical toolkit for teams generating between $2M and $50M in annual revenue who need to transition from “founder-driven” to “system-driven.”
               </p>
 
               <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <MiniCard
                   icon={<ClipboardList className="h-4 w-4" />}
                   title="Vision"
-                  text="We align around where we’re going and what matters most right now."
+                  text="Getting everyone in your organization aligned with where you are going and how you plan to get there."
                 />
                 <MiniCard
                   icon={<Sparkles className="h-4 w-4" />}
                   title="Momentum"
-                  text="We install rhythms that create weekly progress and compounding execution."
+                  text="Instilling focus, discipline and accountability throughout the company so that everyone executes on that vision day after day."
                 />
                 <MiniCard
                   icon={<BadgeCheck className="h-4 w-4" />}
                   title="Health"
-                  text="We improve leadership alignment, accountability, and team performance."
+                  text="Creating a cohesive leadership team and nourishing a happy high-performing culture where everyone can rise to their full potential."
                 />
               </div>
             </div>
@@ -188,15 +175,15 @@ export default function ReferralKitPage() {
       {/* WHY INTRODUCE */}
       <section className="mx-auto max-w-6xl px-6 pb-12 pt-12">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-          THE INTRODUCTION
+          THE BACKGROUND
         </p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Why Introduce Cam?</h2>
 
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
           <IconCard icon={<MessageSquareText className="h-5 w-5" />} title="Operator Turned Coach" />
-          <IconCard icon={<BookOpenCheck className="h-5 w-5" />} title="High Cadence Coach" />
+          <IconCard icon={<BookOpenCheck className="h-5 w-5" />} title="High-Growth Tech" />
           <IconCard icon={<BadgeCheck className="h-5 w-5" />} title="Certified Expert" />
-          <IconCard icon={<Sparkles className="h-5 w-5" />} title="Motivated and Skilled" />
+          <IconCard icon={<Sparkles className="h-5 w-5" />} title="Methodical Style" />
         </div>
       </section>
 
