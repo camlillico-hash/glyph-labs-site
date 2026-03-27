@@ -452,7 +452,7 @@ export default function Bos360Page() {
               </p>
               <p>
                 Cam doesn’t act as a consultant telling teams what to do — he creates the
-                space for honest dialogue, healthy debate, and aligned decision-making. His
+                space for honest dialogue, healthy debate, and aligned decision-making.
                 <strong className="font-semibold text-slate-100">
                   His focus is simple: build strong teams, sharpen strategy, and ensure execution matches ambition.
                 </strong>
