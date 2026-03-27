@@ -94,9 +94,9 @@ export default function ReferralKitPage() {
                   </svg>
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">Partner note</p>
+                  <p className="text-sm font-semibold text-slate-900">Note!</p>
                   <p className="mt-1 text-sm leading-relaxed text-slate-700">
-                    This page is meant to help trusted partners connect the right founders to Cam.
+                    This page is meant for you (the helpful referrer) to identify people in your network and do a quick yet meaningful intro outreach.
                   </p>
                 </div>
               </div>
