@@ -206,13 +206,30 @@ export default function ReferralKitPage() {
       {/* REFERRAL PATH */}
       <section id="referral-path" className="mx-auto max-w-6xl px-6 pb-12 pt-8">
         <h2 className="text-center text-3xl font-bold tracking-tight">The Referral Path</h2>
-        <p className="mt-2 text-center text-sm text-slate-600">How intros typically flow from first signal to next steps.</p>
+        <p className="mt-2 text-center text-sm text-slate-600">A seamless transition for any founder you introduce.</p>
 
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <StepCard n="1" title="Refer Cam to someone you know" />
-          <StepCard n="2" title="Warm Introduction Call" />
-          <StepCard n="3" title="Intro Kit & Discovery" />
-          <StepCard n="4" title="Engagement" />
+          <StepCard
+            n="1"
+            title="Refer Cam to someone you know"
+            label="Partner Action"
+            text="Think of a founder in your network who is currently scaling."
+          />
+          <StepCard
+            n="2"
+            title="Warm Introduction Call"
+            text="A simple email or LinkedIn thread to bridge the connection."
+          />
+          <StepCard
+            n="3"
+            title="Free 90-Min Discovery"
+            text="A no-obligation deep dive to see if BOS360 fits their specific needs."
+          />
+          <StepCard
+            n="4"
+            title="Implementation"
+            text="The team begins the journey toward clarity and health."
+          />
         </div>
       </section>
 
@@ -393,13 +410,27 @@ function IconCard({
   );
 }
 
-function StepCard({ n, title }: { n: string; title: string }) {
+function StepCard({
+  n,
+  title,
+  text,
+  label,
+}: {
+  n: string;
+  title: string;
+  text: string;
+  label?: string;
+}) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6">
       <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700">
         {n}
       </div>
       <p className="mt-4 text-sm font-semibold text-slate-900">{title}</p>
+      {label ? (
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
+      ) : null}
+      <p className="mt-2 text-sm leading-relaxed text-slate-600">{text}</p>
     </div>
   );
 }
