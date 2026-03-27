@@ -240,12 +240,12 @@ export default function ReferralKitPage() {
             n="1"
             title="Refer Cam to someone you know"
             label="Partner Action"
-            text="Think of a founder in your network who is currently scaling."
+            text="Make the referral (email or LinkedIn intro) and share a bit of context on what they’re navigating."
           />
           <StepCard
             n="2"
-            title="Warm Introduction Call"
-            text="A simple email or LinkedIn thread to bridge the connection."
+            title="Warm Intro Call"
+            text="Cam meets with the founder/CEO to confirm fit before booking the discovery call (#3)."
           />
           <StepCard
             n="3"
