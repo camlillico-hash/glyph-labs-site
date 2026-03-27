@@ -182,20 +182,17 @@ export default function ReferralKitPage() {
         </div>
       </section>
 
-      {/* FOCUS + KEYWORDS */}
+      {/* VALUE I PROVIDE */}
       <section>
         <div className="mx-auto max-w-6xl px-6 pb-12 pt-12">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-12">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">THE FRAMEWORK</p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Focusing on $2M–$50M Founder-Led Companies</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">THE VALUE I PROVIDE</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">The value I provide</h2>
 
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                BOS360 is a comprehensive business operating system designed for founders who have successfully reached product-market fit but are now feeling the weight of complexity as they scale.
-              </p>
-
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                I work directly with leadership teams to install a repeatable cadence of accountability, vision alignment, and issue resolution. This isn’t just theory—it’s a practical toolkit for teams generating between $2M and $50M in annual revenue who need to transition from “founder-driven” to “system-driven.”
+              <h3 className="mt-6 text-lg font-semibold tracking-tight text-slate-900">What is BOS360</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                BOS360 is a practical business operating system that helps leadership teams strengthen three things: Vision, Momentum, and Health. In plain terms, it gets leaders aligned on where the business is going, builds the discipline and accountability to execute, and creates a healthier, higher-performing team.
               </p>
 
               <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -213,6 +210,42 @@ export default function ReferralKitPage() {
                   icon={<BadgeCheck className="h-4 w-4" />}
                   title="Health"
                   text="Creating a cohesive leadership team and nourishing a happy high-performing culture where everyone can rise to their full potential."
+                />
+              </div>
+
+              <h3 className="mt-10 text-lg font-semibold tracking-tight text-slate-900">(Quick) Outcomes</h3>
+              <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-slate-700">
+                <li>More clarity on where you’re going and how you’ll get there</li>
+                <li>Better execution, focus, and accountability</li>
+                <li>Healthier leadership team dynamics and stronger company culture</li>
+                <li>A simpler, more consistent way to run the business</li>
+              </ul>
+
+              <h3 className="mt-10 text-lg font-semibold tracking-tight text-slate-900">Why Cam?</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                See /coaching for more on Cam’s background and approach.
+              </p>
+
+              <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+                <IconCard
+                  icon={<MessageSquareText className="h-5 w-5" />}
+                  title="Operator Turned Coach"
+                  text="10+ years of hands-on leadership experience in high-growth environments before coaching."
+                />
+                <IconCard
+                  icon={<BookOpenCheck className="h-5 w-5" />}
+                  title="High-Growth Tech"
+                  text="Deep roots in scaling and exiting high-growth tech firms like Kira Talent and Ten Thousand Coffees."
+                />
+                <IconCard
+                  icon={<BadgeCheck className="h-5 w-5" />}
+                  title="Certified Expert"
+                  text="Certified BOS360 and EOS implementation specialist with hundreds of hours of team sessions."
+                />
+                <IconCard
+                  icon={<Sparkles className="h-5 w-5" />}
+                  title="Methodical Style"
+                  text="Known for a trusted, calm, and methodical approach that cuts through the noise of scaling."
                 />
               </div>
             </div>
