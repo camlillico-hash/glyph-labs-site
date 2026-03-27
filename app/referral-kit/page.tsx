@@ -172,20 +172,25 @@ export default function ReferralKitPage() {
 
             <div className="md:col-span-5">
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-2 text-slate-900">
-                  <Headphones className="h-4 w-4" />
-                  <p className="text-sm font-semibold">Listen for Keywords</p>
-                </div>
+                <h3 className="text-lg font-semibold tracking-tight text-slate-900">
+                  Does any of this sound familiar?
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  These are the kinds of scaling pains founders and leadership teams often experience before they put a better operating system in place.
+                </p>
 
                 <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <ul className="space-y-3 text-sm text-slate-700">
-                    <li>“Growth is chaotic”</li>
-                    <li>“I can’t scale past my role”</li>
-                    <li>“My team isn’t moving as one”</li>
-                    <li>“Things slip through the cracks”</li>
-                    <li>“We need to execute consistently”</li>
-                    <li>“Our meetings suck”</li>
-                    <li>“Lack of accountability”</li>
+                  <ul className="list-disc space-y-3 pl-5 text-sm text-slate-700">
+                    <li>“We’re growing, but it feels messier than it should.”</li>
+                    <li>“Too much still depends on me.”</li>
+                    <li>“My leadership team is not fully aligned.”</li>
+                    <li>“We meet constantly, but key issues still linger.”</li>
+                    <li>“Accountability is inconsistent.”</li>
+                    <li>“We’ve hit a ceiling.”</li>
+                    <li>“I’m not sure everyone is in the right seat.”</li>
+                    <li>“We keep starting initiatives, but they don’t stick.”</li>
+                    <li>“Our priorities keep changing.”</li>
+                    <li>“We need more clarity on the plan.”</li>
                   </ul>
                 </div>
               </div>
