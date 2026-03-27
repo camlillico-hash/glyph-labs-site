@@ -129,6 +129,22 @@ export default function ReferralKitPage() {
             </div>
           </div>
         </div>
+
+        {/* PROOF POINTS (from /coaching) */}
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <p className="text-4xl font-bold text-[#ed7d31]">20+ Years</p>
+            <p className="mt-2 text-slate-600">Business and leadership experience</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <p className="text-2xl font-bold text-[#ed7d31]">B2B SaaS Focus</p>
+            <p className="mt-2 text-slate-600">Specialized in growth-stage startups from $2M to $50M</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <p className="text-2xl font-bold text-[#ed7d31]">BOS360™ Framework</p>
+            <p className="mt-2 text-slate-600">Proven methodology built around alignment, discipline, and accountability</p>
+          </div>
+        </div>
       </section>
 
       {/* WHO TO LOOK FOR */}
