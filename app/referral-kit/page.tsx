@@ -237,29 +237,26 @@ export default function ReferralKitPage() {
       <section className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-6 pb-12 pt-12">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-            THE INTRODUCTION
+            ENABLEMENT GUIDE
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight">How to Refer Cam</h2>
 
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-12">
             <div className="md:col-span-6">
               <div className="rounded-2xl border border-slate-200 bg-white p-6">
-                <h3 className="text-base font-semibold">Confirm Interest</h3>
+                <h3 className="text-base font-semibold">01. Confirm Interest</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  Confirm there is interest in a warm introduction. This can be a
-                  quick note, a quick text, or a quick call.
+                  Mention Cam and BOS360 during your conversation. If they are feeling the “scaling pain,” they’ll likely be open to it.
                 </p>
 
-                <h3 className="mt-6 text-base font-semibold">The Introduction</h3>
+                <h3 className="mt-6 text-base font-semibold">02. The Introduction</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  Once confirmed, introduce Cam to the founder/leader via email
-                  or text.
+                  Start a thread via Email or LinkedIn. You can also invite Cam directly to a discovery call if you are currently working with them.
                 </p>
 
-                <h3 className="mt-6 text-base font-semibold">Log the Intro</h3>
+                <h3 className="mt-6 text-base font-semibold">03. Loop Me In</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  Copy the intro into your CRM / note system for your own
-                  reference.
+                  Once the intro is made, I’ll take it from there and keep you updated on the progress.
                 </p>
               </div>
             </div>
@@ -267,28 +264,16 @@ export default function ReferralKitPage() {
             <div className="md:col-span-6">
               <div className="space-y-4">
                 <ScriptCard
-                  title="" 
-                  text={`Hey [Name], I want to introduce you to Cam Lillico.
-
-Cam helps founder-led leadership teams install a simple operating system so they gain clarity, momentum, and health.
-
-[Name] is building [Company] and is currently navigating [context]. I think it’s worth a quick intro call to see if there’s a fit.`}
+                  title="Short Script"
+                  text={`“Hey [Founder], I recall you mentioning growth feels a bit chaotic lately. You should talk to Cam—he specializes in helping $5M+ teams install a better operating system. Want an intro?”`}
                 />
                 <ScriptCard
-                  title="" 
-                  text={`Hey [Name], introducing you to Cam Lillico.
-
-Cam works with founder-led leadership teams who are hitting the “scaling complexity” phase — lots of activity, but priorities and execution start to get noisy.
-
-Based on what you shared about [trigger moment], I think Cam would be a strong conversation.`}
+                  title="Medium Script"
+                  text={`“I’ve been watching Cam work with other scaling founders. He uses the BOS360 framework to get the whole leadership team on the same page. It cuts through the ‘putting out fires’ cycle. Happy to connect you.”`}
                 />
                 <ScriptCard
-                  title="" 
-                  text={`Hey [Name] — meet Cam Lillico.
-
-Cam helps leadership teams build a practical operating system (BOS360) so they execute with clarity, accountability, and momentum.
-
-If you’re open, here’s his booking link for a quick intro call: ${BOOKING_URL}`}
+                  title="Strong Script"
+                  text={`“You mentioned meetings suck and your team isn’t executing. Cam is an operator turned coach who fixed exactly that for firms like Kira Talent. He’s the real deal for scaling health. You free for a 15-min chat with him?”`}
                 />
               </div>
             </div>
