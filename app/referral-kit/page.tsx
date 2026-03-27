@@ -237,10 +237,12 @@ If you’re open, here’s his booking link for a quick intro call: ${BOOKING_UR
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-neutral-800 bg-neutral-950 p-6">
           <div>
             <p className="text-sm font-semibold text-slate-200">BOS360 Referral Kit (PDF)</p>
-            <p className="mt-1 text-sm text-slate-400">Placeholder for now — you’ll replace this file.</p>
+            <p className="mt-1 text-sm text-slate-400">/referral-kit-one-pager.pdf</p>
           </div>
           <a
-            href="#"
+            href="/referral-kit-one-pager.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-5 py-3 text-sm font-semibold text-neutral-950 transition-colors hover:bg-orange-300"
           >
             <FileDown className="mr-2 h-4 w-4" />
