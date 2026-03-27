@@ -180,10 +180,26 @@ export default function ReferralKitPage() {
         <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Why Introduce Cam?</h2>
 
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <IconCard icon={<MessageSquareText className="h-5 w-5" />} title="Operator Turned Coach" />
-          <IconCard icon={<BookOpenCheck className="h-5 w-5" />} title="High-Growth Tech" />
-          <IconCard icon={<BadgeCheck className="h-5 w-5" />} title="Certified Expert" />
-          <IconCard icon={<Sparkles className="h-5 w-5" />} title="Methodical Style" />
+          <IconCard
+            icon={<MessageSquareText className="h-5 w-5" />}
+            title="Operator Turned Coach"
+            text="10+ years of hands-on leadership experience in high-growth environments before coaching."
+          />
+          <IconCard
+            icon={<BookOpenCheck className="h-5 w-5" />}
+            title="High-Growth Tech"
+            text="Deep roots in scaling and exiting high-growth tech firms like Kira Talent and Ten Thousand Coffees."
+          />
+          <IconCard
+            icon={<BadgeCheck className="h-5 w-5" />}
+            title="Certified Expert"
+            text="Certified BOS360 and EOS implementation specialist with hundreds of hours of team sessions."
+          />
+          <IconCard
+            icon={<Sparkles className="h-5 w-5" />}
+            title="Methodical Style"
+            text="Known for a trusted, calm, and methodical approach that cuts through the noise of scaling."
+          />
         </div>
       </section>
 
@@ -357,13 +373,22 @@ function MiniCard({
   );
 }
 
-function IconCard({ icon, title }: { icon: React.ReactNode; title: string }) {
+function IconCard({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6">
       <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
         {icon}
       </div>
       <p className="mt-4 text-sm font-semibold text-slate-900">{title}</p>
+      <p className="mt-2 text-sm leading-relaxed text-slate-600">{text}</p>
     </div>
   );
 }
