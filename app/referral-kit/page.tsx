@@ -139,7 +139,8 @@ export default function ReferralKitPage() {
               <p className="mt-3 text-sm leading-relaxed text-slate-600">
                 The best introductions are founder-led or growth-stage companies with real momentum, but growing complexity.
               </p>
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">
+              <h3 className="mt-6 text-sm font-semibold tracking-tight text-slate-900">The Ideal Profile</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">
                 The right fit is usually a business that is doing well, but no longer running as cleanly or simply as it should. The leadership team has ambition and capability, but execution is inconsistent, priorities get muddy, and too much still depends on a few key people. They do not need more ideas. They need more clarity, accountability, and operating discipline.
               </p>
 
