@@ -21,6 +21,53 @@ const BOOKING_URL = "https://calendar.app.google/M4pokXD8CBpc1c4U6";
 export default function ReferralKitPage() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
+      {/* HEADER (light version of /coaching) */}
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+          <div
+            className="inline-flex min-w-0 items-center gap-2"
+            aria-label="Cam Lillico Coaching"
+          >
+            <a
+              href="/coaching"
+              className="inline-flex items-center"
+              aria-label="Cam Lillico Coaching home"
+            >
+              <img
+                src="/logos/glyphlabs-coaching-mark.png"
+                alt="Coaching mark"
+                className="h-7 w-7 object-contain sm:h-8 sm:w-8"
+              />
+            </a>
+            <span className="hidden rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-slate-700 sm:inline-flex">
+              Cam Lillico Business Coaching
+            </span>
+          </div>
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <a
+              href="/strength-test"
+              className="rounded-lg border border-cyan-600/40 px-3 py-2 text-xs font-semibold text-cyan-700 hover:bg-cyan-50"
+            >
+              Start Strength Test
+            </a>
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950 transition hover:opacity-90"
+            >
+              Book an Intro Call
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-6xl px-6 pt-2 sm:hidden">
+        <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-700">
+          Cam Lillico Business Coaching
+        </span>
+      </div>
+
       {/* HERO */}
       <section className="mx-auto max-w-6xl px-6 pb-10 pt-10 md:pt-14">
         <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12">
@@ -292,6 +339,11 @@ If you’re open, here’s his booking link for a quick intro call: ${BOOKING_UR
           </div>
         </div>
       </section>
+
+      {/* FOOTER (light version of /coaching) */}
+      <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
+      </footer>
     </main>
   );
 }
