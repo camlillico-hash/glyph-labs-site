@@ -69,7 +69,7 @@ export default function ReferralKitPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-6 pt-6">
-        <div className="max-w-3xl rounded-2xl border border-orange-200 bg-orange-50 p-4">
+        <div className="w-full rounded-2xl border border-orange-200 bg-orange-50 p-4">
           <div className="flex items-start gap-3">
             <span className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-orange-100 text-orange-700">
               <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -97,7 +97,7 @@ export default function ReferralKitPage() {
       </div>
 
       {/* HERO */}
-      <section className="mx-auto max-w-6xl px-6 pb-10 pt-10 md:pt-14">
+      <section className="mx-auto max-w-6xl px-6 pb-10 pt-6 md:pt-8">
         <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12">
           <div className="md:col-span-6">
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
