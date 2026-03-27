@@ -120,7 +120,7 @@ export default function ReferralKitPage() {
                 className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-slate-50"
               >
                 Get The PDF Version
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <FileDown className="ml-2 h-4 w-4" />
               </a>
             </div>
           </div>
