@@ -72,9 +72,6 @@ export default function ReferralKitPage() {
       <section className="mx-auto max-w-6xl px-6 pb-10 pt-10 md:pt-14">
         <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12">
           <div className="md:col-span-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-              Referral Enablement Tool
-            </p>
 
             <div className="mt-4 max-w-xl rounded-2xl border border-orange-200 bg-orange-50 p-4">
               <div className="flex items-start gap-3">
@@ -103,7 +100,7 @@ export default function ReferralKitPage() {
             </div>
 
             <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
-              Referral Kit: Connect Founders to Clarity, Momentum and Health
+              Referral Enablement Kit
             </h1>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
