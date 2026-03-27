@@ -130,15 +130,63 @@ export default function ReferralKitPage() {
         </div>
       </section>
 
-      {/* FOCUS + KEYWORDS */}
+      {/* WHO TO LOOK FOR */}
       <section className="bg-gradient-to-b from-white to-slate-50">
         <div className="mx-auto max-w-6xl px-6 pb-12 pt-10">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-7">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                THE FRAMEWORK
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Who to Look For</h2>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                The best introductions are founder-led or growth-stage companies with real momentum, but growing complexity.
               </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight">Focusing on $2M–$50M Founder-Led Companies</h2>
+              <p className="mt-4 text-sm leading-relaxed text-slate-600">
+                The right fit is usually a business that is doing well, but no longer running as cleanly or simply as it should. The leadership team has ambition and capability, but execution is inconsistent, priorities get muddy, and too much still depends on a few key people. They do not need more ideas. They need more clarity, accountability, and operating discipline.
+              </p>
+
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <ul className="list-disc space-y-3 pl-5 text-sm text-slate-700">
+                  <li>Founder-led or growth-stage companies, typically $2M–$50M</li>
+                  <li>Leadership teams with strong intent but inconsistent execution</li>
+                  <li>Teams ready for candid conversations and real accountability</li>
+                  <li>Companies that want operating discipline without bureaucracy</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="md:col-span-5">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold tracking-tight text-slate-900">Does any of this sound familiar?</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  These are the kinds of scaling pains founders and leadership teams often experience before they put a better operating system in place.
+                </p>
+
+                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <ul className="list-disc space-y-3 pl-5 text-sm text-slate-700">
+                    <li>“We’re growing, but it feels messier than it should.”</li>
+                    <li>“Too much still depends on me.”</li>
+                    <li>“My leadership team is not fully aligned.”</li>
+                    <li>“We meet constantly, but key issues still linger.”</li>
+                    <li>“Accountability is inconsistent.”</li>
+                    <li>“We’ve hit a ceiling.”</li>
+                    <li>“I’m not sure everyone is in the right seat.”</li>
+                    <li>“We keep starting initiatives, but they don’t stick.”</li>
+                    <li>“Our priorities keep changing.”</li>
+                    <li>“We need more clarity on the plan.”</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOCUS + KEYWORDS */}
+      <section>
+        <div className="mx-auto max-w-6xl px-6 pb-12 pt-12">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
+            <div className="md:col-span-12">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">THE FRAMEWORK</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Focusing on $2M–$50M Founder-Led Companies</h2>
 
               <p className="mt-4 text-sm leading-relaxed text-slate-600">
                 BOS360 is a comprehensive business operating system designed for founders who have successfully reached product-market fit but are now feeling the weight of complexity as they scale.
@@ -164,32 +212,6 @@ export default function ReferralKitPage() {
                   title="Health"
                   text="Creating a cohesive leadership team and nourishing a happy high-performing culture where everyone can rise to their full potential."
                 />
-              </div>
-            </div>
-
-            <div className="md:col-span-5">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold tracking-tight text-slate-900">
-                  Does any of this sound familiar?
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  These are the kinds of scaling pains founders and leadership teams often experience before they put a better operating system in place.
-                </p>
-
-                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <ul className="list-disc space-y-3 pl-5 text-sm text-slate-700">
-                    <li>“We’re growing, but it feels messier than it should.”</li>
-                    <li>“Too much still depends on me.”</li>
-                    <li>“My leadership team is not fully aligned.”</li>
-                    <li>“We meet constantly, but key issues still linger.”</li>
-                    <li>“Accountability is inconsistent.”</li>
-                    <li>“We’ve hit a ceiling.”</li>
-                    <li>“I’m not sure everyone is in the right seat.”</li>
-                    <li>“We keep starting initiatives, but they don’t stick.”</li>
-                    <li>“Our priorities keep changing.”</li>
-                    <li>“We need more clarity on the plan.”</li>
-                  </ul>
-                </div>
               </div>
             </div>
           </div>
