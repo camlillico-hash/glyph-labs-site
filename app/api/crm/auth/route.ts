@@ -14,10 +14,20 @@ export async function POST(req: Request) {
 
   const user = await getUserByEmail(email).catch(() => null);
   if (!user) {
-    return NextResponse.json({ ok: false, error: "Invalid email or password" }, { status: 401 });
+    // DEBUG: helps identify whether we're failing lookup vs verification.
+    return NextResponse.json({ ok: false, where: "no_user" }, { status: 401 });
   }
-  if (!verifyPassword(password, user.password_hash)) {
-    return NextResponse.json({ ok: false, error: "Invalid email or password" }, { status: 401 });
+
+  let passOk = false;
+  try {
+    passOk = verifyPassword(password, user.password_hash);
+  } catch (e: any) {
+    // DEBUG: verifyPassword can throw (e.g., malformed stored hash).
+    return NextResponse.json({ ok: false, where: "verify_throw", message: String(e?.message || e) }, { status: 401 });
+  }
+
+  if (!passOk) {
+    return NextResponse.json({ ok: false, where: "bad_password" }, { status: 401 });
   }
 
   const role = (user.is_admin || isAdminEmail(user.email)) ? ("owner" as const) : ("guest" as const);
