@@ -1,24 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseSessionToken, sessionCookieName } from "@/lib/crm-auth";
 
-const COOKIE_NAME = "crm_session";
 const PUBLIC_CRM_API_PATHS = ["/api/crm/auth", "/api/crm/gmail/callback", "/api/crm/coach"];
-
-function ownerToken() {
-  const secret = process.env.CRM_SESSION_SECRET || "local-dev-secret";
-  return `${secret}:owner`;
-}
-
-function guestToken() {
-  const secret = process.env.CRM_SESSION_SECRET || "local-dev-secret";
-  return `${secret}:guest`;
-}
-
-function roleFromToken(token?: string) {
-  if (!token) return null;
-  if (token === ownerToken()) return "owner" as const;
-  if (token === guestToken()) return "guest" as const;
-  return null;
-}
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -27,7 +10,8 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const role = roleFromToken(req.cookies.get(COOKIE_NAME)?.value);
+  const session = parseSessionToken(req.cookies.get(sessionCookieName)?.value);
+  const role = session?.role || null;
   if (!role) {
     if (pathname.startsWith("/api/")) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const url = req.nextUrl.clone();
