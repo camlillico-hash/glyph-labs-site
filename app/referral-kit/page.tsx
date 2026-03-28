@@ -18,6 +18,7 @@ import {
   Award,
   Briefcase,
   Building2,
+  Linkedin,
 } from "lucide-react";
 import CopyButton from "./CopyButton";
 
@@ -124,22 +125,75 @@ export default function ReferralKitPage() {
           </div>
 
           <div className="md:col-span-5">
-            <div className="rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 via-amber-50 to-white p-7 shadow-sm">
-              <SectionLabel>Facilitation</SectionLabel>
-              <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
-                Cam is a certified and experienced facilitator with 100s of sessions under his belt
-              </h3>
-              <p className="mt-4 text-sm leading-7 text-slate-600">
+            <div className="relative overflow-hidden rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 via-amber-50 to-white p-7 shadow-sm">
+              <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-orange-200/40 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-amber-200/50 blur-3xl" />
+
+              <div className="relative flex items-start gap-4">
+                <img
+                  src="/cam-headshot-circle.png"
+                  alt="Cam Lillico"
+                  className="h-20 w-20 shrink-0 rounded-full border border-orange-200 object-cover shadow-lg shadow-orange-100 sm:h-24 sm:w-24"
+                  loading="eager"
+                />
+                <div className="min-w-0">
+                  <SectionLabel>Facilitation</SectionLabel>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
+                    Cam is a certified and experienced facilitator with 100s of sessions under his belt
+                  </h3>
+                </div>
+              </div>
+
+              <p className="relative mt-5 text-sm leading-7 text-slate-600">
                 He brings a calm, practical presence to leadership conversations and knows how to guide teams toward clarity, accountability, and better decisions without adding unnecessary complexity.
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="relative mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <a
+                  href="https://bos360.ca"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
+                >
+                  <img src="/badge-bos360.png" alt="BOS360™" className="h-10 w-10 rounded-lg object-cover" />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">BOS360™</p>
+                    <p className="text-sm font-semibold text-slate-900">Certified Coach</p>
+                  </div>
+                </a>
+                <a
+                  href="https://www.eosworldwide.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
+                >
+                  <img src="/badge-eos.jpg" alt="EOS" className="h-10 w-10 rounded-lg object-cover" />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">EOS</p>
+                    <p className="text-sm font-semibold text-slate-900">Implementor 2018–2024</p>
+                  </div>
+                </a>
+                <a
+                  href="https://innovationcluster.ca/programs/mentors-advisors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
+                >
+                  <img src="/badge-innovation-cluster.jpg" alt="Innovation Cluster" className="h-10 w-10 rounded-lg object-cover" />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Innovation Cluster</p>
+                    <p className="text-sm font-semibold text-slate-900">Expert in Residence</p>
+                  </div>
+                </a>
+              </div>
+
+              <div className="relative mt-6 flex flex-wrap gap-3">
                 <CredentialPill icon={<Award className="h-4 w-4" />} text="Certified BOS360 Coach" />
                 <CredentialPill icon={<Briefcase className="h-4 w-4" />} text="EOS Implementor (2018–2024)" />
                 <CredentialPill icon={<Building2 className="h-4 w-4" />} text="Expert in Residence" />
               </div>
 
-              <div className="mt-6">
+              <div className="relative mt-6">
                 <a
                   href="#how-to-refer"
                   className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-5 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-orange-300"
@@ -256,36 +310,106 @@ export default function ReferralKitPage() {
 
 
 
-          <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-            <div className="max-w-3xl">
-              <SectionLabel>Why Cam?</SectionLabel>
-              <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">An experienced operator with a practical coaching style</h3>
-              <p className="mt-4 text-sm leading-7 text-slate-600">
-                Cam brings real operating experience, pattern recognition from high-growth environments, and a calm, methodical style that helps leadership teams cut through the noise of scaling.
-              </p>
-            </div>
+          <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1.2fr_1fr]">
+              <div className="p-8">
+                <div className="max-w-3xl">
+                  <SectionLabel>Why Cam?</SectionLabel>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <img
+                      src="/cam-headshot-circle.png"
+                      alt="Cam Lillico"
+                      className="h-14 w-14 rounded-full border border-slate-200 object-cover shadow-sm"
+                      loading="lazy"
+                    />
+                    <div>
+                      <h3 className="text-2xl font-semibold tracking-tight text-slate-900">An experienced operator with a practical coaching style</h3>
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+                        <a
+                          href="https://www.linkedin.com/in/cameron-lillico/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium text-slate-600 transition hover:border-slate-300 hover:bg-white hover:text-slate-900"
+                        >
+                          <Linkedin className="h-4 w-4" />
+                          LinkedIn
+                        </a>
+                        <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-orange-700">
+                          Operator turned coach
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="mt-5 text-sm leading-7 text-slate-600">
+                    Cam brings real operating experience, pattern recognition from high-growth environments, and a calm, methodical style that helps leadership teams cut through the noise of scaling.
+                  </p>
+                </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-              <IconCard
-                icon={<MessageSquareText className="h-5 w-5" />}
-                title="Operator Turned Coach"
-                text="Hands-on leadership experience in high-growth environments before moving into coaching."
-              />
-              <IconCard
-                icon={<BookOpenCheck className="h-5 w-5" />}
-                title="High-Growth Tech"
-                text="Deep roots in scaling and exiting firms like Kira Talent and Ten Thousand Coffees."
-              />
-              <IconCard
-                icon={<BadgeCheck className="h-5 w-5" />}
-                title="Certified Expert"
-                text="Certified BOS360 coach and EOS implementor with extensive team facilitation experience."
-              />
-              <IconCard
-                icon={<Sparkles className="h-5 w-5" />}
-                title="Methodical Style"
-                text="Trusted for a calm, practical approach that creates clarity without unnecessary complexity."
-              />
+                <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <IconCard
+                    icon={<MessageSquareText className="h-5 w-5" />}
+                    title="Operator Turned Coach"
+                    text="Hands-on leadership experience in high-growth environments before moving into coaching."
+                  />
+                  <IconCard
+                    icon={<BookOpenCheck className="h-5 w-5" />}
+                    title="High-Growth Tech"
+                    text="Deep roots in scaling and exiting firms like Kira Talent and Ten Thousand Coffees."
+                  />
+                  <IconCard
+                    icon={<BadgeCheck className="h-5 w-5" />}
+                    title="Certified Expert"
+                    text="Certified BOS360 coach and EOS implementor with extensive team facilitation experience."
+                  />
+                  <IconCard
+                    icon={<Sparkles className="h-5 w-5" />}
+                    title="Methodical Style"
+                    text="Trusted for a calm, practical approach that creates clarity without unnecessary complexity."
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-slate-200 bg-gradient-to-br from-slate-50 via-white to-orange-50 p-8 lg:border-l lg:border-t-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Credentials at a glance</p>
+                <div className="mt-5 grid gap-3">
+                  <a
+                    href="https://bos360.ca"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300"
+                  >
+                    <img src="/badge-bos360.png" alt="BOS360™" className="h-12 w-12 rounded-xl object-cover" />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Certified BOS360 Coach</p>
+                      <p className="mt-1 text-xs leading-5 text-slate-500">Practical framework for Vision, Momentum, and Health.</p>
+                    </div>
+                  </a>
+                  <a
+                    href="https://www.eosworldwide.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300"
+                  >
+                    <img src="/badge-eos.jpg" alt="EOS" className="h-12 w-12 rounded-xl object-cover" />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">EOS Implementor (2018–2024)</p>
+                      <p className="mt-1 text-xs leading-5 text-slate-500">Extensive facilitation experience helping teams simplify execution.</p>
+                    </div>
+                  </a>
+                  <a
+                    href="https://innovationcluster.ca/programs/mentors-advisors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300"
+                  >
+                    <img src="/badge-innovation-cluster.jpg" alt="Innovation Cluster" className="h-12 w-12 rounded-xl object-cover" />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Expert in Residence</p>
+                      <p className="mt-1 text-xs leading-5 text-slate-500">Trusted advisor to founders navigating growth-stage complexity.</p>
+                    </div>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
