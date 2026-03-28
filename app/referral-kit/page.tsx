@@ -12,7 +12,7 @@ import {
   Users,
   Target,
   Workflow,
-  HeartHandshake,
+  Bell,
   Mail,
   CalendarDays,
   Linkedin,
@@ -73,10 +73,10 @@ export default function ReferralKitPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-6 pt-6">
-        <div className="w-full rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-4 shadow-sm">
+        <div className="w-full rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-yellow-50 to-white p-4 shadow-sm shadow-amber-100/60">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 inline-flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-orange-100 text-orange-700">
-              <HeartHandshake className="h-5 w-5" />
+            <span className="mt-0.5 inline-flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+              <Bell className="h-5 w-5" />
             </span>
             <div>
               <p className="text-sm font-semibold text-slate-900">For trusted partners and referrers</p>
@@ -88,95 +88,101 @@ export default function ReferralKitPage() {
         </div>
       </div>
 
-      <section className="mx-auto max-w-6xl px-6 pb-14 pt-5 md:pt-6">
-        <div className="max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Referral enablement</p>
-          <h1 className="mt-2 text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
-            Make strong founder introductions with confidence
-          </h1>
-          <p className="mt-5 text-base leading-7 text-slate-600">
-            This kit gives you the language, fit criteria, and next steps to introduce Cam to founders and leadership teams who need more clarity, accountability, and execution discipline.
-          </p>
+      <section className="relative overflow-hidden pb-14 pt-5 md:pt-6">
+        <div className="absolute inset-x-0 top-0 -z-10 h-[30rem] bg-gradient-to-b from-orange-50 via-amber-50/60 to-white" />
+        <div className="absolute left-1/2 top-12 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-orange-200/30 blur-3xl" />
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="rounded-[2rem] border border-orange-100/80 bg-white/80 px-6 py-8 shadow-[0_20px_80px_-40px_rgba(237,125,49,0.45)] backdrop-blur sm:px-8 md:px-10 md:py-10">
+            <div className="mx-auto max-w-4xl">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Referral enablement</p>
+              <h1 className="mt-2 text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
+                Make strong founder introductions with confidence
+              </h1>
+              <p className="mt-5 max-w-3xl text-base leading-7 text-slate-600">
+                This kit gives you the language, fit criteria, and next steps to introduce Cam to founders and leadership teams who need more clarity, accountability, and execution discipline.
+              </p>
 
-          <div className="mt-8 relative overflow-hidden rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 via-amber-50 to-white p-7 shadow-sm">
-            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-orange-200/40 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-amber-200/50 blur-3xl" />
+              <div className="mt-8 relative overflow-hidden rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 via-amber-50 to-white p-7 shadow-sm">
+                <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-orange-200/40 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-amber-200/50 blur-3xl" />
 
-            <div className="relative flex items-start gap-4">
-              <img
-                src="/cam-headshot-circle.png"
-                alt="Cam Lillico"
-                className="h-20 w-20 shrink-0 rounded-full border border-orange-200 object-cover shadow-lg shadow-orange-100 sm:h-24 sm:w-24"
-                loading="eager"
-              />
-              <div className="min-w-0">
-                <SectionLabel>Facilitation</SectionLabel>
-                <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
-                  Cam is a certified and experienced facilitator with 100s of sessions under his belt
-                </h3>
+                <div className="relative flex items-start gap-4">
+                  <img
+                    src="/cam-headshot-circle.png"
+                    alt="Cam Lillico"
+                    className="h-20 w-20 shrink-0 rounded-full border border-orange-200 object-cover shadow-lg shadow-orange-100 sm:h-24 sm:w-24"
+                    loading="eager"
+                  />
+                  <div className="min-w-0">
+                    <SectionLabel>Facilitation</SectionLabel>
+                    <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
+                      Cam is a certified and experienced facilitator with 100s of sessions under his belt
+                    </h3>
+                  </div>
+                </div>
+
+                <p className="relative mt-5 text-sm leading-7 text-slate-600">
+                  He brings a calm, practical presence to leadership conversations and knows how to guide teams toward clarity, accountability, and better decisions without adding unnecessary complexity.
+                </p>
+
+                <div className="relative mt-6 grid gap-3">
+                  <a
+                    href="https://bos360.ca"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
+                  >
+                    <img src="/badge-bos360.png" alt="BOS360™" className="h-10 w-10 rounded-lg object-cover" />
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">BOS360™</p>
+                      <p className="text-sm font-semibold text-slate-900">Certified Coach</p>
+                    </div>
+                  </a>
+                  <a
+                    href="https://www.eosworldwide.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
+                  >
+                    <img src="/badge-eos.jpg" alt="EOS" className="h-10 w-10 rounded-lg object-cover" />
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">EOS</p>
+                      <p className="text-sm font-semibold text-slate-900">Implementor 2018–2024</p>
+                    </div>
+                  </a>
+                  <a
+                    href="https://innovationcluster.ca/programs/mentors-advisors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
+                  >
+                    <img src="/badge-innovation-cluster.jpg" alt="Innovation Cluster" className="h-10 w-10 rounded-lg object-cover" />
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Innovation Cluster</p>
+                      <p className="text-sm font-semibold text-slate-900">Expert in Residence</p>
+                    </div>
+                  </a>
+                </div>
+
+                <div className="relative mt-6 flex flex-col items-start gap-3">
+                  <a
+                    href="#how-to-refer"
+                    className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-5 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-orange-300"
+                  >
+                    How to Refer Cam
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </a>
+                  <a
+                    href="/referral-kit-one-pager.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-slate-50"
+                  >
+                    Get the PDF Version
+                    <FileDown className="ml-2 h-4 w-4" />
+                  </a>
+                </div>
               </div>
-            </div>
-
-            <p className="relative mt-5 text-sm leading-7 text-slate-600">
-              He brings a calm, practical presence to leadership conversations and knows how to guide teams toward clarity, accountability, and better decisions without adding unnecessary complexity.
-            </p>
-
-            <div className="relative mt-6 grid gap-3">
-              <a
-                href="https://bos360.ca"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
-              >
-                <img src="/badge-bos360.png" alt="BOS360™" className="h-10 w-10 rounded-lg object-cover" />
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">BOS360™</p>
-                  <p className="text-sm font-semibold text-slate-900">Certified Coach</p>
-                </div>
-              </a>
-              <a
-                href="https://www.eosworldwide.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
-              >
-                <img src="/badge-eos.jpg" alt="EOS" className="h-10 w-10 rounded-lg object-cover" />
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">EOS</p>
-                  <p className="text-sm font-semibold text-slate-900">Implementor 2018–2024</p>
-                </div>
-              </a>
-              <a
-                href="https://innovationcluster.ca/programs/mentors-advisors"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-[72px] items-center gap-3 rounded-2xl border border-orange-200/80 bg-white/90 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white"
-              >
-                <img src="/badge-innovation-cluster.jpg" alt="Innovation Cluster" className="h-10 w-10 rounded-lg object-cover" />
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Innovation Cluster</p>
-                  <p className="text-sm font-semibold text-slate-900">Expert in Residence</p>
-                </div>
-              </a>
-            </div>
-
-            <div className="relative mt-6 flex flex-col items-start gap-3">
-              <a
-                href="#how-to-refer"
-                className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-5 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-orange-300"
-              >
-                How to Refer Cam
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-              <a
-                href="/referral-kit-one-pager.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-slate-50"
-              >
-                Get the PDF Version
-                <FileDown className="ml-2 h-4 w-4" />
-              </a>
             </div>
           </div>
         </div>
@@ -207,14 +213,14 @@ export default function ReferralKitPage() {
             </div>
 
             <div className="md:col-span-5">
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+              <div className="rounded-3xl border border-orange-200/70 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-6 shadow-[0_18px_60px_-40px_rgba(237,125,49,0.55)]">
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-orange-600 shadow-sm ring-1 ring-orange-100">
                     <MessageSquareText className="h-5 w-5" />
                   </span>
                   <div>
-                    <h3 className="text-lg font-semibold tracking-tight text-slate-900">Does any of this sound familiar?</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                    <h3 className="text-2xl font-semibold tracking-tight text-slate-900">Does any of this sound familiar?</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
                       These are the kinds of scaling pains founders often describe before they put a better operating system in place.
                     </p>
                   </div>
@@ -354,6 +360,18 @@ export default function ReferralKitPage() {
                   <QuickStat title="B2B SaaS" text="Best fit for growth-stage teams navigating complexity" />
                   <QuickStat title="BOS360™" text="A practical framework for Vision, Momentum, and Health" />
                 </div>
+
+                <div className="mt-8 border-t border-slate-200/80 pt-6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Companies</p>
+                  <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 sm:items-center">
+                    <LogoTile src="/credential-achievers.png" alt="Achievers" />
+                    <LogoTile src="/credential-touchbistro-from-url.png" alt="TouchBistro" />
+                    <LogoTile src="/credential-kira-talent.png" alt="Kira Talent" />
+                    <LogoTile src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" />
+                    <LogoTile src="/credential-autohost.png" alt="Autohost" />
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-slate-500">Selected operator experience across recognized growth-stage companies.</p>
+                </div>
               </div>
 
               <div className="border-t border-slate-200 bg-gradient-to-br from-slate-50 via-white to-orange-50 p-8 lg:border-l lg:border-t-0">
@@ -395,17 +413,6 @@ export default function ReferralKitPage() {
                       <p className="mt-1 text-xs leading-5 text-slate-500">Trusted advisor to founders navigating growth-stage complexity.</p>
                     </div>
                   </a>
-                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Companies</p>
-                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      <LogoTile src="/credential-achievers.png" alt="Achievers" />
-                      <LogoTile src="/credential-touchbistro-from-url.png" alt="TouchBistro" />
-                      <LogoTile src="/credential-kira-talent.png" alt="Kira Talent" />
-                      <LogoTile src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" />
-                      <LogoTile src="/credential-autohost.png" alt="Autohost" />
-                    </div>
-                    <p className="mt-3 text-xs leading-5 text-slate-500">Selected operator experience across recognized growth-stage companies.</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -512,7 +519,6 @@ export default function ReferralKitPage() {
               <p className="mt-3 text-sm leading-7 text-slate-600">
                 Download the PDF if you want a simple asset to forward, attach, or keep on hand when introducing Cam.
               </p>
-              <p className="mt-2 text-sm text-slate-500">/referral-kit-one-pager.pdf</p>
             </div>
             <a
               href="/referral-kit-one-pager.pdf"
@@ -740,8 +746,8 @@ function ScriptCard({ title, text }: { title: string; text: string }) {
 
 function LogoTile({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="flex min-h-[84px] items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-      <img src={src} alt={alt} className="h-9 w-full object-contain" />
+    <div className="flex min-h-[48px] items-center justify-center px-1 py-1">
+      <img src={src} alt={alt} className="h-10 w-full object-contain" />
     </div>
   );
 }
