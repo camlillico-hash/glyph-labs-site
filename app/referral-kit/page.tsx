@@ -125,7 +125,7 @@ export default function ReferralKitPage() {
                   He brings a calm, practical presence to leadership conversations and knows how to guide teams toward clarity, accountability, and better decisions without adding unnecessary complexity.
                 </p>
 
-                <div className="relative mt-6 grid gap-3">
+                <div className="relative mt-6 grid gap-3 md:grid-cols-3">
                   <a
                     href="https://bos360.ca"
                     target="_blank"
@@ -164,10 +164,10 @@ export default function ReferralKitPage() {
                   </a>
                 </div>
 
-                <div className="relative mt-6 flex flex-col items-start gap-3">
+                <div className="relative mt-6 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                   <a
                     href="#how-to-refer"
-                    className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-5 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-orange-300"
+                    className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-6 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-orange-300"
                   >
                     How to Refer Cam
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -176,7 +176,7 @@ export default function ReferralKitPage() {
                     href="/referral-kit-one-pager.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-slate-50"
+                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-slate-50"
                   >
                     Get the PDF Version
                     <FileDown className="ml-2 h-4 w-4" />
