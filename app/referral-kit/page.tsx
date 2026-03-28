@@ -124,23 +124,29 @@ export default function ReferralKitPage() {
           </div>
 
           <div className="md:col-span-5">
-            <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-orange-50 p-7 shadow-sm">
-              <div className="grid gap-4">
-                <HeroPoint
-                  icon={<Target className="h-5 w-5" />}
-                  title="Ideal fit"
-                  text="Founder-led or growth-stage companies with momentum but rising operational drag."
-                />
-                <HeroPoint
-                  icon={<Workflow className="h-5 w-5" />}
-                  title="Common challenge"
-                  text="Execution feels messy, priorities shift, and too much still depends on a few key people."
-                />
-                <HeroPoint
-                  icon={<Users className="h-5 w-5" />}
-                  title="Best outcome"
-                  text="A leadership team that gets aligned, executes with discipline, and scales more cleanly."
-                />
+            <div className="rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 via-amber-50 to-white p-7 shadow-sm">
+              <SectionLabel>Facilitation</SectionLabel>
+              <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
+                Cam is a certified and experienced facilitator with 100s of sessions under his belt
+              </h3>
+              <p className="mt-4 text-sm leading-7 text-slate-600">
+                He brings a calm, practical presence to leadership conversations and knows how to guide teams toward clarity, accountability, and better decisions without adding unnecessary complexity.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <CredentialPill icon={<Award className="h-4 w-4" />} text="Certified BOS360 Coach" />
+                <CredentialPill icon={<Briefcase className="h-4 w-4" />} text="EOS Implementor (2018–2024)" />
+                <CredentialPill icon={<Building2 className="h-4 w-4" />} text="Expert in Residence" />
+              </div>
+
+              <div className="mt-6">
+                <a
+                  href="#how-to-refer"
+                  className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-5 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-orange-300"
+                >
+                  How to Refer Cam
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
               </div>
             </div>
           </div>
@@ -248,19 +254,15 @@ export default function ReferralKitPage() {
             </div>
           </div>
 
-          <div className="mt-12 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+
+
+          <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
             <div className="max-w-3xl">
               <SectionLabel>Why Cam?</SectionLabel>
               <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">An experienced operator with a practical coaching style</h3>
               <p className="mt-4 text-sm leading-7 text-slate-600">
                 Cam brings real operating experience, pattern recognition from high-growth environments, and a calm, methodical style that helps leadership teams cut through the noise of scaling.
               </p>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
-              <CredentialPill icon={<Award className="h-4 w-4" />} text="Certified BOS360 Coach" />
-              <CredentialPill icon={<Briefcase className="h-4 w-4" />} text="EOS Implementor (2018–2024)" />
-              <CredentialPill icon={<Building2 className="h-4 w-4" />} text="Expert in Residence" />
             </div>
 
             <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
