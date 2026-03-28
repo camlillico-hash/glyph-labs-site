@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Lock, Rocket, Eye, EyeOff } from "lucide-react";
+import { Lock, Rocket, Eye, EyeOff, Mail } from "lucide-react";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -11,7 +12,7 @@ export default function LoginPage() {
   return (
     <div className="mx-auto mt-20 max-w-md crm-card p-6">
       <h1 className="text-2xl font-semibold inline-flex items-center gap-2"><Lock size={20} /> <img src="/glyph-crm-logo.png" alt="Glyph CRM logo" className="h-8 w-auto" /> CRM Login</h1>
-      <p className="mt-2 text-sm text-slate-400">Use your CRM password to continue.</p>
+      <p className="mt-2 text-sm text-slate-400">Sign in with your CRM email + password.</p>
       <form
         className="mt-6 space-y-3"
         onSubmit={async (e) => {
@@ -20,12 +21,28 @@ export default function LoginPage() {
           const res = await fetch("/api/crm/auth", {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ password }),
+            body: JSON.stringify({ email, password }),
           });
-          if (!res.ok) return setError("Wrong password");
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            return setError(data?.error || "Login failed");
+          }
           window.location.href = "/crm";
         }}
       >
+        <div className="relative">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full crm-input pr-10"
+            placeholder="Email"
+            autoComplete="username"
+          />
+          <div className="absolute inset-y-0 right-2 inline-flex items-center text-slate-400">
+            <Mail size={16} />
+          </div>
+        </div>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -33,6 +50,7 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full crm-input pr-10"
             placeholder="Password"
+            autoComplete="current-password"
           />
           <button
             type="button"

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { DEAL_STAGES, DEAL_STAGE_WEIGHTS, getStore, id, now, saveStore } from "@/lib/crm-store";
+import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 function upsertDealStamp(store: any, deal: any) {
   if (!["Launch days paid", "Launch paid (won)"].includes(deal.stage)) return;
@@ -57,7 +58,8 @@ function computeFinancials(input: any) {
 }
 
 export async function GET() {
-  const store = await getStore();
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   return NextResponse.json({ deals: store.deals, dealStamps: store.dealStamps || [], stages: DEAL_STAGES });
 }
 
@@ -73,7 +75,8 @@ export async function PUT(req: Request) {
   if (!String(body.contactId || "").trim()) {
     return NextResponse.json({ error: "Linked contact is required" }, { status: 400 });
   }
-  const store = await getStore();
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   const idx = store.deals.findIndex((d) => d.id === body.id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const stage = normalizeStage(body.stage || store.deals[idx].stage);
@@ -89,19 +92,18 @@ export async function PUT(req: Request) {
     updatedAt: now(),
   };
   upsertDealStamp(store, store.deals[idx]);
-  await saveStore(store);
-  return NextResponse.json(store.deals[idx]);
+  await saveStore(store, accountId);
 }
 
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   const stampId = searchParams.get("stampId");
-  const store = await getStore();
-
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   if (stampId) {
     store.dealStamps = (store.dealStamps || []).filter((s: any) => s.id !== stampId);
-    await saveStore(store);
+    await saveStore(store, accountId);
     return NextResponse.json({ ok: true });
   }
 

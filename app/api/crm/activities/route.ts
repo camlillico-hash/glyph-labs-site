@@ -9,9 +9,12 @@ function normalizeType(v: any) {
 }
 
 export async function GET(req: Request) {
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+
   const { searchParams } = new URL(req.url);
   const contactId = searchParams.get("contactId");
-  const store = await getStore();
+  const store = await getStore(accountId);
   let activities = store.activities || [];
   if (contactId) activities = activities.filter((a: any) => a.contactId === contactId);
   activities = [...activities].sort((a: any, b: any) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime());
@@ -19,8 +22,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+
   const body = await req.json().catch(() => ({}));
-  const store = await getStore();
+  const store = await getStore(accountId);
   const type = normalizeType(body.type);
   if (!type) return NextResponse.json({ error: "Invalid activity type" }, { status: 400 });
   if (!String(body.contactId || "").trim()) return NextResponse.json({ error: "contactId is required" }, { status: 400 });
@@ -48,13 +54,16 @@ export async function POST(req: Request) {
       updatedAt: now(),
     };
   }
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json(record);
 }
 
 export async function PUT(req: Request) {
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+
   const body = await req.json().catch(() => ({}));
-  const store = await getStore();
+  const store = await getStore(accountId);
   const idx = (store.activities || []).findIndex((a: any) => a.id === body.id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const type = normalizeType(body.type);
@@ -78,14 +87,17 @@ export async function PUT(req: Request) {
       updatedAt: now(),
     };
   }
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json((store.activities as any)[idx]);
 }
 
 export async function DELETE(req: Request) {
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+
   const { searchParams } = new URL(req.url);
   const activityId = searchParams.get("id");
-  const store = await getStore();
+  const store = await getStore(accountId);
 
   const existing = (store.activities || []).find((a: any) => a.id === activityId);
   store.activities = (store.activities || []).filter((a: any) => a.id !== activityId);
@@ -106,6 +118,6 @@ export async function DELETE(req: Request) {
     }
   }
 
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json({ ok: true });
 }

@@ -2,6 +2,9 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Pool } from "pg";
 
+// NOTE: This file currently reads/writes a single global store.
+// Next step in this change-set will scope reads/writes by account_id.
+
 export type Contact = { id: string; firstName?: string; lastName?: string; email?: string; phone?: string; linkedin?: string; company?: string; title?: string; type?: string; leadSource?: string; primaryPain?: "Execution" | "Strategy" | "Culture"; status?: string; strengthTest?: "Yes" | null; disqualificationReason?: "Couldn't connect" | "Went cold" | "Said no" | "Not the right person" | "Shouldn't reach out just yet" | "Done tapping network for now." | "Test Lead or Bad Data" | "Other"; whatNow?: "Leave them" | "Nurture (future)"; referralCount?: number; nextReachOutAt?: string; seederNotes?: string; tags?: string[]; notes?: string; lastActivityDate?: string; lastActivityType?: string; createdAt: string; updatedAt: string; };
 export type Deal = { id: string; name?: string; contactId?: string; company?: string; stage: string; clientStage?: "Launch" | "Active rhythm"; primaryPain?: "Execution" | "Strategy" | "Culture"; leadSource?: string; launchIncluded?: "Yes" | "No"; dailyRate?: number; launchFee?: number; annualFee?: number; value?: number; launchDay1Date?: string; launchDay2Date?: string; launchDay3Date?: string; nextQuarterlyDate?: string; nextAnnualDay1Date?: string; nextAnnualDay2Date?: string; probability?: number; expectedCloseDate?: string; nextStep?: string; lastActivityAt?: string; notes?: string; createdAt: string; updatedAt: string; };
 export type Task = { id: string; title: string; type?: "email" | "call" | "text" | "linkedin" | "in_person" | "meeting" | "to_do" | "task_completed"; relatedType?: "contact" | "deal"; relatedId?: string; dueDate?: string; status?: "Overdue" | "Not started" | "Completed" | "Canceled"; followUpForContactId?: string; followUpKind?: "nurture_reactivate"; done: boolean; notes?: string; createdAt: string; updatedAt: string; };
@@ -155,64 +158,106 @@ async function ensureSchema() {
   await pool.query(`
     create table if not exists crm_contacts (
       id text primary key,
+      account_id text,
       data jsonb not null,
       created_at timestamptz default now(),
       updated_at timestamptz default now()
     );
+    create index if not exists crm_contacts_account_id_idx on crm_contacts(account_id);
+
     create table if not exists crm_deals (
       id text primary key,
+      account_id text,
       data jsonb not null,
       created_at timestamptz default now(),
       updated_at timestamptz default now()
     );
+    create index if not exists crm_deals_account_id_idx on crm_deals(account_id);
+
     create table if not exists crm_contact_stamps (
       id text primary key,
+      account_id text,
       data jsonb not null,
       created_at timestamptz default now(),
       updated_at timestamptz default now()
     );
+    create index if not exists crm_contact_stamps_account_id_idx on crm_contact_stamps(account_id);
+
     create table if not exists crm_tasks (
       id text primary key,
+      account_id text,
       data jsonb not null,
       created_at timestamptz default now(),
       updated_at timestamptz default now()
     );
+    create index if not exists crm_tasks_account_id_idx on crm_tasks(account_id);
+
     create table if not exists crm_deal_stamps (
       id text primary key,
+      account_id text,
       data jsonb not null,
       created_at timestamptz default now(),
       updated_at timestamptz default now()
     );
+    create index if not exists crm_deal_stamps_account_id_idx on crm_deal_stamps(account_id);
+
     create table if not exists crm_activities (
       id text primary key,
+      account_id text,
       data jsonb not null,
       occurred_at timestamptz,
       created_at timestamptz default now(),
       updated_at timestamptz default now()
     );
+    create index if not exists crm_activities_account_id_idx on crm_activities(account_id);
+
     create table if not exists crm_meta (
-      key text primary key,
+      key text,
+      account_id text,
       data jsonb not null,
-      updated_at timestamptz default now()
+      updated_at timestamptz default now(),
+      primary key (key, account_id)
     );
+    create index if not exists crm_meta_account_id_idx on crm_meta(account_id);
   `);
   schemaReady = true;
 }
 
-async function getStorePg(): Promise<CrmStore> {
+async function getStorePg(accountId?: string): Promise<CrmStore> {
   if (!pool) throw new Error("No database");
   await ensureSchema();
+  const scoped = Boolean(accountId);
   const [contactsQ, contactStampsQ, dealsQ, dealStampsQ, tasksQ, activitiesQ, gmailQ, targetsQ, targetsHistoryQ, strengthTestsQ] = await Promise.all([
-    pool.query("select data from crm_contacts order by updated_at desc"),
-    pool.query("select data from crm_contact_stamps order by updated_at desc"),
-    pool.query("select data from crm_deals order by updated_at desc"),
-    pool.query("select data from crm_deal_stamps order by updated_at desc"),
-    pool.query("select data from crm_tasks order by updated_at desc"),
-    pool.query("select data from crm_activities order by occurred_at desc nulls last, updated_at desc"),
-    pool.query("select data from crm_meta where key='gmail' limit 1"),
-    pool.query("select data from crm_meta where key='targets' limit 1"),
-    pool.query("select data from crm_meta where key='targets_history' limit 1"),
-    pool.query("select data from crm_meta where key='strength_tests' limit 1"),
+    scoped
+      ? pool.query("select data from crm_contacts where account_id=$1 order by updated_at desc", [accountId])
+      : pool.query("select data from crm_contacts order by updated_at desc"),
+    scoped
+      ? pool.query("select data from crm_contact_stamps where account_id=$1 order by updated_at desc", [accountId])
+      : pool.query("select data from crm_contact_stamps order by updated_at desc"),
+    scoped
+      ? pool.query("select data from crm_deals where account_id=$1 order by updated_at desc", [accountId])
+      : pool.query("select data from crm_deals order by updated_at desc"),
+    scoped
+      ? pool.query("select data from crm_deal_stamps where account_id=$1 order by updated_at desc", [accountId])
+      : pool.query("select data from crm_deal_stamps order by updated_at desc"),
+    scoped
+      ? pool.query("select data from crm_tasks where account_id=$1 order by updated_at desc", [accountId])
+      : pool.query("select data from crm_tasks order by updated_at desc"),
+    scoped
+      ? pool.query("select data from crm_activities where account_id=$1 order by occurred_at desc nulls last, updated_at desc", [accountId])
+      : pool.query("select data from crm_activities order by occurred_at desc nulls last, updated_at desc"),
+    scoped
+      ? pool.query("select data from crm_meta where key='gmail' and account_id=$1 limit 1", [accountId])
+      : pool.query("select data from crm_meta where key='gmail' limit 1"),
+    scoped
+      ? pool.query("select data from crm_meta where key='targets' and account_id=$1 limit 1", [accountId])
+      : pool.query("select data from crm_meta where key='targets' limit 1"),
+    scoped
+      ? pool.query("select data from crm_meta where key='targets_history' and account_id=$1 limit 1", [accountId])
+      : pool.query("select data from crm_meta where key='targets_history' limit 1"),
+    scoped
+      ? pool.query("select data from crm_meta where key='strength_tests' and account_id=$1 limit 1", [accountId])
+      : pool.query("select data from crm_meta where key='strength_tests' limit 1"),
   ]);
   const gmailData = gmailQ.rows[0]?.data || { messages: [] };
   const targetsData = targetsQ.rows[0]?.data || defaultTargets;
@@ -232,46 +277,52 @@ async function getStorePg(): Promise<CrmStore> {
   });
 }
 
-async function saveStorePg(store: CrmStore) {
+async function saveStorePg(store: CrmStore, accountId?: string) {
   if (!pool) throw new Error("No database");
+  if (!accountId) throw new Error("Missing accountId");
   await ensureSchema();
   const client = await pool.connect();
   try {
     await client.query("begin");
-    await client.query("truncate crm_contacts, crm_contact_stamps, crm_deals, crm_deal_stamps, crm_tasks, crm_activities");
+
+    await client.query(
+      "delete from crm_contacts where account_id=$1; delete from crm_contact_stamps where account_id=$1; delete from crm_deals where account_id=$1; delete from crm_deal_stamps where account_id=$1; delete from crm_tasks where account_id=$1; delete from crm_activities where account_id=$1; delete from crm_meta where account_id=$1",
+      [accountId]
+    );
+
     for (const c of store.contacts) {
-      await client.query("insert into crm_contacts (id, data, updated_at) values ($1,$2,now())", [c.id, c]);
+      await client.query("insert into crm_contacts (id, account_id, data, updated_at) values ($1,$2,$3,now())", [c.id, accountId, c]);
     }
     for (const s of (store.contactStamps || [])) {
-      await client.query("insert into crm_contact_stamps (id, data, updated_at) values ($1,$2,now())", [s.id, s]);
+      await client.query("insert into crm_contact_stamps (id, account_id, data, updated_at) values ($1,$2,$3,now())", [s.id, accountId, s]);
     }
     for (const d of store.deals) {
-      await client.query("insert into crm_deals (id, data, updated_at) values ($1,$2,now())", [d.id, d]);
+      await client.query("insert into crm_deals (id, account_id, data, updated_at) values ($1,$2,$3,now())", [d.id, accountId, d]);
     }
     for (const s of (store.dealStamps || [])) {
-      await client.query("insert into crm_deal_stamps (id, data, updated_at) values ($1,$2,now())", [s.id, s]);
+      await client.query("insert into crm_deal_stamps (id, account_id, data, updated_at) values ($1,$2,$3,now())", [s.id, accountId, s]);
     }
     for (const t of store.tasks) {
-      await client.query("insert into crm_tasks (id, data, updated_at) values ($1,$2,now())", [t.id, t]);
+      await client.query("insert into crm_tasks (id, account_id, data, updated_at) values ($1,$2,$3,now())", [t.id, accountId, t]);
     }
     for (const a of (store.activities || [])) {
-      await client.query("insert into crm_activities (id, data, updated_at, occurred_at) values ($1,$2,now(),$3)", [a.id, a, a.occurredAt || null]);
+      await client.query("insert into crm_activities (id, account_id, data, updated_at, occurred_at) values ($1,$2,$3,now(),$4)", [a.id, accountId, a, a.occurredAt || null]);
     }
     await client.query(
-      "insert into crm_meta (key, data, updated_at) values ('gmail', $1::jsonb, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
-      [JSON.stringify(store.gmail)]
+      "insert into crm_meta (key, account_id, data, updated_at) values ('gmail',$1,$2::jsonb,now()) on conflict (key,account_id) do update set data=excluded.data, updated_at=now()",
+      [accountId, JSON.stringify(store.gmail)]
     );
     await client.query(
-      "insert into crm_meta (key, data, updated_at) values ('targets', $1::jsonb, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
-      [JSON.stringify(store.targets || defaultTargets)]
+      "insert into crm_meta (key, account_id, data, updated_at) values ('targets',$1,$2::jsonb,now()) on conflict (key,account_id) do update set data=excluded.data, updated_at=now()",
+      [accountId, JSON.stringify(store.targets || defaultTargets)]
     );
     await client.query(
-      "insert into crm_meta (key, data, updated_at) values ('targets_history', $1::jsonb, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
-      [JSON.stringify(store.targetsHistory || [])]
+      "insert into crm_meta (key, account_id, data, updated_at) values ('targets_history',$1,$2::jsonb,now()) on conflict (key,account_id) do update set data=excluded.data, updated_at=now()",
+      [accountId, JSON.stringify(store.targetsHistory || [])]
     );
     await client.query(
-      "insert into crm_meta (key, data, updated_at) values ('strength_tests', $1::jsonb, now()) on conflict (key) do update set data=excluded.data, updated_at=now()",
-      [JSON.stringify(store.strengthTests || [])]
+      "insert into crm_meta (key, account_id, data, updated_at) values ('strength_tests',$1,$2::jsonb,now()) on conflict (key,account_id) do update set data=excluded.data, updated_at=now()",
+      [accountId, JSON.stringify(store.strengthTests || [])]
     );
     await client.query("commit");
   } catch (e) {
@@ -298,10 +349,10 @@ async function saveStoreFile(store: CrmStore) {
   await writeFile(dbPath, JSON.stringify(store, null, 2));
 }
 
-export async function getStore(): Promise<CrmStore> {
+export async function getStore(accountId?: string): Promise<CrmStore> {
   if (pool) {
     try {
-      return await getStorePg();
+      return await getStorePg(accountId);
     } catch (error) {
       console.error("[crm-store] Postgres read failed", error);
       if (process.env.VERCEL) throw error;
@@ -311,10 +362,10 @@ export async function getStore(): Promise<CrmStore> {
   return getStoreFile();
 }
 
-export async function saveStore(store: CrmStore) {
+export async function saveStore(store: CrmStore, accountId?: string) {
   if (pool) {
     try {
-      return await saveStorePg(store);
+      return await saveStorePg(store, accountId);
     } catch (error) {
       console.error("[crm-store] Postgres write failed", error);
       if (process.env.VERCEL) throw error;

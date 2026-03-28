@@ -60,7 +60,9 @@ function archiveTaskAsActivity(store: any, task: any) {
 }
 
 export async function GET() {
-  const store = await getStore();
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
 
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
@@ -88,13 +90,16 @@ export async function GET() {
     changed = true;
   }
 
-  if (changed) await saveStore(store);
+  if (changed) await saveStore(store, accountId);
   return NextResponse.json({ tasks: store.tasks, statuses: TASK_STATUSES });
 }
 
 export async function POST(req: Request) {
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+
   const body = await req.json().catch(() => ({}));
-  const store = await getStore();
+  const store = await getStore(accountId);
   const error = validateTaskPayload(body, store);
   if (error) return NextResponse.json({ error }, { status: 400 });
 
@@ -103,7 +108,7 @@ export async function POST(req: Request) {
 
   if (status === "Completed") {
     archiveTaskAsActivity(store, record);
-    await saveStore(store);
+    await saveStore(store, accountId);
     return NextResponse.json({ archived: true, record });
   }
 
@@ -113,8 +118,11 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+
   const body = await req.json();
-  const store = await getStore();
+  const store = await getStore(accountId);
   const idx = store.tasks.findIndex((t) => t.id === body.id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -137,9 +145,12 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
-  const store = await getStore();
+  const store = await getStore(accountId);
   store.tasks = store.tasks.filter((t) => t.id !== id);
   await saveStore(store);
   return NextResponse.json({ ok: true });

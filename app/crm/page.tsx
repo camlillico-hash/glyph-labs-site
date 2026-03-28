@@ -13,7 +13,9 @@ import KpiScoreboard from "./KpiScoreboard";
 export default async function CrmHome() {
   let storeRaw: any = null;
   try {
-    storeRaw = await getStore();
+    const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+    const accountId = await resolveActiveAccountId();
+    storeRaw = await getStore(accountId);
   } catch (error) {
     console.error("[crm/home] getStore failed", error);
     storeRaw = {};

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { CONTACT_STAGES, DEAL_STAGES, getStore, id, now, saveStore } from "@/lib/crm-store";
+import { resolveAccountIdForRequest } from "@/lib/crm-account";
 
 
 function mapContactStatus(value: string | undefined) {
@@ -137,7 +138,9 @@ function maybeCreateDealForDiscovery(store: any, contact: any) {
 }
 
 export async function GET() {
-  const store = await getStore();
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   const contacts = (store.contacts || []).map((c: any) => {
     const acts = (store.activities || []).filter((a: any) => a.contactId === c.id)
       .sort((a: any, b: any) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime());
@@ -157,7 +160,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "First name and last name are required" }, { status: 400 });
   }
 
-  const store = await getStore();
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   const status = normalizeStatus(body.status);
   const email = normalizeEmail(body.email);
   const disqualificationReason = normalizeDisqualificationReason(body.disqualificationReason);
@@ -180,7 +185,7 @@ export async function POST(req: Request) {
   maybeCreateNurtureTaskForContact(store, null, record);
   syncContactStamp(store, null, record);
   store.contacts.unshift(record);
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json(record);
 }
 
@@ -190,7 +195,9 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "First name and last name are required" }, { status: 400 });
   }
 
-  const store = await getStore();
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   const idx = store.contacts.findIndex((c) => c.id === body.id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -218,7 +225,7 @@ export async function PUT(req: Request) {
   syncContactStamp(store, previous, updated);
   store.contacts[idx] = updated;
 
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json(updated);
 }
 
@@ -226,15 +233,17 @@ export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   const stampId = searchParams.get("stampId");
-  const store = await getStore();
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
 
   if (stampId) {
     store.contactStamps = (store.contactStamps || []).filter((s: any) => s.id !== stampId);
-    await saveStore(store);
+    await saveStore(store, accountId);
     return NextResponse.json({ ok: true });
   }
 
   store.contacts = store.contacts.filter((c) => c.id !== id);
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json({ ok: true });
 }
