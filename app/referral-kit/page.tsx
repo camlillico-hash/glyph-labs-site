@@ -19,6 +19,10 @@ import {
   Briefcase,
   Building2,
   Linkedin,
+  UserSearch,
+  Waypoints,
+  PanelTop,
+  Compass,
 } from "lucide-react";
 import CopyButton from "./CopyButton";
 
@@ -99,13 +103,6 @@ export default function ReferralKitPage() {
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <a
-                href="#how-to-refer"
-                className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-5 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-orange-300"
-              >
-                How to Refer Cam
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
               <a
                 href="/referral-kit-one-pager.pdf"
                 target="_blank"
@@ -211,8 +208,11 @@ export default function ReferralKitPage() {
         <div className="mx-auto max-w-6xl px-6 pb-10 pt-12">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-7">
-              <SectionLabel>The Ideal Profile</SectionLabel>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Who to Look For</h2>
+          <SectionHeader
+            eyebrow="The Ideal Profile"
+            title="Who to Look For"
+            icon={<UserSearch className="h-5 w-5" />}
+          />
               <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600">
                 The best introductions are founder-led or growth-stage companies with real momentum, but growing complexity. These are businesses doing well, but no longer running as cleanly or simply as they should.
               </p>
@@ -266,8 +266,11 @@ export default function ReferralKitPage() {
 
       <section>
         <div className="mx-auto max-w-6xl px-6 pb-14 pt-8">
-          <SectionLabel>The Framework</SectionLabel>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">The value I provide</h2>
+          <SectionHeader
+            eyebrow="The Framework"
+            title="The value I provide"
+            icon={<PanelTop className="h-5 w-5" />}
+          />
 
           <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-7">
@@ -415,42 +418,13 @@ export default function ReferralKitPage() {
         </div>
       </section>
 
-      <section id="referral-path" className="mx-auto max-w-6xl px-6 pb-14 pt-6">
-        <SectionLabel className="text-center">The Referral Path</SectionLabel>
-        <h2 className="mt-3 text-center text-3xl font-bold tracking-tight text-slate-900">A seamless transition for any founder you introduce</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-7 text-slate-600">
-          The goal is to make it easy for you to introduce Cam, and easy for the founder to take the next right step.
-        </p>
-
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <StepCard
-            n="1"
-            title="Make the referral"
-            label="Partner action"
-            text="Send the email or LinkedIn intro and share a bit of context on what the founder or team is navigating."
-          />
-          <StepCard
-            n="2"
-            title="Warm intro call"
-            text="Cam meets with the founder or CEO to confirm fit before any deeper discovery work."
-          />
-          <StepCard
-            n="3"
-            title="Free 90-minute discovery"
-            text="A no-obligation deep dive to see whether BOS360 fits their specific needs and growth stage."
-          />
-          <StepCard
-            n="4"
-            title="Implementation"
-            text="If there’s a fit, the team begins the work toward more clarity, momentum, and health."
-          />
-        </div>
-      </section>
-
       <section id="how-to-refer" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-6 pb-14 pt-14">
-          <SectionLabel>Enablement Guide</SectionLabel>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">How to Refer Cam</h2>
+          <SectionHeader
+            eyebrow="Enablement Guide"
+            title="How to Refer Cam"
+            icon={<Compass className="h-5 w-5" />}
+          />
 
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-12">
             <div className="md:col-span-5">
@@ -495,12 +469,51 @@ export default function ReferralKitPage() {
         </div>
       </section>
 
+      <section id="referral-path" className="mx-auto max-w-6xl px-6 pb-14 pt-6">
+        <SectionHeader
+          eyebrow="The Referral Path"
+          title="A seamless transition for any founder you introduce"
+          icon={<Waypoints className="h-5 w-5" />}
+          centered
+        />
+        <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-7 text-slate-600">
+          The goal is to make it easy for you to introduce Cam, and easy for the founder to take the next right step.
+        </p>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+          <StepCard
+            n="1"
+            title="Make the referral"
+            label="Partner action"
+            text="Send the email or LinkedIn intro and share a bit of context on what the founder or team is navigating."
+          />
+          <StepCard
+            n="2"
+            title="Warm intro call"
+            text="Cam meets with the founder or CEO to confirm fit before any deeper discovery work."
+          />
+          <StepCard
+            n="3"
+            title="Free 90-minute discovery"
+            text="A no-obligation deep dive to see whether BOS360 fits their specific needs and growth stage."
+          />
+          <StepCard
+            n="4"
+            title="Implementation"
+            text="If there’s a fit, the team begins the work toward more clarity, momentum, and health."
+          />
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-6 pb-14 pt-14">
         <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm md:p-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
-              <SectionLabel>PDF Version</SectionLabel>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-900">One-page version to pass along</h2>
+              <SectionHeader
+                eyebrow="PDF Version"
+                title="Get a PDF 1-pager to attach and pass along"
+                icon={<FileDown className="h-5 w-5" />}
+              />
               <p className="mt-3 text-sm leading-7 text-slate-600">
                 Download the PDF if you want a simple asset to forward, attach, or keep on hand when introducing Cam.
               </p>
@@ -559,6 +572,32 @@ function SectionLabel({ children, className = "" }: { children: React.ReactNode;
     <p className={`text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${className}`}>
       {children}
     </p>
+  );
+}
+
+function SectionHeader({
+  eyebrow,
+  title,
+  icon,
+  centered = false,
+}: {
+  eyebrow: string;
+  title: string;
+  icon: React.ReactNode;
+  centered?: boolean;
+}) {
+  return (
+    <div className={centered ? "text-center" : ""}>
+      <div className={`flex items-center gap-3 ${centered ? "justify-center" : "justify-start"}`}>
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 text-orange-700 shadow-sm">
+          {icon}
+        </span>
+        <div>
+          <SectionLabel>{eyebrow}</SectionLabel>
+        </div>
+      </div>
+      <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">{title}</h2>
+    </div>
   );
 }
 
