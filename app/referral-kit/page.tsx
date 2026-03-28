@@ -316,9 +316,9 @@ export default function ReferralKitPage() {
                           href="https://www.linkedin.com/in/cameron-lillico/"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium text-slate-600 transition hover:border-slate-300 hover:bg-white hover:text-slate-900"
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium text-slate-600 transition hover:border-slate-300 hover:bg-white hover:text-slate-900"
                         >
-                          <Linkedin className="h-4 w-4" />
+                          <img src="/linkedin-logo.png" alt="LinkedIn" className="h-4 w-4 object-contain" />
                           LinkedIn
                         </a>
                         <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-orange-700">
