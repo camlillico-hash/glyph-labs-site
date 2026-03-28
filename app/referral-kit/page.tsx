@@ -15,6 +15,9 @@ import {
   HeartHandshake,
   Mail,
   CalendarDays,
+  Award,
+  Briefcase,
+  Building2,
 } from "lucide-react";
 import CopyButton from "./CopyButton";
 
@@ -145,7 +148,7 @@ export default function ReferralKitPage() {
       </section>
 
       <section className="bg-gradient-to-b from-white to-slate-50">
-        <div className="mx-auto max-w-6xl px-6 pb-14 pt-12">
+        <div className="mx-auto max-w-6xl px-6 pb-10 pt-12">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-7">
               <SectionLabel>The Ideal Profile</SectionLabel>
@@ -202,7 +205,7 @@ export default function ReferralKitPage() {
       </section>
 
       <section>
-        <div className="mx-auto max-w-6xl px-6 pb-14 pt-14">
+        <div className="mx-auto max-w-6xl px-6 pb-14 pt-8">
           <SectionLabel>The Framework</SectionLabel>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">The value I provide</h2>
 
@@ -254,6 +257,12 @@ export default function ReferralKitPage() {
               </p>
             </div>
 
+            <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
+              <CredentialPill icon={<Award className="h-4 w-4" />} text="Certified BOS360 Coach" />
+              <CredentialPill icon={<Briefcase className="h-4 w-4" />} text="EOS Implementor (2018–2024)" />
+              <CredentialPill icon={<Building2 className="h-4 w-4" />} text="Expert in Residence" />
+            </div>
+
             <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
               <IconCard
                 icon={<MessageSquareText className="h-5 w-5" />}
@@ -268,7 +277,7 @@ export default function ReferralKitPage() {
               <IconCard
                 icon={<BadgeCheck className="h-5 w-5" />}
                 title="Certified Expert"
-                text="Certified BOS360 and EOS implementation specialist with extensive team facilitation experience."
+                text="Certified BOS360 coach and EOS implementor with extensive team facilitation experience."
               />
               <IconCard
                 icon={<Sparkles className="h-5 w-5" />}
@@ -381,34 +390,6 @@ export default function ReferralKitPage() {
               Download PDF One Pager
             </a>
           </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 pb-14 pt-2">
-        <SectionLabel className="text-center">FAQ</SectionLabel>
-        <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-slate-900">Common Questions</h2>
-
-        <div className="mx-auto mt-6 max-w-3xl space-y-3">
-          <FaqItem
-            q="What kinds of companies are the best fit?"
-            a="The best fit is usually a founder-led or growth-stage business that has real momentum, but is starting to feel operational drag: messy execution, unclear priorities, or too much dependency on a few key people."
-          />
-          <FaqItem
-            q="What is the intro process?"
-            a="A quick email or LinkedIn intro is enough. From there, Cam handles the follow-up, confirms fit, and makes the next step easy for the founder."
-          />
-          <FaqItem
-            q="What is BOS360 in simple terms?"
-            a="It is a practical operating system for leadership teams. It helps them get aligned on direction, execute with more discipline, and build a healthier team dynamic."
-          />
-          <FaqItem
-            q="Do I need to make a long or detailed introduction?"
-            a="No. Short and simple is perfectly fine. The goal is just to create the opening and provide a bit of context."
-          />
-          <FaqItem
-            q="What happens after the intro?"
-            a="Cam takes it from there: first a warm fit conversation, then a deeper discovery if it makes sense, then implementation only if there is a strong match."
-          />
         </div>
       </section>
 
@@ -597,16 +578,11 @@ function ScriptCard({ title, text }: { title: string; text: string }) {
   );
 }
 
-function FaqItem({ q, a }: { q: string; a: string }) {
+function CredentialPill({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <details className="group rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-      <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">
-        <div className="flex items-center justify-between gap-4">
-          <span>{q}</span>
-          <span className="text-slate-500 transition-transform group-open:rotate-180">⌄</span>
-        </div>
-      </summary>
-      <p className="mt-3 pr-8 text-sm leading-7 text-slate-600">{a}</p>
-    </details>
+    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700">
+      <span className="text-orange-700">{icon}</span>
+      <span>{text}</span>
+    </div>
   );
 }
