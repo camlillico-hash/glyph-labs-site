@@ -116,7 +116,7 @@ export default function ReferralKitPage() {
                   <div className="min-w-0">
                     <SectionLabel>Facilitation</SectionLabel>
                     <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
-                      Cam is a certified BOS360™ coach and experienced facilitator with 100s of sessions under his belt
+                      Cam is a certified BOS360™ coach and experienced facilitator with <span className="font-bold underline decoration-orange-400 underline-offset-4">100s of sessions under his belt</span>
                     </h3>
                   </div>
                 </div>
@@ -167,7 +167,7 @@ export default function ReferralKitPage() {
                 <div className="relative mt-6 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                   <a
                     href="#how-to-refer"
-                    className="inline-flex items-center justify-center rounded-xl bg-orange-400 px-6 py-3 text-sm font-semibold text-neutral-950 shadow-sm transition-colors hover:bg-orange-300"
+                    className="inline-flex items-center justify-center rounded-xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-md"
                   >
                     How to Refer Cam
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -176,7 +176,7 @@ export default function ReferralKitPage() {
                     href="/referral-kit-one-pager.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-slate-50"
+                    className="inline-flex items-center justify-center rounded-xl border border-sky-200 bg-sky-50 px-6 py-3 text-sm font-semibold text-sky-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-100 hover:shadow-md"
                   >
                     Get the PDF Version
                     <FileDown className="ml-2 h-4 w-4" />
@@ -256,13 +256,13 @@ export default function ReferralKitPage() {
             <img
               src="/badge-bos360.png"
               alt="Certified BOS360™ Coach"
-              className="h-12 w-12 rounded-xl object-cover shadow-sm"
+              className="h-[7.5rem] w-[7.5rem] rounded-2xl object-cover shadow-sm"
             />
           </div>
 
           <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-7">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <h3 className="text-xl font-semibold tracking-tight text-slate-900">What is BOS360™?</h3>
                 <a
                   href="https://bos360.ca/"
