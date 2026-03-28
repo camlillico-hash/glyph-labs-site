@@ -116,7 +116,7 @@ export default function ReferralKitPage() {
                   <div className="min-w-0">
                     <SectionLabel>Facilitation</SectionLabel>
                     <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
-                      Cam is a certified and experienced facilitator with 100s of sessions under his belt
+                      Cam is a certified BOS360™ coach and experienced facilitator with 100s of sessions under his belt
                     </h3>
                   </div>
                 </div>
@@ -247,17 +247,42 @@ export default function ReferralKitPage() {
 
       <section>
         <div className="mx-auto max-w-6xl px-6 pb-14 pt-8">
-          <SectionHeader
-            eyebrow="The Framework"
-            title="The value I provide"
-            icon={<PanelTop className="h-5 w-5" />}
-          />
+          <div className="flex items-center gap-3">
+            <SectionHeader
+              eyebrow="The Framework"
+              title="The value I provide"
+              icon={<PanelTop className="h-5 w-5" />}
+            />
+            <img
+              src="/badge-bos360.png"
+              alt="Certified BOS360™ Coach"
+              className="h-12 w-12 rounded-xl object-cover shadow-sm"
+            />
+          </div>
 
           <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-12">
             <div className="md:col-span-7">
-              <h3 className="text-xl font-semibold tracking-tight text-slate-900">What is BOS360?</h3>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="text-xl font-semibold tracking-tight text-slate-900">What is BOS360™?</h3>
+                <a
+                  href="https://bos360.ca/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-sm font-medium text-orange-700 transition hover:text-orange-800"
+                >
+                  Learn more
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </a>
+              </div>
               <p className="mt-4 text-sm leading-7 text-slate-600">
-                BOS360 is a practical business operating system that helps leadership teams strengthen three things: Vision, Momentum, and Health. In plain terms, it gets leaders aligned on where the business is going, builds the discipline and accountability to execute, and creates a healthier, higher-performing team.
+                <a
+                  href="https://bos360.ca/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-orange-700 underline decoration-orange-300 underline-offset-2 transition hover:text-orange-800"
+                >
+                  BOS360™
+                </a>{" "}is a practical business operating system that helps leadership teams strengthen three things: Vision, Momentum, and Health. In plain terms, it gets leaders aligned on where the business is going, builds the discipline and accountability to execute, and creates a healthier, higher-performing team.
               </p>
 
               <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -361,7 +386,7 @@ export default function ReferralKitPage() {
                   >
                     <img src="/badge-bos360.png" alt="BOS360™" className="h-12 w-12 rounded-xl object-cover" />
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">Certified BOS360 Coach</p>
+                      <p className="text-sm font-semibold text-slate-900">Certified BOS360™ Coach</p>
                       <p className="mt-1 text-xs leading-5 text-slate-500">Practical framework for Vision, Momentum, and Health.</p>
                     </div>
                   </a>
@@ -455,7 +480,7 @@ export default function ReferralKitPage() {
                 />
                 <ScriptCard
                   title="Medium script"
-                  text={`“I’ve seen Cam help scaling founders get their leadership teams on the same page using the BOS360 framework. It’s a very practical way to cut through the constant fire-fighting. Happy to connect you if that would be helpful.”`}
+                  text={`“I’ve seen Cam help scaling founders get their leadership teams on the same page using the BOS360™ framework. It’s a very practical way to cut through the constant fire-fighting. Happy to connect you if that would be helpful.”`}
                 />
                 <ScriptCard
                   title="Stronger script"
@@ -494,7 +519,7 @@ export default function ReferralKitPage() {
           <StepCard
             n="3"
             title="Free 90-minute discovery"
-            text="A no-obligation deep dive to see whether BOS360 fits their specific needs and growth stage."
+            text="A no-obligation deep dive to see whether BOS360™ fits their specific needs and growth stage."
           />
           <StepCard
             n="4"
