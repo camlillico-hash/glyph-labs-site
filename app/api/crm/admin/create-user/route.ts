@@ -21,11 +21,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "email, password, and accountName are required" }, { status: 400 });
     }
 
-    const existing = await getUserByEmail(email).catch((e) => {
-      throw e;
-    });
+    const existing = await getUserByEmail(email);
     if (existing) {
-      return NextResponse.json({ error: "Email already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "Email already exists. Use Attach Existing User or Reset Password below." },
+        { status: 409 }
+      );
     }
 
     const userId = id();
@@ -42,7 +43,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Database not configured" }, { status: 500 });
     }
     if (msg.includes("duplicate key") || msg.includes("unique constraint")) {
-      return NextResponse.json({ error: "Email already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "Email already exists. Use Attach Existing User or Reset Password below." },
+        { status: 409 }
+      );
     }
     if (msg === "NO_ACCOUNT") {
       return NextResponse.json({ error: "Your user is not linked to any CRM account" }, { status: 400 });

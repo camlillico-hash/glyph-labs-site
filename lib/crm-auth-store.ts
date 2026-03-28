@@ -80,6 +80,13 @@ export async function addUserToAccount({ accountId, userId, role }: { accountId:
   ]);
 }
 
+export async function updateUserPassword({ userId, passwordHash }: { userId: string; passwordHash: string }) {
+  const pool = getCrmPool();
+  if (!pool) throw new Error("No database");
+  await ensureCrmAuthSchema();
+  await pool.query("update crm_users set password_hash=$2 where id=$1", [userId, passwordHash]);
+}
+
 export async function listAccounts() {
   const pool = getCrmPool();
   if (!pool) throw new Error("No database");

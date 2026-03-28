@@ -22,13 +22,10 @@ export default async function CrmAdminPage() {
       <p className="mt-2 text-sm text-slate-400">Create users + accounts, and switch which workspace you’re viewing.</p>
 
       <div className="mt-6 grid gap-6">
-        {/* Create */}
         <div className="crm-card p-5">
-          <h2 className="text-lg font-semibold">Create user + fresh account</h2>
           <CreateUserForm />
         </div>
 
-        {/* Switch */}
         <div className="crm-card p-5">
           <h2 className="text-lg font-semibold">Switch active account</h2>
           <AccountSwitcher />
