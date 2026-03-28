@@ -73,9 +73,9 @@ export default function ReferralKitPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-6 pt-6">
-        <div className="w-full rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-yellow-50 to-white p-4 shadow-sm shadow-amber-100/60">
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 inline-flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-yellow-50 to-white p-4 shadow-sm shadow-amber-100/60">
+          <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:justify-center sm:text-left">
+            <span className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-amber-100 text-amber-700">
               <Bell className="h-5 w-5" />
             </span>
             <div>
@@ -231,11 +231,8 @@ export default function ReferralKitPage() {
                     "We’re growing, but it feels messier than it should.",
                     "Too much still depends on me.",
                     "My leadership team is not fully aligned.",
-                    "We meet constantly, but key issues still linger.",
                     "Accountability is inconsistent.",
                     "We’ve hit a ceiling.",
-                    "I’m not sure everyone is in the right seat.",
-                    "We keep starting initiatives, but they don’t stick.",
                     "Our priorities keep changing.",
                     "We need more clarity on the plan.",
                   ].map((item) => (
@@ -301,7 +298,7 @@ export default function ReferralKitPage() {
             <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1.2fr_1fr]">
               <div className="p-8">
                 <div className="max-w-3xl">
-                  <SectionLabel>Why Cam?</SectionLabel>
+                  <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Why Cam?</h2>
                   <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                     <img
                       src="/cam-headshot-circle.png"
@@ -426,31 +423,9 @@ export default function ReferralKitPage() {
             icon={<Compass className="h-5 w-5" />}
           />
 
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-12">
-            <div className="md:col-span-5">
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="space-y-6">
-                  <HowToRow
-                    icon={<CheckCircle2 className="h-5 w-5" />}
-                    title="01. Confirm interest"
-                    text="Mention Cam and BOS360 during your conversation. If they are feeling the strain of scaling, they will usually recognize the problem quickly."
-                  />
-                  <HowToRow
-                    icon={<Link2 className="h-5 w-5" />}
-                    title="02. Make the introduction"
-                    text="Start a short email or LinkedIn thread. If useful, you can also invite Cam directly into a conversation you are already having with them."
-                  />
-                  <HowToRow
-                    icon={<ArrowRight className="h-5 w-5" />}
-                    title="03. Loop Cam in"
-                    text="Once the intro is made, Cam takes it from there and makes the next step easy for the founder."
-                  />
-                </div>
-              </div>
-            </div>
-
+          <div className="mt-8 grid grid-cols-1 gap-6">
             <div className="md:col-span-7">
-              <div className="grid gap-4">
+              <div className="grid gap-4 lg:grid-cols-3">
                 <ScriptCard
                   title="Short script"
                   text={`“Hey [Founder], I remember you mentioning that growth has felt a bit chaotic lately. You should talk to Cam—he specializes in helping leadership teams install a better operating system. Want an intro?”`}
@@ -486,6 +461,7 @@ export default function ReferralKitPage() {
             title="Make the referral"
             label="Partner action"
             text="Send the email or LinkedIn intro and share a bit of context on what the founder or team is navigating."
+            accentLabel
           />
           <StepCard
             n="2"
@@ -691,11 +667,13 @@ function StepCard({
   title,
   text,
   label,
+  accentLabel,
 }: {
   n: string;
   title: string;
   text: string;
   label?: string;
+  accentLabel?: boolean;
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -703,7 +681,17 @@ function StepCard({
         {n}
       </div>
       <p className="mt-4 text-base font-semibold text-slate-900">{title}</p>
-      {label ? <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p> : null}
+      {label ? (
+        <p
+          className={
+            accentLabel
+              ? "mt-3 inline-flex rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-orange-800"
+              : "mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500"
+          }
+        >
+          {label}
+        </p>
+      ) : null}
       <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
     </div>
   );
