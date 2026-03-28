@@ -15,9 +15,6 @@ import {
   HeartHandshake,
   Mail,
   CalendarDays,
-  Award,
-  Briefcase,
-  Building2,
   Linkedin,
   UserSearch,
   Waypoints,
@@ -113,12 +110,6 @@ export default function ReferralKitPage() {
                 <FileDown className="ml-2 h-4 w-4" />
               </a>
             </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <QuickStat title="20+ Years" text="Business and leadership experience" />
-              <QuickStat title="B2B SaaS" text="Best fit for growth-stage teams navigating complexity" />
-              <QuickStat title="BOS360™" text="A practical framework for Vision, Momentum, and Health" />
-            </div>
           </div>
 
           <div className="md:col-span-5">
@@ -145,7 +136,7 @@ export default function ReferralKitPage() {
                 He brings a calm, practical presence to leadership conversations and knows how to guide teams toward clarity, accountability, and better decisions without adding unnecessary complexity.
               </p>
 
-              <div className="relative mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="relative mt-6 grid gap-3">
                 <a
                   href="https://bos360.ca"
                   target="_blank"
@@ -182,12 +173,6 @@ export default function ReferralKitPage() {
                     <p className="text-sm font-semibold text-slate-900">Expert in Residence</p>
                   </div>
                 </a>
-              </div>
-
-              <div className="relative mt-6 flex flex-wrap gap-3">
-                <CredentialPill icon={<Award className="h-4 w-4" />} text="Certified BOS360 Coach" />
-                <CredentialPill icon={<Briefcase className="h-4 w-4" />} text="EOS Implementor (2018–2024)" />
-                <CredentialPill icon={<Building2 className="h-4 w-4" />} text="Expert in Residence" />
               </div>
 
               <div className="relative mt-6">
@@ -348,7 +333,7 @@ export default function ReferralKitPage() {
                   </p>
                 </div>
 
-                <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <IconCard
                     icon={<MessageSquareText className="h-5 w-5" />}
                     title="Operator Turned Coach"
@@ -361,7 +346,7 @@ export default function ReferralKitPage() {
                   />
                   <IconCard
                     icon={<BadgeCheck className="h-5 w-5" />}
-                    title="Certified Expert"
+                    title="Certified Coach"
                     text="Certified BOS360 coach and EOS implementor with extensive team facilitation experience."
                   />
                   <IconCard
@@ -369,6 +354,12 @@ export default function ReferralKitPage() {
                     title="Methodical Style"
                     text="Trusted for a calm, practical approach that creates clarity without unnecessary complexity."
                   />
+                </div>
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  <QuickStat title="20+ Years" text="Business and leadership experience" />
+                  <QuickStat title="B2B SaaS" text="Best fit for growth-stage teams navigating complexity" />
+                  <QuickStat title="BOS360™" text="A practical framework for Vision, Momentum, and Health" />
                 </div>
               </div>
 
@@ -413,12 +404,12 @@ export default function ReferralKitPage() {
                   </a>
                   <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Companies</p>
-                    <div className="mt-4 flex flex-wrap items-center gap-4">
-                      <img src="/credential-achievers.png" alt="Achievers" className="h-9 w-auto object-contain" />
-                      <img src="/credential-touchbistro-from-url.png" alt="TouchBistro" className="h-9 w-auto object-contain" />
-                      <img src="/credential-kira-talent.png" alt="Kira Talent" className="h-9 w-auto object-contain" />
-                      <img src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" className="h-9 w-auto object-contain" />
-                      <img src="/credential-autohost.png" alt="Autohost" className="h-9 w-auto object-contain" />
+                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      <LogoTile src="/credential-achievers.png" alt="Achievers" />
+                      <LogoTile src="/credential-touchbistro-from-url.png" alt="TouchBistro" />
+                      <LogoTile src="/credential-kira-talent.png" alt="Kira Talent" />
+                      <LogoTile src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" />
+                      <LogoTile src="/credential-autohost.png" alt="Autohost" />
                     </div>
                     <p className="mt-3 text-xs leading-5 text-slate-500">Selected operator experience across recognized growth-stage companies.</p>
                   </div>
@@ -754,11 +745,10 @@ function ScriptCard({ title, text }: { title: string; text: string }) {
   );
 }
 
-function CredentialPill({ icon, text }: { icon: React.ReactNode; text: string }) {
+function LogoTile({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700">
-      <span className="text-orange-700">{icon}</span>
-      <span>{text}</span>
+    <div className="flex min-h-[84px] items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <img src={src} alt={alt} className="h-9 w-full object-contain" />
     </div>
   );
 }
