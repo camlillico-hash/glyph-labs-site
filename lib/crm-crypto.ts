@@ -8,11 +8,17 @@ export function hashPassword(password: string) {
 
 export function verifyPassword(password: string, stored: string) {
   const parts = String(stored || "").split("$");
-  if (parts.length !== 5) return false;
-  const [algo, iterStr, , salt, hash] = parts;
+
+  // Expected format from hashPassword():
+  // pbkdf2_sha256$150000$<salt>$<hash>
+  if (parts.length !== 4) return false;
+
+  const [algo, iterStr, salt, hash] = parts;
   if (algo !== "pbkdf2_sha256") return false;
+
   const iters = Number(iterStr);
   if (!Number.isFinite(iters) || iters < 10000) return false;
+
   const computed = crypto.pbkdf2Sync(password, salt, iters, 32, "sha256").toString("hex");
   return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(computed, "hex"));
 }
