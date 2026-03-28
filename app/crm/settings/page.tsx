@@ -37,7 +37,9 @@ function DateField({ label, name, value }: { label: string; name: string; value:
 }
 
 export default async function SettingsPage({ searchParams }: { searchParams?: { gmail?: string; reason?: string; count?: string; activities?: string; targets?: string } }) {
-  const store = await getStore();
+  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   const ready = gmailReady();
   const mode = storageMode();
   const targets = {

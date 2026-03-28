@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStore, id, now, saveStore } from "@/lib/crm-store";
+import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 const ALLOWED_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
 const ALLOWED_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"];
@@ -32,7 +33,8 @@ export async function POST(req: Request) {
   const rows = Array.isArray(body?.rows) ? body.rows : [];
   if (!rows.length) return NextResponse.json({ error: "No rows provided" }, { status: 400 });
 
-  const store = await getStore();
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   const existingEmails = new Set((store.contacts || []).map((c: any) => norm(c.email).toLowerCase()).filter(Boolean));
 
   let created = 0;
@@ -77,6 +79,6 @@ export async function POST(req: Request) {
     created++;
   });
 
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json({ ok: true, created, skipped, errors: errors.slice(0, 50) });
 }

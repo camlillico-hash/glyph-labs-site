@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { defaultTargets, getStore, saveStore } from "@/lib/crm-store";
+import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 const numericKeys = [
   "revenueGoalAnnual",
@@ -10,7 +11,8 @@ const numericKeys = [
 ] as const;
 
 export async function GET() {
-  const store = await getStore();
+  const accountId = await resolveActiveAccountId();
+  const store = await getStore(accountId);
   return NextResponse.json({
     targets: { ...defaultTargets, ...(store.targets || {}) },
     targetsHistory: store.targetsHistory || [],
@@ -18,9 +20,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const accountId = await resolveActiveAccountId();
   try {
     const form = await req.formData();
-    const store = await getStore();
+    const store = await getStore(accountId);
     const previous = { ...defaultTargets, ...(store.targets || {}) } as Record<string, any>;
     const next = { ...previous } as Record<string, any>;
 
@@ -52,7 +55,7 @@ export async function POST(req: Request) {
       store.targetsHistory = history.slice(0, 50);
     }
 
-    await saveStore(store);
+    await saveStore(store, accountId);
 
     return NextResponse.redirect(new URL("/crm/settings?targets=saved", req.url), 303);
   } catch (e: any) {
