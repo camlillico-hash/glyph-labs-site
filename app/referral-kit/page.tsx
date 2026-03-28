@@ -411,6 +411,17 @@ export default function ReferralKitPage() {
                       <p className="mt-1 text-xs leading-5 text-slate-500">Trusted advisor to founders navigating growth-stage complexity.</p>
                     </div>
                   </a>
+                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Companies</p>
+                    <div className="mt-4 flex flex-wrap items-center gap-4">
+                      <img src="/credential-achievers.png" alt="Achievers" className="h-9 w-auto object-contain" />
+                      <img src="/credential-touchbistro-from-url.png" alt="TouchBistro" className="h-9 w-auto object-contain" />
+                      <img src="/credential-kira-talent.png" alt="Kira Talent" className="h-9 w-auto object-contain" />
+                      <img src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" className="h-9 w-auto object-contain" />
+                      <img src="/credential-autohost.png" alt="Autohost" className="h-9 w-auto object-contain" />
+                    </div>
+                    <p className="mt-3 text-xs leading-5 text-slate-500">Selected operator experience across recognized growth-stage companies.</p>
+                  </div>
                 </div>
               </div>
             </div>
