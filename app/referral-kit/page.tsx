@@ -302,14 +302,14 @@ export default function ReferralKitPage() {
               <div className="p-8">
                 <div className="max-w-3xl">
                   <SectionLabel>Why Cam?</SectionLabel>
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                     <img
                       src="/cam-headshot-circle.png"
                       alt="Cam Lillico"
-                      className="h-14 w-14 rounded-full border border-slate-200 object-cover shadow-sm"
+                      className="h-24 w-24 rounded-full border border-slate-200 object-cover shadow-sm sm:h-14 sm:w-14"
                       loading="lazy"
                     />
-                    <div>
+                    <div className="w-full sm:w-auto">
                       <h3 className="text-2xl font-semibold tracking-tight text-slate-900">An experienced operator with a practical coaching style</h3>
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
                         <a
@@ -321,9 +321,6 @@ export default function ReferralKitPage() {
                           <img src="/linkedin-logo.png" alt="LinkedIn" className="h-4 w-4 object-contain" />
                           LinkedIn
                         </a>
-                        <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-orange-700">
-                          Operator turned coach
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -359,19 +356,6 @@ export default function ReferralKitPage() {
                   <QuickStat title="20+ Years" text="Business and leadership experience" />
                   <QuickStat title="B2B SaaS" text="Best fit for growth-stage teams navigating complexity" />
                   <QuickStat title="BOS360™" text="A practical framework for Vision, Momentum, and Health" />
-                </div>
-
-                <div className="mt-8 border-t border-slate-200/80 pt-6">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Companies</p>
-                  <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 sm:items-center">
-                    <LogoTile src="/credential-achievers.png" alt="Achievers" />
-                    <LogoTile src="/credential-touchbistro-from-url.png" alt="TouchBistro" />
-                    <LogoTile src="/credential-kira-talent.png" alt="Kira Talent" />
-                    <LogoTile src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" />
-                    <LogoTile src="/credential-autohost.png" alt="Autohost" />
-                    <LogoTile src="/logos/ctc-communications.png" alt="CTC Communications" />
-                  </div>
-                  <p className="mt-3 text-xs leading-5 text-slate-500">Selected operator experience across recognized growth-stage companies.</p>
                 </div>
               </div>
 
@@ -414,6 +398,19 @@ export default function ReferralKitPage() {
                       <p className="mt-1 text-xs leading-5 text-slate-500">Trusted advisor to founders navigating growth-stage complexity.</p>
                     </div>
                   </a>
+                </div>
+
+                <div className="mt-8 border-t border-slate-200/80 pt-6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Companies</p>
+                  <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 sm:items-center">
+                    <LogoTile src="/credential-achievers.png" alt="Achievers" />
+                    <LogoTile src="/credential-touchbistro-from-url.png" alt="TouchBistro" />
+                    <LogoTile src="/credential-kira-talent.png" alt="Kira Talent" />
+                    <LogoTile src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" />
+                    <LogoTile src="/credential-autohost.png" alt="Autohost" />
+                    <LogoTile src="/logos/ctc-communications.png" alt="CTC Communications" />
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-slate-500">Selected operator experience across recognized growth-stage companies.</p>
                 </div>
               </div>
             </div>
@@ -738,8 +735,8 @@ function ScriptCard({ title, text }: { title: string; text: string }) {
           Copy
         </CopyButton>
       </div>
-      <div className="mt-4 rounded-2xl bg-slate-50 p-4">
-        <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-7 text-slate-700">{text}</pre>
+      <div className="mt-4 rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 via-white to-slate-50 p-4">
+        <pre className="whitespace-pre-wrap break-words font-mono text-[15px] leading-7 tracking-[0.01em] text-slate-700">{text}</pre>
       </div>
     </div>
   );
