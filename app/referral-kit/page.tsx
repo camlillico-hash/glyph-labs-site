@@ -106,11 +106,11 @@ export default function ReferralKitPage() {
                 <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-orange-200/40 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-amber-200/50 blur-3xl" />
 
-                <div className="relative flex items-start gap-4">
+                <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
                   <img
                     src="/cam-headshot-circle.png"
                     alt="Cam Lillico"
-                    className="h-20 w-20 shrink-0 rounded-full border border-orange-200 object-cover shadow-lg shadow-orange-100 sm:h-24 sm:w-24"
+                    className="h-28 w-28 shrink-0 rounded-full border border-orange-200 object-cover shadow-lg shadow-orange-100 sm:h-24 sm:w-24"
                     loading="eager"
                   />
                   <div className="min-w-0">
