@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const COOKIE_NAME = "crm_session";
+const PUBLIC_CRM_API_PATHS = ["/api/crm/auth", "/api/crm/gmail/callback", "/api/crm/coach"];
 
 function ownerToken() {
   const secret = process.env.CRM_SESSION_SECRET || "local-dev-secret";
@@ -22,7 +23,7 @@ function roleFromToken(token?: string) {
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (!pathname.startsWith("/crm") && !pathname.startsWith("/api/crm")) return NextResponse.next();
-  if (pathname.startsWith("/crm/login") || pathname.startsWith("/api/crm/auth") || pathname.startsWith("/api/crm/gmail/callback")) {
+  if (pathname.startsWith("/crm/login") || PUBLIC_CRM_API_PATHS.some((publicPath) => pathname.startsWith(publicPath))) {
     return NextResponse.next();
   }
 
