@@ -10,14 +10,15 @@ export async function requireCrmSession() {
 
 export async function resolveActiveAccountId() {
   const session = await requireCrmSession();
-
-  // Admin can switch accounts via cookie.
-  const c = await cookies();
-  const desired = c.get(activeAccountCookieName)?.value;
-  if (session.role === "owner" && desired) return desired;
-
-  // Otherwise: first account linked to user.
   const memberships = await getUserAccountIds(session.uid);
   if (!memberships.length) throw new Error("NO_ACCOUNT");
+  const allowed = new Set(memberships.map((m) => m.account_id));
+
+  // Admin can switch accounts via cookie, but only to accounts they belong to.
+  const c = await cookies();
+  const desired = c.get(activeAccountCookieName)?.value;
+  if (session.role === "owner" && desired && allowed.has(desired)) return desired;
+
+  // Otherwise: first account linked to user.
   return memberships[0].account_id;
 }

@@ -15,24 +15,24 @@ export function gmailReady() {
   return !!getOauthClient();
 }
 
-export function getGoogleAuthUrl() {
+export function getGoogleAuthUrl(state?: string) {
   const client = getOauthClient();
   if (!client) return null;
-  return client.generateAuthUrl({ access_type: "offline", scope: SCOPES, prompt: "consent" });
+  return client.generateAuthUrl({ access_type: "offline", scope: SCOPES, prompt: "consent", ...(state ? { state } : {}) });
 }
 
-export async function storeGoogleCode(code: string) {
+export async function storeGoogleCode(code: string, accountId: string) {
   const client = getOauthClient();
   if (!client) throw new Error("Google OAuth env missing");
   const { tokens } = await client.getToken(code);
-  const store = await getStore();
+  const store = await getStore(accountId);
   store.gmail.tokens = {
     access_token: tokens.access_token || undefined,
     refresh_token: tokens.refresh_token || store.gmail.tokens?.refresh_token,
     expiry_date: tokens.expiry_date || undefined,
   };
   store.gmail.connectedAt = new Date().toISOString();
-  await saveStore(store);
+  await saveStore(store, accountId);
 }
 
 function extractEmails(headerValue: string) {
@@ -47,10 +47,10 @@ function isLikelyNewsletter(msg: any) {
   return from.includes("no-reply") || from.includes("noreply") || subject.includes("unsubscribe") || snippet.includes("unsubscribe");
 }
 
-export async function syncGmailMessages() {
+export async function syncGmailMessages(accountId: string) {
   const client = getOauthClient();
   if (!client) throw new Error("Google OAuth env missing");
-  const store = await getStore();
+  const store = await getStore(accountId);
   if (!store.gmail.tokens?.access_token && !store.gmail.tokens?.refresh_token) {
     throw new Error("No Gmail tokens found");
   }
@@ -140,6 +140,6 @@ export async function syncGmailMessages() {
     }
   }
 
-  await saveStore(store);
+  await saveStore(store, accountId);
   return { count: messages.length, activitiesCreated: activityCount };
 }

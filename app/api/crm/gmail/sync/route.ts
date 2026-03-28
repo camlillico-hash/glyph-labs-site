@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { syncGmailMessages } from "@/lib/gmail";
+import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 export async function POST(req: Request) {
   const wantsHtml = (req.headers.get("accept") || "").includes("text/html");
   try {
-    const result = await syncGmailMessages();
+    const accountId = await resolveActiveAccountId();
+    const result = await syncGmailMessages(accountId);
     if (wantsHtml) {
       const url = new URL("/crm/settings", req.url);
       url.searchParams.set("gmail", "synced");
