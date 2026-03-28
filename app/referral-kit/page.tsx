@@ -351,12 +351,6 @@ export default function ReferralKitPage() {
                     text="Trusted for a calm, practical approach that creates clarity without unnecessary complexity."
                   />
                 </div>
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                  <QuickStat title="20+ Years" text="Business and leadership experience" />
-                  <QuickStat title="B2B SaaS" text="Best fit for growth-stage teams navigating complexity" />
-                  <QuickStat title="BOS360™" text="A practical framework for Vision, Momentum, and Health" />
-                </div>
               </div>
 
               <div className="border-t border-slate-200 bg-gradient-to-br from-slate-50 via-white to-orange-50 p-8 lg:border-l lg:border-t-0">
@@ -411,6 +405,12 @@ export default function ReferralKitPage() {
                     <LogoTile src="/logos/ctc-communications.png" alt="CTC Communications" />
                   </div>
                   <p className="mt-3 text-xs leading-5 text-slate-500">Selected operator experience across recognized growth-stage companies.</p>
+                </div>
+
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  <QuickStat title="20+ Years" text="Business and leadership experience" />
+                  <QuickStat title="B2B SaaS" text="Best fit for growth-stage teams navigating complexity" />
+                  <QuickStat title="BOS360™" text="A practical framework for Vision, Momentum, and Health" />
                 </div>
               </div>
             </div>
