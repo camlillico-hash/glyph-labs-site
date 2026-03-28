@@ -369,6 +369,7 @@ export default function ReferralKitPage() {
                     <LogoTile src="/credential-kira-talent.png" alt="Kira Talent" />
                     <LogoTile src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" />
                     <LogoTile src="/credential-autohost.png" alt="Autohost" />
+                    <LogoTile src="/logos/ctc-communications.png" alt="CTC Communications" />
                   </div>
                   <p className="mt-3 text-xs leading-5 text-slate-500">Selected operator experience across recognized growth-stage companies.</p>
                 </div>
