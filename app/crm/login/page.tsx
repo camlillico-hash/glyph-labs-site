@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Lock, Rocket, Eye, EyeOff, Mail } from "lucide-react";
 
 export default function LoginPage() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -13,6 +16,13 @@ export default function LoginPage() {
     <div className="mx-auto mt-20 max-w-md crm-card p-6">
       <h1 className="text-2xl font-semibold inline-flex items-center gap-2"><Lock size={20} /> <img src="/glyph-crm-logo.png" alt="Glyph CRM logo" className="h-8 w-auto" /> CRM Login</h1>
       <p className="mt-2 text-sm text-slate-400">Sign in with your CRM email + password.</p>
+      <div className="mt-2 text-xs">
+        {hydrated ? (
+          <span className="text-green-400">JS active</span>
+        ) : (
+          <span className="text-slate-500">JS not active</span>
+        )}
+      </div>
       <form
         className="mt-6 space-y-3"
         onSubmit={async (e) => {
