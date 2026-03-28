@@ -17,11 +17,19 @@ export default function LoginPage() {
         className="mt-6 space-y-3"
         onSubmit={async (e) => {
           e.preventDefault();
-          setError("");
+          setError("" );
+
+          // Some browsers/password managers can visually fill inputs without triggering React onChange,
+          // leaving state as "". Read the values from the form at submit-time to be safe.
+          const form = e.currentTarget;
+          const formData = new FormData(form);
+          const emailRaw = String(formData.get("email") || "");
+          const passwordRaw = String(formData.get("password") || "");
+
           const res = await fetch("/api/crm/auth", {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email: emailRaw, password: passwordRaw }),
           });
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
@@ -38,6 +46,7 @@ export default function LoginPage() {
             className="w-full crm-input pr-10"
             placeholder="Email"
             autoComplete="username"
+            name="email"
           />
           <div className="absolute inset-y-0 right-2 inline-flex items-center text-slate-400">
             <Mail size={16} />
@@ -51,6 +60,7 @@ export default function LoginPage() {
             className="w-full crm-input pr-10"
             placeholder="Password"
             autoComplete="current-password"
+            name="password"
           />
           <button
             type="button"
