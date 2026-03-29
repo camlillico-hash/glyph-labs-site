@@ -116,7 +116,7 @@ export default function ReferralKitPage() {
                   <div className="min-w-0">
                     <SectionLabel>Facilitation</SectionLabel>
                     <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
-                      Cam is a certified BOS360™ coach and experienced facilitator with <span className="font-bold underline decoration-orange-400 underline-offset-4">100s of sessions under his belt</span>
+                      Cam is a certified BOS360™ coach and experienced facilitator with <span className="font-bold underline decoration-orange-400 underline-offset-4"><span className="text-[1.35em] leading-none">100</span>s of sessions under his belt</span>
                     </h3>
                   </div>
                 </div>
