@@ -584,8 +584,27 @@ export default function Bos360Page() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
-        © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
+      <footer className="border-t border-slate-800 bg-neutral-950/95 py-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 text-center">
+          <div className="max-w-2xl rounded-2xl border border-orange-300/20 bg-gradient-to-br from-[#ed7d31]/12 via-neutral-900 to-neutral-950 px-6 py-5 shadow-lg shadow-black/20">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">Refer Cam</p>
+            <h2 className="mt-2 text-2xl font-bold text-slate-100">Want to introduce Cam to someone who could use this kind of coaching?</h2>
+            <p className="mt-3 text-sm leading-relaxed text-slate-300">
+              Visit the referral kit for a simple overview, referral language, and a one-pager you can pass along.
+            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+              <a
+                href="/referral-kit"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+              >
+                Open the Referral Kit
+              </a>
+              <span className="text-xs text-slate-400">A clear path for warm intros and easy sharing.</span>
+            </div>
+          </div>
+
+          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.</p>
+        </div>
       </footer>
     </main>
   );
