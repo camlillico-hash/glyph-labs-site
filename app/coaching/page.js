@@ -605,12 +605,10 @@ export default function Bos360Page() {
                   View Referral Kit
                 </a>
                 <a
-                  href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-neutral-400 hover:text-slate-900"
+                  href="/referral-kit"
+                  className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-[#ed7d31]/35 bg-gradient-to-r from-[#fff1e7] via-[#ffe6d4] to-[#ffd6b5] px-5 py-2.5 text-sm font-semibold text-[#9a4f17] shadow-[0_14px_30px_-18px_rgba(237,125,49,0.95)] transition hover:-translate-y-0.5 hover:border-[#ed7d31]/55 hover:from-[#ffe7d2] hover:via-[#ffdcbc] hover:to-[#ffc78f] hover:text-[#7f3f11] hover:shadow-[0_18px_36px_-18px_rgba(237,125,49,0.95)]"
                 >
-                  Book Intro Call
+                  Check out the referral kit
                 </a>
               </div>
             </div>
