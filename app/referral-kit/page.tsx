@@ -456,15 +456,26 @@ export default function ReferralKitPage() {
                 <Mail className="mr-2 h-4 w-4" />
                 Click to copy my email address
               </a>
-              <a
-                href={BOOKING_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
-              >
-                <CalendarDays className="mr-2 h-4 w-4" />
-                Book a call directly
-              </a>
+              <div className="flex flex-col gap-2">
+                <a
+                  href={BOOKING_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
+                >
+                  <CalendarDays className="mr-2 h-4 w-4" />
+                  Book a call directly
+                </a>
+                <a
+                  href="/referral-kit-one-pager.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-900 shadow-sm transition hover:border-amber-300 hover:bg-amber-100 hover:text-amber-950"
+                >
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Grab and share the 1-pager
+                </a>
+              </div>
             </div>
           </div>
 
