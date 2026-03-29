@@ -584,26 +584,64 @@ export default function Bos360Page() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-800 bg-neutral-950/95 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 text-center">
-          <div className="max-w-2xl rounded-2xl border border-orange-300/20 bg-gradient-to-br from-[#ed7d31]/12 via-neutral-900 to-neutral-950 px-6 py-5 shadow-lg shadow-black/20">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">Refer Cam</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-100">Want to introduce Cam to someone who could use this kind of coaching?</h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-300">
-              Visit the referral kit for a simple overview, referral language, and a one-pager you can pass along.
-            </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-              <a
-                href="/referral-kit"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:opacity-90"
-              >
-                Open the Referral Kit
-              </a>
-              <span className="text-xs text-slate-400">A clear path for warm intros and easy sharing.</span>
+      <footer className="border-t border-neutral-300 bg-gradient-to-b from-[#fff8f2] via-[#fffdf9] to-white text-slate-900">
+        <div className="mx-auto max-w-6xl px-6 py-12 md:py-14">
+          <div className="grid gap-6 rounded-[28px] border border-neutral-200 bg-white/90 p-6 shadow-[0_24px_80px_-36px_rgba(15,23,42,0.28)] backdrop-blur md:grid-cols-[1.2fr_0.8fr] md:p-8">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#c96b28]">Referral Partner Resources</p>
+              <h2 className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
+                Know a founder or leadership team who could benefit from Cam’s coaching?
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-[15px]">
+                The referral kit gives you a polished overview of who Cam helps, how to frame the introduction,
+                and a one-pager you can quickly share with the right person.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <a
+                  href="/referral-kit"
+                  className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  View Referral Kit
+                </a>
+                <a
+                  href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-neutral-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-neutral-400 hover:text-slate-900"
+                >
+                  Book Intro Call
+                </a>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-1">
+              <div className="rounded-2xl border border-[#ed7d31]/18 bg-[#fff7f0] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#c96b28]">Built for warm intros</p>
+                <p className="mt-2 text-sm text-slate-700">Simple language you can reuse when introducing Cam.</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Easy to share</p>
+                <p className="mt-2 text-sm text-slate-700">Includes a concise one-pager you can forward or attach.</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Clear next step</p>
+                <p className="mt-2 text-sm text-slate-700">Gives prospective clients a direct path to learn more and connect.</p>
+              </div>
             </div>
           </div>
 
-          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.</p>
+          <div className="mt-6 flex flex-col gap-3 border-t border-neutral-200 pt-5 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 md:justify-start">
+              <a href="/coaching" className="transition hover:text-slate-900">Coaching</a>
+              <a href="/referral-kit" className="transition hover:text-slate-900">Referral Kit</a>
+              <a href="/strength-test" className="transition hover:text-slate-900">Strength Test</a>
+              <a href="https://www.linkedin.com/in/cameron-lillico/" target="_blank" rel="noopener noreferrer" className="transition hover:text-slate-900">
+                LinkedIn
+              </a>
+            </div>
+            <p className="text-center text-xs text-slate-400 md:text-right">© {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </main>
