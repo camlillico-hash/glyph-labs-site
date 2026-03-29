@@ -419,7 +419,7 @@ export default function ReferralKitPage() {
                 <div className="mt-8 border-t border-slate-200/80 pt-6">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Companies</p>
                   <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 sm:items-center">
-                    <LogoTile src="/credential-achievers.png" alt="Achievers" />
+                    <LogoTile src="/credential-achievers.svg" alt="Achievers" />
                     <LogoTile src="/credential-touchbistro-from-url.png" alt="TouchBistro" />
                     <LogoTile src="/credential-kira-talent.png" alt="Kira Talent" />
                     <LogoTile src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees" />
