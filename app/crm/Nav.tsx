@@ -13,7 +13,8 @@ export default function Nav() {
   return (
     <nav className="flex items-center gap-1 pt-1 sm:pt-0 text-sm">
       <Link title="Command Post" aria-label="Command Post" className={`${navClass(pathname === '/crm')} text-[#ffb401]`} href="/crm"><Crosshair size={18} /></Link>
-      <Link className={navClass(pathname.startsWith('/crm/contacts'))} href="/crm/contacts"><Users size={18} /><span className="hidden sm:inline"> People</span></Link>
+      <Link className={navClass(pathname.startsWith('/crm/connectors'))} href="/crm/connectors"><Users size={18} /><span className="hidden sm:inline"> Connectors</span></Link>
+      <Link className={navClass(pathname.startsWith('/crm/leads'))} href="/crm/leads"><Users size={18} /><span className="hidden sm:inline"> Leads</span></Link>
       <Link className={navClass(pathname.startsWith('/crm/deals'))} href="/crm/deals"><BriefcaseBusiness size={18} /><span className="hidden sm:inline"> Deals</span></Link>
       <Link className={navClass(pathname.startsWith('/crm/clients'))} href="/crm/clients"><Handshake size={18} /><span className="hidden sm:inline"> Clients</span></Link>
       <Link className={navClass(pathname.startsWith('/crm/tasks'))} href="/crm/tasks"><CheckSquare size={18} /><span className="hidden sm:inline"> Tasks</span></Link>

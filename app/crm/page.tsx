@@ -102,19 +102,19 @@ export default async function CrmHome() {
     weighted: acc.weighted + row.weighted,
   }), { count: 0, total: 0, weighted: 0 });
 
-  const connectorContacts = store.contacts.filter((c) => (c.pipelineType || "icp") === "connector");
-  const icpContacts = store.contacts.filter((c) => (c.pipelineType || "icp") === "icp");
+  const connectorPeople = store.contacts.filter((c) => (c.pipelineType || "connector") === "connector");
+  const leadPeople = store.contacts.filter((c) => (c.pipelineType || "connector") === "icp");
 
-  const connectorActivatedOrLater = connectorContacts.filter((c) => ["Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "")).length;
-  const connectorIntroDelivered = connectorContacts.filter((c) => (c.status || "") === "Intro Delivered").length;
-  const icpWarmIntroBooked = icpContacts.filter((c) => (c.status || "") === "Warm intro booked").length;
+  const connectorActivatedOrLater = connectorPeople.filter((c) => ["Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "")).length;
+  const connectorIntroDelivered = connectorPeople.filter((c) => (c.status || "") === "Intro Delivered").length;
+  const leadWarmIntroBooked = leadPeople.filter((c) => (c.status || "") === "Warm intro booked").length;
   const warmIntroCompletedCount = store.deals.filter((d) => ["Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch paid (won)"].includes(d.stage)).length;
   const wonCount = activeClients;
 
   const conversion = {
     activatedToIntroDelivered: connectorActivatedOrLater > 0 ? Math.round((connectorIntroDelivered / connectorActivatedOrLater) * 100) : 0,
-    introDeliveredToWarmIntroBooked: connectorIntroDelivered > 0 ? Math.round((icpWarmIntroBooked / connectorIntroDelivered) * 100) : 0,
-    warmIntroBookedToWon: icpWarmIntroBooked > 0 ? Math.round((wonCount / icpWarmIntroBooked) * 100) : 0,
+    introDeliveredToWarmIntroBooked: connectorIntroDelivered > 0 ? Math.round((leadWarmIntroBooked / connectorIntroDelivered) * 100) : 0,
+    warmIntroBookedToWon: leadWarmIntroBooked > 0 ? Math.round((wonCount / leadWarmIntroBooked) * 100) : 0,
     warmIntroCompletedToWon: warmIntroCompletedCount > 0 ? Math.round((wonCount / warmIntroCompletedCount) * 100) : 0,
   };
 
@@ -158,13 +158,13 @@ export default async function CrmHome() {
   const reducedHoursReady = activeClients >= Math.max(4, Math.ceil(requiredClients * 0.6)) && annualizedRevenue >= Math.round(targets.revenueGoalAnnual * 0.67);
   const fullExitReady = activeClients >= requiredClients && annualizedRevenue >= targets.revenueGoalAnnual && potentialClients >= 2;
 
-  const connectorActivationsYtd = connectorContacts.filter((c) => ["Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "")).length;
-  const introsDeliveredYtd = connectorContacts.filter((c) => (c.status || "") === "Intro Delivered").length;
-  const warmIntrosYtd = icpContacts.filter((c) => (c.status || "") === "Warm intro booked").length;
+  const connectorActivationsYtd = connectorPeople.filter((c) => ["Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "")).length;
+  const introsDeliveredYtd = connectorPeople.filter((c) => (c.status || "") === "Intro Delivered").length;
+  const warmIntrosYtd = leadPeople.filter((c) => (c.status || "") === "Warm intro booked").length;
   const clientsClosedYtd = wonDeals.length;
 
   const weeklyActivitiesRecords = activitiesThisWeek;
-  const weeklyNewContactsRecords = (store.contacts || []).filter((c) => {
+  const weeklyNewPeopleRecords = (store.contacts || []).filter((c) => {
     const ms = new Date(c.createdAt || c.updatedAt).getTime();
     return Number.isFinite(ms) && ms >= oneWeekAgo;
   });
@@ -188,14 +188,14 @@ export default async function CrmHome() {
     },
     {
       key: "weekly-contacts",
-      label: "New contacts added (weekly)",
-      value: weeklyNewContactsRecords.length,
+      label: "New people added (weekly)",
+      value: weeklyNewPeopleRecords.length,
       target: "3",
-      ok: weeklyNewContactsRecords.length >= 3,
-      records: weeklyNewContactsRecords.map((c) => ({
+      ok: weeklyNewPeopleRecords.length >= 3,
+      records: weeklyNewPeopleRecords.map((c) => ({
         id: `contact-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
-        status: c.status || ((c.pipelineType || "icp") === "connector" ? "Identified" : "New"),
+        status: c.status || ((c.pipelineType || "connector") === "connector" ? "Identified" : "New"),
       })),
     },
     {
@@ -230,14 +230,14 @@ export default async function CrmHome() {
   const monthlyItems = [
     {
       key: "monthly-warm-intros",
-      label: "ICP warm intros booked (monthly)",
+      label: "Lead warm intros booked (monthly)",
       value: monthlyWarmIntrosRecords.length,
       target: "2",
       ok: monthlyWarmIntrosRecords.length >= 2,
       records: monthlyWarmIntrosRecords.map((c) => ({
         id: `mwarm-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
-        status: c.status || ((c.pipelineType || "icp") === "connector" ? "Identified" : "New"),
+        status: c.status || ((c.pipelineType || "lead") === "connector" ? "Identified" : "New"),
       })),
     },
     {
@@ -353,7 +353,7 @@ export default async function CrmHome() {
       <section>
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Funnel size={18} /> Funnel</h2>
         <div className="grid gap-4 md:grid-cols-3">
-          <Card icon={<Users size={16} />} label="Contacts" value={store.contacts.length} href="/crm/contacts" />
+          <Card icon={<Users size={16} />} label="People" value={store.contacts.length} href="/crm/connectors" />
           <Card icon={<BriefcaseBusiness size={16} />} label="Open Deals" value={openDeals.length} href="/crm/deals" />
           <Card icon={<Handshake size={16} />} label="Active Clients" value={activeClients} href="/crm/clients" />
         </div>

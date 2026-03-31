@@ -54,7 +54,7 @@ export default function ActivitiesPage() {
 
   const pipelineLabel = (id?: string) => {
     const c = contacts.find((x) => x.id === id);
-    return c?.pipelineType === "connector" ? "Connector" : "ICP";
+    return c?.pipelineType === "connector" ? "Connector" : "Lead";
   };
 
   const sorted = useMemo(() => [...activities].sort((a, b) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime()), [activities]);
@@ -79,7 +79,7 @@ export default function ActivitiesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 whitespace-nowrap"><Activity size={20} /> Activities ({activities.length})</h1>
-          <p className="mt-1 text-sm text-slate-400">Track outreach and follow-ups across connector and ICP people.</p>
+          <p className="mt-1 text-sm text-slate-400">Track outreach and follow-ups across connector and lead people.</p>
         </div>
         <button className="crm-btn inline-flex items-center gap-1.5" onClick={() => { setCreateOpen(true); setDraft({ type: "email", occurredAtLocal: "" }); setError(''); }}><Plus size={14} /> New</button>
       </div>
@@ -99,7 +99,7 @@ export default function ActivitiesPage() {
             {sorted.map((a) => (
               <tr key={a.id} className="border-b border-neutral-900">
                 <td className="px-3 py-2"><span className="inline-flex items-center gap-1.5">{(() => { const I = typeIcon(a.type); return <I size={13} />; })()}{TYPES.find((t) => t.value === a.type)?.label || a.type}</span></td>
-                <td className="px-3 py-2 text-slate-300">{a.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/contacts?contactId=${a.contactId}`}>{contactName(a.contactId)}</a> : "—"}</td>
+                <td className="px-3 py-2 text-slate-300">{a.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/${(contacts.find((c) => c.id === a.contactId)?.pipelineType || 'connector') === 'connector' ? 'connectors' : 'leads'}?contactId=${a.contactId}`}>{contactName(a.contactId)}</a> : "—"}</td>
                 <td className="px-3 py-2 text-slate-300">{a.contactId ? pipelineLabel(a.contactId) : "—"}</td>
                 <td className="px-3 py-2 text-slate-300">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</td>
                 <td className="px-3 py-2 text-slate-300">{a.note || "—"}</td>

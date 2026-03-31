@@ -32,7 +32,7 @@ export default function ClientsPage() {
 
   const contactPipelineLabel = (id?: string) => {
     const c = contacts.find((x) => x.id === id);
-    return c?.pipelineType === 'connector' ? 'Connector' : 'ICP';
+    return c?.pipelineType === 'connector' ? 'Connector' : 'Lead';
   };
 
   function openTray(deal: any) { setSelected(deal); setDraft({ ...deal }); setEditMode(false); setError(""); }
@@ -76,7 +76,7 @@ export default function ClientsPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-emerald-200 whitespace-nowrap"><Handshake size={20} /> Clients ({clients.length})</h1>
-          <p className="mt-1 text-sm text-slate-400">Won deals that have graduated from the ICP funnel into delivery.</p>
+          <p className="mt-1 text-sm text-slate-400">Won deals that have graduated from the lead funnel into delivery.</p>
         </div>
       </div>
 
@@ -95,7 +95,7 @@ export default function ClientsPage() {
           <tbody>
             {clients.map((d) => (
               <tr key={d.id} className="border-b border-neutral-900">
-                <td className="px-3 py-2 text-slate-200">{d.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/contacts?contactId=${d.contactId}`}>{contactName(d.contactId)}</a> : 'Unknown person'}</td>
+                <td className="px-3 py-2 text-slate-200">{d.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/${(contacts.find((x) => x.id === d.contactId)?.pipelineType || 'connector') === 'connector' ? 'connectors' : 'leads'}?contactId=${d.contactId}`}>{contactName(d.contactId)}</a> : 'Unknown person'}</td>
                 <td className="px-3 py-2 text-slate-300">{d.contactId ? contactPipelineLabel(d.contactId) : '—'}</td>
                 <td className="px-3 py-2">{d.name || 'Untitled deal'}</td>
                 <td className="px-3 py-2 text-slate-300">{money(d.value)}</td>

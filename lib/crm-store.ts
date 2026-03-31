@@ -145,12 +145,12 @@ function inferPipelineType(contact: Partial<Contact>) {
   const status = String(contact.status || "").trim();
   if (["Identified", "Positioned", "Activated", "Intro Pending", "Intro Delivered"].includes(status)) return "connector";
   if (["Pipeline Seeding", "Pipeline Seeder"].includes(status)) return "connector";
-  if (["Warm intro booked", "Closed Lost"].includes(status)) return "icp";
+  if (["Warm intro booked", "Closed Lost"].includes(status)) return "connector";
   const source = String(contact.leadSource || "").trim().toLowerCase();
-  if (source === "connector") return "icp";
+  if (source === "connector") return "connector";
   const referralCount = Number((contact as any).referralCount || 0);
   if (referralCount > 0) return "connector";
-  return "icp";
+  return "connector";
 }
 
 function mapContactStatus(status?: string, pipelineType?: ContactPipeline) {
