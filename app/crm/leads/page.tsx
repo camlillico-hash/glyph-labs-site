@@ -380,10 +380,7 @@ export default function LeadsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Target size={20} /> Leads</h1>
-          <p className="mt-1 text-sm text-slate-400">Qualified opportunities progressing toward a deal conversation.</p>
-        </div>
+        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Target size={20} /> Leads</h1>
         <div className="flex items-center gap-2">
                     <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New</button>
           <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
@@ -398,10 +395,6 @@ export default function LeadsPage() {
         <div className="space-y-6">
           {boardSections.map((section) => (
             <section key={section.key} className="space-y-3">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-100">{section.title}</h2>
-                <p className="text-sm text-slate-400">{section.subtitle}</p>
-              </div>
               <div className="overflow-x-auto pb-2">
                 <div className="flex gap-4 min-w-max">
                   {section.stages.map((stage, i) => {
