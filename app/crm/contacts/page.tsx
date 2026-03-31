@@ -568,7 +568,7 @@ export default function ContactsPage() {
                 />
               </label>
               <p className="mt-3 text-xs text-slate-500">CSV headers: firstName, lastName, email, phone, company, title, type, primaryPain, leadSource, pipelineType, status, notes.</p>
-              <p className="mt-1 text-xs text-slate-500">Tip: firstName + lastName are required. pipelineType accepts connector or icp.</p>
+              <p className="mt-1 text-xs text-slate-500">Tip: firstName + lastName are required. pipelineType accepts connector or icp. Legacy statuses like Attempting, Pipeline Seeding, Discovery meeting booked, and Not right now are auto-mapped.</p>
             </div>
 
             {importError && <p className="mt-3 text-sm text-red-300">{importError}</p>}

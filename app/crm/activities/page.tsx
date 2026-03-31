@@ -49,7 +49,12 @@ export default function ActivitiesPage() {
 
   const contactName = (id?: string) => {
     const c = contacts.find((x) => x.id === id);
-    return c ? `${c.firstName || ''} ${c.lastName || ''}`.trim() : 'Unknown contact';
+    return c ? `${c.firstName || ''} ${c.lastName || ''}`.trim() : 'Unknown person';
+  };
+
+  const pipelineLabel = (id?: string) => {
+    const c = contacts.find((x) => x.id === id);
+    return c?.pipelineType === "connector" ? "Connector" : "ICP";
   };
 
   const sorted = useMemo(() => [...activities].sort((a, b) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime()), [activities]);
@@ -72,7 +77,10 @@ export default function ActivitiesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 whitespace-nowrap"><Activity size={20} /> Activities ({activities.length})</h1>
+        <div>
+          <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 whitespace-nowrap"><Activity size={20} /> Activities ({activities.length})</h1>
+          <p className="mt-1 text-sm text-slate-400">Track outreach and follow-ups across connector and ICP people.</p>
+        </div>
         <button className="crm-btn inline-flex items-center gap-1.5" onClick={() => { setCreateOpen(true); setDraft({ type: "email", occurredAtLocal: "" }); setError(''); }}><Plus size={14} /> New</button>
       </div>
 
@@ -81,7 +89,7 @@ export default function ActivitiesPage() {
           <thead className="border-b border-neutral-800 text-slate-400">
             <tr>
               <th className="px-3 py-2 text-left">Type</th>
-              <th className="px-3 py-2 text-left">Contact</th>
+              <th className="px-3 py-2 text-left">Person</th><th className="px-3 py-2 text-left">Pipeline</th>
               <th className="px-3 py-2 text-left">When</th>
               <th className="px-3 py-2 text-left">Note</th>
               <th className="px-3 py-2 text-left">Actions</th>
@@ -92,6 +100,7 @@ export default function ActivitiesPage() {
               <tr key={a.id} className="border-b border-neutral-900">
                 <td className="px-3 py-2"><span className="inline-flex items-center gap-1.5">{(() => { const I = typeIcon(a.type); return <I size={13} />; })()}{TYPES.find((t) => t.value === a.type)?.label || a.type}</span></td>
                 <td className="px-3 py-2 text-slate-300">{a.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/contacts?contactId=${a.contactId}`}>{contactName(a.contactId)}</a> : "—"}</td>
+                <td className="px-3 py-2 text-slate-300">{a.contactId ? pipelineLabel(a.contactId) : "—"}</td>
                 <td className="px-3 py-2 text-slate-300">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</td>
                 <td className="px-3 py-2 text-slate-300">{a.note || "—"}</td>
                 <td className="px-3 py-2"><button className="text-xs text-red-300 inline-flex items-center gap-1" onClick={() => deleteActivity(a.id)}><Trash2 size={13} /> Delete</button></td>
@@ -119,10 +128,10 @@ export default function ActivitiesPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Contact</label>
+                <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Person</label>
                 <select className="crm-input" value={draft.contactId || ""} onChange={(e) => setDraft({ ...draft, contactId: e.target.value })}>
-                  <option value="">Select contact *</option>
-                  {contacts.map((c) => <option key={c.id} value={c.id}>{c.firstName} {c.lastName} {c.email ? `(${c.email})` : ""}</option>)}
+                  <option value="">Select person *</option>
+                  {contacts.map((c) => <option key={c.id} value={c.id}>[{c.pipelineType === "connector" ? "Connector" : "ICP"}] {c.firstName} {c.lastName} {c.email ? `(${c.email})` : ""}</option>)}
                 </select>
               </div>
 
