@@ -237,7 +237,7 @@ export default async function CrmHome() {
       records: monthlyWarmIntrosRecords.map((c) => ({
         id: `mwarm-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
-        status: c.status || ((c.pipelineType || "lead") === "connector" ? "Identified" : "New"),
+        status: c.status || ((c.pipelineType || "connector") === "connector" ? "Identified" : "New"),
       })),
     },
     {

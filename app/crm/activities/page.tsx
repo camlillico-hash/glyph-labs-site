@@ -131,7 +131,7 @@ export default function ActivitiesPage() {
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Person</label>
                 <select className="crm-input" value={draft.contactId || ""} onChange={(e) => setDraft({ ...draft, contactId: e.target.value })}>
                   <option value="">Select person *</option>
-                  {contacts.map((c) => <option key={c.id} value={c.id}>[{c.pipelineType === "connector" ? "Connector" : "ICP"}] {c.firstName} {c.lastName} {c.email ? `(${c.email})` : ""}</option>)}
+                  {contacts.map((c) => <option key={c.id} value={c.id}>[{c.pipelineType === "connector" ? "Connector" : "Lead"}] {c.firstName} {c.lastName} {c.email ? `(${c.email})` : ""}</option>)}
                 </select>
               </div>
 

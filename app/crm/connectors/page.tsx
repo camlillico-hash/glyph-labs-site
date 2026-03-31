@@ -48,7 +48,7 @@ const activityTypeIcon = (v?: string) => {
 };
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
-const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "icp") as "connector" | "icp"] || "ICP";
+const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Connector";
 
 export default function ConnectorsPage() {
   const [items, setItems] = useState<Contact[]>([]);
@@ -121,7 +121,7 @@ export default function ConnectorsPage() {
     {
       key: "connector",
       title: "Connector funnel",
-      subtitle: "People who can broker introductions into ICP conversations.",
+      subtitle: "People who can open doors, make intros, and expand the network.",
       pipelineType: "connector",
       stages: CONNECTOR_STAGES,
       items: connectorOpenItems,
@@ -395,7 +395,7 @@ export default function ConnectorsPage() {
           <p className="mt-1 text-sm text-slate-400">People who can open doors, make intros, and expand the network.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-sky-600 bg-sky-900/40 px-3 py-2 font-semibold text-sky-100 hover:bg-sky-800/70" onClick={() => openCreate("connector")}><Plus size={14} /> New connector</button>
+          <button className="inline-flex items-center gap-1.5 rounded-lg border border-sky-600 bg-sky-900/40 px-3 py-2 font-semibold text-sky-100 hover:bg-sky-800/70" onClick={() => openCreate("connector")}><Plus size={14} /> New</button>
                     <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
             <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
@@ -588,11 +588,11 @@ export default function ConnectorsPage() {
       {draft && (
         <div className="fixed inset-0 z-40"><div className="absolute inset-0 bg-black/55" onClick={closeTray} />
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
-            <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? `New ${pipelineLabel(draft.pipelineType)} contact` : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
+            <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? `New ${pipelineLabel(draft.pipelineType)}` : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex flex-wrap gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(false)}><Save size={14} className="text-emerald-300" /></button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(true)}><Save size={14} className="text-emerald-300" /></button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
               {!createMode && selected?.pipelineType !== "connector" && selected?.status === "Warm intro booked" && (
-                <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this ICP contact and return it to the open funnel?", () => { unconvertFromTray(); }, "Unconvert")}>
+                <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this lead and return it to the open funnel?", () => { unconvertFromTray(); }, "Unconvert")}>
                   Unconvert
                 </button>
               )}
@@ -643,7 +643,7 @@ export default function ConnectorsPage() {
               ))}
               {showDetailSection && (
                 <>
-                  <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">{draft.pipelineType === "connector" ? "Connector stage" : "ICP stage"}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || defaultStatusForPipeline(draft.pipelineType)} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>{stageOptionsForPipeline(draft.pipelineType).map((s, i) => <option key={s} value={s}>{stageLabel(s, i)}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.status || defaultStatusForPipeline(draft.pipelineType)}</p>}</div>
+                  <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">{draft.pipelineType === "connector" ? "Connector stage" : "Lead stage"}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || defaultStatusForPipeline(draft.pipelineType)} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>{stageOptionsForPipeline(draft.pipelineType).map((s, i) => <option key={s} value={s}>{stageLabel(s, i)}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.status || defaultStatusForPipeline(draft.pipelineType)}</p>}</div>
                   <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Disqualification reason{(editMode || createMode) && (["Nurture", "Closed Lost"].includes(draft.status || "")) ? " *" : ""}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.disqualificationReason || ""} onChange={(e) => setDraft({ ...draft, disqualificationReason: e.target.value || undefined })}><option value="">Select reason</option>{DISQUALIFICATION_REASONS.map((s) => <option key={s} value={s}>{s}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.disqualificationReason || "—"}</p>}</div>
                   <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">What now?{(editMode || createMode) && (["Nurture", "Closed Lost"].includes(draft.status || "")) ? " *" : ""}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.whatNow || ""} onChange={(e) => setDraft({ ...draft, whatNow: e.target.value || undefined })}><option value="">Select next path</option>{WHAT_NOW_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.whatNow || "—"}</p>}</div>
                   <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>{(editMode || createMode) ? <textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} /> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap cursor-text">{draft.notes || "—"}</p>}</div>

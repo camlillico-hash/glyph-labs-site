@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Upload, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight, Paperclip } from "lucide-react";
+import { Target, Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Upload, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight, Paperclip } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 import Papa from "papaparse";
 
@@ -48,7 +48,7 @@ const activityTypeIcon = (v?: string) => {
 };
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
-const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "icp") as "connector" | "icp"] || "Lead";
+const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Lead";
 
 export default function LeadsPage() {
   const [items, setItems] = useState<Contact[]>([]);
@@ -102,9 +102,7 @@ export default function LeadsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const connectorItems = useMemo(() => items.filter((c) => (c.pipelineType || "connector") === "connector"), [items]);
   const icpItems = useMemo(() => items.filter((c) => (c.pipelineType || "connector") === "icp"), [items]);
-  const connectorOpenItems = useMemo(() => connectorItems.filter((c) => !["Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "Identified") || !c.openBoardHidden), [connectorItems]);
   const icpOpenItems = useMemo(() => icpItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden), [icpItems]);
   const convertedItems = useMemo(() => icpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden), [icpItems]);
   const clientContactIds = useMemo(() => {
@@ -118,14 +116,6 @@ export default function LeadsPage() {
   const disqualifiedItems = useMemo(() => items.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden)), [items]);
 
   const boardSections = [
-    {
-      key: "connector",
-      title: "Connector funnel",
-      subtitle: "People who can broker introductions into lead conversations.",
-      pipelineType: "connector",
-      stages: CONNECTOR_STAGES,
-      items: connectorOpenItems,
-    },
     {
       key: "icp",
       title: "Lead funnel",
@@ -391,11 +381,11 @@ export default function LeadsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Users size={20} /> Leads</h1>
-          <p className="mt-1 text-sm text-slate-400">People who are progressing toward a deal conversation.</p>
+          <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Target size={20} /> Leads</h1>
+          <p className="mt-1 text-sm text-slate-400">Qualified opportunities progressing toward a deal conversation.</p>
         </div>
         <div className="flex items-center gap-2">
-                    <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New Lead</button>
+                    <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New</button>
           <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
             <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
@@ -480,7 +470,7 @@ export default function LeadsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-sky-200" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowOpenContacts((v) => !v)}>
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Open contacts ({connectorOpenItems.length + icpOpenItems.length})
+            Open leads ({icpOpenItems.length})
           </button>
           {showOpenContacts && renderContactsTable([...icpOpenItems])}
         </div>
@@ -494,7 +484,7 @@ export default function LeadsPage() {
           </button>
           {showConverted && (
             convertedItems.length > 0 ? renderContactsTable(convertedItems) : (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No Lead contacts have converted to deals yet.</div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No leads have converted to deals yet.</div>
             )
           )}
         </div>
@@ -506,7 +496,7 @@ export default function LeadsPage() {
           </button>
           {showClients && (
             clientItems.length > 0 ? renderContactsTable(clientItems) : (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client contacts yet.</div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client leads yet.</div>
             )
           )}
         </div>
@@ -588,7 +578,7 @@ export default function LeadsPage() {
       {draft && (
         <div className="fixed inset-0 z-40"><div className="absolute inset-0 bg-black/55" onClick={closeTray} />
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
-            <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? `New ${pipelineLabel(draft.pipelineType)} contact` : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
+            <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? `New ${pipelineLabel(draft.pipelineType)}` : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex flex-wrap gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(false)}><Save size={14} className="text-emerald-300" /></button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(true)}><Save size={14} className="text-emerald-300" /></button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
               {!createMode && selected?.pipelineType !== "connector" && selected?.status === "Warm intro booked" && (
