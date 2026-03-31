@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { getStore, id, now, saveStore } from "@/lib/crm-store";
+import { getStore, id, now, saveStore, CONNECTOR_STAGES, ICP_STAGES } from "@/lib/crm-store";
 import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 const ALLOWED_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
-const ALLOWED_STAGES = ["New", "Attempting", "Connected", "Discovery meeting booked", "Not right now"];
 const ALLOWED_PRIMARY_PAIN = ["Execution", "Strategy", "Culture"];
 
 function norm(v: any) {
@@ -26,6 +25,27 @@ function formatPhone(v: any) {
   }
 
   return raw;
+}
+
+function normalizePipelineType(v: any) {
+  const value = norm(v).toLowerCase();
+  return value === "connector" ? "connector" : "icp";
+}
+
+function normalizeStatus(v: any, pipelineType: "connector" | "icp") {
+  const raw = norm(v);
+  if (!raw) return pipelineType === "connector" ? "Identified" : "New";
+
+  const legacyMap: Record<string, string> = {
+    "Attempting": "Connected",
+    "Pipeline Seeding": "Activated",
+    "Pipeline Seeder": "Nurture",
+    "Not right now": "Closed Lost",
+    "Discovery meeting booked": "Warm intro booked",
+  };
+  const mapped = legacyMap[raw] || raw;
+  const allowed = pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
+  return (allowed as readonly string[]).includes(mapped) ? mapped : (pipelineType === "connector" ? "Identified" : "New");
 }
 
 export async function POST(req: Request) {
@@ -53,8 +73,9 @@ export async function POST(req: Request) {
     }
 
     const type = norm(r.type || r.Type);
-    const status = norm(r.status || r["Lead Status"] || r.Stage || r.stage);
     const primaryPain = norm(r.primaryPain || r["Primary pain"] || r["Primary Pain"]);
+    const pipelineType = normalizePipelineType(r.pipelineType || r["Pipeline type"] || r.pipeline || r.Pipeline);
+    const status = normalizeStatus(r.status || r["Lead Status"] || r.Stage || r.stage, pipelineType);
 
     const contact: any = {
       id: id(),
@@ -66,9 +87,10 @@ export async function POST(req: Request) {
       company: norm(r.company || r.Company),
       title: norm(r.title || r.Title),
       type: ALLOWED_TYPES.includes(type) ? type : "",
+      pipelineType,
       leadSource: norm(r.leadSource || r["Lead source"] || r["Lead Source"] || r.source),
       primaryPain: ALLOWED_PRIMARY_PAIN.includes(primaryPain) ? primaryPain : undefined,
-      status: ALLOWED_STAGES.includes(status) ? status : "New",
+      status,
       notes: norm(r.notes || r.Notes),
       createdAt: now(),
       updatedAt: now(),

@@ -6,8 +6,13 @@ import ConfirmDialog from "../ConfirmDialog";
 import Papa from "papaparse";
 
 type Contact = any;
-const CONTACT_STAGES = ["New", "Attempting", "Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Not right now"];
+const CONNECTOR_STAGES = ["Identified", "Connected", "Positioned", "Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"];
+const ICP_STAGES = ["New", "Connected", "Warm intro booked", "Nurture", "Closed Lost"];
 const CONTACT_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
+const PIPELINE_LABELS = {
+  connector: "Connector",
+  icp: "ICP",
+} as const;
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
 const DISQUALIFICATION_REASONS = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Shouldn't reach out just yet", "Done tapping network for now.", "Test Lead or Bad Data", "Other"];
 const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
@@ -18,10 +23,10 @@ const contactFields: Array<[string, string, string]> = [
 ];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 const stageColorClass = (stage: string) => {
-  if (stage === "New") return "text-slate-300";
-  if (["Attempting", "Connected"].includes(stage)) return "text-sky-300";
-  if (["Pipeline Seeding", "Warm intro booked"].includes(stage)) return "text-emerald-300";
-  if (["Pipeline Seeder", "Not right now"].includes(stage)) return "text-amber-300";
+  if (["Identified", "New"].includes(stage)) return "text-slate-300";
+  if (["Connected", "Positioned"].includes(stage)) return "text-sky-300";
+  if (["Activated", "Intro Pending", "Intro Delivered", "Warm intro booked"].includes(stage)) return "text-emerald-300";
+  if (["Nurture", "Closed Lost"].includes(stage)) return "text-amber-300";
   return "text-slate-300";
 };
 const prettyType = (v?: string) => String(v || "").split("_").map((s) => s ? s[0].toUpperCase() + s.slice(1) : s).join(" ");
@@ -41,6 +46,9 @@ const activityTypeIcon = (v?: string) => {
   if (t === "task_completed") return CheckCheck;
   return CalendarCheck2;
 };
+const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
+const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
+const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "icp") as "connector" | "icp"] || "ICP";
 
 export default function ContactsPage() {
   const [items, setItems] = useState<Contact[]>([]);
@@ -51,8 +59,8 @@ export default function ContactsPage() {
   const [activityDraft, setActivityDraft] = useState<any>({ type: "email" });
   const [activityError, setActivityError] = useState("");
   const [draggingContactId, setDraggingContactId] = useState<string | null>(null);
-  const [hoverStatus, setHoverStatus] = useState<string | null>(null);
-  const [hoverDrop, setHoverDrop] = useState<{ status: string; index: number } | null>(null);
+  const [hoverLane, setHoverLane] = useState<string | null>(null);
+  const [hoverDrop, setHoverDrop] = useState<{ laneKey: string; index: number } | null>(null);
   const [view, setView] = useState<"bucket" | "table">("bucket");
 
   const [selected, setSelected] = useState<Contact | null>(null);
@@ -94,20 +102,39 @@ export default function ContactsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const isTerminalStatus = (status?: string) => ["Warm intro booked", "Pipeline Seeder", "Not right now"].includes(status || "New");
-  const openItems = useMemo(() => items.filter((c) => !isTerminalStatus(c.status) || !c.openBoardHidden), [items]);
-  const sorted = useMemo(() => [...openItems], [openItems]);
-  const convertedItems = useMemo(() => items.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden), [items]);
+  const connectorItems = useMemo(() => items.filter((c) => (c.pipelineType || "icp") === "connector"), [items]);
+  const icpItems = useMemo(() => items.filter((c) => (c.pipelineType || "icp") === "icp"), [items]);
+  const connectorOpenItems = useMemo(() => connectorItems.filter((c) => !["Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "Identified") || !c.openBoardHidden), [connectorItems]);
+  const icpOpenItems = useMemo(() => icpItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden), [icpItems]);
+  const convertedItems = useMemo(() => icpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden), [icpItems]);
   const clientContactIds = useMemo(() => {
     const ids = new Set<string>();
     for (const d of deals || []) {
-      if (["Launch days paid", "Launch paid (won)"].includes(d.stage) && d.contactId) ids.add(d.contactId);
+      if (d.stage === "Launch paid (won)" && d.contactId) ids.add(d.contactId);
     }
     return ids;
   }, [deals]);
   const clientItems = useMemo(() => items.filter((c) => clientContactIds.has(c.id)), [items, clientContactIds]);
-  const disqualifiedItems = useMemo(() => items.filter((c) => (["Not right now", "Pipeline Seeder"].includes(c.status || "New") && c.openBoardHidden)), [items]);
+  const disqualifiedItems = useMemo(() => items.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden)), [items]);
 
+  const boardSections = [
+    {
+      key: "connector",
+      title: "Connector funnel",
+      subtitle: "People who can broker introductions into ICP conversations.",
+      pipelineType: "connector",
+      stages: CONNECTOR_STAGES,
+      items: connectorOpenItems,
+    },
+    {
+      key: "icp",
+      title: "ICP early funnel",
+      subtitle: "Prospects before the deal board takes over.",
+      pipelineType: "icp",
+      stages: ICP_STAGES,
+      items: icpOpenItems,
+    },
+  ] as const;
 
   const selectedActivities = useMemo(() => {
     if (!selected?.id) return [];
@@ -116,8 +143,30 @@ export default function ContactsPage() {
       .sort((a: any, b: any) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime());
   }, [activities, selected]);
 
-  function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ status: "New" }); setTrayError(""); setActivityDraft({ type: "email", occurredAtLocal: "" }); setActivityError(""); setShowDetailSection(true); setShowActivitiesSection(true); setShowDealsSection(true); }
-  function openTray(contact: Contact) { setSelected(contact); setDraft({ ...contact }); setEditMode(false); setCreateMode(false); setTrayError(""); setActivityDraft({ type: "email", contactId: contact.id, occurredAtLocal: "" }); setActivityError(""); setShowDetailSection(true); setShowActivitiesSection(true); setShowDealsSection(true); }
+  function openCreate(pipelineType: "connector" | "icp" = "icp") {
+    setCreateMode(true);
+    setEditMode(true);
+    setSelected(null);
+    setDraft({ pipelineType, status: defaultStatusForPipeline(pipelineType) });
+    setTrayError("");
+    setActivityDraft({ type: "email", occurredAtLocal: "" });
+    setActivityError("");
+    setShowDetailSection(true);
+    setShowActivitiesSection(true);
+    setShowDealsSection(true);
+  }
+  function openTray(contact: Contact) {
+    setSelected(contact);
+    setDraft({ ...contact });
+    setEditMode(false);
+    setCreateMode(false);
+    setTrayError("");
+    setActivityDraft({ type: "email", contactId: contact.id, occurredAtLocal: "" });
+    setActivityError("");
+    setShowDetailSection(true);
+    setShowActivitiesSection(true);
+    setShowDealsSection(true);
+  }
   function closeTray() {
     setSelected(null);
     setDraft(null);
@@ -153,9 +202,9 @@ export default function ContactsPage() {
 
   async function moveContactStage(contactId: string, status: string, targetIndex?: number) {
     const contact = items.find((c) => c.id === contactId);
-    if (!contact || (contact.status || "New") === status) return;
+    if (!contact || (contact.status || defaultStatusForPipeline(contact.pipelineType)) === status) return;
 
-    if (status === "Not right now") {
+    if (["Nurture", "Closed Lost"].includes(status)) {
       const hasDQ = Boolean(String(contact.disqualificationReason || "").trim());
       const hasWhatNow = Boolean(String(contact.whatNow || "").trim());
       if (!hasDQ || !hasWhatNow) {
@@ -185,12 +234,13 @@ export default function ContactsPage() {
       let statusCount = 0;
       let inserted = false;
       for (const c of others) {
-        if ((c.status || "New") === status && statusCount === targetIndex) {
+        const sameStage = (c.status || defaultStatusForPipeline(c.pipelineType)) === status;
+        if (sameStage && statusCount === targetIndex) {
           next.push(updated);
           inserted = true;
         }
         next.push(c);
-        if ((c.status || "New") === status) statusCount++;
+        if (sameStage) statusCount++;
       }
       if (!inserted) next.push(updated);
       return next;
@@ -218,7 +268,7 @@ export default function ContactsPage() {
 
     const payload = {
       ...contact,
-      status: dqModal.status || "Not right now",
+      status: dqModal.status || "Closed Lost",
       disqualificationReason,
       whatNow,
       openBoardHidden: false,
@@ -262,7 +312,13 @@ export default function ContactsPage() {
     const res = await fetch("/api/crm/contacts", { method: isCreate ? "POST" : "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(draft) });
     if (!res.ok) { const j = await res.json().catch(() => ({})); setTrayError(j.error || "Could not save contact"); return; }
     await load();
-    if (isCreate && createAnother) { setDraft({ status: "New" }); setCreateMode(true); setEditMode(true); return; }
+    if (isCreate && createAnother) {
+      const pipelineType = draft.pipelineType || "icp";
+      setDraft({ pipelineType, status: defaultStatusForPipeline(pipelineType) });
+      setCreateMode(true);
+      setEditMode(true);
+      return;
+    }
     closeTray();
   }
 
@@ -278,6 +334,7 @@ export default function ContactsPage() {
     const payload = {
       ...selected,
       status: "Connected",
+      openBoardHidden: false,
       disqualificationReason: undefined,
       whatNow: undefined,
     };
@@ -303,18 +360,21 @@ export default function ContactsPage() {
   const renderContactsTable = (rows: Contact[]) => (
     <div className="crm-card overflow-auto">
       <table className="w-full text-sm">
-        <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
+        <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Pipeline</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
         <tbody>
           {rows.map((c) => {
             const editing = editingId === c.id;
+            const pipelineType = (c.pipelineType || "icp") as "connector" | "icp";
+            const stageOptions = stageOptionsForPipeline(pipelineType);
             return (
               <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
                 <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : <button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(c);}}>{`${c.firstName} ${c.lastName}`}</button>}</td>
+                <td className="px-3 py-2 text-slate-300">{pipelineLabel(pipelineType)}</td>
                 <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5">{c.email}<a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a></span> : "—")}</td>
                 <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
                 <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
                 <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.type || ""} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}><option value="">Select type</option>{CONTACT_TYPES.map((t)=> <option key={t} value={t}>{t}</option>)}</select> : (c.type || "—")}</td>
-                <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || "New"} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{CONTACT_STAGES.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || "New")}</td>
+                <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || defaultStatusForPipeline(pipelineType)} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{stageOptions.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || defaultStatusForPipeline(pipelineType))}</td>
                 <td className="px-3 py-2 text-slate-300">{c.lastActivityDate ? new Date(c.lastActivityDate).toLocaleDateString() : "—"}</td>
                 <td className="px-3 py-2 text-slate-300">{c.lastActivityType ? prettyType(String(c.lastActivityType)) : "—"}</td>
                 <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
@@ -330,9 +390,13 @@ export default function ContactsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Users size={20} /> Contacts</h1>
+        <div>
+          <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Users size={20} /> Contacts</h1>
+          <p className="mt-1 text-sm text-slate-400">Split into connector and ICP early funnels so handoffs are visible before deals begin.</p>
+        </div>
         <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={openCreate}><Plus size={14} /> New</button>
+          <button className="inline-flex items-center gap-1.5 rounded-lg border border-sky-600 bg-sky-900/40 px-3 py-2 font-semibold text-sky-100 hover:bg-sky-800/70" onClick={() => openCreate("connector")}><Plus size={14} /> New connector</button>
+          <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New ICP</button>
           <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
             <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
@@ -341,95 +405,85 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      
-
       {view === "bucket" ? (
-        <div className="overflow-x-auto pb-2">
-          <div className="flex gap-4 min-w-max">
-            {CONTACT_STAGES.map((stage, i) => (
-              <div key={stage} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverStatus === stage ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverStatus(stage)} onDragLeave={() => setHoverStatus((s) => s === stage ? null : s)} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }}>
-                <h3
-                  className={`mb-3 inline-flex items-center gap-1.5 font-semibold ${stageColorClass(stage)}`}
-                  style={{ fontFamily: "var(--font-libre-franklin), sans-serif" }}
-                >
-                  {stageLabel(stage, i)}
-                  <span
-                    className="border-b border-slate-300 text-base font-semibold leading-none text-slate-100"
-                    style={{ fontFamily: "var(--font-libre-franklin), sans-serif" }}
-                  >
-                    {sorted.filter((c) => (c.status || "New") === stage).length}
-                  </span>
-                </h3>
-                <div className="min-h-10">
-                  {(() => {
-                    const stageContacts = sorted.filter((c) => (c.status || "New") === stage);
+        <div className="space-y-6">
+          {boardSections.map((section) => (
+            <section key={section.key} className="space-y-3">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-100">{section.title}</h2>
+                <p className="text-sm text-slate-400">{section.subtitle}</p>
+              </div>
+              <div className="overflow-x-auto pb-2">
+                <div className="flex gap-4 min-w-max">
+                  {section.stages.map((stage, i) => {
+                    const laneKey = `${section.key}:${stage}`;
+                    const laneContacts = section.items.filter((c) => (c.status || defaultStatusForPipeline(c.pipelineType)) === stage);
                     return (
-                      <>
-                        {stageContacts.map((c, idx) => (
-                          <div key={c.id}>
-                            <div
-                              className={`my-1 h-1 rounded-full transition-all ${hoverDrop?.status === stage && hoverDrop.index === idx ? "bg-emerald-400" : "bg-transparent"}`}
-                              onDragOver={(e) => e.preventDefault()}
-                              onDragEnter={() => setHoverDrop({ status: stage, index: idx })}
-                              onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage, idx); setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }}
-                            />
-                            <button draggable onDragStart={() => setDraggingContactId(c.id)} onDragEnd={() => { setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }} className={`crm-card w-full min-w-0 p-3 text-left cursor-grab transition-all duration-300 ${draggingContactId === c.id ? "scale-[1.02] opacity-70" : ""} ${removingFromOpenIds.includes(c.id) ? "opacity-0 scale-95" : "opacity-100"}`} onClick={() => openTray(c)}>
-                              <p className="truncate font-semibold">{c.firstName} {c.lastName}</p>
-                              <p className="truncate text-xs text-slate-400 inline-flex items-center gap-1.5">{c.email || "No email"}{c.email && <a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={12} /></a>}</p>
-                              {c.linkedin && <p className="truncate text-xs text-slate-400">{c.linkedin}</p>}
-                              <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
-                              <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
-                              <p className="mt-1 truncate text-[11px] text-emerald-300">Activities: {(activities || []).filter((a:any) => a.contactId === c.id).length}</p>
-                              {c.strengthTest === "Yes" ? (
-                                <span className="mt-1 inline-flex rounded border border-cyan-500/50 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-cyan-200">
-                                  Strength Test
-                                </span>
-                              ) : null}
-                              {c.status === "Warm intro booked" ? (
-                                <button
-                                  type="button"
-                                  className="mt-2 inline-flex rounded border border-emerald-500/50 bg-emerald-500/10 px-2 py-1 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/20"
-                                  onClick={(e) => { e.stopPropagation(); removeFromOpen(c); }}
-                                >
-                                  Convert now
+                      <div key={laneKey} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverLane === laneKey ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverLane(laneKey)} onDragLeave={() => setHoverLane((s) => s === laneKey ? null : s)} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); setHoverLane(null); setHoverDrop(null); }}>
+                        <h3 className={`mb-3 inline-flex items-center gap-1.5 font-semibold ${stageColorClass(stage)}`} style={{ fontFamily: "var(--font-libre-franklin), sans-serif" }}>
+                          {stageLabel(stage, i)}
+                          <span className="border-b border-slate-300 text-base font-semibold leading-none text-slate-100" style={{ fontFamily: "var(--font-libre-franklin), sans-serif" }}>
+                            {laneContacts.length}
+                          </span>
+                        </h3>
+                        <div className="min-h-10">
+                          {laneContacts.map((c, idx) => {
+                            const cardLaneKey = `${section.key}:${stage}`;
+                            return (
+                              <div key={c.id}>
+                                <div className={`my-1 h-1 rounded-full transition-all ${hoverDrop?.laneKey === cardLaneKey && hoverDrop.index === idx ? "bg-emerald-400" : "bg-transparent"}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverDrop({ laneKey: cardLaneKey, index: idx })} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage, idx); setDraggingContactId(null); setHoverLane(null); setHoverDrop(null); }} />
+                                <button draggable onDragStart={() => setDraggingContactId(c.id)} onDragEnd={() => { setDraggingContactId(null); setHoverLane(null); setHoverDrop(null); }} className={`crm-card w-full min-w-0 p-3 text-left cursor-grab transition-all duration-300 ${draggingContactId === c.id ? "scale-[1.02] opacity-70" : ""} ${removingFromOpenIds.includes(c.id) ? "opacity-0 scale-95" : "opacity-100"}`} onClick={() => openTray(c)}>
+                                  <p className="truncate font-semibold">{c.firstName} {c.lastName}</p>
+                                  <p className="truncate text-[11px] text-slate-500">{pipelineLabel(c.pipelineType)}</p>
+                                  <p className="truncate text-xs text-slate-400 inline-flex items-center gap-1.5">{c.email || "No email"}{c.email && <a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={12} /></a>}</p>
+                                  {c.linkedin && <p className="truncate text-xs text-slate-400">{c.linkedin}</p>}
+                                  <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
+                                  <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
+                                  <p className="mt-1 truncate text-[11px] text-emerald-300">Activities: {(activities || []).filter((a:any) => a.contactId === c.id).length}</p>
+                                  {c.strengthTest === "Yes" ? (
+                                    <span className="mt-1 inline-flex rounded border border-cyan-500/50 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-cyan-200">
+                                      Strength Test
+                                    </span>
+                                  ) : null}
+                                  {(c.pipelineType || "icp") === "connector" && c.status === "Intro Delivered" ? (
+                                    <button type="button" className="mt-2 inline-flex rounded border border-emerald-500/50 bg-emerald-500/10 px-2 py-1 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/20" onClick={(e) => { e.stopPropagation(); removeFromOpen(c); }}>
+                                      Archive delivered intro
+                                    </button>
+                                  ) : null}
+                                  {(c.pipelineType || "icp") === "icp" && c.status === "Warm intro booked" ? (
+                                    <button type="button" className="mt-2 inline-flex rounded border border-emerald-500/50 bg-emerald-500/10 px-2 py-1 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/20" onClick={(e) => { e.stopPropagation(); removeFromOpen(c); }}>
+                                      Convert to deals
+                                    </button>
+                                  ) : null}
+                                  {["Nurture", "Closed Lost"].includes(c.status || "") ? (
+                                    <button type="button" className="mt-2 inline-flex rounded border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-500/20" onClick={(e) => { e.stopPropagation(); removeFromOpen(c); }}>
+                                      Remove from open
+                                    </button>
+                                  ) : null}
+                                  <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); setMovePicker({ open: true, contactId: c.id }); }}>
+                                    Move
+                                  </button>
                                 </button>
-                              ) : null}
-                              {["Pipeline Seeder", "Not right now"].includes(c.status || "") ? (
-                                <button
-                                  type="button"
-                                  className="mt-2 inline-flex rounded border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-500/20"
-                                  onClick={(e) => { e.stopPropagation(); removeFromOpen(c); }}
-                                >
-                                  Remove from open
-                                </button>
-                              ) : null}
-                              <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); setMovePicker({ open: true, contactId: c.id }); }}>
-                                Move
-                              </button>
-                            </button>
-                          </div>
-                        ))}
-                        <div
-                          className={`mt-1 h-1 rounded-full transition-all ${hoverDrop?.status === stage && hoverDrop.index === stageContacts.length ? "bg-emerald-400" : "bg-transparent"}`}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDragEnter={() => setHoverDrop({ status: stage, index: stageContacts.length })}
-                          onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage, stageContacts.length); setDraggingContactId(null); setHoverStatus(null); setHoverDrop(null); }}
-                        />
-                      </>
+                              </div>
+                            );
+                          })}
+                          <div className={`mt-1 h-1 rounded-full transition-all ${hoverDrop?.laneKey === laneKey && hoverDrop.index === laneContacts.length ? "bg-emerald-400" : "bg-transparent"}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverDrop({ laneKey, index: laneContacts.length })} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage, laneContacts.length); setDraggingContactId(null); setHoverLane(null); setHoverDrop(null); }} />
+                        </div>
+                      </div>
                     );
-                  })()}
+                  })}
                 </div>
               </div>
-            ))}
-          </div>
+            </section>
+          ))}
         </div>
       ) : (
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-sky-200" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowOpenContacts((v) => !v)}>
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Open contacts ({sorted.length})
+            Open contacts ({connectorOpenItems.length + icpOpenItems.length})
           </button>
-          {showOpenContacts && renderContactsTable(sorted)}
+          {showOpenContacts && renderContactsTable([...connectorOpenItems, ...icpOpenItems])}
         </div>
       )}
 
@@ -437,11 +491,11 @@ export default function ContactsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowConverted((v) => !v)}>
             {showConverted ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Converted ({convertedItems.length})
+            Converted to deals ({convertedItems.length})
           </button>
           {showConverted && (
             convertedItems.length > 0 ? renderContactsTable(convertedItems) : (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No converted contacts yet.</div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No ICP contacts have converted to deals yet.</div>
             )
           )}
         </div>
@@ -461,11 +515,11 @@ export default function ContactsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-amber-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowDisqualified((v) => !v)}>
             {showDisqualified ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Disqualified ({disqualifiedItems.length})
+            Nurture / closed lost ({disqualifiedItems.length})
           </button>
           {showDisqualified && (
             disqualifiedItems.length > 0 ? renderContactsTable(disqualifiedItems) : (
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No disqualified contacts.</div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No archived nurture or lost contacts.</div>
             )
           )}
         </div>
@@ -513,8 +567,8 @@ export default function ContactsPage() {
                   }}
                 />
               </label>
-              <p className="mt-3 text-xs text-slate-500">CSV headers: firstName, lastName, email, phone, company, title, type, primaryPain, leadSource, status, notes.</p>
-              <p className="mt-1 text-xs text-slate-500">Tip: firstName + lastName are required.</p>
+              <p className="mt-3 text-xs text-slate-500">CSV headers: firstName, lastName, email, phone, company, title, type, primaryPain, leadSource, pipelineType, status, notes.</p>
+              <p className="mt-1 text-xs text-slate-500">Tip: firstName + lastName are required. pipelineType accepts connector or icp.</p>
             </div>
 
             {importError && <p className="mt-3 text-sm text-red-300">{importError}</p>}
@@ -535,11 +589,11 @@ export default function ContactsPage() {
       {draft && (
         <div className="fixed inset-0 z-40"><div className="absolute inset-0 bg-black/55" onClick={closeTray} />
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
-            <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? "New contact" : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
+            <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? `New ${pipelineLabel(draft.pipelineType)} contact` : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex flex-wrap gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(false)}><Save size={14} className="text-emerald-300" /></button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(true)}><Save size={14} className="text-emerald-300" /></button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
-              {!createMode && selected?.status === "Warm intro booked" && (
-                <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this contact and return it to Open contacts?", () => { unconvertFromTray(); }, "Unconvert")}>
+              {!createMode && selected?.pipelineType !== "connector" && selected?.status === "Warm intro booked" && (
+                <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this ICP contact and return it to the open funnel?", () => { unconvertFromTray(); }, "Unconvert")}>
                   Unconvert
                 </button>
               )}
@@ -550,6 +604,17 @@ export default function ContactsPage() {
                 {showDetailSection ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 Contact details
               </button>
+              {showDetailSection && (
+                <div>
+                  <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Pipeline</label>
+                  {(editMode || createMode) ? (
+                    <select className="crm-input" value={draft.pipelineType || "icp"} onChange={(e) => setDraft({ ...draft, pipelineType: e.target.value, status: defaultStatusForPipeline(e.target.value) })}>
+                      <option value="connector">Connector</option>
+                      <option value="icp">ICP</option>
+                    </select>
+                  ) : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{pipelineLabel(draft.pipelineType)}</p>}
+                </div>
+              )}
               {showDetailSection && contactFields.map(([k, label, type]) => (
                 <div key={k}>
                   <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">{label}</label>
@@ -579,9 +644,9 @@ export default function ContactsPage() {
               ))}
               {showDetailSection && (
                 <>
-                  <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Lead stage</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || "New"} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>{CONTACT_STAGES.map((s, i) => <option key={s} value={s}>{stageLabel(s, i)}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.status || "New"}</p>}</div>
-                  <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Disqualification reason{(editMode || createMode) && (draft.status === "Not right now") ? " *" : ""}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.disqualificationReason || ""} onChange={(e) => setDraft({ ...draft, disqualificationReason: e.target.value || undefined })}><option value="">Select reason</option>{DISQUALIFICATION_REASONS.map((s) => <option key={s} value={s}>{s}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.disqualificationReason || "—"}</p>}</div>
-                  <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">What now?{(editMode || createMode) && (draft.status === "Not right now") ? " *" : ""}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.whatNow || ""} onChange={(e) => setDraft({ ...draft, whatNow: e.target.value || undefined })}><option value="">Select next path</option>{WHAT_NOW_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.whatNow || "—"}</p>}</div>
+                  <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">{draft.pipelineType === "connector" ? "Connector stage" : "ICP stage"}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || defaultStatusForPipeline(draft.pipelineType)} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>{stageOptionsForPipeline(draft.pipelineType).map((s, i) => <option key={s} value={s}>{stageLabel(s, i)}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.status || defaultStatusForPipeline(draft.pipelineType)}</p>}</div>
+                  <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Disqualification reason{(editMode || createMode) && (["Nurture", "Closed Lost"].includes(draft.status || "")) ? " *" : ""}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.disqualificationReason || ""} onChange={(e) => setDraft({ ...draft, disqualificationReason: e.target.value || undefined })}><option value="">Select reason</option>{DISQUALIFICATION_REASONS.map((s) => <option key={s} value={s}>{s}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.disqualificationReason || "—"}</p>}</div>
+                  <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">What now?{(editMode || createMode) && (["Nurture", "Closed Lost"].includes(draft.status || "")) ? " *" : ""}</label>{(editMode || createMode) ? <select className="crm-input" value={draft.whatNow || ""} onChange={(e) => setDraft({ ...draft, whatNow: e.target.value || undefined })}><option value="">Select next path</option>{WHAT_NOW_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}</select> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft.whatNow || "—"}</p>}</div>
                   <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>{(editMode || createMode) ? <textarea className="crm-input min-h-28" value={draft.notes || ""} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} /> : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap cursor-text">{draft.notes || "—"}</p>}</div>
                 </>
               )}
@@ -630,12 +695,7 @@ export default function ContactsPage() {
                           </div>
                           <p className="mt-1 text-slate-300">{cleanNote || "—"}</p>
                           {pdfPath ? (
-                            <a
-                              href={pdfPath}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-500/10 px-2 py-1 text-[11px] font-semibold text-cyan-200 hover:bg-cyan-500/20"
-                            >
+                            <a href={pdfPath} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-500/10 px-2 py-1 text-[11px] font-semibold text-cyan-200 hover:bg-cyan-500/20">
                               <Paperclip size={12} aria-hidden />
                               Strength Test PDF
                             </a>
@@ -691,26 +751,18 @@ export default function ContactsPage() {
           <div className="absolute inset-0 bg-black/60" onClick={() => setDqModal({ open: false, disqualificationReason: "", whatNow: "", error: "", saving: false })} />
           <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-neutral-700 bg-neutral-900 p-4 shadow-2xl">
             <h3 className="text-sm font-semibold text-slate-100">Complete disqualification details</h3>
-            <p className="mt-1 text-xs text-slate-400">To move this contact to Not right now, please complete both required fields.</p>
+            <p className="mt-1 text-xs text-slate-400">To move this contact into nurture or closed lost, please complete both required fields.</p>
             <div className="mt-3 space-y-2">
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Disqualification reason *</label>
-                <select
-                  className="crm-input"
-                  value={dqModal.disqualificationReason}
-                  onChange={(e) => setDqModal((prev) => ({ ...prev, disqualificationReason: e.target.value, error: "" }))}
-                >
+                <select className="crm-input" value={dqModal.disqualificationReason} onChange={(e) => setDqModal((prev) => ({ ...prev, disqualificationReason: e.target.value, error: "" }))}>
                   <option value="">Select reason</option>
                   {DISQUALIFICATION_REASONS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">What now? *</label>
-                <select
-                  className="crm-input"
-                  value={dqModal.whatNow}
-                  onChange={(e) => setDqModal((prev) => ({ ...prev, whatNow: e.target.value, error: "" }))}
-                >
+                <select className="crm-input" value={dqModal.whatNow} onChange={(e) => setDqModal((prev) => ({ ...prev, whatNow: e.target.value, error: "" }))}>
                   <option value="">Select next path</option>
                   {WHAT_NOW_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -731,7 +783,7 @@ export default function ContactsPage() {
           <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border border-neutral-700 bg-neutral-900 p-4 shadow-2xl">
             <h3 className="text-sm font-semibold text-slate-100">Move contact to stage</h3>
             <div className="mt-3 grid gap-2">
-              {CONTACT_STAGES.map((s) => (
+              {stageOptionsForPipeline(items.find((c) => c.id === movePicker.contactId)?.pipelineType).map((s) => (
                 <button key={s} className="crm-btn-ghost text-left" onClick={async () => { if (!movePicker.contactId) return; await moveContactStage(movePicker.contactId, s); setMovePicker({ open: false }); }}>
                   {s}
                 </button>
