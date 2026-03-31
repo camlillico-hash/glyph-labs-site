@@ -5,8 +5,80 @@ import { Pool } from "pg";
 // NOTE: This file currently reads/writes a single global store.
 // Next step in this change-set will scope reads/writes by account_id.
 
-export type Contact = { id: string; firstName?: string; lastName?: string; email?: string; phone?: string; linkedin?: string; company?: string; title?: string; type?: string; leadSource?: string; primaryPain?: "Execution" | "Strategy" | "Culture"; status?: string; strengthTest?: "Yes" | null; disqualificationReason?: "Couldn't connect" | "Went cold" | "Said no" | "Not the right person" | "Shouldn't reach out just yet" | "Done tapping network for now." | "Test Lead or Bad Data" | "Other"; whatNow?: "Leave them" | "Nurture (future)"; referralCount?: number; nextReachOutAt?: string; seederNotes?: string; tags?: string[]; notes?: string; lastActivityDate?: string; lastActivityType?: string; createdAt: string; updatedAt: string; };
-export type Deal = { id: string; name?: string; contactId?: string; company?: string; stage: string; clientStage?: "Launch" | "Active rhythm"; primaryPain?: "Execution" | "Strategy" | "Culture"; leadSource?: string; launchIncluded?: "Yes" | "No"; dailyRate?: number; launchFee?: number; annualFee?: number; value?: number; launchDay1Date?: string; launchDay2Date?: string; launchDay3Date?: string; nextQuarterlyDate?: string; nextAnnualDay1Date?: string; nextAnnualDay2Date?: string; probability?: number; expectedCloseDate?: string; nextStep?: string; lastActivityAt?: string; notes?: string; createdAt: string; updatedAt: string; };
+export const CONTACT_PIPELINES = ["connector", "icp"] as const;
+export type ContactPipeline = (typeof CONTACT_PIPELINES)[number];
+export const LEAD_SOURCES = ["Connector", "Inbound", "Outbound", "Event", "Referral", "Other"] as const;
+export type LeadSource = (typeof LEAD_SOURCES)[number];
+export const CONNECTOR_STAGES = ["Identified", "Attempting", "Connected", "Positioned", "Activated", "Intro Pending", "Intro Delivered", "Nurture"] as const;
+export const ICP_STAGES = ["New", "Attempting", "Connected", "Warm intro booked", "Nurture", "Closed Lost"] as const;
+export const CONTACT_STAGES = [...new Set([...CONNECTOR_STAGES, ...ICP_STAGES])] as const;
+export const DEAL_STAGES = ["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch paid (won)", "Lost"] as const;
+export const CLIENT_STAGES = ["Launch", "Active rhythm", "At Risk", "Paused", "Completed / Alumni"] as const;
+
+export type Contact = {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+  company?: string;
+  title?: string;
+  type?: string;
+  pipelineType?: ContactPipeline;
+  leadSource?: LeadSource | string;
+  connectorContactId?: string;
+  connectorName?: string;
+  introDate?: string;
+  primaryPain?: "Execution" | "Strategy" | "Culture";
+  status?: string;
+  strengthTest?: "Yes" | null;
+  disqualificationReason?: "Couldn't connect" | "Went cold" | "Said no" | "Not the right person" | "Shouldn't reach out just yet" | "Done tapping network for now." | "Test Lead or Bad Data" | "Other";
+  whatNow?: "Leave them" | "Nurture (future)";
+  referralCount?: number;
+  nextReachOutAt?: string;
+  seederNotes?: string;
+  tags?: string[];
+  notes?: string;
+  lastActivityDate?: string;
+  lastActivityType?: string;
+  openBoardHidden?: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Deal = {
+  id: string;
+  name?: string;
+  contactId?: string;
+  company?: string;
+  stage: string;
+  clientStage?: (typeof CLIENT_STAGES)[number];
+  primaryPain?: "Execution" | "Strategy" | "Culture";
+  leadSource?: LeadSource | string;
+  connectorContactId?: string;
+  connectorName?: string;
+  introDate?: string;
+  launchIncluded?: "Yes" | "No";
+  dailyRate?: number;
+  launchFee?: number;
+  annualFee?: number;
+  value?: number;
+  launchDay1Date?: string;
+  launchDay2Date?: string;
+  launchDay3Date?: string;
+  nextQuarterlyDate?: string;
+  nextAnnualDay1Date?: string;
+  nextAnnualDay2Date?: string;
+  probability?: number;
+  expectedCloseDate?: string;
+  nextStep?: string;
+  lastActivityAt?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Task = { id: string; title: string; type?: "email" | "call" | "text" | "linkedin" | "in_person" | "meeting" | "to_do" | "task_completed"; relatedType?: "contact" | "deal"; relatedId?: string; dueDate?: string; status?: "Overdue" | "Not started" | "Completed" | "Canceled"; followUpForContactId?: string; followUpKind?: "nurture_reactivate"; done: boolean; notes?: string; createdAt: string; updatedAt: string; };
 export type GmailMessage = { id: string; threadId?: string; from?: string; to?: string; subject?: string; date?: string; snippet?: string; };
 export type Activity = { id: string; contactId: string; type: "email" | "call" | "text" | "linkedin" | "in_person" | "meeting" | "task_completed"; note?: string; occurredAt: string; createdAt: string; updatedAt: string; };
@@ -18,9 +90,9 @@ export type TransitionTargets = {
   revenueGoalAnnual: number;
   avgRevenuePerClientAnnual: number;
   targetDate: string;
-  convWarmToIntro: number;
-  convIntroToDiscovery: number;
-  convDiscoveryToWon: number;
+  convActivatedToIntroDelivered: number;
+  convIntroDeliveredToWarmIntroBooked: number;
+  convWarmIntroBookedToWon: number;
 };
 
 export type TransitionTargetsHistoryEntry = {
@@ -58,16 +130,62 @@ export const defaultTargets: TransitionTargets = {
   revenueGoalAnnual: 160000,
   avgRevenuePerClientAnnual: 25000,
   targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
-  convWarmToIntro: 50,
-  convIntroToDiscovery: 50,
-  convDiscoveryToWon: 80,
+  convActivatedToIntroDelivered: 40,
+  convIntroDeliveredToWarmIntroBooked: 50,
+  convWarmIntroBookedToWon: 40,
 };
 
-function mapContactStatus(status?: string) {
-  if (!status) return "New";
-  if (status === "Discovery meeting booked") return "Warm intro booked";
-  if (status === "Lost") return "Not right now";
-  return status;
+function normalizeLeadSource(value?: string) {
+  const v = String(value || "").trim();
+  if (!v) return undefined;
+  const canonical = LEAD_SOURCES.find((item) => item.toLowerCase() === v.toLowerCase());
+  return canonical || v;
+}
+
+function inferPipelineType(contact: Partial<Contact>) {
+  const existing = String(contact.pipelineType || "").trim().toLowerCase();
+  if (existing === "connector" || existing === "icp") return existing as ContactPipeline;
+  const status = String(contact.status || "").trim();
+  if (["Identified", "Positioned", "Activated", "Intro Pending", "Intro Delivered"].includes(status)) return "connector";
+  if (["Pipeline Seeding", "Pipeline Seeder"].includes(status)) return "connector";
+  if (["Warm intro booked", "Closed Lost"].includes(status)) return "icp";
+  const source = String(contact.leadSource || "").trim().toLowerCase();
+  if (source === "connector") return "icp";
+  const referralCount = Number((contact as any).referralCount || 0);
+  if (referralCount > 0) return "connector";
+  return "icp";
+}
+
+function mapContactStatus(status?: string, pipelineType?: ContactPipeline) {
+  if (!status) return pipelineType === "connector" ? "Identified" : "New";
+  const normalized = String(status).trim();
+  if (normalized === "Discovery meeting booked") return "Warm intro booked";
+  if (normalized === "Lost") return pipelineType === "connector" ? "Nurture" : "Closed Lost";
+
+  if (pipelineType === "connector") {
+    const connectorMap: Record<string, string> = {
+      "New": "Identified",
+      "Attempting": "Attempting",
+      "Connected": "Connected",
+      "Pipeline Seeding": "Positioned",
+      "Warm intro booked": "Intro Delivered",
+      "Pipeline Seeder": "Nurture",
+      "Not right now": "Nurture",
+    };
+    return (connectorMap[normalized] || ((CONNECTOR_STAGES as readonly string[]).includes(normalized) ? normalized : "Identified"));
+  }
+
+  const icpMap: Record<string, string> = {
+    "New": "New",
+    "Attempting": "Attempting",
+    "Connected": "Connected",
+    "Pipeline Seeding": "Connected",
+    "Warm intro booked": "Warm intro booked",
+    "Pipeline Seeder": "Nurture",
+    "Not right now": "Nurture",
+  };
+  const mapped = icpMap[normalized] || normalized;
+  return (ICP_STAGES as readonly string[]).includes(mapped) ? mapped : "New";
 }
 
 function mapDealStage(stage?: string) {
@@ -76,15 +194,11 @@ function mapDealStage(stage?: string) {
   if (stage === "Discovery meeting completed") return "Warm intro completed";
   if (stage === "Fit meeting booked") return "90-min disco booked";
   if (stage === "Fit meeting completed") return "90-min disco completed";
-  if (stage === "Launch paid (won)") return "Launch days paid";
+  if (stage === "Launch days paid") return "Launch paid (won)";
   return stage;
 }
 
 const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], strengthTests: [], gmail: { messages: [] }, targets: defaultTargets, targetsHistory: [] };
-
-export const CONTACT_STAGES = ["New", "Attempting", "Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Not right now"] as const;
-
-export const DEAL_STAGES = ["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Lost"] as const;
 
 export const DEAL_STAGE_WEIGHTS: Record<string, number> = {
   "Warm intro booked": 10,
@@ -92,7 +206,7 @@ export const DEAL_STAGE_WEIGHTS: Record<string, number> = {
   "90-min disco booked": 25,
   "90-min disco completed": 35,
   "Proposal / commitment": 50,
-  "Launch days paid": 100,
+  "Launch paid (won)": 100,
   "Lost": 0,
 };
 
@@ -121,26 +235,46 @@ function normalizeStore(store: CrmStore): CrmStore {
   const strengthTests = Array.isArray(store.strengthTests) ? store.strengthTests : [];
   const testedContactIds = new Set(strengthTests.map((s) => s.contactId));
 
-  const contacts = (store.contacts || []).map((c) => ({
-    ...c,
-    status: mapContactStatus(c.status),
-    strengthTest: testedContactIds.has(c.id) ? "Yes" : ((c as any).strengthTest || null),
-    referralCount: Number((c as any).referralCount || 0),
-    nextReachOutAt: (c as any).nextReachOutAt || undefined,
-    seederNotes: (c as any).seederNotes || undefined,
-  }));
+  const contacts = (store.contacts || []).map((c) => {
+    const pipelineType = inferPipelineType(c);
+    return {
+      ...c,
+      pipelineType,
+      leadSource: normalizeLeadSource(c.leadSource),
+      status: mapContactStatus(c.status, pipelineType),
+      connectorName: c.connectorName || undefined,
+      connectorContactId: c.connectorContactId || undefined,
+      introDate: c.introDate || undefined,
+      strengthTest: testedContactIds.has(c.id) ? "Yes" : ((c as any).strengthTest || null),
+      referralCount: Number((c as any).referralCount || 0),
+      nextReachOutAt: (c as any).nextReachOutAt || undefined,
+      seederNotes: (c as any).seederNotes || undefined,
+      openBoardHidden: Boolean((c as any).openBoardHidden),
+    };
+  });
 
   const deals = (store.deals || []).map((d) => {
     const legacyStage = mapLegacyDealStage(d.stage);
     const stage = mapDealStage(legacyStage);
-    const clientStage = stage === "Launch days paid" ? (d.clientStage || "Launch") : d.clientStage;
+    const clientStage = stage === "Launch paid (won)" ? (d.clientStage || "Launch") : d.clientStage;
     const launchIncluded: "Yes" | "No" = d.launchIncluded === "No" ? "No" : "Yes";
     const dailyRate = Number(d.dailyRate || 5000);
     const launchFee = launchIncluded === "Yes" ? dailyRate * 3 : 0;
     const annualFee = dailyRate * 5;
     const amount = launchFee + annualFee;
-    return { ...d, stage, clientStage, launchIncluded, dailyRate, launchFee, annualFee, value: amount, probability: DEAL_STAGE_WEIGHTS[stage] ?? 0 };
+    return { ...d, stage, clientStage, leadSource: normalizeLeadSource(d.leadSource), connectorContactId: d.connectorContactId || undefined, connectorName: d.connectorName || undefined, introDate: d.introDate || undefined, launchIncluded, dailyRate, launchFee, annualFee, value: amount, probability: DEAL_STAGE_WEIGHTS[stage] ?? 0 };
   });
+
+  const targetsRaw: any = { ...defaultTargets, ...(store.targets || {}) };
+  const targets = {
+    revenueGoalAnnual: Number(targetsRaw.revenueGoalAnnual || defaultTargets.revenueGoalAnnual),
+    avgRevenuePerClientAnnual: Number(targetsRaw.avgRevenuePerClientAnnual || defaultTargets.avgRevenuePerClientAnnual),
+    targetDate: String(targetsRaw.targetDate || defaultTargets.targetDate),
+    convActivatedToIntroDelivered: Number(targetsRaw.convActivatedToIntroDelivered ?? targetsRaw.convWarmToIntro ?? defaultTargets.convActivatedToIntroDelivered),
+    convIntroDeliveredToWarmIntroBooked: Number(targetsRaw.convIntroDeliveredToWarmIntroBooked ?? targetsRaw.convIntroToDiscovery ?? defaultTargets.convIntroDeliveredToWarmIntroBooked),
+    convWarmIntroBookedToWon: Number(targetsRaw.convWarmIntroBookedToWon ?? targetsRaw.convDiscoveryToWon ?? defaultTargets.convWarmIntroBookedToWon),
+  };
+
   return {
     ...store,
     contacts,
@@ -148,7 +282,7 @@ function normalizeStore(store: CrmStore): CrmStore {
     dealStamps: store.dealStamps || [],
     contactStamps: store.contactStamps || [],
     strengthTests,
-    targets: { ...defaultTargets, ...(store.targets || {}) },
+    targets,
     targetsHistory: Array.isArray(store.targetsHistory) ? store.targetsHistory : [],
   };
 }
