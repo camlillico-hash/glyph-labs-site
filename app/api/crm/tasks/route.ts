@@ -51,7 +51,7 @@ function archiveTaskAsActivity(store: any, task: any) {
     const currentStatus = store.contacts[cidx].status || "New";
     store.contacts[cidx] = {
       ...store.contacts[cidx],
-      status: currentStatus === "New" ? "Attempting" : currentStatus,
+      status: currentStatus === "New" ? "Connected" : currentStatus,
       lastActivityDate: activity.occurredAt,
       lastActivityType: activity.type,
       updatedAt: now(),
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
   }
 
   store.tasks.unshift(record);
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json(record);
 }
 
@@ -140,7 +140,7 @@ export async function PUT(req: Request) {
   }
 
   store.tasks[idx] = updated;
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json(store.tasks[idx]);
 }
 

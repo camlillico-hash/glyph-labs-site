@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     const currentStatus = store.contacts[cidx].status || "New";
     store.contacts[cidx] = {
       ...store.contacts[cidx],
-      status: currentStatus === "New" ? "Attempting" : currentStatus,
+      status: currentStatus === "New" ? "Connected" : currentStatus,
       lastActivityDate: record.occurredAt,
       lastActivityType: record.type,
       updatedAt: now(),
@@ -81,7 +81,7 @@ export async function PUT(req: Request) {
     const currentStatus = store.contacts[cidx2].status || "New";
     store.contacts[cidx2] = {
       ...store.contacts[cidx2],
-      status: currentStatus === "New" ? "Attempting" : currentStatus,
+      status: currentStatus === "New" ? "Connected" : currentStatus,
       lastActivityDate: (store.activities as any)[idx].occurredAt,
       lastActivityType: (store.activities as any)[idx].type,
       updatedAt: now(),

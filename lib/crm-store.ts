@@ -2,15 +2,12 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Pool } from "pg";
 
-// NOTE: This file currently reads/writes a single global store.
-// Next step in this change-set will scope reads/writes by account_id.
-
 export const CONTACT_PIPELINES = ["connector", "icp"] as const;
 export type ContactPipeline = (typeof CONTACT_PIPELINES)[number];
 export const LEAD_SOURCES = ["Connector", "Inbound", "Outbound", "Event", "Referral", "Other"] as const;
 export type LeadSource = (typeof LEAD_SOURCES)[number];
-export const CONNECTOR_STAGES = ["Identified", "Attempting", "Connected", "Positioned", "Activated", "Intro Pending", "Intro Delivered", "Nurture"] as const;
-export const ICP_STAGES = ["New", "Attempting", "Connected", "Warm intro booked", "Nurture", "Closed Lost"] as const;
+export const CONNECTOR_STAGES = ["Identified", "Connected", "Positioned", "Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"] as const;
+export const ICP_STAGES = ["New", "Connected", "Warm intro booked", "Nurture", "Closed Lost"] as const;
 export const CONTACT_STAGES = [...new Set([...CONNECTOR_STAGES, ...ICP_STAGES])] as const;
 export const DEAL_STAGES = ["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch paid (won)", "Lost"] as const;
 export const CLIENT_STAGES = ["Launch", "Active rhythm", "At Risk", "Paused", "Completed / Alumni"] as const;
@@ -382,16 +379,16 @@ async function getStorePg(accountId?: string): Promise<CrmStore> {
       : pool.query("select data from crm_activities order by occurred_at desc nulls last, updated_at desc"),
     scoped
       ? pool.query("select data from crm_meta where key='gmail' and account_id=$1 limit 1", [accountId])
-      : pool.query("select data from crm_meta where key='gmail' limit 1"),
+      : pool.query("select data from crm_meta where key='gmail' and account_id is null limit 1"),
     scoped
       ? pool.query("select data from crm_meta where key='targets' and account_id=$1 limit 1", [accountId])
-      : pool.query("select data from crm_meta where key='targets' limit 1"),
+      : pool.query("select data from crm_meta where key='targets' and account_id is null limit 1"),
     scoped
       ? pool.query("select data from crm_meta where key='targets_history' and account_id=$1 limit 1", [accountId])
-      : pool.query("select data from crm_meta where key='targets_history' limit 1"),
+      : pool.query("select data from crm_meta where key='targets_history' and account_id is null limit 1"),
     scoped
       ? pool.query("select data from crm_meta where key='strength_tests' and account_id=$1 limit 1", [accountId])
-      : pool.query("select data from crm_meta where key='strength_tests' limit 1"),
+      : pool.query("select data from crm_meta where key='strength_tests' and account_id is null limit 1"),
   ]);
   const gmailData = gmailQ.rows[0]?.data || { messages: [] };
   const targetsData = targetsQ.rows[0]?.data || defaultTargets;

@@ -30,6 +30,11 @@ export default function ClientsPage() {
     return c ? `${c.firstName || ''} ${c.lastName || ''}`.trim() : '—';
   };
 
+  const contactPipelineLabel = (id?: string) => {
+    const c = contacts.find((x) => x.id === id);
+    return c?.pipelineType === 'connector' ? 'Connector' : 'ICP';
+  };
+
   function openTray(deal: any) { setSelected(deal); setDraft({ ...deal }); setEditMode(false); setError(""); }
   function closeTray() { setSelected(null); setDraft(null); setEditMode(false); setError(""); }
 
@@ -69,7 +74,10 @@ export default function ClientsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-emerald-200 whitespace-nowrap"><Handshake size={20} /> Clients ({clients.length})</h1>
+        <div>
+          <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-emerald-200 whitespace-nowrap"><Handshake size={20} /> Clients ({clients.length})</h1>
+          <p className="mt-1 text-sm text-slate-400">Won deals that have graduated from the ICP funnel into delivery.</p>
+        </div>
       </div>
 
       <div className="crm-card overflow-auto">
@@ -77,7 +85,7 @@ export default function ClientsPage() {
           <thead className="border-b border-neutral-800 text-slate-400">
             <tr>
               <th className="px-3 py-2 text-left">Client</th>
-              <th className="px-3 py-2 text-left">Deal</th>
+              <th className="px-3 py-2 text-left">Pipeline</th><th className="px-3 py-2 text-left">Deal</th>
               <th className="px-3 py-2 text-left">Amount</th>
               <th className="px-3 py-2 text-left">Signed</th>
               <th className="px-3 py-2 text-left">Client stage</th>
@@ -87,7 +95,8 @@ export default function ClientsPage() {
           <tbody>
             {clients.map((d) => (
               <tr key={d.id} className="border-b border-neutral-900">
-                <td className="px-3 py-2 text-slate-200">{d.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/contacts?contactId=${d.contactId}`}>{contactName(d.contactId)}</a> : 'Unknown contact'}</td>
+                <td className="px-3 py-2 text-slate-200">{d.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/contacts?contactId=${d.contactId}`}>{contactName(d.contactId)}</a> : 'Unknown person'}</td>
+                <td className="px-3 py-2 text-slate-300">{d.contactId ? contactPipelineLabel(d.contactId) : '—'}</td>
                 <td className="px-3 py-2">{d.name || 'Untitled deal'}</td>
                 <td className="px-3 py-2 text-slate-300">{money(d.value)}</td>
                 <td className="px-3 py-2 text-slate-400">{d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : '—'}</td>
@@ -102,7 +111,7 @@ export default function ClientsPage() {
               </tr>
             ))}
             {clients.length === 0 && (
-              <tr><td className="px-3 py-6 text-slate-500" colSpan={6}>No clients yet. Move a deal to "Launch paid (won)" to graduate it here.</td></tr>
+              <tr><td className="px-3 py-6 text-slate-500" colSpan={7}>No clients yet. Move a deal to "Launch paid (won)" to graduate it here.</td></tr>
             )}
           </tbody>
         </table>
