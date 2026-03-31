@@ -5,9 +5,9 @@ import { resolveActiveAccountId } from "@/lib/crm-scope";
 const numericKeys = [
   "revenueGoalAnnual",
   "avgRevenuePerClientAnnual",
-  "convWarmToIntro",
-  "convIntroToDiscovery",
-  "convDiscoveryToWon",
+  "convActivatedToIntroDelivered",
+  "convIntroDeliveredToWarmIntroBooked",
+  "convWarmIntroBookedToWon",
 ] as const;
 
 export async function GET() {
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     if (/^\d{4}-\d{2}-\d{2}$/.test(targetDateRaw)) next.targetDate = targetDateRaw;
 
     // Clamp conversion rates to 0..100
-    for (const key of ["convWarmToIntro", "convIntroToDiscovery", "convDiscoveryToWon"]) {
+    for (const key of ["convActivatedToIntroDelivered", "convIntroDeliveredToWarmIntroBooked", "convWarmIntroBookedToWon"]) {
       next[key] = Math.max(0, Math.min(100, Number(next[key] || 0)));
     }
 

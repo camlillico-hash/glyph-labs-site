@@ -1,19 +1,33 @@
 import { NextResponse } from "next/server";
-import { CONTACT_STAGES, DEAL_STAGES, getStore, id, now, saveStore } from "@/lib/crm-store";
-import { resolveAccountIdForRequest } from "@/lib/crm-account";
+import {
+  CONTACT_PIPELINES,
+  CONTACT_STAGES,
+  CONNECTOR_STAGES,
+  ICP_STAGES,
+  DEAL_STAGES,
+  getStore,
+  id,
+  now,
+  saveStore,
+} from "@/lib/crm-store";
 
+function normalizePipelineType(value: any) {
+  const v = String(value || "").trim().toLowerCase();
+  return (CONTACT_PIPELINES as readonly string[]).includes(v) ? v : "icp";
+}
 
-function mapContactStatus(value: string | undefined) {
+function mapContactStatus(value: string | undefined, pipelineType: string) {
   const v = String(value || "").trim();
-  if (!v) return "New";
+  if (!v) return pipelineType === "connector" ? "Identified" : "New";
   if (v === "Discovery meeting booked") return "Warm intro booked";
-  if (v === "Lost") return "Not right now";
+  if (v === "Lost") return pipelineType === "connector" ? "Nurture" : "Closed Lost";
   return v;
 }
 
-function normalizeStatus(value: string | undefined) {
-  const v = mapContactStatus(value);
-  return (CONTACT_STAGES as readonly string[]).includes(v) ? v : "New";
+function normalizeStatus(value: string | undefined, pipelineType: string) {
+  const normalized = mapContactStatus(value, pipelineType);
+  const allowed = pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
+  return (allowed as readonly string[]).includes(normalized) ? normalized : (pipelineType === "connector" ? "Identified" : "New");
 }
 
 function normalizePrimaryPain(value: any) {
@@ -21,12 +35,20 @@ function normalizePrimaryPain(value: any) {
   return ["Execution", "Strategy", "Culture"].includes(v) ? v : undefined;
 }
 
+function normalizeLeadSource(value: any, pipelineType: string) {
+  const v = String(value || "").trim();
+  if (!v) return pipelineType === "connector" ? "Other" : undefined;
+  const canonical = ["Connector", "Inbound", "Outbound", "Event", "Referral", "Other"].find((item) => item.toLowerCase() === v.toLowerCase());
+  return canonical || v;
+}
+
 function normalizeEmail(value: any) {
   return String(value || "").trim().toLowerCase();
 }
 
-function statusNeedsEmail(status: string) {
-  return ["Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Not right now"].includes(status);
+function statusNeedsEmail(status: string, pipelineType: string) {
+  if (pipelineType === "connector") return ["Connected", "Positioned", "Activated", "Intro Pending", "Intro Delivered"].includes(status);
+  return ["Connected", "Warm intro booked"].includes(status);
 }
 
 function normalizeDisqualificationReason(value: any) {
@@ -42,7 +64,7 @@ function normalizeWhatNow(value: any) {
 }
 
 function statusNeedsDisqualification(status: string) {
-  return status === "Not right now";
+  return ["Nurture", "Closed Lost"].includes(status);
 }
 
 function plusMonthsIsoDate(baseIso: string, months: number) {
@@ -55,7 +77,7 @@ function syncContactStamp(store: any, previous: any | null, contact: any) {
   const stamps = store.contactStamps || (store.contactStamps = []);
   const idx = stamps.findIndex((s: any) => s.contactId === contact.id);
 
-  if (contact.status === "Warm intro booked") {
+  if (contact.pipelineType === "icp" && contact.status === "Warm intro booked") {
     const stamp = {
       id: idx >= 0 ? stamps[idx].id : id(),
       contactId: contact.id,
@@ -70,18 +92,18 @@ function syncContactStamp(store: any, previous: any | null, contact: any) {
     return;
   }
 
-  const wasConverted = previous?.status === "Warm intro booked";
+  const wasConverted = previous?.pipelineType === "icp" && previous?.status === "Warm intro booked";
   if (idx >= 0 && wasConverted) {
     store.contactStamps = stamps.filter((s: any) => s.contactId !== contact.id);
   }
 }
 
 function maybeCreateNurtureTaskForContact(store: any, previous: any | null, contact: any) {
-  if (contact.status !== "Not right now") return;
+  if (!["Nurture", "Closed Lost"].includes(contact.status)) return;
   if (contact.whatNow !== "Nurture (future)") return;
 
-  const transitionedToNRN = !previous || previous.status !== "Not right now" || previous.whatNow !== "Nurture (future)";
-  if (!transitionedToNRN) return;
+  const transitioned = !previous || previous.status !== contact.status || previous.whatNow !== "Nurture (future)";
+  if (!transitioned) return;
 
   const existing = (store.tasks || []).some((t: any) =>
     t.followUpKind === "nurture_reactivate" &&
@@ -92,30 +114,75 @@ function maybeCreateNurtureTaskForContact(store: any, previous: any | null, cont
 
   (store.tasks || (store.tasks = [])).unshift({
     id: id(),
-    title: "Check-in with a value-add nudge",
-    type: "email",
+    title: contact.pipelineType === "connector" ? "Re-engage connector with a fresh ask" : "Check-in with a value-add nudge",
+    type: contact.pipelineType === "connector" ? "linkedin" : "email",
     relatedType: "contact",
     relatedId: contact.id,
     followUpForContactId: contact.id,
     followUpKind: "nurture_reactivate",
-    dueDate: plusMonthsIsoDate(now(), 4),
+    dueDate: plusMonthsIsoDate(now(), contact.pipelineType === "connector" ? 3 : 4),
     status: "Not started",
     done: false,
-    notes: "Auto-created from Not right now → Nurture (future).",
+    notes: `Auto-created from ${contact.status} → Nurture (future).`,
     createdAt: now(),
     updatedAt: now(),
   });
 }
 
-
-function applySeederDefaults(contact: any) {
-  if (contact.status === "Pipeline Seeder" && !contact.nextReachOutAt) {
-    contact.nextReachOutAt = plusMonthsIsoDate(now(), 6);
+function applyPipelineDefaults(contact: any) {
+  if (contact.pipelineType === "connector") {
+    contact.referralCount = Number(contact.referralCount || 0);
+    if (contact.status === "Nurture" && !contact.nextReachOutAt) {
+      contact.nextReachOutAt = plusMonthsIsoDate(now(), 6);
+    }
   }
   return contact;
 }
 
-function maybeCreateDealForDiscovery(store: any, contact: any) {
+function maybeCreateIcpContactFromConnector(store: any, previous: any | null, contact: any) {
+  if (contact.pipelineType !== "connector") return;
+  if (contact.status !== "Intro Delivered") return;
+  const transitioned = !previous || previous.status !== "Intro Delivered";
+  if (!transitioned) return;
+
+  const existing = (store.contacts || []).find((c: any) => c.pipelineType === "icp" && c.connectorContactId === contact.id);
+  if (existing) return;
+
+  const firstName = String(contact.firstName || "").trim();
+  const lastName = String(contact.lastName || "").trim();
+  const connectorName = `${firstName} ${lastName}`.trim() || contact.company || "Connector";
+
+  store.contacts.unshift({
+    id: id(),
+    firstName: "",
+    lastName: contact.company || "Intro target",
+    email: "",
+    phone: "",
+    linkedin: "",
+    company: "",
+    title: "",
+    type: "Decision maker",
+    pipelineType: "icp",
+    leadSource: "Connector",
+    connectorContactId: contact.id,
+    connectorName,
+    introDate: now().slice(0, 10),
+    primaryPain: normalizePrimaryPain(contact.primaryPain),
+    status: "New",
+    strengthTest: null,
+    referralCount: 0,
+    nextReachOutAt: undefined,
+    seederNotes: `Auto-created from connector ${connectorName} after Intro Delivered.`,
+    tags: [],
+    notes: "",
+    openBoardHidden: false,
+    createdAt: now(),
+    updatedAt: now(),
+  });
+}
+
+function maybeCreateDealForWarmIntro(store: any, contact: any) {
+  if (contact.pipelineType !== "icp") return;
   if (contact.status !== "Warm intro booked") return;
   const exists = store.deals.some((d: any) => d.contactId === contact.id && d.stage !== "Lost");
   if (exists) return;
@@ -129,8 +196,12 @@ function maybeCreateDealForDiscovery(store: any, contact: any) {
     contactId: contact.id,
     company: company || "",
     stage: DEAL_STAGES[0],
+    clientStage: undefined,
     primaryPain: normalizePrimaryPain(contact.primaryPain),
     leadSource: contact.leadSource || "",
+    connectorContactId: contact.connectorContactId || undefined,
+    connectorName: contact.connectorName || undefined,
+    introDate: contact.introDate || now().slice(0, 10),
     createdAt: now(),
     updatedAt: now(),
     nextStep: "Run warm intro meeting",
@@ -156,32 +227,54 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
-  if (!String(body.firstName || "").trim() || !String(body.lastName || "").trim()) {
-    return NextResponse.json({ error: "First name and last name are required" }, { status: 400 });
+  if (!String(body.firstName || "").trim() && !String(body.lastName || "").trim()) {
+    return NextResponse.json({ error: "A first or last name is required" }, { status: 400 });
   }
 
   const { resolveActiveAccountId } = await import("@/lib/crm-scope");
   const accountId = await resolveActiveAccountId();
   const store = await getStore(accountId);
-  const status = normalizeStatus(body.status);
+  const pipelineType = normalizePipelineType(body.pipelineType);
+  const status = normalizeStatus(body.status, pipelineType);
   const email = normalizeEmail(body.email);
   const disqualificationReason = normalizeDisqualificationReason(body.disqualificationReason);
   const whatNow = normalizeWhatNow(body.whatNow);
-  if (statusNeedsEmail(status) && !email) {
-    return NextResponse.json({ error: "Email is required for Connected and later stages" }, { status: 400 });
+  if (statusNeedsEmail(status, pipelineType) && !email) {
+    return NextResponse.json({ error: "Email is required for this stage" }, { status: 400 });
   }
   if (statusNeedsDisqualification(status) && !disqualificationReason) {
-    return NextResponse.json({ error: "Disqualification reason is required for Not right now" }, { status: 400 });
+    return NextResponse.json({ error: "Disqualification reason is required for nurture/lost stages" }, { status: 400 });
   }
   if (statusNeedsDisqualification(status) && !whatNow) {
-    return NextResponse.json({ error: "What now? is required for Not right now" }, { status: 400 });
+    return NextResponse.json({ error: "What now? is required for nurture/lost stages" }, { status: 400 });
   }
   if (email && store.contacts.some((c: any) => normalizeEmail(c.email) === email)) {
     return NextResponse.json({ error: "A contact with this email already exists" }, { status: 400 });
   }
-  const record = { id: id(), createdAt: now(), updatedAt: now(), status, ...body, email, disqualificationReason, whatNow, referralCount: Number(body.referralCount || 0), nextReachOutAt: body.nextReachOutAt || undefined, seederNotes: body.seederNotes || undefined, primaryPain: normalizePrimaryPain(body.primaryPain) };
-  applySeederDefaults(record);
-  maybeCreateDealForDiscovery(store, record);
+
+  const record = {
+    id: id(),
+    createdAt: now(),
+    updatedAt: now(),
+    ...body,
+    pipelineType,
+    status,
+    email,
+    leadSource: normalizeLeadSource(body.leadSource, pipelineType),
+    disqualificationReason,
+    whatNow,
+    connectorContactId: body.connectorContactId || undefined,
+    connectorName: body.connectorName || undefined,
+    introDate: body.introDate || undefined,
+    referralCount: Number(body.referralCount || 0),
+    nextReachOutAt: body.nextReachOutAt || undefined,
+    seederNotes: body.seederNotes || undefined,
+    primaryPain: normalizePrimaryPain(body.primaryPain),
+    openBoardHidden: Boolean(body.openBoardHidden),
+  };
+  applyPipelineDefaults(record);
+  maybeCreateIcpContactFromConnector(store, null, record);
+  maybeCreateDealForWarmIntro(store, record);
   maybeCreateNurtureTaskForContact(store, null, record);
   syncContactStamp(store, null, record);
   store.contacts.unshift(record);
@@ -191,8 +284,8 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   const body = await req.json();
-  if (!String(body.firstName || "").trim() || !String(body.lastName || "").trim()) {
-    return NextResponse.json({ error: "First name and last name are required" }, { status: 400 });
+  if (!String(body.firstName || "").trim() && !String(body.lastName || "").trim()) {
+    return NextResponse.json({ error: "A first or last name is required" }, { status: 400 });
   }
 
   const { resolveActiveAccountId } = await import("@/lib/crm-scope");
@@ -201,26 +294,47 @@ export async function PUT(req: Request) {
   const idx = store.contacts.findIndex((c) => c.id === body.id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const status = normalizeStatus(body.status);
+  const previous = store.contacts[idx];
+  const pipelineType = normalizePipelineType(body.pipelineType || previous.pipelineType);
+  const status = normalizeStatus(body.status, pipelineType);
   const email = normalizeEmail(body.email);
   const disqualificationReason = normalizeDisqualificationReason(body.disqualificationReason);
   const whatNow = normalizeWhatNow(body.whatNow);
-  if (statusNeedsEmail(status) && !email) {
-    return NextResponse.json({ error: "Email is required for Connected and later stages" }, { status: 400 });
+  if (statusNeedsEmail(status, pipelineType) && !email) {
+    return NextResponse.json({ error: "Email is required for this stage" }, { status: 400 });
   }
   if (statusNeedsDisqualification(status) && !disqualificationReason) {
-    return NextResponse.json({ error: "Disqualification reason is required for Not right now" }, { status: 400 });
+    return NextResponse.json({ error: "Disqualification reason is required for nurture/lost stages" }, { status: 400 });
   }
   if (statusNeedsDisqualification(status) && !whatNow) {
-    return NextResponse.json({ error: "What now? is required for Not right now" }, { status: 400 });
+    return NextResponse.json({ error: "What now? is required for nurture/lost stages" }, { status: 400 });
   }
   if (email && store.contacts.some((c: any, i: number) => i !== idx && normalizeEmail(c.email) === email)) {
     return NextResponse.json({ error: "A contact with this email already exists" }, { status: 400 });
   }
-  const previous = store.contacts[idx];
-  const updated = { ...store.contacts[idx], ...body, status, email, disqualificationReason, whatNow, referralCount: Number(body.referralCount || 0), nextReachOutAt: body.nextReachOutAt || undefined, seederNotes: body.seederNotes || undefined, primaryPain: normalizePrimaryPain(body.primaryPain), updatedAt: now() };
-  applySeederDefaults(updated);
-  maybeCreateDealForDiscovery(store, updated);
+
+  const updated = {
+    ...store.contacts[idx],
+    ...body,
+    pipelineType,
+    status,
+    email,
+    leadSource: normalizeLeadSource(body.leadSource ?? previous.leadSource, pipelineType),
+    disqualificationReason,
+    whatNow,
+    connectorContactId: body.connectorContactId || previous.connectorContactId || undefined,
+    connectorName: body.connectorName || previous.connectorName || undefined,
+    introDate: body.introDate || previous.introDate || undefined,
+    referralCount: Number(body.referralCount || 0),
+    nextReachOutAt: body.nextReachOutAt || undefined,
+    seederNotes: body.seederNotes || undefined,
+    primaryPain: normalizePrimaryPain(body.primaryPain),
+    openBoardHidden: Boolean(body.openBoardHidden),
+    updatedAt: now(),
+  };
+  applyPipelineDefaults(updated);
+  maybeCreateIcpContactFromConnector(store, previous, updated);
+  maybeCreateDealForWarmIntro(store, updated);
   maybeCreateNurtureTaskForContact(store, previous, updated);
   syncContactStamp(store, previous, updated);
   store.contacts[idx] = updated;

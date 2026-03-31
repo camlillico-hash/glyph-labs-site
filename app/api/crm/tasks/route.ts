@@ -78,7 +78,7 @@ export async function GET() {
     if (cidx >= 0) {
       store.contacts[cidx] = {
         ...store.contacts[cidx],
-        status: "New",
+        status: store.contacts[cidx].pipelineType === "connector" ? "Identified" : "New",
         updatedAt: now(),
       };
       changed = true;
@@ -135,7 +135,7 @@ export async function PUT(req: Request) {
   if (status === "Completed") {
     archiveTaskAsActivity(store, updated);
     store.tasks = store.tasks.filter((t) => t.id !== updated.id);
-    await saveStore(store);
+    await saveStore(store, accountId);
     return NextResponse.json({ archived: true, record: updated });
   }
 

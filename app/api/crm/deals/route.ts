@@ -3,7 +3,7 @@ import { DEAL_STAGES, DEAL_STAGE_WEIGHTS, getStore, id, now, saveStore } from "@
 import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 function upsertDealStamp(store: any, deal: any) {
-  if (!["Launch days paid", "Launch paid (won)"].includes(deal.stage)) return;
+  if (!["Launch paid (won)"].includes(deal.stage)) return;
   const idx = (store.dealStamps || []).findIndex((s: any) => s.dealId === deal.id);
   const stamp = {
     id: idx >= 0 ? store.dealStamps[idx].id : id(),
@@ -24,12 +24,12 @@ function normalizeStage(value: any) {
     "90-minute booked": "Fit meeting booked",
     "90-minute complete": "Fit meeting completed",
     "Verbal Yes": "Proposal / commitment",
-    "Client signed (won)": "Launch days paid",
+    "Client signed (won)": "Launch paid (won)",
     "Discovery meeting booked": "Warm intro booked",
     "Discovery meeting completed": "Warm intro completed",
     "Fit meeting booked": "90-min disco booked",
     "Fit meeting completed": "90-min disco completed",
-    "Launch paid (won)": "Launch days paid",
+    "Launch days paid": "Launch paid (won)",
   };
   const v = legacyMap[String(value || "").trim()] || String(value || "").trim();
   if (!v) return DEAL_STAGES[0];
@@ -44,7 +44,7 @@ function normalizePrimaryPain(value: any) {
 function normalizeClientStage(stage: string, clientStage: any) {
   if (!["Launch days paid", "Launch paid (won)"].includes(stage)) return undefined;
   const v = String(clientStage || "").trim();
-  if (v === "Launch" || v === "Active rhythm") return v;
+  if (["Launch", "Active rhythm", "At Risk", "Paused", "Completed / Alumni"].includes(v)) return v;
   return "Launch";
 }
 
@@ -93,6 +93,7 @@ export async function PUT(req: Request) {
   };
   upsertDealStamp(store, store.deals[idx]);
   await saveStore(store, accountId);
+  return NextResponse.json(store.deals[idx]);
 }
 
 export async function DELETE(req: Request) {
@@ -108,6 +109,6 @@ export async function DELETE(req: Request) {
   }
 
   store.deals = store.deals.filter((d) => d.id !== id);
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json({ ok: true });
 }
