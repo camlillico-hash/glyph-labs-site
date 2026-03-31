@@ -19,12 +19,16 @@ export async function resolveActiveAccountId() {
   const desired = c.get(activeAccountCookieName)?.value;
   if (session.role === "owner" && desired && allowed.has(desired)) return desired;
 
-  // Otherwise prefer the most recently created/updated CRM account that actually has data, then fall back to the first linked account.
+  // Otherwise prefer an explicitly primary owner membership if present.
+  const ownerMembership = memberships.find((m) => m.role === "owner");
+  if (ownerMembership?.account_id) return ownerMembership.account_id;
+
+  // Then prefer the linked account that actually has CRM rows.
   try {
     const { getCrmPool } = await import("@/lib/crm-db");
     const pool = getCrmPool();
     if (pool) {
-      const ordered = Array.from(allowed);
+      const ordered = memberships.map((m) => m.account_id);
       const q = await pool.query(
         `
         with counts as (
@@ -39,7 +43,7 @@ export async function resolveActiveAccountId() {
         select account_id, sum(row_count)::int as total_rows
         from counts
         group by account_id
-        order by total_rows desc, account_id asc
+        order by total_rows desc, array_position($1::text[], account_id) asc
         limit 1
         `,
         [ordered]

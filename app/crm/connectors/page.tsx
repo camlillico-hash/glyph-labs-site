@@ -105,7 +105,6 @@ export default function ConnectorsPage() {
   const connectorItems = useMemo(() => items.filter((c) => (c.pipelineType || "connector") === "connector"), [items]);
   const leadItems = useMemo(() => items.filter((c) => (c.pipelineType || "connector") === "icp"), [items]);
   const connectorOpenItems = useMemo(() => connectorItems.filter((c) => !["Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "Identified") || !c.openBoardHidden), [connectorItems]);
-  const icpOpenItems = useMemo(() => leadItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden), [leadItems]);
   const convertedItems = useMemo(() => leadItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden), [leadItems]);
   const clientContactIds = useMemo(() => {
     const ids = new Set<string>();
@@ -125,14 +124,6 @@ export default function ConnectorsPage() {
       pipelineType: "connector",
       stages: CONNECTOR_STAGES,
       items: connectorOpenItems,
-    },
-    {
-      key: "icp",
-      title: "ICP early funnel",
-      subtitle: "Prospects before the deal board takes over.",
-      pipelineType: "icp",
-      stages: ICP_STAGES,
-      items: icpOpenItems,
     },
   ] as const;
 
@@ -480,7 +471,7 @@ export default function ConnectorsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-sky-200" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowOpenContacts((v) => !v)}>
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Open contacts ({connectorOpenItems.length + icpOpenItems.length})
+            Open connectors ({connectorOpenItems.length})
           </button>
           {showOpenContacts && renderContactsTable([...connectorOpenItems])}
         </div>

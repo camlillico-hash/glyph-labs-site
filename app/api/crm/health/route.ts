@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Client } from "pg";
 import { getStore } from "@/lib/crm-store";
+import { getCrmPool } from "@/lib/crm-db";
 
 export async function GET() {
   const databaseUrl = process.env.DATABASE_URL;
@@ -9,6 +10,7 @@ export async function GET() {
     dbConnectOk: false,
     dbError: null,
     storeCounts: null,
+    dbTableCounts: null,
   };
 
   if (databaseUrl) {
@@ -27,6 +29,17 @@ export async function GET() {
   }
 
   try {
+    const pool = getCrmPool();
+    if (pool) {
+      const tableCounts = await pool.query(`
+        select
+          (select count(*)::int from crm_contacts) as contacts,
+          (select count(*)::int from crm_deals) as deals,
+          (select count(*)::int from crm_tasks) as tasks,
+          (select count(*)::int from crm_activities) as activities
+      `);
+      result.dbTableCounts = tableCounts.rows[0] || null;
+    }
     const store = await getStore();
     result.storeCounts = {
       contacts: Array.isArray(store.contacts) ? store.contacts.length : 0,
