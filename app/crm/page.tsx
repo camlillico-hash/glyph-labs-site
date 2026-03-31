@@ -5,7 +5,7 @@ export const metadata = {
 };
 
 import Link from "next/link";
-import { getStore, now, DEAL_STAGES } from "@/lib/crm-store";
+import { getStore, now, CONTACT_PIPELINES, CONNECTOR_STAGES, ICP_STAGES, DEAL_STAGES } from "@/lib/crm-store";
 import { computeCoachMood } from "@/lib/coach-mood";
 import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3 } from "lucide-react";
 import KpiScoreboard from "./KpiScoreboard";
@@ -37,8 +37,8 @@ export default async function CrmHome() {
   monthStart.setHours(0, 0, 0, 0);
   const monthStartMs = monthStart.getTime();
 
-  const openDeals = store.deals.filter((d) => !["Launch days paid", "Launch paid (won)", "Lost"].includes(d.stage));
-  const wonDeals = store.deals.filter((d) => ["Launch days paid", "Launch paid (won)"].includes(d.stage));
+  const openDeals = store.deals.filter((d) => !["Launch paid (won)", "Lost"].includes(d.stage));
+  const wonDeals = store.deals.filter((d) => d.stage === "Launch paid (won)");
   const lostDeals = store.deals.filter((d) => d.stage === "Lost");
   const activeClients = wonDeals.length;
 
@@ -57,7 +57,6 @@ export default async function CrmHome() {
     .sort((a, b) => new Date(a.dueDate || "").getTime() - new Date(b.dueDate || "").getTime());
 
   const contactMap = new Map((store.contacts || []).map((c) => [c.id, `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unknown contact"]));
-  const contactStatusMap = new Map((store.contacts || []).map((c) => [c.id, c.status || "New"]));
 
   const staleDeals = openDeals.filter((d) => {
     const t = new Date(d.updatedAt || d.createdAt).getTime();
@@ -89,7 +88,7 @@ export default async function CrmHome() {
     statusLabel: coach.statusLabel,
   };
 
-  const openStageSet = new Set(["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Discovery meeting booked", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed"]);
+  const openStageSet = new Set(["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment"]);
   const weightedByStage = DEAL_STAGES.filter((stage) => openStageSet.has(stage)).map((stage) => {
     const deals = (store.deals || []).filter((d) => d.stage === stage);
     const total = deals.reduce((sum, d) => sum + Number(d.value || 0), 0);
@@ -103,26 +102,20 @@ export default async function CrmHome() {
     weighted: acc.weighted + row.weighted,
   }), { count: 0, total: 0, weighted: 0 });
 
-  const discoveryCompletedSet = new Set(["Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Discovery meeting completed", "Fit meeting booked", "Fit meeting completed", "Launch paid (won)"]);
-  const fitBookedSet = new Set(["90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Fit meeting booked", "Fit meeting completed", "Launch paid (won)"]);
-  const fitCompletedSet = new Set(["90-min disco completed", "Proposal / commitment", "Launch days paid", "Fit meeting completed", "Launch paid (won)"]);
+  const connectorContacts = store.contacts.filter((c) => (c.pipelineType || "icp") === "connector");
+  const icpContacts = store.contacts.filter((c) => (c.pipelineType || "icp") === "icp");
 
-  const discoveryCompletedCount = store.deals.filter((d) => discoveryCompletedSet.has(d.stage)).length;
-  const fitBookedCount = store.deals.filter((d) => fitBookedSet.has(d.stage)).length;
-  const fitCompletedCount = store.deals.filter((d) => fitCompletedSet.has(d.stage)).length;
+  const connectorActivatedOrLater = connectorContacts.filter((c) => ["Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "")).length;
+  const connectorIntroDelivered = connectorContacts.filter((c) => (c.status || "") === "Intro Delivered").length;
+  const icpWarmIntroBooked = icpContacts.filter((c) => (c.status || "") === "Warm intro booked").length;
+  const warmIntroCompletedCount = store.deals.filter((d) => ["Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch paid (won)"].includes(d.stage)).length;
   const wonCount = activeClients;
 
-  const connectedCount = store.contacts.filter((c) => ["Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Discovery meeting booked"].includes(c.status || "")).length;
-  const discoveryBookedContacts = store.contacts.filter((c) => ["Warm intro booked", "Discovery meeting booked"].includes(c.status || "")).length;
-  const attemptingOrLaterNonLost = store.contacts.filter((c) => ["Attempting", "Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Discovery meeting booked"].includes(c.status || "")).length;
-  // Treat any later non-lost stage as having achieved "Connected", even if status was skipped.
-  const countedAsConnected = store.contacts.filter((c) => ["Connected", "Pipeline Seeding", "Warm intro booked", "Pipeline Seeder", "Discovery meeting booked"].includes(c.status || "")).length;
-
   const conversion = {
-    attemptingToConnected: attemptingOrLaterNonLost > 0 ? Math.round((countedAsConnected / attemptingOrLaterNonLost) * 100) : 0,
-    connectedToDiscoveryBooked: connectedCount > 0 ? Math.round((discoveryBookedContacts / connectedCount) * 100) : 0,
-    discoveryToFitBooked: discoveryCompletedCount > 0 ? Math.round((fitBookedCount / discoveryCompletedCount) * 100) : 0,
-    fitCompletedToWon: fitCompletedCount > 0 ? Math.round((wonCount / fitCompletedCount) * 100) : 0,
+    activatedToIntroDelivered: connectorActivatedOrLater > 0 ? Math.round((connectorIntroDelivered / connectorActivatedOrLater) * 100) : 0,
+    introDeliveredToWarmIntroBooked: connectorIntroDelivered > 0 ? Math.round((icpWarmIntroBooked / connectorIntroDelivered) * 100) : 0,
+    warmIntroBookedToWon: icpWarmIntroBooked > 0 ? Math.round((wonCount / icpWarmIntroBooked) * 100) : 0,
+    warmIntroCompletedToWon: warmIntroCompletedCount > 0 ? Math.round((wonCount / warmIntroCompletedCount) * 100) : 0,
   };
 
   // Transition plan dashboard metrics
@@ -130,9 +123,9 @@ export default async function CrmHome() {
     revenueGoalAnnual: 160000,
     avgRevenuePerClientAnnual: 25000,
     targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
-    convWarmToIntro: 50,
-    convIntroToDiscovery: 50,
-    convDiscoveryToWon: 80,
+    convActivatedToIntroDelivered: 50,
+    convIntroDeliveredToWarmIntroBooked: 50,
+    convWarmIntroBookedToWon: 80,
     ...(store.targets || {}),
   };
 
@@ -144,32 +137,30 @@ export default async function CrmHome() {
   const targetDateMs = new Date(targets.targetDate).getTime();
   const monthsRemaining = Number.isFinite(targetDateMs) ? Math.max(1, Math.ceil((targetDateMs - Date.now()) / (1000 * 60 * 60 * 24 * 30))) : 18;
 
-  const closeRate = Math.max(0.01, (targets.convDiscoveryToWon || 0) / 100);
-  const introToDiscoveryRate = Math.max(0.01, (targets.convIntroToDiscovery || 0) / 100);
-  const warmToIntroRate = Math.max(0.01, (targets.convWarmToIntro || 0) / 100);
+  const closeRate = Math.max(0.01, (targets.convWarmIntroBookedToWon || 0) / 100);
+  const introToWarmIntroRate = Math.max(0.01, (targets.convIntroDeliveredToWarmIntroBooked || 0) / 100);
+  const activatedToIntroDeliveredRate = Math.max(0.01, (targets.convActivatedToIntroDelivered || 0) / 100);
 
-  const requiredDiscoveries = Math.ceil(requiredClients / closeRate);
-  const requiredIntros = Math.ceil(requiredDiscoveries / introToDiscoveryRate);
-  const requiredWarmLeads = Math.ceil(requiredIntros / warmToIntroRate);
+  const requiredWarmIntros = Math.ceil(requiredClients / closeRate);
+  const requiredIntrosDelivered = Math.ceil(requiredWarmIntros / introToWarmIntroRate);
+  const requiredActivatedConnectors = Math.ceil(requiredIntrosDelivered / activatedToIntroDeliveredRate);
 
-  const annualWarmTarget = Math.max(1, Math.ceil((requiredWarmLeads / monthsRemaining) * 12));
-  const annualIntroTarget = Math.max(1, Math.ceil((requiredIntros / monthsRemaining) * 12));
-  const annualDiscoveryTarget = Math.max(1, Math.ceil((requiredDiscoveries / monthsRemaining) * 12));
+  const annualActivatedTarget = Math.max(1, Math.ceil((requiredActivatedConnectors / monthsRemaining) * 12));
+  const annualIntroDeliveredTarget = Math.max(1, Math.ceil((requiredIntrosDelivered / monthsRemaining) * 12));
+  const annualWarmIntroTarget = Math.max(1, Math.ceil((requiredWarmIntros / monthsRemaining) * 12));
   const annualCloseTarget = Math.max(1, Math.ceil((requiredClients / monthsRemaining) * 12));
 
-  const weeklyOutreachTarget = Math.max(1, Math.ceil((annualWarmTarget / 52) * 8));
-  const weeklyIntroTarget = Math.max(1, Math.ceil(annualIntroTarget / 52));
-  const weeklyFollowupsTarget = Math.max(3, Math.ceil(weeklyOutreachTarget * 1.5));
-  const weeklyIntroRequestsTarget = Math.max(1, Math.ceil(weeklyOutreachTarget / 2));
+  const weeklyConnectorActivationTarget = Math.max(1, Math.ceil(annualActivatedTarget / 52));
+  const weeklyIntroDeliveredTarget = Math.max(1, Math.ceil(annualIntroDeliveredTarget / 52));
+  const weeklyWarmIntroTarget = Math.max(1, Math.ceil(annualWarmIntroTarget / 52));
+  const weeklyFollowupsTarget = Math.max(3, Math.ceil(weeklyConnectorActivationTarget * 2));
 
   const reducedHoursReady = activeClients >= Math.max(4, Math.ceil(requiredClients * 0.6)) && annualizedRevenue >= Math.round(targets.revenueGoalAnnual * 0.67);
   const fullExitReady = activeClients >= requiredClients && annualizedRevenue >= targets.revenueGoalAnnual && potentialClients >= 2;
 
-  const warmLeadsYtd = store.contacts.filter((c) => ["Attempting", "Connected", "Warm intro booked", "Discovery meeting booked"].includes(c.status || "")).length;
-  const introMeetingsYtd = store.deals.filter((d) => ["Warm intro booked", "Warm intro completed", "Discovery meeting booked", "Discovery meeting completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch days paid", "Launch paid (won)"]
-    .includes(d.stage)).length;
-  const discoveriesYtd = store.deals.filter((d) => ["90-min disco booked", "90-min disco completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment", "Launch days paid", "Launch paid (won)"]
-    .includes(d.stage)).length;
+  const connectorActivationsYtd = connectorContacts.filter((c) => ["Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "")).length;
+  const introsDeliveredYtd = connectorContacts.filter((c) => (c.status || "") === "Intro Delivered").length;
+  const warmIntrosYtd = icpContacts.filter((c) => (c.status || "") === "Warm intro booked").length;
   const clientsClosedYtd = wonDeals.length;
 
   const weeklyActivitiesRecords = activitiesThisWeek;
@@ -204,7 +195,7 @@ export default async function CrmHome() {
       records: weeklyNewContactsRecords.map((c) => ({
         id: `contact-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
-        status: c.status || "New",
+        status: c.status || ((c.pipelineType || "icp") === "connector" ? "Identified" : "New"),
       })),
     },
     {
@@ -223,7 +214,7 @@ export default async function CrmHome() {
 
   const monthlyWarmIntrosRecords = (store.contacts || []).filter((c) => {
     const ms = new Date(c.updatedAt || c.createdAt).getTime();
-    return Number.isFinite(ms) && ms >= monthStartMs && ["Warm intro booked", "Discovery meeting booked"].includes(c.status || "");
+    return Number.isFinite(ms) && ms >= monthStartMs && (c.status || "") === "Warm intro booked";
   });
   const monthlyDiscoveryRecords = (store.deals || []).filter((d) => {
     const ms = new Date(d.updatedAt || d.createdAt).getTime();
@@ -231,7 +222,7 @@ export default async function CrmHome() {
   });
   const monthlyPipelineRecords = (store.deals || []).filter((d) => {
     const ms = new Date(d.createdAt || d.updatedAt).getTime();
-    return Number.isFinite(ms) && ms >= monthStartMs && !["Launch days paid", "Launch paid (won)", "Lost"].includes(d.stage || "");
+    return Number.isFinite(ms) && ms >= monthStartMs && !["Launch paid (won)", "Lost"].includes(d.stage || "");
   });
 
 
@@ -239,14 +230,14 @@ export default async function CrmHome() {
   const monthlyItems = [
     {
       key: "monthly-warm-intros",
-      label: "Warm intros (monthly)",
+      label: "ICP warm intros booked (monthly)",
       value: monthlyWarmIntrosRecords.length,
       target: "2",
       ok: monthlyWarmIntrosRecords.length >= 2,
       records: monthlyWarmIntrosRecords.map((c) => ({
         id: `mwarm-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
-        status: c.status || "New",
+        status: c.status || ((c.pipelineType || "icp") === "connector" ? "Identified" : "New"),
       })),
     },
     {
@@ -312,8 +303,8 @@ export default async function CrmHome() {
             <p className="text-2xl font-bold">{potentialClients} <span className="text-sm text-slate-400">/ 2+</span></p>
           </div>
           <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Discovery sessions (YTD)</p>
-            <p className="text-2xl font-bold">{discoveriesYtd} <span className="text-sm text-slate-400">/ {annualDiscoveryTarget}</span></p>
+            <p className="text-xs text-slate-400">Warm intros booked (YTD)</p>
+            <p className="text-2xl font-bold">{warmIntrosYtd} <span className="text-sm text-slate-400">/ {annualWarmIntroTarget}</span></p>
           </div>
         </div>
 
@@ -403,10 +394,10 @@ export default async function CrmHome() {
       <Link href="/crm/deals" className="crm-card block p-4 hover:-translate-y-0.5">
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Percent size={18} /> Conversion rates</h2>
         <ul className="space-y-2 text-sm">
-          <li className="flex items-center justify-between"><span>Attempting → Connected</span><span className="font-semibold">{conversion.attemptingToConnected}%</span></li>
-          <li className="flex items-center justify-between"><span>Connected → Warm intro booked</span><span className="font-semibold">{conversion.connectedToDiscoveryBooked}%</span></li>
-          <li className="flex items-center justify-between"><span>Warm intro completed → 90-min disco booked</span><span className="font-semibold">{conversion.discoveryToFitBooked}%</span></li>
-          <li className="flex items-center justify-between"><span>90-min disco completed → Won</span><span className="font-semibold">{conversion.fitCompletedToWon}%</span></li>
+                    <li className="flex items-center justify-between"><span>Activated → Intro Delivered</span><span className="font-semibold">{conversion.activatedToIntroDelivered}%</span></li>
+          <li className="flex items-center justify-between"><span>Intro Delivered → Warm intro booked</span><span className="font-semibold">{conversion.introDeliveredToWarmIntroBooked}%</span></li>
+          <li className="flex items-center justify-between"><span>Warm intro booked → Won</span><span className="font-semibold">{conversion.warmIntroBookedToWon}%</span></li>
+          <li className="flex items-center justify-between"><span>Warm intro completed → Won</span><span className="font-semibold">{conversion.warmIntroCompletedToWon}%</span></li>
         </ul>
       </Link>
 

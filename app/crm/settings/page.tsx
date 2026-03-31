@@ -46,9 +46,9 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
     revenueGoalAnnual: 160000,
     avgRevenuePerClientAnnual: 25000,
     targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
-    convWarmToIntro: 50,
-    convIntroToDiscovery: 50,
-    convDiscoveryToWon: 80,
+    convActivatedToIntroDelivered: 50,
+    convIntroDeliveredToWarmIntroBooked: 50,
+    convWarmIntroBookedToWon: 80,
     ...(store.targets || {}),
   };
   const targetsHistory = Array.isArray(store.targetsHistory) ? store.targetsHistory : [];
@@ -97,9 +97,9 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
           <Field label="Average revenue per client (annual CAD)" name="avgRevenuePerClientAnnual" value={targets.avgRevenuePerClientAnnual} prefix="$" />
           <DateField label="Target date" name="targetDate" value={targets.targetDate} />
 
-          <Field label="Warm lead → Intro conversion" name="convWarmToIntro" value={targets.convWarmToIntro} suffix="%" />
-          <Field label="Intro → Discovery conversion" name="convIntroToDiscovery" value={targets.convIntroToDiscovery} suffix="%" />
-          <Field label="Discovery → Won conversion" name="convDiscoveryToWon" value={targets.convDiscoveryToWon} suffix="%" />
+          <Field label="Activated connector → Intro delivered conversion" name="convActivatedToIntroDelivered" value={targets.convActivatedToIntroDelivered} suffix="%" />
+          <Field label="Intro delivered → Warm intro booked conversion" name="convIntroDeliveredToWarmIntroBooked" value={targets.convIntroDeliveredToWarmIntroBooked} suffix="%" />
+          <Field label="Warm intro booked → Won conversion" name="convWarmIntroBookedToWon" value={targets.convWarmIntroBookedToWon} suffix="%" />
 
           <div className="md:col-span-2">
             <button className="crm-btn text-sm">Save planning inputs</button>

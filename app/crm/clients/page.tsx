@@ -23,7 +23,7 @@ export default function ClientsPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const clients = useMemo(() => deals.filter((d) => ['Launch days paid', 'Launch paid (won)'].includes(d.stage)), [deals]);
+  const clients = useMemo(() => deals.filter((d) => d.stage === 'Launch paid (won)'), [deals]);
 
   const contactName = (id?: string) => {
     const c = contacts.find((x) => x.id === id);
@@ -102,7 +102,7 @@ export default function ClientsPage() {
               </tr>
             ))}
             {clients.length === 0 && (
-              <tr><td className="px-3 py-6 text-slate-500" colSpan={6}>No clients yet. Move a deal to "Launch days paid" to graduate it here.</td></tr>
+              <tr><td className="px-3 py-6 text-slate-500" colSpan={6}>No clients yet. Move a deal to "Launch paid (won)" to graduate it here.</td></tr>
             )}
           </tbody>
         </table>
@@ -130,7 +130,7 @@ export default function ClientsPage() {
             </div>
             <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Deal name</label>{editMode ? <input className="crm-input" value={draft.name || ''} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.name || '—'}</p>}</div>
-              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Stage</label>{editMode ? <select className="crm-input" value={draft.stage || 'Launch days paid'} onChange={(e) => setDraft({ ...draft, stage: e.target.value })}><option value="Proposal / commitment">Proposal / commitment</option><option value="Launch days paid">Launch days paid</option><option value="Lost">Lost</option></select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.stage || '—'}</p>}</div>
+              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Stage</label>{editMode ? <select className="crm-input" value={draft.stage || 'Launch paid (won)'} onChange={(e) => setDraft({ ...draft, stage: e.target.value })}><option value="Proposal / commitment">Proposal / commitment</option><option value="Launch paid (won)">Launch paid (won)</option><option value="Lost">Lost</option></select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.stage || '—'}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Client stage</label>{editMode ? <select className="crm-input" value={draft.clientStage || 'Launch'} onChange={(e) => setDraft({ ...draft, clientStage: e.target.value })}><option value="Launch">Launch</option><option value="Active rhythm">Active rhythm</option></select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.clientStage || 'Launch'}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Launch included</label>{editMode ? <select className="crm-input" value={draft.launchIncluded || 'Yes'} onChange={(e) => setDraft({ ...draft, launchIncluded: e.target.value })}><option value="Yes">Yes</option><option value="No">No</option></select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.launchIncluded || 'Yes'}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Daily rate</label>{editMode ? <input type="number" className="crm-input" value={draft.dailyRate || 5000} onChange={(e) => setDraft({ ...draft, dailyRate: Number(e.target.value || 5000) })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{money(draft.dailyRate || 5000)}</p>}</div>
