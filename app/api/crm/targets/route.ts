@@ -8,6 +8,7 @@ const numericKeys = [
   "convActivatedToIntroDelivered",
   "convIntroDeliveredToWarmIntroBooked",
   "convWarmIntroBookedToWon",
+  "convDiscoveryToLaunch",
 ] as const;
 
 export async function GET() {
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
     if (/^\d{4}-\d{2}-\d{2}$/.test(targetDateRaw)) next.targetDate = targetDateRaw;
 
     // Clamp conversion rates to 0..100
-    for (const key of ["convActivatedToIntroDelivered", "convIntroDeliveredToWarmIntroBooked", "convWarmIntroBookedToWon"]) {
+    for (const key of ["convActivatedToIntroDelivered", "convIntroDeliveredToWarmIntroBooked", "convWarmIntroBookedToWon", "convDiscoveryToLaunch"]) {
       next[key] = Math.max(0, Math.min(100, Number(next[key] || 0)));
     }
 

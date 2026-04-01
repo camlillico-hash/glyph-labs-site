@@ -90,6 +90,7 @@ export type TransitionTargets = {
   convActivatedToIntroDelivered: number;
   convIntroDeliveredToWarmIntroBooked: number;
   convWarmIntroBookedToWon: number;
+  convDiscoveryToLaunch: number;
 };
 
 export type TransitionTargetsHistoryEntry = {
@@ -129,7 +130,8 @@ export const defaultTargets: TransitionTargets = {
   targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
   convActivatedToIntroDelivered: 40,
   convIntroDeliveredToWarmIntroBooked: 50,
-  convWarmIntroBookedToWon: 40,
+  convWarmIntroBookedToWon: 50,
+  convDiscoveryToLaunch: 50,
 };
 
 function normalizeLeadSource(value?: string) {
@@ -268,8 +270,9 @@ function normalizeStore(store: CrmStore): CrmStore {
     avgRevenuePerClientAnnual: Number(targetsRaw.avgRevenuePerClientAnnual || defaultTargets.avgRevenuePerClientAnnual),
     targetDate: String(targetsRaw.targetDate || defaultTargets.targetDate),
     convActivatedToIntroDelivered: Number(targetsRaw.convActivatedToIntroDelivered ?? targetsRaw.convWarmToIntro ?? defaultTargets.convActivatedToIntroDelivered),
-    convIntroDeliveredToWarmIntroBooked: Number(targetsRaw.convIntroDeliveredToWarmIntroBooked ?? targetsRaw.convIntroToDiscovery ?? defaultTargets.convIntroDeliveredToWarmIntroBooked),
-    convWarmIntroBookedToWon: Number(targetsRaw.convWarmIntroBookedToWon ?? targetsRaw.convDiscoveryToWon ?? defaultTargets.convWarmIntroBookedToWon),
+    convIntroDeliveredToWarmIntroBooked: Number(targetsRaw.convIntroDeliveredToWarmIntroBooked ?? targetsRaw.convLeadToWarmIntro ?? defaultTargets.convIntroDeliveredToWarmIntroBooked),
+    convWarmIntroBookedToWon: Number(targetsRaw.convWarmIntroBookedToWon ?? targetsRaw.convIntroToDiscovery ?? defaultTargets.convWarmIntroBookedToWon),
+    convDiscoveryToLaunch: Number(targetsRaw.convDiscoveryToLaunch ?? targetsRaw.convDiscoveryToWon ?? defaultTargets.convDiscoveryToLaunch),
   };
 
   return {

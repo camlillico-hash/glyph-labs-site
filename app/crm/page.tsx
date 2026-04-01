@@ -32,10 +32,10 @@ export default async function CrmHome() {
 
   const currentMs = new Date(now()).getTime();
   const oneWeekAgo = currentMs - 7 * 24 * 60 * 60 * 1000;
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
-  const monthStartMs = monthStart.getTime();
+  const quarterStart = new Date();
+  quarterStart.setMonth(Math.floor(quarterStart.getMonth() / 3) * 3, 1);
+  quarterStart.setHours(0, 0, 0, 0);
+  const quarterStartMs = quarterStart.getTime();
 
   const openDeals = store.deals.filter((d) => !["Launch paid (won)", "Lost"].includes(d.stage));
   const wonDeals = store.deals.filter((d) => d.stage === "Launch paid (won)");
@@ -108,14 +108,14 @@ export default async function CrmHome() {
   const connectorActivatedOrLater = connectorPeople.filter((c) => ["Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "")).length;
   const connectorIntroDelivered = connectorPeople.filter((c) => (c.status || "") === "Intro Delivered").length;
   const leadWarmIntroBooked = leadPeople.filter((c) => (c.status || "") === "Warm intro booked").length;
-  const warmIntroCompletedCount = store.deals.filter((d) => ["Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch paid (won)"].includes(d.stage)).length;
+  const discoveryCount = store.deals.filter((d) => ["90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch paid (won)"].includes(d.stage)).length;
   const wonCount = activeClients;
 
   const conversion = {
     activatedToIntroDelivered: connectorActivatedOrLater > 0 ? Math.round((connectorIntroDelivered / connectorActivatedOrLater) * 100) : 0,
-    introDeliveredToWarmIntroBooked: connectorIntroDelivered > 0 ? Math.round((leadWarmIntroBooked / connectorIntroDelivered) * 100) : 0,
-    warmIntroBookedToWon: leadWarmIntroBooked > 0 ? Math.round((wonCount / leadWarmIntroBooked) * 100) : 0,
-    warmIntroCompletedToWon: warmIntroCompletedCount > 0 ? Math.round((wonCount / warmIntroCompletedCount) * 100) : 0,
+    leadToWarmIntro: leadPeople.length > 0 ? Math.round((leadWarmIntroBooked / leadPeople.length) * 100) : 0,
+    warmIntroToDiscovery: leadWarmIntroBooked > 0 ? Math.round((discoveryCount / leadWarmIntroBooked) * 100) : 0,
+    discoveryToLaunch: discoveryCount > 0 ? Math.round((wonCount / discoveryCount) * 100) : 0,
   };
 
   // Transition plan dashboard metrics
@@ -123,9 +123,10 @@ export default async function CrmHome() {
     revenueGoalAnnual: 160000,
     avgRevenuePerClientAnnual: 25000,
     targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
-    convActivatedToIntroDelivered: 50,
+    convActivatedToIntroDelivered: 40,
     convIntroDeliveredToWarmIntroBooked: 50,
-    convWarmIntroBookedToWon: 80,
+    convWarmIntroBookedToWon: 50,
+    convDiscoveryToLaunch: 50,
     ...(store.targets || {}),
   };
 
@@ -137,34 +138,26 @@ export default async function CrmHome() {
   const targetDateMs = new Date(targets.targetDate).getTime();
   const monthsRemaining = Number.isFinite(targetDateMs) ? Math.max(1, Math.ceil((targetDateMs - Date.now()) / (1000 * 60 * 60 * 24 * 30))) : 18;
 
-  const closeRate = Math.max(0.01, (targets.convWarmIntroBookedToWon || 0) / 100);
-  const introToWarmIntroRate = Math.max(0.01, (targets.convIntroDeliveredToWarmIntroBooked || 0) / 100);
-  const activatedToIntroDeliveredRate = Math.max(0.01, (targets.convActivatedToIntroDelivered || 0) / 100);
+  const discoveryToLaunchRate = Math.max(0.01, (targets.convDiscoveryToLaunch || 0) / 100);
+  const warmIntroToDiscoveryRate = Math.max(0.01, (targets.convWarmIntroBookedToWon || 0) / 100);
+  const leadToWarmIntroRate = Math.max(0.01, (targets.convIntroDeliveredToWarmIntroBooked || 0) / 100);
 
-  const requiredWarmIntros = Math.ceil(requiredClients / closeRate);
-  const requiredIntrosDelivered = Math.ceil(requiredWarmIntros / introToWarmIntroRate);
-  const requiredActivatedConnectors = Math.ceil(requiredIntrosDelivered / activatedToIntroDeliveredRate);
+  const requiredDiscoveries = Math.ceil(requiredClients / discoveryToLaunchRate);
+  const requiredWarmIntros = Math.ceil(requiredDiscoveries / warmIntroToDiscoveryRate);
+  const requiredLeads = Math.ceil(requiredWarmIntros / leadToWarmIntroRate);
 
-  const annualActivatedTarget = Math.max(1, Math.ceil((requiredActivatedConnectors / monthsRemaining) * 12));
-  const annualIntroDeliveredTarget = Math.max(1, Math.ceil((requiredIntrosDelivered / monthsRemaining) * 12));
+  const annualLeadTarget = Math.max(1, Math.ceil((requiredLeads / monthsRemaining) * 12));
   const annualWarmIntroTarget = Math.max(1, Math.ceil((requiredWarmIntros / monthsRemaining) * 12));
+  const annualDiscoveryTarget = Math.max(1, Math.ceil((requiredDiscoveries / monthsRemaining) * 12));
   const annualCloseTarget = Math.max(1, Math.ceil((requiredClients / monthsRemaining) * 12));
 
-  const weeklyConnectorActivationTarget = Math.max(1, Math.ceil(annualActivatedTarget / 52));
-  const weeklyIntroDeliveredTarget = Math.max(1, Math.ceil(annualIntroDeliveredTarget / 52));
-  const weeklyWarmIntroTarget = Math.max(1, Math.ceil(annualWarmIntroTarget / 52));
-  const weeklyFollowupsTarget = Math.max(3, Math.ceil(weeklyConnectorActivationTarget * 2));
+  const warmIntrosYtd = leadWarmIntroBooked;
 
   const reducedHoursReady = activeClients >= Math.max(4, Math.ceil(requiredClients * 0.6)) && annualizedRevenue >= Math.round(targets.revenueGoalAnnual * 0.67);
   const fullExitReady = activeClients >= requiredClients && annualizedRevenue >= targets.revenueGoalAnnual && potentialClients >= 2;
 
-  const connectorActivationsYtd = connectorPeople.filter((c) => ["Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "")).length;
-  const introsDeliveredYtd = connectorPeople.filter((c) => (c.status || "") === "Intro Delivered").length;
-  const warmIntrosYtd = leadPeople.filter((c) => (c.status || "") === "Warm intro booked").length;
-  const clientsClosedYtd = wonDeals.length;
-
   const weeklyActivitiesRecords = activitiesThisWeek;
-  const weeklyNewPeopleRecords = (store.contacts || []).filter((c) => {
+  const weeklyNewConnectorRecords = connectorPeople.filter((c) => {
     const ms = new Date(c.createdAt || c.updatedAt).getTime();
     return Number.isFinite(ms) && ms >= oneWeekAgo;
   });
@@ -187,12 +180,12 @@ export default async function CrmHome() {
       })),
     },
     {
-      key: "weekly-contacts",
-      label: "New people added (weekly)",
-      value: weeklyNewPeopleRecords.length,
+      key: "weekly-connectors",
+      label: "New Connectors (weekly)",
+      value: weeklyNewConnectorRecords.length,
       target: "3",
-      ok: weeklyNewPeopleRecords.length >= 3,
-      records: weeklyNewPeopleRecords.map((c) => ({
+      ok: weeklyNewConnectorRecords.length >= 3,
+      records: weeklyNewConnectorRecords.map((c) => ({
         id: `contact-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
         status: c.status || ((c.pipelineType || "connector") === "connector" ? "Identified" : "New"),
@@ -212,54 +205,54 @@ export default async function CrmHome() {
     },
   ];
 
-  const monthlyWarmIntrosRecords = (store.contacts || []).filter((c) => {
-    const ms = new Date(c.updatedAt || c.createdAt).getTime();
-    return Number.isFinite(ms) && ms >= monthStartMs && (c.status || "") === "Warm intro booked";
+  const quarterlyLeadRecords = leadPeople.filter((c) => {
+    const ms = new Date(c.createdAt || c.updatedAt).getTime();
+    return Number.isFinite(ms) && ms >= quarterStartMs;
   });
-  const monthlyDiscoveryRecords = (store.deals || []).filter((d) => {
+  const quarterlyDiscoveryRecords = (store.deals || []).filter((d) => {
     const ms = new Date(d.updatedAt || d.createdAt).getTime();
-    return Number.isFinite(ms) && ms >= monthStartMs && ["90-min disco booked", "90-min disco completed", "Fit meeting booked", "Fit meeting completed"].includes(d.stage || "");
+    return Number.isFinite(ms) && ms >= quarterStartMs && ["90-min disco completed", "Proposal / commitment", "Launch paid (won)"].includes(d.stage || "");
   });
-  const monthlyPipelineRecords = (store.deals || []).filter((d) => {
+  const quarterlyPipelineRecords = (store.deals || []).filter((d) => {
     const ms = new Date(d.createdAt || d.updatedAt).getTime();
-    return Number.isFinite(ms) && ms >= monthStartMs && !["Launch paid (won)", "Lost"].includes(d.stage || "");
+    return Number.isFinite(ms) && ms >= quarterStartMs && !["Launch paid (won)", "Lost"].includes(d.stage || "");
   });
 
 
-  const monthlyPipelineValue = monthlyPipelineRecords.reduce((sum, d) => sum + Number(d.value || 0), 0);
-  const monthlyItems = [
+  const quarterlyPipelineValue = quarterlyPipelineRecords.reduce((sum, d) => sum + Number(d.value || 0), 0);
+  const quarterlyItems = [
     {
-      key: "monthly-warm-intros",
-      label: "Lead warm intros booked (monthly)",
-      value: monthlyWarmIntrosRecords.length,
-      target: "2",
-      ok: monthlyWarmIntrosRecords.length >= 2,
-      records: monthlyWarmIntrosRecords.map((c) => ({
-        id: `mwarm-${c.id}`,
+      key: "quarterly-leads",
+      label: "New Leads (quarterly)",
+      value: quarterlyLeadRecords.length,
+      target: "3",
+      ok: quarterlyLeadRecords.length >= 3,
+      records: quarterlyLeadRecords.map((c) => ({
+        id: `qlead-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
         status: c.status || ((c.pipelineType || "connector") === "connector" ? "Identified" : "New"),
       })),
     },
     {
-      key: "monthly-discovery",
-      label: "Discovery (monthly)",
-      value: monthlyDiscoveryRecords.length,
-      target: "1",
-      ok: monthlyDiscoveryRecords.length >= 1,
-      records: monthlyDiscoveryRecords.map((d) => ({
-        id: `mdisc-${d.id}`,
+      key: "quarterly-discovery",
+      label: "Discovery completed (quarterly)",
+      value: quarterlyDiscoveryRecords.length,
+      target: "2",
+      ok: quarterlyDiscoveryRecords.length >= 2,
+      records: quarterlyDiscoveryRecords.map((d) => ({
+        id: `qdisc-${d.id}`,
         name: d.name || "Untitled deal",
         status: d.stage || "—",
       })),
     },
     {
-      key: "monthly-pipeline",
-      label: "New pipeline (monthly)",
-      value: `$${Math.round(monthlyPipelineValue / 1000)}K`,
+      key: "quarterly-pipeline",
+      label: "New pipeline (quarterly)",
+      value: `$${Math.round(quarterlyPipelineValue / 1000)}K`,
       target: "$45K",
-      ok: monthlyPipelineValue >= 45000,
-      records: monthlyPipelineRecords.map((d) => ({
-        id: `mpipe-${d.id}`,
+      ok: quarterlyPipelineValue >= 45000,
+      records: quarterlyPipelineRecords.map((d) => ({
+        id: `qpipe-${d.id}`,
         name: d.name || "Untitled deal",
         status: `$${Math.round(Number(d.value || 0)).toLocaleString()} • ${d.stage || "—"}`,
       })),
@@ -326,8 +319,8 @@ export default async function CrmHome() {
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CheckSquare size={18} /> Weekly KPI Scoreboard</h2>
         <KpiScoreboard items={kpiItems} />
         <div className="mt-4">
-          <h3 className="mb-2 text-sm font-semibold text-slate-300">Monthly KPIs</h3>
-          <KpiScoreboard items={monthlyItems} />
+          <h3 className="mb-2 text-sm font-semibold text-slate-300">Quarterly KPIs</h3>
+          <KpiScoreboard items={quarterlyItems} />
         </div>
       </section>
 
@@ -394,10 +387,10 @@ export default async function CrmHome() {
       <Link href="/crm/deals" className="crm-card block p-4 hover:-translate-y-0.5">
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Percent size={18} /> Conversion rates</h2>
         <ul className="space-y-2 text-sm">
-                    <li className="flex items-center justify-between"><span>Activated → Intro Delivered</span><span className="font-semibold">{conversion.activatedToIntroDelivered}%</span></li>
-          <li className="flex items-center justify-between"><span>Intro Delivered → Warm intro booked</span><span className="font-semibold">{conversion.introDeliveredToWarmIntroBooked}%</span></li>
-          <li className="flex items-center justify-between"><span>Warm intro booked → Won</span><span className="font-semibold">{conversion.warmIntroBookedToWon}%</span></li>
-          <li className="flex items-center justify-between"><span>Warm intro completed → Won</span><span className="font-semibold">{conversion.warmIntroCompletedToWon}%</span></li>
+                    <li className="flex items-center justify-between"><span>Activated Connector → Intro Delivered</span><span className="font-semibold">{conversion.activatedToIntroDelivered}%</span></li>
+          <li className="flex items-center justify-between"><span>Lead → Warm Intro</span><span className="font-semibold">{conversion.leadToWarmIntro}%</span></li>
+          <li className="flex items-center justify-between"><span>Warm Intro → Discovery</span><span className="font-semibold">{conversion.warmIntroToDiscovery}%</span></li>
+          <li className="flex items-center justify-between"><span>Discovery → Launch</span><span className="font-semibold">{conversion.discoveryToLaunch}%</span></li>
         </ul>
       </Link>
 
