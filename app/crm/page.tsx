@@ -118,7 +118,6 @@ export default async function CrmHome() {
     discoveryToLaunch: discoveryCount > 0 ? Math.round((wonCount / discoveryCount) * 100) : 0,
   };
 
-  // Transition plan dashboard metrics
   const targets = {
     revenueGoalAnnual: 160000,
     avgRevenuePerClientAnnual: 25000,
@@ -150,6 +149,24 @@ export default async function CrmHome() {
   const annualCloseTarget = Math.max(1, Math.ceil((requiredClients / monthsRemaining) * 12));
 
   const warmIntrosYtd = leadWarmIntroBooked;
+
+  const targetDateLabel = Number.isFinite(targetDateMs)
+    ? new Date(`${targets.targetDate}T00:00:00`).toLocaleDateString("en-CA", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        timeZone: "America/Toronto",
+      })
+    : "—";
+  const daysRemaining = Number.isFinite(targetDateMs)
+    ? Math.max(0, Math.ceil((targetDateMs - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 0;
+
+  const revenueProgressPct = Math.max(0, Math.min(100, Math.round((annualizedRevenue / Math.max(1, targets.revenueGoalAnnual)) * 100)));
+  const clientProgressPct = Math.max(0, Math.min(100, Math.round((activeClients / Math.max(1, requiredClients)) * 100)));
+  const discoveryProgressPct = Math.max(0, Math.min(100, Math.round((discoveryCount / Math.max(1, requiredDiscoveries)) * 100)));
+  const warmIntroProgressPct = Math.max(0, Math.min(100, Math.round((warmIntrosYtd / Math.max(1, requiredWarmIntros)) * 100)));
+  const leadProgressPct = Math.max(0, Math.min(100, Math.round((leadPeople.length / Math.max(1, requiredLeads)) * 100)));
 
   const reducedHoursReady = activeClients >= Math.max(4, Math.ceil(requiredClients * 0.6)) && annualizedRevenue >= Math.round(targets.revenueGoalAnnual * 0.67);
   const fullExitReady = activeClients >= requiredClients && annualizedRevenue >= targets.revenueGoalAnnual && potentialClients >= 2;
@@ -361,22 +378,73 @@ export default async function CrmHome() {
             Change targets
           </Link>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Active clients</p>
-            <p className="text-2xl font-bold">{activeClients} <span className="text-sm text-slate-400">/ {requiredClients}</span></p>
+        <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-400">Full exit target</p>
+              <p className="mt-1 text-xl font-semibold text-slate-100">
+                ${targets.revenueGoalAnnual.toLocaleString()} recurring by {targetDateLabel}
+              </p>
+              <p className="mt-1 text-sm text-slate-400">
+                Based on ${targets.avgRevenuePerClientAnnual.toLocaleString()} per client and your saved conversion rates.
+              </p>
+            </div>
+            <div className="rounded-lg border border-neutral-800 px-3 py-2 text-right">
+              <p className="text-xs text-slate-400">Target date</p>
+              <p className="text-sm font-semibold text-slate-100">{targetDateLabel}</p>
+              <p className="text-xs text-slate-500">{daysRemaining} days left</p>
+            </div>
           </div>
-          <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Annualized coaching revenue</p>
-            <p className="text-2xl font-bold">${annualizedRevenue.toLocaleString()} <span className="text-sm text-slate-400">/ ${Math.round(targets.revenueGoalAnnual / 1000)}k</span></p>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <TargetCard
+              label="Revenue"
+              current={`$${annualizedRevenue.toLocaleString()}`}
+              target={`$${targets.revenueGoalAnnual.toLocaleString()}`}
+              progress={revenueProgressPct}
+              subtext={`${activeClients} active clients closed so far`}
+            />
+            <TargetCard
+              label="Clients needed"
+              current={String(activeClients)}
+              target={String(requiredClients)}
+              progress={clientProgressPct}
+              subtext={`${annualCloseTarget}/year pace to hit target`}
+            />
+            <TargetCard
+              label="90-min discoveries needed"
+              current={String(discoveryCount)}
+              target={String(requiredDiscoveries)}
+              progress={discoveryProgressPct}
+              subtext={`${annualDiscoveryTarget}/year pace from current target date`}
+            />
+            <TargetCard
+              label="Warm intros needed"
+              current={String(warmIntrosYtd)}
+              target={String(requiredWarmIntros)}
+              progress={warmIntroProgressPct}
+              subtext={`${annualWarmIntroTarget}/year pace from current target date`}
+            />
+            <TargetCard
+              label="Leads needed"
+              current={String(leadPeople.length)}
+              target={String(requiredLeads)}
+              progress={leadProgressPct}
+              subtext={`${annualLeadTarget}/year pace from current target date`}
+            />
           </div>
-          <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Pipeline potentials</p>
-            <p className="text-2xl font-bold">{potentialClients} <span className="text-sm text-slate-400">/ 2+</span></p>
-          </div>
-          <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Warm intros booked (YTD)</p>
-            <p className="text-2xl font-bold">{warmIntrosYtd} <span className="text-sm text-slate-400">/ {annualWarmIntroTarget}</span></p>
+
+          <div className="mt-4 rounded-lg border border-neutral-800 p-3">
+            <p className="text-sm font-semibold text-slate-200">Full exit math</p>
+            <p className="mt-1 text-sm text-slate-400">
+              To reach {requiredClients} clients by {targetDateLabel}, you need {requiredDiscoveries} 90-min discoveries, which means {requiredWarmIntros} warm intros, which means {requiredLeads} leads based on your saved conversion rates.
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-4 text-sm text-slate-300">
+              <div className="rounded border border-neutral-800 px-3 py-2">Lead → Warm Intro <span className="float-right font-semibold">{targets.convIntroDeliveredToWarmIntroBooked}%</span></div>
+              <div className="rounded border border-neutral-800 px-3 py-2">Warm Intro → Discovery <span className="float-right font-semibold">{targets.convWarmIntroBookedToWon}%</span></div>
+              <div className="rounded border border-neutral-800 px-3 py-2">Discovery → Launch <span className="float-right font-semibold">{targets.convDiscoveryToLaunch}%</span></div>
+              <div className="rounded border border-neutral-800 px-3 py-2">Avg annual/client <span className="float-right font-semibold">${targets.avgRevenuePerClientAnnual.toLocaleString()}</span></div>
+            </div>
           </div>
         </div>
 
@@ -437,6 +505,24 @@ export default async function CrmHome() {
           </div>
         </Link>
       </section>
+    </div>
+  );
+}
+
+function TargetCard({ label, current, target, progress, subtext }: { label: string; current: string; target: string; progress: number; subtext: string }) {
+  return (
+    <div className="rounded-lg border border-neutral-800 p-3">
+      <p className="text-xs text-slate-400">{label}</p>
+      <p className="mt-1 text-2xl font-bold text-slate-100">
+        {current} <span className="text-sm font-medium text-slate-400">/ {target}</span>
+      </p>
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-neutral-800">
+        <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${progress}%` }} />
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+        <span className="text-slate-500">{subtext}</span>
+        <span className="font-semibold text-slate-300">{progress}%</span>
+      </div>
     </div>
   );
 }
