@@ -416,10 +416,13 @@ async function saveStorePg(store: CrmStore, accountId?: string) {
   try {
     await client.query("begin");
 
-    await client.query(
-      "delete from crm_contacts where account_id=$1; delete from crm_contact_stamps where account_id=$1; delete from crm_deals where account_id=$1; delete from crm_deal_stamps where account_id=$1; delete from crm_tasks where account_id=$1; delete from crm_activities where account_id=$1; delete from crm_meta where account_id=$1",
-      [accountId]
-    );
+    await client.query("delete from crm_contacts where account_id=$1", [accountId]);
+    await client.query("delete from crm_contact_stamps where account_id=$1", [accountId]);
+    await client.query("delete from crm_deals where account_id=$1", [accountId]);
+    await client.query("delete from crm_deal_stamps where account_id=$1", [accountId]);
+    await client.query("delete from crm_tasks where account_id=$1", [accountId]);
+    await client.query("delete from crm_activities where account_id=$1", [accountId]);
+    await client.query("delete from crm_meta where account_id=$1", [accountId]);
 
     for (const c of store.contacts) {
       await client.query("insert into crm_contacts (id, account_id, data, updated_at) values ($1,$2,$3,now())", [c.id, accountId, c]);
