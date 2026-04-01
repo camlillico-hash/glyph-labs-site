@@ -221,25 +221,23 @@ export default function TasksPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-violet-200 whitespace-nowrap"><CheckSquare size={20} /> Work Hub</h1>
-          <p className="mt-1 text-sm text-slate-400">Tasks first, activities beneath, both tied directly to people in your CRM.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-lg bg-violet-700 px-3 py-2 font-semibold text-white hover:bg-violet-600" onClick={openCreate}><Plus size={14} /> New task</button>
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-2 font-semibold text-slate-200 hover:border-neutral-500" onClick={() => { setActivityCreateOpen(true); setActivityDraft({ type: 'email', occurredAtLocal: '' }); setActivityError(''); }}><Activity size={14} /> New activity</button>
-          <div className="inline-flex rounded-lg border border-neutral-700 p-1">
-            <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
-            <button className={`px-2 py-1 rounded ${view === "table" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("table")}><List size={16} /></button>
-          </div>
+        <div className="inline-flex rounded-lg border border-neutral-700 p-1">
+          <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
+          <button className={`px-2 py-1 rounded ${view === "table" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("table")}><List size={16} /></button>
         </div>
       </div>
 
       <section className="crm-card p-4">
-        <button type="button" className="flex w-full items-center justify-between gap-3 text-left" onClick={() => setTasksOpen((v) => !v)}>
-          <div>
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-violet-200">{tasksOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />} Tasks ({tasks.length})</h2>
-            <p className="mt-1 text-sm text-slate-400">Manage next steps for connector people, lead people, and deals.</p>
-          </div>
-        </button>
+        <div className="flex items-start justify-between gap-3">
+          <button type="button" className="flex flex-1 items-center justify-between gap-3 text-left" onClick={() => setTasksOpen((v) => !v)}>
+            <div>
+              <h2 className="inline-flex items-center gap-2 text-base font-semibold text-violet-200">{tasksOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />} Tasks ({tasks.length})</h2>
+              <p className="mt-1 text-sm text-slate-400">Manage next steps for connector people, lead people, and deals.</p>
+            </div>
+          </button>
+          <button className="inline-flex items-center gap-1.5 rounded-lg bg-violet-700 px-3 py-2 font-semibold text-white hover:bg-violet-600" onClick={openCreate}><Plus size={14} /> New</button>
+        </div>
       </section>
 
       {tasksOpen && (
@@ -350,12 +348,15 @@ export default function TasksPage() {
       )}
 
       <section className="crm-card p-4">
-        <button type="button" className="flex w-full items-center justify-between gap-3 text-left" onClick={() => setActivitiesOpen((v) => !v)}>
-          <div>
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-sky-200">{activitiesOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />} Activities ({activityItems.length})</h2>
-            <p className="mt-1 text-sm text-slate-400">Every outreach log stays tied to a real CRM contact.</p>
-          </div>
-        </button>
+        <div className="flex items-start justify-between gap-3">
+          <button type="button" className="flex flex-1 items-center justify-between gap-3 text-left" onClick={() => setActivitiesOpen((v) => !v)}>
+            <div>
+              <h2 className="inline-flex items-center gap-2 text-base font-semibold text-sky-200">{activitiesOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />} Activities ({activityItems.length})</h2>
+              <p className="mt-1 text-sm text-slate-400">Every outreach log stays tied to a real CRM contact.</p>
+            </div>
+          </button>
+          <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-2 font-semibold text-slate-200 hover:border-neutral-500" onClick={() => { setActivityCreateOpen(true); setActivityDraft({ type: 'email', occurredAtLocal: '' }); setActivityError(''); }}><Activity size={14} /> New</button>
+        </div>
       </section>
 
       {activitiesOpen && (
