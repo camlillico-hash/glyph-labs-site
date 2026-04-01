@@ -311,8 +311,8 @@ export default async function CrmHome() {
       </section>
 
       <section>
-        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Funnel size={18} /> Funnel</h2>
-        <div className="grid gap-4 md:grid-cols-4">
+        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Funnel size={18} /> Current pipeline</h2>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <Card icon={<Users size={16} />} label="Connectors" value={connectorPeople.length} href="/crm/connectors" />
           <Card icon={<Users size={16} />} label="Leads" value={leadPeople.length} href="/crm/leads" />
           <Card icon={<BriefcaseBusiness size={16} />} label="Open Deals" value={openDeals.length} href="/crm/deals" />
