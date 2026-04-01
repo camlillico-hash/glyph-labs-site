@@ -29,16 +29,6 @@ export async function resolveStrengthTestAccountId() {
   throw new Error("NO_ACCOUNT");
 }
 
-export async function getStrengthTestStore() {
-  const accountId = await resolveStrengthTestAccountId();
-  const store = await getStore(accountId);
-  return { accountId, store };
-}
-
-export async function getLegacyUnscopedStrengthTestStore() {
-  return getStore();
-}
-
 export function findStrengthTestLeadByEmail(store: any, email: string) {
   return (store.contacts || []).find((c: any) => normalizeEmail(c.email) === email);
 }
@@ -95,7 +85,6 @@ export function migrateLegacyStrengthTests(params: {
   const { legacyStore, targetStore } = params;
   const timestamp = params.timestamp || now();
   const legacySubmissions = Array.isArray(legacyStore?.strengthTests) ? legacyStore.strengthTests : [];
-  const migratedContacts = new Map<string, string>();
   const targetEmails = new Map<string, any>();
   const targetSubmissionIds = new Set((targetStore.strengthTests || []).map((s: StrengthTestSubmission) => s.id));
   const targetSubmissionFingerprints = new Set(
@@ -147,8 +136,6 @@ export function migrateLegacyStrengthTests(params: {
       contactsUpdated += 1;
     }
 
-    migratedContacts.set(submission.contactId, targetContact.id);
-
     const fingerprint = `${targetContact.id}|${submission.submittedAt}|${submission.overallScore}`;
     if (targetSubmissionIds.has(submission.id) || targetSubmissionFingerprints.has(fingerprint)) {
       continue;
@@ -189,7 +176,7 @@ export function migrateLegacyStrengthTests(params: {
   }
 
   return {
-    migratedContacts,
+    changed: submissionsMigrated > 0 || contactsCreated > 0 || activitiesAdded > 0,
     summary: {
       contactsCreated,
       contactsUpdated,
@@ -197,4 +184,21 @@ export function migrateLegacyStrengthTests(params: {
       activitiesAdded,
     },
   };
+}
+
+export async function getStrengthTestStore() {
+  const accountId = await resolveStrengthTestAccountId();
+  const store = await getStore(accountId);
+  const legacyStore = await getStore();
+  const migration = migrateLegacyStrengthTests({
+    legacyStore,
+    targetStore: store,
+    timestamp: now(),
+  });
+
+  if (migration.changed) {
+    await saveStore(store, accountId);
+  }
+
+  return { accountId, store };
 }
