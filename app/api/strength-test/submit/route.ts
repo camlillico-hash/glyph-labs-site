@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getStore, id, now, saveStore, type StrengthTestAnswer, type StrengthTestSubmission } from "@/lib/crm-store";
-
+import { id, now, type StrengthTestAnswer, type StrengthTestSubmission } from "@/lib/crm-store";
+import { ensureStrengthTestLead, getStrengthTestStore, saveStrengthTestStore } from "@/app/api/strength-test/_lib";
 
 export async function POST(req: Request) {
   try {
@@ -19,29 +19,19 @@ export async function POST(req: Request) {
     }
 
     const timestamp = now();
-    const store = await getStore();
+    const { accountId, store } = await getStrengthTestStore();
 
-    let contact = store.contacts.find((c) => (c.email || "").toLowerCase() === email);
-    if (!contact) {
-      contact = {
-        id: id(),
-        firstName,
-        lastName,
-        company,
-        email,
-        phone,
-        type: "Prospect",
-        leadSource: "Strength Test",
-        status: "New",
-        strengthTest: "Yes",
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      };
-      store.contacts.unshift(contact);
-    } else {
-      contact.strengthTest = "Yes";
-      contact.updatedAt = timestamp;
-    }
+    const contact = ensureStrengthTestLead({
+      store,
+      timestamp,
+      firstName,
+      lastName,
+      company,
+      email,
+      phone,
+    });
+    contact.strengthTest = "Yes";
+    contact.updatedAt = timestamp;
 
     const submissionId = id();
     const pdfFilename = `strength-test-${contact.lastName || "lead"}-${submissionId}.pdf`.replace(/\s+/g, "-").toLowerCase();
@@ -69,7 +59,7 @@ export async function POST(req: Request) {
       updatedAt: timestamp,
     });
 
-    await saveStore(store);
+    await saveStrengthTestStore(store, accountId);
 
     return NextResponse.json({ ok: true, submissionId, pdfUrl: `/api/strength-test/submissions/${submissionId}/pdf` });
   } catch (error: unknown) {

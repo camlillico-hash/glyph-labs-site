@@ -11,6 +11,7 @@ import {
   saveStore,
 } from "@/lib/crm-store";
 
+
 function normalizePipelineType(value: any) {
   const v = String(value || "").trim().toLowerCase();
   return (CONTACT_PIPELINES as readonly string[]).includes(v) ? v : "icp";
@@ -208,6 +209,16 @@ function maybeCreateDealForWarmIntro(store: any, contact: any) {
   });
 }
 
+function cleanupContactRelations(store: any, contactId: string) {
+  store.contacts = (store.contacts || []).filter((c: any) => c.id !== contactId);
+  store.contactStamps = (store.contactStamps || []).filter((s: any) => s.contactId !== contactId);
+  store.activities = (store.activities || []).filter((a: any) => a.contactId !== contactId);
+  store.tasks = (store.tasks || []).filter((t: any) => t.relatedId !== contactId && t.followUpForContactId !== contactId);
+  store.deals = (store.deals || []).filter((d: any) => d.contactId !== contactId && d.connectorContactId !== contactId);
+  store.dealStamps = (store.dealStamps || []).filter((s: any) => s.contactId !== contactId);
+  store.strengthTests = (store.strengthTests || []).filter((s: any) => s.contactId !== contactId);
+}
+
 export async function GET() {
   const { resolveActiveAccountId } = await import("@/lib/crm-scope");
   const accountId = await resolveActiveAccountId();
@@ -344,20 +355,34 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
-  const stampId = searchParams.get("stampId");
-  const { resolveActiveAccountId } = await import("@/lib/crm-scope");
-  const accountId = await resolveActiveAccountId();
-  const store = await getStore(accountId);
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    const stampId = searchParams.get("stampId");
+    const { resolveActiveAccountId } = await import("@/lib/crm-scope");
+    const accountId = await resolveActiveAccountId();
+    const store = await getStore(accountId);
 
-  if (stampId) {
-    store.contactStamps = (store.contactStamps || []).filter((s: any) => s.id !== stampId);
+    if (stampId) {
+      store.contactStamps = (store.contactStamps || []).filter((s: any) => s.id !== stampId);
+      await saveStore(store, accountId);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing contact id" }, { status: 400 });
+    }
+
+    const existed = (store.contacts || []).some((c: any) => c.id === id);
+    if (!existed) {
+      return NextResponse.json({ error: "Contact not found" }, { status: 404 });
+    }
+
+    cleanupContactRelations(store, id);
     await saveStore(store, accountId);
     return NextResponse.json({ ok: true });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Could not delete contact";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  store.contacts = store.contacts.filter((c) => c.id !== id);
-  await saveStore(store, accountId);
-  return NextResponse.json({ ok: true });
 }

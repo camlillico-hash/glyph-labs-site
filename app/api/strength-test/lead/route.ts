@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getStore, id, now, saveStore } from "@/lib/crm-store";
+import { now } from "@/lib/crm-store";
+import { ensureStrengthTestLead, getStrengthTestStore, saveStrengthTestStore } from "@/app/api/strength-test/_lib";
 
 const recentByKey = new Map<string, number>();
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 min
@@ -61,35 +62,10 @@ export async function POST(req: Request) {
     }
 
     const timestamp = now();
-    const store = await getStore();
+    const { accountId, store } = await getStrengthTestStore();
+    ensureStrengthTestLead({ store, timestamp, firstName, lastName, company, email, phone });
+    await saveStrengthTestStore(store, accountId);
 
-    const existing = store.contacts.find((c) => (c.email || "").toLowerCase() === email);
-    if (existing) {
-      existing.firstName = firstName;
-      existing.lastName = lastName;
-      existing.company = company;
-      existing.phone = phone || existing.phone;
-      existing.type = existing.type || "Prospect";
-      existing.leadSource = "Strength Test";
-      existing.updatedAt = timestamp;
-      existing.status = existing.status || "New";
-    } else {
-      store.contacts.unshift({
-        id: id(),
-        firstName,
-        lastName,
-        company,
-        email,
-        phone,
-        type: "Prospect",
-        leadSource: "Strength Test",
-        status: "New",
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      });
-    }
-
-    await saveStore(store);
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || "Failed to save lead" }, { status: 500 });

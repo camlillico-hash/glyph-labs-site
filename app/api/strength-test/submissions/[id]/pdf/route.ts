@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildStrengthTestPdf } from "@/lib/strength-test-pdf";
-import { getStore } from "@/lib/crm-store";
+import { getStrengthTestStore } from "@/app/api/strength-test/_lib";
 
 const sectionMax: Record<string, number> = {
   Business: 20,
@@ -20,7 +20,7 @@ function scoreLabel(total: number) {
 export async function GET(_: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
-    const store = await getStore();
+    const { store } = await getStrengthTestStore();
     const submission = (store.strengthTests || []).find((s) => s.id === id);
 
     if (!submission) {

@@ -315,7 +315,13 @@ export default function ConnectorsPage() {
 
   async function deleteFromTray() {
     if (!selected?.id) return;
-    await fetch(`/api/crm/contacts?id=${selected.id}`, { method: "DELETE" });
+    setTrayError("");
+    const res = await fetch(`/api/crm/contacts?id=${selected.id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      setTrayError(data?.error || "Could not delete contact");
+      return;
+    }
     closeTray();
     await load();
   }
