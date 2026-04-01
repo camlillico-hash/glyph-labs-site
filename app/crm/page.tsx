@@ -7,7 +7,7 @@ export const metadata = {
 import Link from "next/link";
 import { getStore, now, CONTACT_PIPELINES, CONNECTOR_STAGES, ICP_STAGES, DEAL_STAGES } from "@/lib/crm-store";
 import { computeCoachMood } from "@/lib/coach-mood";
-import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3 } from "lucide-react";
+import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3, Medal } from "lucide-react";
 import KpiScoreboard from "./KpiScoreboard";
 
 export default async function CrmHome() {
@@ -130,11 +130,9 @@ export default async function CrmHome() {
     ...(store.targets || {}),
   };
 
-  const recurringRevenue = wonDeals.reduce((sum, d) => sum + Number(d.annualFee || 0), 0);
-  const annualizedRevenue = Math.round(recurringRevenue);
-  const potentialClients = openDeals.filter((d) => ["Warm intro completed", "90-min disco booked", "90-min disco completed", "Fit meeting booked", "Fit meeting completed", "Proposal / commitment"].includes(d.stage)).length;
-
-  const requiredClients = Math.max(1, Math.ceil((targets.revenueGoalAnnual || 0) / Math.max(1, targets.avgRevenuePerClientAnnual || 1)));
+  const potentialClients = openDeals.filter((d) => Number(d.probability || 0) >= 50).length;
+  const annualizedRevenue = wonDeals.reduce((sum, d) => sum + Number(d.value || 0), 0);
+  const requiredClients = Math.max(1, Math.ceil(targets.revenueGoalAnnual / Math.max(1, targets.avgRevenuePerClientAnnual)));
   const targetDateMs = new Date(targets.targetDate).getTime();
   const monthsRemaining = Number.isFinite(targetDateMs) ? Math.max(1, Math.ceil((targetDateMs - Date.now()) / (1000 * 60 * 60 * 24 * 30))) : 18;
 
@@ -161,7 +159,7 @@ export default async function CrmHome() {
     const ms = new Date(c.createdAt || c.updatedAt).getTime();
     return Number.isFinite(ms) && ms >= oneWeekAgo;
   });
-  const weeklyNewDealsRecords = (store.deals || []).filter((d) => {
+  const newDealsThisWeek = (store.deals || []).filter((d) => {
     const ms = new Date(d.createdAt || d.updatedAt).getTime();
     return Number.isFinite(ms) && ms >= oneWeekAgo;
   });
@@ -171,12 +169,12 @@ export default async function CrmHome() {
       key: "weekly-activities",
       label: "Activities (weekly)",
       value: weeklyActivitiesRecords.length,
-      target: "20",
-      ok: weeklyActivitiesRecords.length >= 20,
+      target: "12",
+      ok: weeklyActivitiesRecords.length >= 12,
       records: weeklyActivitiesRecords.map((a) => ({
-        id: `activity-${a.id}`,
-        name: contactMap.get(a.contactId || "") || a.note || "Activity",
-        status: a.type || "activity",
+        id: a.id,
+        name: a.summary || a.type || "Activity",
+        status: `${a.type || "Activity"} • ${a.occurredAt ? new Date(a.occurredAt).toLocaleDateString() : "Undated"}`,
       })),
     },
     {
@@ -193,12 +191,12 @@ export default async function CrmHome() {
     },
     {
       key: "weekly-deals",
-      label: "New deals created (weekly)",
-      value: weeklyNewDealsRecords.length,
+      label: "New deals (weekly)",
+      value: newDealsThisWeek.length,
       target: "1",
-      ok: weeklyNewDealsRecords.length >= 1,
-      records: weeklyNewDealsRecords.map((d) => ({
-        id: `deal-${d.id}`,
+      ok: newDealsThisWeek.length >= 1,
+      records: newDealsThisWeek.map((d) => ({
+        id: d.id,
         name: d.name || "Untitled deal",
         status: d.stage || "—",
       })),
@@ -217,7 +215,6 @@ export default async function CrmHome() {
     const ms = new Date(d.createdAt || d.updatedAt).getTime();
     return Number.isFinite(ms) && ms >= quarterStartMs && !["Launch paid (won)", "Lost"].includes(d.stage || "");
   });
-
 
   const quarterlyPipelineValue = quarterlyPipelineRecords.reduce((sum, d) => sum + Number(d.value || 0), 0);
   const quarterlyItems = [
@@ -276,50 +273,13 @@ export default async function CrmHome() {
       </section>
 
       <section className="crm-card p-4">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="inline-flex items-center gap-2 text-lg font-semibold"><Crosshair size={18} /> Revenue Targets</h2>
-          <Link href="/crm/settings" className="rounded border border-neutral-700 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-neutral-500">
-            Change targets
-          </Link>
+        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CheckSquare size={18} /> KPI Scoreboard</h2>
+        <div>
+          <h3 className="mb-2 text-sm font-semibold text-slate-300">Weekly</h3>
+          <KpiScoreboard items={kpiItems} />
         </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Active clients</p>
-            <p className="text-2xl font-bold">{activeClients} <span className="text-sm text-slate-400">/ {requiredClients}</span></p>
-          </div>
-          <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Annualized coaching revenue</p>
-            <p className="text-2xl font-bold">${annualizedRevenue.toLocaleString()} <span className="text-sm text-slate-400">/ ${Math.round(targets.revenueGoalAnnual / 1000)}k</span></p>
-          </div>
-          <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Pipeline potentials</p>
-            <p className="text-2xl font-bold">{potentialClients} <span className="text-sm text-slate-400">/ 2+</span></p>
-          </div>
-          <div className="rounded-lg border border-neutral-800 p-3">
-            <p className="text-xs text-slate-400">Warm intros booked (YTD)</p>
-            <p className="text-2xl font-bold">{warmIntrosYtd} <span className="text-sm text-slate-400">/ {annualWarmIntroTarget}</span></p>
-          </div>
-        </div>
-
-        <div className="mt-3 grid gap-3 md:grid-cols-2">
-          <div className={`rounded-lg border p-3 ${reducedHoursReady ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}>
-            <p className="text-sm font-semibold">Trigger 1 — Reduced Hours</p>
-            <p className="text-xs text-slate-300 mt-1">Needs: {Math.max(4, Math.ceil(requiredClients * 0.6))} active clients + ~${Math.round((targets.revenueGoalAnnual * 0.67) / 1000)}k annualized.</p>
-            <p className="mt-1 text-sm">Status: <span className="font-semibold">{reducedHoursReady ? "Ready" : "Not yet"}</span></p>
-          </div>
-          <div className={`rounded-lg border p-3 ${fullExitReady ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}>
-            <p className="text-sm font-semibold">Trigger 2 — Full Exit</p>
-            <p className="text-xs text-slate-300 mt-1">Needs: {requiredClients} clients + ${Math.round(targets.revenueGoalAnnual / 1000)}k recurring + 2+ potentials.</p>
-            <p className="mt-1 text-sm">Status: <span className="font-semibold">{fullExitReady ? "Ready" : "Not yet"}</span></p>
-          </div>
-        </div>
-      </section>
-
-      <section className="crm-card p-4">
-        <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><CheckSquare size={18} /> Weekly KPI Scoreboard</h2>
-        <KpiScoreboard items={kpiItems} />
         <div className="mt-4">
-          <h3 className="mb-2 text-sm font-semibold text-slate-300">Quarterly KPIs</h3>
+          <h3 className="mb-2 text-sm font-semibold text-slate-300">Quarterly</h3>
           <KpiScoreboard items={quarterlyItems} />
         </div>
       </section>
@@ -345,8 +305,9 @@ export default async function CrmHome() {
 
       <section>
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Funnel size={18} /> Funnel</h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card icon={<Users size={16} />} label="People" value={store.contacts.length} href="/crm/connectors" />
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card icon={<Users size={16} />} label="Connectors" value={connectorPeople.length} href="/crm/connectors" />
+          <Card icon={<Users size={16} />} label="Leads" value={leadPeople.length} href="/crm/leads" />
           <Card icon={<BriefcaseBusiness size={16} />} label="Open Deals" value={openDeals.length} href="/crm/deals" />
           <Card icon={<Handshake size={16} />} label="Active Clients" value={activeClients} href="/crm/clients" />
         </div>
@@ -387,12 +348,52 @@ export default async function CrmHome() {
       <Link href="/crm/deals" className="crm-card block p-4 hover:-translate-y-0.5">
         <h2 className="mb-3 inline-flex items-center gap-2 text-lg font-semibold"><Percent size={18} /> Conversion rates</h2>
         <ul className="space-y-2 text-sm">
-                    <li className="flex items-center justify-between"><span>Activated Connector → Intro Delivered</span><span className="font-semibold">{conversion.activatedToIntroDelivered}%</span></li>
+          <li className="flex items-center justify-between"><span>Activated Connector → Intro Delivered</span><span className="font-semibold">{conversion.activatedToIntroDelivered}%</span></li>
           <li className="flex items-center justify-between"><span>Lead → Warm Intro</span><span className="font-semibold">{conversion.leadToWarmIntro}%</span></li>
           <li className="flex items-center justify-between"><span>Warm Intro → Discovery</span><span className="font-semibold">{conversion.warmIntroToDiscovery}%</span></li>
           <li className="flex items-center justify-between"><span>Discovery → Launch</span><span className="font-semibold">{conversion.discoveryToLaunch}%</span></li>
         </ul>
       </Link>
+
+      <section className="crm-card p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="inline-flex items-center gap-2 text-lg font-semibold"><Crosshair size={18} /> Revenue Targets</h2>
+          <Link href="/crm/settings" className="rounded border border-neutral-700 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-neutral-500">
+            Change targets
+          </Link>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-lg border border-neutral-800 p-3">
+            <p className="text-xs text-slate-400">Active clients</p>
+            <p className="text-2xl font-bold">{activeClients} <span className="text-sm text-slate-400">/ {requiredClients}</span></p>
+          </div>
+          <div className="rounded-lg border border-neutral-800 p-3">
+            <p className="text-xs text-slate-400">Annualized coaching revenue</p>
+            <p className="text-2xl font-bold">${annualizedRevenue.toLocaleString()} <span className="text-sm text-slate-400">/ ${Math.round(targets.revenueGoalAnnual / 1000)}k</span></p>
+          </div>
+          <div className="rounded-lg border border-neutral-800 p-3">
+            <p className="text-xs text-slate-400">Pipeline potentials</p>
+            <p className="text-2xl font-bold">{potentialClients} <span className="text-sm text-slate-400">/ 2+</span></p>
+          </div>
+          <div className="rounded-lg border border-neutral-800 p-3">
+            <p className="text-xs text-slate-400">Warm intros booked (YTD)</p>
+            <p className="text-2xl font-bold">{warmIntrosYtd} <span className="text-sm text-slate-400">/ {annualWarmIntroTarget}</span></p>
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <div className={`rounded-lg border p-3 ${reducedHoursReady ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}>
+            <p className="text-sm font-semibold inline-flex items-center gap-2"><Medal size={16} /> Trigger 1 — Reduced Hours</p>
+            <p className="text-xs text-slate-300 mt-1">Needs: {Math.max(4, Math.ceil(requiredClients * 0.6))} active clients + ~${Math.round((targets.revenueGoalAnnual * 0.67) / 1000)}k annualized.</p>
+            <p className="mt-1 text-sm">Status: <span className="font-semibold">{reducedHoursReady ? "Ready" : "Not yet"}</span></p>
+          </div>
+          <div className={`rounded-lg border p-3 ${fullExitReady ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}>
+            <p className="text-sm font-semibold inline-flex items-center gap-2"><Trophy size={16} /> Trigger 2 — Full Exit</p>
+            <p className="text-xs text-slate-300 mt-1">Needs: {requiredClients} clients + ${Math.round(targets.revenueGoalAnnual / 1000)}k recurring + 2+ potentials.</p>
+            <p className="mt-1 text-sm">Status: <span className="font-semibold">{fullExitReady ? "Ready" : "Not yet"}</span></p>
+          </div>
+        </div>
+      </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <Link href="/crm/clients" className="crm-card block p-4 hover:-translate-y-0.5">
