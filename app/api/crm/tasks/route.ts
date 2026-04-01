@@ -152,6 +152,6 @@ export async function DELETE(req: Request) {
   const id = searchParams.get("id");
   const store = await getStore(accountId);
   store.tasks = store.tasks.filter((t) => t.id !== id);
-  await saveStore(store);
+  await saveStore(store, accountId);
   return NextResponse.json({ ok: true });
 }

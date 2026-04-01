@@ -197,6 +197,24 @@ function mapDealStage(stage?: string) {
   return stage;
 }
 
+function pruneOrphanRelations(store: CrmStore): CrmStore {
+  const contactIds = new Set((store.contacts || []).map((c) => c.id));
+  const dealIds = new Set((store.deals || []).map((d) => d.id));
+
+  const tasks = (store.tasks || []).filter((t) => {
+    if (t.relatedType === "deal") return Boolean(t.relatedId) && dealIds.has(String(t.relatedId));
+    return Boolean(t.relatedId) && contactIds.has(String(t.relatedId)) && (!t.followUpForContactId || contactIds.has(String(t.followUpForContactId)));
+  });
+
+  const activities = (store.activities || []).filter((a) => Boolean(a.contactId) && contactIds.has(String(a.contactId)));
+
+  return {
+    ...store,
+    tasks,
+    activities,
+  };
+}
+
 const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], strengthTests: [], gmail: { messages: [] }, targets: defaultTargets, targetsHistory: [] };
 
 export const DEAL_STAGE_WEIGHTS: Record<string, number> = {
@@ -275,7 +293,7 @@ function normalizeStore(store: CrmStore): CrmStore {
     convDiscoveryToLaunch: Number(targetsRaw.convDiscoveryToLaunch ?? targetsRaw.convDiscoveryToWon ?? defaultTargets.convDiscoveryToLaunch),
   };
 
-  return {
+  return pruneOrphanRelations({
     ...store,
     contacts,
     deals,
@@ -284,7 +302,7 @@ function normalizeStore(store: CrmStore): CrmStore {
     strengthTests,
     targets,
     targetsHistory: Array.isArray(store.targetsHistory) ? store.targetsHistory : [],
-  };
+  });
 }
 
 async function ensureSchema() {
