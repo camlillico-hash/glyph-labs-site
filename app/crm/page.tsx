@@ -7,7 +7,7 @@ export const metadata = {
 import Link from "next/link";
 import { getStore, now, CONTACT_PIPELINES, CONNECTOR_STAGES, ICP_STAGES, DEAL_STAGES } from "@/lib/crm-store";
 import { computeCoachMood } from "@/lib/coach-mood";
-import { Activity, BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3, Medal } from "lucide-react";
+import { BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3, Medal } from "lucide-react";
 import KpiScoreboard from "./KpiScoreboard";
 
 export default async function CrmHome() {
@@ -263,9 +263,8 @@ export default async function CrmHome() {
         <p className="mt-2 text-slate-400">Your numbers, your mission, your next move.</p>
       </div>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        <Card icon={<Activity size={16} />} label="Activities this week" value={activitiesThisWeek.length} href="/crm/activities" />
-        <Link href="/crm/activities" className="crm-card block p-4 hover:-translate-y-0.5 lg:col-span-2">
+      <section>
+        <Link href="/crm/activities" className="crm-card block p-4 hover:-translate-y-0.5">
           <p className="text-sm font-semibold text-slate-300 inline-flex items-center gap-1.5">Status report from <span className={`${glyphMood.nameColor} inline-flex items-center gap-1`}>Sgt. Glyph <GlyphMoodIcon size={14} /></span></p>
           <p className={`mt-2 text-sm font-semibold ${glyphMood.color}`}>{glyphMood.statusLabel}</p>
           <p className="mt-1 text-slate-100">{glyphMood.text}</p>
