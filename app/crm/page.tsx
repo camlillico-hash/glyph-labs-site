@@ -5,7 +5,7 @@ export const metadata = {
 };
 
 import Link from "next/link";
-import { getStore, now, CONTACT_PIPELINES, CONNECTOR_STAGES, ICP_STAGES, DEAL_STAGES } from "@/lib/crm-store";
+import { getStore, now, CONTACT_PIPELINES, CONNECTOR_STAGES, ICP_STAGES, DEAL_STAGES, normalizeTransitionTargets } from "@/lib/crm-store";
 import { computeCoachMood } from "@/lib/coach-mood";
 import { BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3, Medal } from "lucide-react";
 import KpiScoreboard from "./KpiScoreboard";
@@ -118,16 +118,7 @@ export default async function CrmHome() {
     discoveryToLaunch: discoveryCount > 0 ? Math.round((wonCount / discoveryCount) * 100) : 0,
   };
 
-  const targets = {
-    revenueGoalAnnual: 160000,
-    avgRevenuePerClientAnnual: 25000,
-    targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
-    convActivatedToIntroDelivered: 40,
-    convIntroDeliveredToWarmIntroBooked: 50,
-    convWarmIntroBookedToWon: 50,
-    convDiscoveryToLaunch: 50,
-    ...(store.targets || {}),
-  };
+  const targets = normalizeTransitionTargets(store.targets || {});
 
   const potentialClients = openDeals.filter((d) => Number(d.probability || 0) >= 50).length;
   const annualizedRevenue = wonDeals.reduce((sum, d) => sum + Number(d.value || 0), 0);
@@ -136,8 +127,8 @@ export default async function CrmHome() {
   const monthsRemaining = Number.isFinite(targetDateMs) ? Math.max(1, Math.ceil((targetDateMs - Date.now()) / (1000 * 60 * 60 * 24 * 30))) : 18;
 
   const discoveryToLaunchRate = Math.max(0.01, (targets.convDiscoveryToLaunch || 0) / 100);
-  const warmIntroToDiscoveryRate = Math.max(0.01, (targets.convWarmIntroBookedToWon || 0) / 100);
-  const leadToWarmIntroRate = Math.max(0.01, (targets.convIntroDeliveredToWarmIntroBooked || 0) / 100);
+  const warmIntroToDiscoveryRate = Math.max(0.01, (targets.convWarmIntroToDiscovery || 0) / 100);
+  const leadToWarmIntroRate = Math.max(0.01, (targets.convLeadToWarmIntro || 0) / 100);
 
   const requiredDiscoveries = Math.ceil(requiredClients / discoveryToLaunchRate);
   const requiredWarmIntros = Math.ceil(requiredDiscoveries / warmIntroToDiscoveryRate);
@@ -440,8 +431,8 @@ export default async function CrmHome() {
               To reach {requiredClients} clients by {targetDateLabel}, you need {requiredDiscoveries} 90-min discoveries, which means {requiredWarmIntros} warm intros, which means {requiredLeads} leads based on your saved conversion rates.
             </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-4 text-sm text-slate-300">
-              <div className="rounded border border-neutral-800 px-3 py-2">Lead → Warm Intro <span className="float-right font-semibold">{targets.convIntroDeliveredToWarmIntroBooked}%</span></div>
-              <div className="rounded border border-neutral-800 px-3 py-2">Warm Intro → Discovery <span className="float-right font-semibold">{targets.convWarmIntroBookedToWon}%</span></div>
+              <div className="rounded border border-neutral-800 px-3 py-2">Lead → Warm Intro <span className="float-right font-semibold">{targets.convLeadToWarmIntro}%</span></div>
+              <div className="rounded border border-neutral-800 px-3 py-2">Warm Intro → Discovery <span className="float-right font-semibold">{targets.convWarmIntroToDiscovery}%</span></div>
               <div className="rounded border border-neutral-800 px-3 py-2">Discovery → Launch <span className="float-right font-semibold">{targets.convDiscoveryToLaunch}%</span></div>
               <div className="rounded border border-neutral-800 px-3 py-2">Avg annual/client <span className="float-right font-semibold">${targets.avgRevenuePerClientAnnual.toLocaleString()}</span></div>
             </div>

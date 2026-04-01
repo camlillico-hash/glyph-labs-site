@@ -87,9 +87,9 @@ export type TransitionTargets = {
   revenueGoalAnnual: number;
   avgRevenuePerClientAnnual: number;
   targetDate: string;
-  convActivatedToIntroDelivered: number;
-  convIntroDeliveredToWarmIntroBooked: number;
-  convWarmIntroBookedToWon: number;
+  convConnectorActivatedToIntroDelivered: number;
+  convLeadToWarmIntro: number;
+  convWarmIntroToDiscovery: number;
   convDiscoveryToLaunch: number;
 };
 
@@ -128,11 +128,24 @@ export const defaultTargets: TransitionTargets = {
   revenueGoalAnnual: 160000,
   avgRevenuePerClientAnnual: 25000,
   targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
-  convActivatedToIntroDelivered: 40,
-  convIntroDeliveredToWarmIntroBooked: 50,
-  convWarmIntroBookedToWon: 50,
+  convConnectorActivatedToIntroDelivered: 40,
+  convLeadToWarmIntro: 50,
+  convWarmIntroToDiscovery: 50,
   convDiscoveryToLaunch: 50,
 };
+
+export function normalizeTransitionTargets(raw?: Partial<TransitionTargets> & Record<string, any>): TransitionTargets {
+  const source = raw || {};
+  return {
+    revenueGoalAnnual: Number(source.revenueGoalAnnual ?? defaultTargets.revenueGoalAnnual) || defaultTargets.revenueGoalAnnual,
+    avgRevenuePerClientAnnual: Number(source.avgRevenuePerClientAnnual ?? defaultTargets.avgRevenuePerClientAnnual) || defaultTargets.avgRevenuePerClientAnnual,
+    targetDate: typeof source.targetDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(source.targetDate) ? source.targetDate : defaultTargets.targetDate,
+    convConnectorActivatedToIntroDelivered: Math.max(0, Math.min(100, Number(source.convConnectorActivatedToIntroDelivered ?? source.convActivatedToIntroDelivered ?? defaultTargets.convConnectorActivatedToIntroDelivered) || 0)),
+    convLeadToWarmIntro: Math.max(0, Math.min(100, Number(source.convLeadToWarmIntro ?? source.convIntroDeliveredToWarmIntroBooked ?? defaultTargets.convLeadToWarmIntro) || 0)),
+    convWarmIntroToDiscovery: Math.max(0, Math.min(100, Number(source.convWarmIntroToDiscovery ?? source.convWarmIntroBookedToWon ?? defaultTargets.convWarmIntroToDiscovery) || 0)),
+    convDiscoveryToLaunch: Math.max(0, Math.min(100, Number(source.convDiscoveryToLaunch ?? defaultTargets.convDiscoveryToLaunch) || 0)),
+  };
+}
 
 function normalizeLeadSource(value?: string) {
   const v = String(value || "").trim();
@@ -283,15 +296,7 @@ function normalizeStore(store: CrmStore): CrmStore {
   });
 
   const targetsRaw: any = { ...defaultTargets, ...(store.targets || {}) };
-  const targets = {
-    revenueGoalAnnual: Number(targetsRaw.revenueGoalAnnual || defaultTargets.revenueGoalAnnual),
-    avgRevenuePerClientAnnual: Number(targetsRaw.avgRevenuePerClientAnnual || defaultTargets.avgRevenuePerClientAnnual),
-    targetDate: String(targetsRaw.targetDate || defaultTargets.targetDate),
-    convActivatedToIntroDelivered: Number(targetsRaw.convActivatedToIntroDelivered ?? targetsRaw.convWarmToIntro ?? defaultTargets.convActivatedToIntroDelivered),
-    convIntroDeliveredToWarmIntroBooked: Number(targetsRaw.convIntroDeliveredToWarmIntroBooked ?? targetsRaw.convLeadToWarmIntro ?? defaultTargets.convIntroDeliveredToWarmIntroBooked),
-    convWarmIntroBookedToWon: Number(targetsRaw.convWarmIntroBookedToWon ?? targetsRaw.convIntroToDiscovery ?? defaultTargets.convWarmIntroBookedToWon),
-    convDiscoveryToLaunch: Number(targetsRaw.convDiscoveryToLaunch ?? targetsRaw.convDiscoveryToWon ?? defaultTargets.convDiscoveryToLaunch),
-  };
+  const targets = normalizeTransitionTargets(targetsRaw);
 
   return pruneOrphanRelations({
     ...store,

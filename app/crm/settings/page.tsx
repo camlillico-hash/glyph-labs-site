@@ -1,4 +1,4 @@
-import { getStore, storageMode } from "@/lib/crm-store";
+import { getStore, normalizeTransitionTargets, storageMode } from "@/lib/crm-store";
 import { gmailReady } from "@/lib/gmail";
 import { Settings, Mail, Database } from "lucide-react";
 
@@ -42,16 +42,7 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
   const store = await getStore(accountId);
   const ready = gmailReady();
   const mode = storageMode();
-  const targets = {
-    revenueGoalAnnual: 160000,
-    avgRevenuePerClientAnnual: 25000,
-    targetDate: new Date(new Date().setMonth(new Date().getMonth() + 18)).toISOString().slice(0, 10),
-    convActivatedToIntroDelivered: 40,
-    convIntroDeliveredToWarmIntroBooked: 50,
-    convWarmIntroBookedToWon: 50,
-    convDiscoveryToLaunch: 50,
-    ...(store.targets || {}),
-  };
+  const targets = normalizeTransitionTargets(store.targets || {});
   const targetsHistory = Array.isArray(store.targetsHistory) ? store.targetsHistory : [];
 
   return (
@@ -98,9 +89,9 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
           <Field label="Average revenue per client (annual CAD)" name="avgRevenuePerClientAnnual" value={targets.avgRevenuePerClientAnnual} prefix="$" />
           <DateField label="Target date" name="targetDate" value={targets.targetDate} />
 
-          <Field label="Activated connector → Intro delivered conversion" name="convActivatedToIntroDelivered" value={targets.convActivatedToIntroDelivered} suffix="%" />
-          <Field label="Lead → Warm Intro conversion" name="convIntroDeliveredToWarmIntroBooked" value={targets.convIntroDeliveredToWarmIntroBooked} suffix="%" />
-          <Field label="Warm Intro → Discovery conversion" name="convWarmIntroBookedToWon" value={targets.convWarmIntroBookedToWon} suffix="%" />
+          <Field label="Activated connector → Intro delivered conversion" name="convConnectorActivatedToIntroDelivered" value={targets.convConnectorActivatedToIntroDelivered} suffix="%" />
+          <Field label="Lead → Warm Intro conversion" name="convLeadToWarmIntro" value={targets.convLeadToWarmIntro} suffix="%" />
+          <Field label="Warm Intro → Discovery conversion" name="convWarmIntroToDiscovery" value={targets.convWarmIntroToDiscovery} suffix="%" />
           <Field label="Discovery → Launch conversion" name="convDiscoveryToLaunch" value={targets.convDiscoveryToLaunch} suffix="%" />
 
           <div className="md:col-span-2">

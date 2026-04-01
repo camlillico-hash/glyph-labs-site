@@ -1,21 +1,27 @@
 import { NextResponse } from "next/server";
-import { defaultTargets, getStore, saveStore } from "@/lib/crm-store";
+import { defaultTargets, getStore, normalizeTransitionTargets, saveStore } from "@/lib/crm-store";
 import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 const numericKeys = [
   "revenueGoalAnnual",
   "avgRevenuePerClientAnnual",
-  "convActivatedToIntroDelivered",
-  "convIntroDeliveredToWarmIntroBooked",
-  "convWarmIntroBookedToWon",
+  "convConnectorActivatedToIntroDelivered",
+  "convLeadToWarmIntro",
+  "convWarmIntroToDiscovery",
   "convDiscoveryToLaunch",
 ] as const;
+
+const legacyKeyMap: Record<string, string> = {
+  convActivatedToIntroDelivered: "convConnectorActivatedToIntroDelivered",
+  convIntroDeliveredToWarmIntroBooked: "convLeadToWarmIntro",
+  convWarmIntroBookedToWon: "convWarmIntroToDiscovery",
+};
 
 export async function GET() {
   const accountId = await resolveActiveAccountId();
   const store = await getStore(accountId);
   return NextResponse.json({
-    targets: { ...defaultTargets, ...(store.targets || {}) },
+    targets: normalizeTransitionTargets({ ...defaultTargets, ...(store.targets || {}) }),
     targetsHistory: store.targetsHistory || [],
   });
 }
@@ -25,7 +31,7 @@ export async function POST(req: Request) {
   try {
     const form = await req.formData();
     const store = await getStore(accountId);
-    const previous = { ...defaultTargets, ...(store.targets || {}) } as Record<string, any>;
+    const previous = normalizeTransitionTargets({ ...defaultTargets, ...(store.targets || {}) }) as Record<string, any>;
     const next = { ...previous } as Record<string, any>;
 
     for (const key of numericKeys) {
@@ -34,24 +40,27 @@ export async function POST(req: Request) {
       if (Number.isFinite(parsed) && parsed >= 0) next[key] = parsed;
     }
 
+    for (const [legacyKey, nextKey] of Object.entries(legacyKeyMap)) {
+      if (form.has(nextKey)) continue;
+      const raw = String(form.get(legacyKey) ?? "").trim();
+      const parsed = Number(raw);
+      if (Number.isFinite(parsed) && parsed >= 0) next[nextKey] = parsed;
+    }
+
     const targetDateRaw = String(form.get("targetDate") ?? "").trim();
     if (/^\d{4}-\d{2}-\d{2}$/.test(targetDateRaw)) next.targetDate = targetDateRaw;
 
-    // Clamp conversion rates to 0..100
-    for (const key of ["convActivatedToIntroDelivered", "convIntroDeliveredToWarmIntroBooked", "convWarmIntroBookedToWon", "convDiscoveryToLaunch"]) {
-      next[key] = Math.max(0, Math.min(100, Number(next[key] || 0)));
-    }
+    const normalizedNext = normalizeTransitionTargets(next) as Record<string, any>;
+    const changedFields = Object.keys(normalizedNext).filter((k) => String(previous[k]) !== String(normalizedNext[k]));
 
-    const changedFields = Object.keys(next).filter((k) => String(previous[k]) !== String(next[k]));
-
-    store.targets = next as any;
+    store.targets = normalizedNext as any;
     if (changedFields.length > 0) {
       const history = Array.isArray(store.targetsHistory) ? store.targetsHistory : [];
       history.unshift({
         changedAt: new Date().toISOString(),
         changedFields,
         before: Object.fromEntries(changedFields.map((k) => [k, previous[k]])),
-        after: Object.fromEntries(changedFields.map((k) => [k, next[k]])),
+        after: Object.fromEntries(changedFields.map((k) => [k, normalizedNext[k]])),
       });
       store.targetsHistory = history.slice(0, 50);
     }
