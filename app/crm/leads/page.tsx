@@ -102,6 +102,20 @@ export default function LeadsPage() {
   };
   useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    if (!selected?.id) return;
+    const fresh = items.find((c) => c.id === selected.id);
+    if (!fresh) {
+      setSelected(null);
+      setDraft(null);
+      setEditMode(false);
+      setCreateMode(false);
+      return;
+    }
+    setSelected(fresh);
+    if (!editMode) setDraft({ ...fresh });
+  }, [items, selected?.id, editMode]);
+
   const icpItems = useMemo(() => items.filter((c) => (c.pipelineType || "connector") === "icp"), [items]);
   const icpOpenItems = useMemo(() => icpItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden), [icpItems]);
   const convertedItems = useMemo(() => icpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden), [icpItems]);

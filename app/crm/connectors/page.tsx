@@ -102,6 +102,20 @@ export default function ConnectorsPage() {
   };
   useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    if (!selected?.id) return;
+    const fresh = items.find((c) => c.id === selected.id);
+    if (!fresh) {
+      setSelected(null);
+      setDraft(null);
+      setEditMode(false);
+      setCreateMode(false);
+      return;
+    }
+    setSelected(fresh);
+    if (!editMode) setDraft({ ...fresh });
+  }, [items, selected?.id, editMode]);
+
   const connectorItems = useMemo(() => items.filter((c) => (c.pipelineType || "connector") === "connector"), [items]);
   const leadItems = useMemo(() => items.filter((c) => (c.pipelineType || "connector") === "icp"), [items]);
   const connectorOpenItems = useMemo(() => connectorItems.filter((c) => !["Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "Identified") || !c.openBoardHidden), [connectorItems]);
