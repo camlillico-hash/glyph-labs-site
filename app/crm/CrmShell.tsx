@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ThemeProvider } from "../theme-provider";
 import Nav from "./Nav";
 import CoachWidget from "./CoachWidget";
+import PullToRefresh from "./PullToRefresh";
 
 function CrmLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -39,6 +40,7 @@ function CrmLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <main className="crm-shell flex min-h-screen flex-col text-slate-100">
+      {!isLogin && <PullToRefresh />}
       {!isLogin && (
         <header className="border-b border-neutral-800/80 bg-neutral-900/75 backdrop-blur">
           <div className="mx-auto flex max-w-7xl items-start justify-between px-6 pt-3 pb-2">
