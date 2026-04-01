@@ -443,19 +443,19 @@ async function saveStorePg(store: CrmStore, accountId?: string) {
       await client.query("insert into crm_activities (id, account_id, data, updated_at, occurred_at) values ($1,$2,$3,now(),$4)", [a.id, accountId, a, a.occurredAt || null]);
     }
     await client.query(
-      "insert into crm_meta (key, account_id, data, updated_at) values ('gmail',$1,$2::jsonb,now()) on conflict (key,account_id) do update set data=excluded.data, updated_at=now()",
+      "insert into crm_meta (key, account_id, data, updated_at) values ('gmail',$1,$2::jsonb,now())",
       [accountId, JSON.stringify(store.gmail)]
     );
     await client.query(
-      "insert into crm_meta (key, account_id, data, updated_at) values ('targets',$1,$2::jsonb,now()) on conflict (key,account_id) do update set data=excluded.data, updated_at=now()",
+      "insert into crm_meta (key, account_id, data, updated_at) values ('targets',$1,$2::jsonb,now())",
       [accountId, JSON.stringify(store.targets || defaultTargets)]
     );
     await client.query(
-      "insert into crm_meta (key, account_id, data, updated_at) values ('targets_history',$1,$2::jsonb,now()) on conflict (key,account_id) do update set data=excluded.data, updated_at=now()",
+      "insert into crm_meta (key, account_id, data, updated_at) values ('targets_history',$1,$2::jsonb,now())",
       [accountId, JSON.stringify(store.targetsHistory || [])]
     );
     await client.query(
-      "insert into crm_meta (key, account_id, data, updated_at) values ('strength_tests',$1,$2::jsonb,now()) on conflict (key,account_id) do update set data=excluded.data, updated_at=now()",
+      "insert into crm_meta (key, account_id, data, updated_at) values ('strength_tests',$1,$2::jsonb,now())",
       [accountId, JSON.stringify(store.strengthTests || [])]
     );
     await client.query("commit");
