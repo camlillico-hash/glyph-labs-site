@@ -121,7 +121,7 @@ function parseRow(r: any) {
   const primaryPain = norm(r.primaryPain || r["Primary pain"] || r["Primary Pain"]);
 
   return {
-    contactId: firstNonEmpty(r, ["contactId", "Contact ID", "ContactId"]),
+    contactId: firstNonEmpty(r, ["contactId", "Contact ID", "ContactId", "ContactID", "contact_id", "contact id"]),
     firstName,
     lastName,
     email: firstNonEmpty(r, ["email", "Email", "Email Address"]),
