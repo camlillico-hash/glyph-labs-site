@@ -49,6 +49,8 @@ const activityTypeIcon = (v?: string) => {
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Connector";
+const TABLE_MAX_HEIGHT_CLASS = "max-h-[920px] overflow-y-auto";
+const BOARD_LANE_MAX_HEIGHT_CLASS = "max-h-[740px] overflow-y-auto pr-1";
 
 export default function ConnectorsPage() {
   const [items, setItems] = useState<Contact[]>([]);
@@ -77,9 +79,9 @@ export default function ConnectorsPage() {
   const [importResult, setImportResult] = useState<any>(null);
   const [importError, setImportError] = useState("");
   const [showOpenContacts, setShowOpenContacts] = useState(true);
-  const [showConverted, setShowConverted] = useState(true);
-  const [showClients, setShowClients] = useState(true);
-  const [showDisqualified, setShowDisqualified] = useState(true);
+  const [showConverted, setShowConverted] = useState(false);
+  const [showClients, setShowClients] = useState(false);
+  const [showDisqualified, setShowDisqualified] = useState(false);
   const [showDetailSection, setShowDetailSection] = useState(true);
   const [showActivitiesSection, setShowActivitiesSection] = useState(true);
   const [showDealsSection, setShowDealsSection] = useState(true);
@@ -401,7 +403,7 @@ export default function ConnectorsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Users size={20} /> Connectors</h1>
+        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Users size={20} /> Connectors ({connectorItems.length})</h1>
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-lg border border-sky-600 bg-sky-900/40 px-3 py-2 font-semibold text-sky-100 hover:bg-sky-800/70" onClick={() => openCreate("connector")}><Plus size={14} /> New</button>
                     <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
@@ -429,7 +431,7 @@ export default function ConnectorsPage() {
                             {laneContacts.length}
                           </span>
                         </h3>
-                        <div className="min-h-10">
+                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`}>
                           {laneContacts.map((c, idx) => {
                             const cardLaneKey = `${section.key}:${stage}`;
                             return (
@@ -486,7 +488,7 @@ export default function ConnectorsPage() {
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
             Open connectors ({connectorOpenItems.length})
           </button>
-          {showOpenContacts && renderContactsTable([...connectorOpenItems])}
+          {showOpenContacts && <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable([...connectorOpenItems])}</div>}
         </div>
       )}
 
@@ -497,7 +499,7 @@ export default function ConnectorsPage() {
             Converted to deals ({convertedItems.length})
           </button>
           {showConverted && (
-            convertedItems.length > 0 ? renderContactsTable(convertedItems) : (
+            convertedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(convertedItems)}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No leads have converted to deals yet.</div>
             )
           )}
@@ -509,7 +511,7 @@ export default function ConnectorsPage() {
             Clients ({clientItems.length})
           </button>
           {showClients && (
-            clientItems.length > 0 ? renderContactsTable(clientItems) : (
+            clientItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(clientItems)}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client contacts yet.</div>
             )
           )}
@@ -521,7 +523,7 @@ export default function ConnectorsPage() {
             Nurture / closed lost ({disqualifiedItems.length})
           </button>
           {showDisqualified && (
-            disqualifiedItems.length > 0 ? renderContactsTable(disqualifiedItems) : (
+            disqualifiedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(disqualifiedItems)}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No archived nurture or lost contacts.</div>
             )
           )}

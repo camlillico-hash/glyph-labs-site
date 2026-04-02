@@ -49,6 +49,8 @@ const activityTypeIcon = (v?: string) => {
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Lead";
+const TABLE_MAX_HEIGHT_CLASS = "max-h-[920px] overflow-y-auto";
+const BOARD_LANE_MAX_HEIGHT_CLASS = "max-h-[740px] overflow-y-auto pr-1";
 
 export default function LeadsPage() {
   const [items, setItems] = useState<Contact[]>([]);
@@ -77,9 +79,9 @@ export default function LeadsPage() {
   const [importResult, setImportResult] = useState<any>(null);
   const [importError, setImportError] = useState("");
   const [showOpenContacts, setShowOpenContacts] = useState(true);
-  const [showConverted, setShowConverted] = useState(true);
-  const [showClients, setShowClients] = useState(true);
-  const [showDisqualified, setShowDisqualified] = useState(true);
+  const [showConverted, setShowConverted] = useState(false);
+  const [showClients, setShowClients] = useState(false);
+  const [showDisqualified, setShowDisqualified] = useState(false);
   const [showDetailSection, setShowDetailSection] = useState(true);
   const [showActivitiesSection, setShowActivitiesSection] = useState(true);
   const [showDealsSection, setShowDealsSection] = useState(true);
@@ -400,7 +402,7 @@ export default function LeadsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Target size={20} /> Leads</h1>
+        <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Target size={20} /> Leads ({icpItems.length})</h1>
         <div className="flex items-center gap-2">
                     <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New</button>
           <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
@@ -428,7 +430,7 @@ export default function LeadsPage() {
                             {laneContacts.length}
                           </span>
                         </h3>
-                        <div className="min-h-10">
+                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`}>
                           {laneContacts.map((c, idx) => {
                             const cardLaneKey = `${section.key}:${stage}`;
                             return (
@@ -485,7 +487,7 @@ export default function LeadsPage() {
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
             Open leads ({icpOpenItems.length})
           </button>
-          {showOpenContacts && renderContactsTable([...icpOpenItems])}
+          {showOpenContacts && <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable([...icpOpenItems])}</div>}
         </div>
       )}
 
@@ -496,7 +498,7 @@ export default function LeadsPage() {
             Converted to deals ({convertedItems.length})
           </button>
           {showConverted && (
-            convertedItems.length > 0 ? renderContactsTable(convertedItems) : (
+            convertedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(convertedItems)}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No leads have converted to deals yet.</div>
             )
           )}
@@ -508,7 +510,7 @@ export default function LeadsPage() {
             Clients ({clientItems.length})
           </button>
           {showClients && (
-            clientItems.length > 0 ? renderContactsTable(clientItems) : (
+            clientItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(clientItems)}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client leads yet.</div>
             )
           )}
@@ -520,7 +522,7 @@ export default function LeadsPage() {
             Nurture / closed lost ({disqualifiedItems.length})
           </button>
           {showDisqualified && (
-            disqualifiedItems.length > 0 ? renderContactsTable(disqualifiedItems) : (
+            disqualifiedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(disqualifiedItems)}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No archived nurture or lost contacts.</div>
             )
           )}
