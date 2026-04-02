@@ -6,8 +6,8 @@ import ConfirmDialog from "../ConfirmDialog";
 import Papa from "papaparse";
 
 type Contact = any;
-const CONNECTOR_STAGES = ["Identified", "Connected", "Positioned", "Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"];
-const ICP_STAGES = ["New", "Connected", "Warm intro booked", "Nurture", "Closed Lost"];
+const CONNECTOR_STAGES = ["Identified", "Attempting", "Connected", "Positioned", "Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"];
+const ICP_STAGES = ["New", "Attempting", "Connected", "Warm intro booked", "Nurture", "Closed Lost"];
 const CONTACT_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
 const PIPELINE_LABELS = {
   connector: "Connector",
@@ -19,12 +19,12 @@ const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"], ["lastName", "Last name", "text"], ["email", "Email", "email"],
   ["phone", "Phone", "text"],
-  ["linkedin", "LinkedIn", "text"], ["company", "Company", "text"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["strengthTest", "Strength Test", "select"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
+  ["linkedin", "LinkedIn", "text"], ["website", "Website", "text"], ["company", "Company", "text"], ["industry", "Industry", "text"], ["employeeSize", "Employee size", "text"], ["areaGeo", "Area/Geo", "text"], ["linkedinConnectRequest", "LinkedIn connect request", "textarea"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["strengthTest", "Strength Test", "select"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
 ];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 const stageColorClass = (stage: string) => {
   if (["Identified", "New"].includes(stage)) return "text-slate-300";
-  if (["Connected", "Positioned"].includes(stage)) return "text-sky-300";
+  if (["Attempting", "Connected", "Positioned"].includes(stage)) return "text-sky-300";
   if (["Activated", "Intro Pending", "Intro Delivered", "Warm intro booked"].includes(stage)) return "text-emerald-300";
   if (["Nurture", "Closed Lost"].includes(stage)) return "text-amber-300";
   return "text-slate-300";
@@ -569,8 +569,8 @@ export default function LeadsPage() {
                   }}
                 />
               </label>
-              <p className="mt-3 text-xs text-slate-500">CSV headers: firstName, lastName, email, phone, company, title, type, primaryPain, leadSource, pipelineType, status, notes.</p>
-              <p className="mt-1 text-xs text-slate-500">Tip: firstName + lastName are required. pipelineType accepts connector or icp. Legacy statuses like Attempting, Pipeline Seeding, Discovery meeting booked, and Not right now are auto-mapped.</p>
+              <p className="mt-3 text-xs text-slate-500">CSV headers accepted: Company, Website, Industry, Employee Size, First Name, Last Name, Title, Area/Geo, Linkedin Connect Request, LinkedIn Profile, Email Address, Source, Notes 1: Trigger, and Notes 2: Why Now?.</p>
+              <p className="mt-1 text-xs text-slate-500">All listed columns are now stored on the contact record. A single Contact column will still auto-split into first and last name, and if pipelineType is omitted, imports default to leads.</p>
             </div>
 
             {importError && <p className="mt-3 text-sm text-red-300">{importError}</p>}
@@ -636,7 +636,7 @@ export default function LeadsPage() {
                         <option value="">No</option>
                         <option value="Yes">Yes</option>
                       </select>
-                     ) : k === "seederNotes" ? (
+                     ) : k === "seederNotes" || type === "textarea" ? (
                       <textarea className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
                     ) : (
                       <input type={type === "select" ? "text" : type} className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: type === "number" ? Number(e.target.value || 0) : e.target.value })} />

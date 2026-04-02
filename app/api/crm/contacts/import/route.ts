@@ -4,6 +4,8 @@ import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 const ALLOWED_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
 const ALLOWED_PRIMARY_PAIN = ["Execution", "Strategy", "Culture"];
+const LINKEDIN_ACTIVITY_DATE = "2026-04-01";
+const LINKEDIN_ACTIVITY_NOTE = "Sent linkedin request";
 
 function norm(v: any) {
   const out = String(v ?? "").trim();
@@ -37,7 +39,6 @@ function normalizeStatus(v: any, pipelineType: "connector" | "icp") {
   if (!raw) return pipelineType === "connector" ? "Identified" : "New";
 
   const legacyMap: Record<string, string> = {
-    "Attempting": "Connected",
     "Pipeline Seeding": "Activated",
     "Pipeline Seeder": "Nurture",
     "Not right now": "Closed Lost",
@@ -46,6 +47,50 @@ function normalizeStatus(v: any, pipelineType: "connector" | "icp") {
   const mapped = legacyMap[raw] || raw;
   const allowed = pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
   return (allowed as readonly string[]).includes(mapped) ? mapped : (pipelineType === "connector" ? "Identified" : "New");
+}
+
+function firstNonEmpty(r: any, keys: string[]) {
+  for (const key of keys) {
+    const value = norm(r?.[key]);
+    if (value) return value;
+  }
+  return "";
+}
+
+function splitName(fullName: string) {
+  const value = norm(fullName);
+  if (!value) return { firstName: "", lastName: "" };
+  const parts = value.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return { firstName: parts[0], lastName: "" };
+  return {
+    firstName: parts.slice(0, -1).join(" "),
+    lastName: parts.slice(-1).join(""),
+  };
+}
+
+function deriveNames(r: any) {
+  const explicitFirst = firstNonEmpty(r, ["firstName", "First", "First name", "First Name", "first_name", "Given Name", "Given name"]);
+  const explicitLast = firstNonEmpty(r, ["lastName", "Last", "Last name", "Last Name", "last_name", "Surname", "Family Name", "Family name"]);
+  if (explicitFirst || explicitLast) {
+    return { firstName: explicitFirst, lastName: explicitLast };
+  }
+
+  const combined = firstNonEmpty(r, ["contact", "Contact", "Full Name", "fullName", "Name", "name"]);
+  return splitName(combined);
+}
+
+function buildNotes(r: any) {
+  const parts = [
+    firstNonEmpty(r, ["notes", "Notes"]),
+    firstNonEmpty(r, ["Notes 1: Trigger", "Trigger", "trigger"]),
+    firstNonEmpty(r, ["Notes 2: Why Now?", "Why Now", "whyNow", "why_now"]),
+  ].filter(Boolean);
+  return parts.join("\n\n");
+}
+
+function isYesValue(value: any) {
+  const normalized = norm(value).toLowerCase();
+  return ["y", "yes", "true", "1"].includes(normalized);
 }
 
 export async function POST(req: Request) {
@@ -62,9 +107,8 @@ export async function POST(req: Request) {
   const errors: Array<{ row: number; reason: string }> = [];
 
   rows.forEach((r: any, idx: number) => {
-    const firstName = norm(r.firstName || r.First || r["First name"] || r["first_name"]);
-    const lastName = norm(r.lastName || r.Last || r["Last name"] || r["last_name"]);
-    const email = norm(r.email || r.Email).toLowerCase();
+    const { firstName, lastName } = deriveNames(r);
+    const email = firstNonEmpty(r, ["email", "Email", "Email Address"]).toLowerCase();
     if (!firstName || !lastName) {
       skipped++; errors.push({ row: idx + 1, reason: "Missing firstName/lastName" }); return;
     }
@@ -74,29 +118,52 @@ export async function POST(req: Request) {
 
     const type = norm(r.type || r.Type);
     const primaryPain = norm(r.primaryPain || r["Primary pain"] || r["Primary Pain"]);
-    const pipelineType = normalizePipelineType(r.pipelineType || r["Pipeline type"] || r.pipeline || r.Pipeline);
+    const pipelineType = normalizePipelineType(r.pipelineType || r["Pipeline type"] || r.pipeline || r.Pipeline || "icp");
     const status = normalizeStatus(r.status || r["Lead Status"] || r.Stage || r.stage, pipelineType);
 
     const contact: any = {
       id: id(),
       firstName,
       lastName,
-      email: norm(r.email || r.Email),
-      phone: formatPhone(r.phone || r.Phone),
-      linkedin: norm(r.linkedin || r.Linkedin || r.LinkedIn || r["LinkedIn"] || r["linkedin_url"]),
-      company: norm(r.company || r.Company),
-      title: norm(r.title || r.Title),
+      email: firstNonEmpty(r, ["email", "Email", "Email Address"]),
+      phone: formatPhone(firstNonEmpty(r, ["phone", "Phone"])),
+      linkedin: firstNonEmpty(r, ["linkedin", "Linkedin", "LinkedIn", "LinkedIn", "linkedin_url", "LinkedIn Profile"]),
+      website: firstNonEmpty(r, ["website", "Website"]),
+      company: firstNonEmpty(r, ["company", "Company"]),
+      industry: firstNonEmpty(r, ["industry", "Industry"]),
+      employeeSize: firstNonEmpty(r, ["employeeSize", "Employee Size", "Employees"]),
+      areaGeo: firstNonEmpty(r, ["areaGeo", "Area/Geo", "Area", "Geo"]),
+      linkedinConnectRequest: firstNonEmpty(r, ["linkedinConnectRequest", "Linkedin Connect Request", "LinkedIn Connect Request"]),
+      title: firstNonEmpty(r, ["title", "Title"]),
       type: ALLOWED_TYPES.includes(type) ? type : "",
       pipelineType,
-      leadSource: norm(r.leadSource || r["Lead source"] || r["Lead Source"] || r.source),
+      leadSource: firstNonEmpty(r, ["leadSource", "Lead source", "Lead Source", "source", "Source"]),
       primaryPain: ALLOWED_PRIMARY_PAIN.includes(primaryPain) ? primaryPain : undefined,
       status,
-      notes: norm(r.notes || r.Notes),
+      notes: buildNotes(r),
       createdAt: now(),
       updatedAt: now(),
     };
 
     store.contacts.unshift(contact);
+    if (isYesValue(contact.linkedinConnectRequest)) {
+      const activity: any = {
+        id: id(),
+        contactId: contact.id,
+        type: "linkedin",
+        note: LINKEDIN_ACTIVITY_NOTE,
+        occurredAt: LINKEDIN_ACTIVITY_DATE,
+        createdAt: now(),
+        updatedAt: now(),
+      };
+      store.activities = [activity, ...((store.activities as any) || [])];
+      contact.lastActivityDate = activity.occurredAt;
+      contact.lastActivityType = activity.type;
+      if (contact.status === "New") {
+        contact.status = "Attempting";
+      }
+      contact.updatedAt = now();
+    }
     if (email) existingEmails.add(email);
     created++;
   });
