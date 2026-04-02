@@ -6,6 +6,26 @@ const ALLOWED_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
 const ALLOWED_PRIMARY_PAIN = ["Execution", "Strategy", "Culture"];
 const LINKEDIN_ACTIVITY_DATE = "2026-04-01";
 const LINKEDIN_ACTIVITY_NOTE = "Sent linkedin request";
+const FILLABLE_FIELDS = [
+  "firstName",
+  "lastName",
+  "email",
+  "phone",
+  "linkedin",
+  "website",
+  "company",
+  "industry",
+  "employeeSize",
+  "areaGeo",
+  "linkedinConnectRequest",
+  "title",
+  "type",
+  "pipelineType",
+  "leadSource",
+  "primaryPain",
+  "status",
+  "notes",
+] as const;
 
 function norm(v: any) {
   const out = String(v ?? "").trim();
@@ -93,6 +113,51 @@ function isYesValue(value: any) {
   return ["y", "yes", "true", "1"].includes(normalized);
 }
 
+function parseRow(r: any) {
+  const { firstName, lastName } = deriveNames(r);
+  const pipelineType = normalizePipelineType(r.pipelineType || r["Pipeline type"] || r.pipeline || r.Pipeline || "icp");
+  const status = normalizeStatus(r.status || r["Lead Status"] || r.Stage || r.stage, pipelineType);
+  const type = norm(r.type || r.Type);
+  const primaryPain = norm(r.primaryPain || r["Primary pain"] || r["Primary Pain"]);
+
+  return {
+    contactId: firstNonEmpty(r, ["contactId", "Contact ID", "ContactId"]),
+    firstName,
+    lastName,
+    email: firstNonEmpty(r, ["email", "Email", "Email Address"]),
+    normalizedEmail: firstNonEmpty(r, ["email", "Email", "Email Address"]).toLowerCase(),
+    phone: formatPhone(firstNonEmpty(r, ["phone", "Phone"])),
+    linkedin: firstNonEmpty(r, ["linkedin", "Linkedin", "LinkedIn", "linkedin_url", "LinkedIn Profile"]),
+    website: firstNonEmpty(r, ["website", "Website"]),
+    company: firstNonEmpty(r, ["company", "Company"]),
+    industry: firstNonEmpty(r, ["industry", "Industry"]),
+    employeeSize: firstNonEmpty(r, ["employeeSize", "Employee Size", "Employees"]),
+    areaGeo: firstNonEmpty(r, ["areaGeo", "Area/Geo", "Area", "Geo"]),
+    linkedinConnectRequest: firstNonEmpty(r, ["linkedinConnectRequest", "Linkedin Connect Request", "LinkedIn Connect Request"]),
+    title: firstNonEmpty(r, ["title", "Title"]),
+    type: ALLOWED_TYPES.includes(type) ? type : "",
+    pipelineType,
+    leadSource: firstNonEmpty(r, ["leadSource", "Lead source", "Lead Source", "source", "Source"]),
+    primaryPain: ALLOWED_PRIMARY_PAIN.includes(primaryPain) ? primaryPain : undefined,
+    status,
+    notes: buildNotes(r),
+  };
+}
+
+function fillMissing(existing: any, incoming: any) {
+  const updated = { ...existing };
+  for (const field of FILLABLE_FIELDS) {
+    const currentValue = updated[field];
+    const incomingValue = incoming[field];
+    const currentEmpty = currentValue === undefined || currentValue === null || String(currentValue).trim() === "";
+    const incomingEmpty = incomingValue === undefined || incomingValue === null || String(incomingValue).trim() === "";
+    if (currentEmpty && !incomingEmpty) {
+      updated[field] = incomingValue;
+    }
+  }
+  return updated;
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const rows = Array.isArray(body?.rows) ? body.rows : [];
@@ -100,52 +165,75 @@ export async function POST(req: Request) {
 
   const accountId = await resolveActiveAccountId();
   const store = await getStore(accountId);
-  const existingEmails = new Set((store.contacts || []).map((c: any) => norm(c.email).toLowerCase()).filter(Boolean));
+  const contacts = store.contacts || [];
+  const existingEmails = new Map<string, any>();
+  contacts.forEach((contact: any) => {
+    const email = norm(contact.email).toLowerCase();
+    if (email) existingEmails.set(email, contact);
+  });
 
   let created = 0;
+  let updated = 0;
   let skipped = 0;
   const errors: Array<{ row: number; reason: string }> = [];
 
   rows.forEach((r: any, idx: number) => {
-    const { firstName, lastName } = deriveNames(r);
-    const email = firstNonEmpty(r, ["email", "Email", "Email Address"]).toLowerCase();
-    if (!firstName || !lastName) {
+    const parsed = parseRow(r);
+    if (!parsed.firstName || !parsed.lastName) {
       skipped++; errors.push({ row: idx + 1, reason: "Missing firstName/lastName" }); return;
     }
-    if (email && existingEmails.has(email)) {
+
+    if (parsed.contactId) {
+      const existingIdx = contacts.findIndex((c: any) => c.id === parsed.contactId);
+      if (existingIdx < 0) {
+        skipped++; errors.push({ row: idx + 1, reason: `Unknown contactId: ${parsed.contactId}` }); return;
+      }
+
+      const existing = contacts[existingIdx];
+      if (parsed.normalizedEmail) {
+        const owner = existingEmails.get(parsed.normalizedEmail);
+        if (owner && owner.id !== existing.id) {
+          skipped++; errors.push({ row: idx + 1, reason: "Email belongs to another contact" }); return;
+        }
+      }
+
+      const merged = fillMissing(existing, parsed);
+      merged.updatedAt = now();
+      contacts[existingIdx] = merged;
+      if (parsed.normalizedEmail) existingEmails.set(parsed.normalizedEmail, merged);
+      updated++;
+      return;
+    }
+
+    if (parsed.normalizedEmail && existingEmails.has(parsed.normalizedEmail)) {
       skipped++; errors.push({ row: idx + 1, reason: "Duplicate email" }); return;
     }
 
-    const type = norm(r.type || r.Type);
-    const primaryPain = norm(r.primaryPain || r["Primary pain"] || r["Primary Pain"]);
-    const pipelineType = normalizePipelineType(r.pipelineType || r["Pipeline type"] || r.pipeline || r.Pipeline || "icp");
-    const status = normalizeStatus(r.status || r["Lead Status"] || r.Stage || r.stage, pipelineType);
-
     const contact: any = {
       id: id(),
-      firstName,
-      lastName,
-      email: firstNonEmpty(r, ["email", "Email", "Email Address"]),
-      phone: formatPhone(firstNonEmpty(r, ["phone", "Phone"])),
-      linkedin: firstNonEmpty(r, ["linkedin", "Linkedin", "LinkedIn", "LinkedIn", "linkedin_url", "LinkedIn Profile"]),
-      website: firstNonEmpty(r, ["website", "Website"]),
-      company: firstNonEmpty(r, ["company", "Company"]),
-      industry: firstNonEmpty(r, ["industry", "Industry"]),
-      employeeSize: firstNonEmpty(r, ["employeeSize", "Employee Size", "Employees"]),
-      areaGeo: firstNonEmpty(r, ["areaGeo", "Area/Geo", "Area", "Geo"]),
-      linkedinConnectRequest: firstNonEmpty(r, ["linkedinConnectRequest", "Linkedin Connect Request", "LinkedIn Connect Request"]),
-      title: firstNonEmpty(r, ["title", "Title"]),
-      type: ALLOWED_TYPES.includes(type) ? type : "",
-      pipelineType,
-      leadSource: firstNonEmpty(r, ["leadSource", "Lead source", "Lead Source", "source", "Source"]),
-      primaryPain: ALLOWED_PRIMARY_PAIN.includes(primaryPain) ? primaryPain : undefined,
-      status,
-      notes: buildNotes(r),
+      firstName: parsed.firstName,
+      lastName: parsed.lastName,
+      email: parsed.email,
+      phone: parsed.phone,
+      linkedin: parsed.linkedin,
+      website: parsed.website,
+      company: parsed.company,
+      industry: parsed.industry,
+      employeeSize: parsed.employeeSize,
+      areaGeo: parsed.areaGeo,
+      linkedinConnectRequest: parsed.linkedinConnectRequest,
+      title: parsed.title,
+      type: parsed.type,
+      pipelineType: parsed.pipelineType,
+      leadSource: parsed.leadSource,
+      primaryPain: parsed.primaryPain,
+      status: parsed.status,
+      notes: parsed.notes,
       createdAt: now(),
       updatedAt: now(),
     };
 
-    store.contacts.unshift(contact);
+    contacts.unshift(contact);
     if (isYesValue(contact.linkedinConnectRequest)) {
       const activity: any = {
         id: id(),
@@ -164,10 +252,11 @@ export async function POST(req: Request) {
       }
       contact.updatedAt = now();
     }
-    if (email) existingEmails.add(email);
+    if (parsed.normalizedEmail) existingEmails.set(parsed.normalizedEmail, contact);
     created++;
   });
 
+  store.contacts = contacts;
   await saveStore(store, accountId);
-  return NextResponse.json({ ok: true, created, skipped, errors: errors.slice(0, 50) });
+  return NextResponse.json({ ok: true, created, updated, skipped, errors: errors.slice(0, 50) });
 }
