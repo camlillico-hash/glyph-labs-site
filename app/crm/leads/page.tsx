@@ -105,6 +105,7 @@ export default function LeadsPage() {
   const [inlineDraft, setInlineDraft] = useState<any>(null);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkDeleteProgress, setBulkDeleteProgress] = useState<{ total: number; completed: number } | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
   const [importError, setImportError] = useState("");
@@ -399,6 +400,7 @@ export default function LeadsPage() {
   }
 
   function toggleLeadSelection(contactId: string, checked: boolean) {
+    if (bulkDeleting) return;
     setSelectedLeadIds((prev) => {
       if (checked) return prev.includes(contactId) ? prev : [...prev, contactId];
       return prev.filter((id) => id !== contactId);
@@ -406,6 +408,7 @@ export default function LeadsPage() {
   }
 
   function toggleSelectAllLeads(rows: Contact[], checked: boolean) {
+    if (bulkDeleting) return;
     const rowIds = rows.map((c) => c.id);
     setSelectedLeadIds((prev) => {
       if (checked) return Array.from(new Set([...prev, ...rowIds]));
@@ -418,23 +421,29 @@ export default function LeadsPage() {
     const ids = (idsOverride || selectedLeadIds).filter((id) => icpItems.some((c) => c.id === id));
     if (!ids.length || bulkDeleting) return;
     setBulkDeleting(true);
+    setBulkDeleteProgress({ total: ids.length, completed: 0 });
     setTrayError("");
     setConfirmState((prev) => ({ ...prev, confirmLabel: "Deleting…" }));
     try {
-      for (const id of ids) {
-        const res = await fetch(`/api/crm/contacts?id=${id}`, { method: "DELETE" });
-        const data = await res.json().catch(() => null);
-        if (!res.ok) {
-          setTrayError(data?.error || `Could not delete selected leads. Deletion stopped after ${id}.`);
-          return;
-        }
-        setSelectedLeadIds((prev) => prev.filter((selectedId) => selectedId !== id));
+      const res = await fetch("/api/crm/contacts", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      setBulkDeleteProgress({ total: ids.length, completed: ids.length });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const missingIds = Array.isArray(data?.missingIds) ? data.missingIds.length : 0;
+        setTrayError(data?.error || (missingIds ? `${missingIds} selected leads could not be found.` : "Could not delete selected leads"));
+        return;
       }
+      setSelectedLeadIds((prev) => prev.filter((selectedId) => !ids.includes(selectedId)));
       await load();
       setConfirmState({ open: false, message: "", action: null, confirmLabel: "Delete" });
       closeTray();
     } finally {
       setBulkDeleting(false);
+      setBulkDeleteProgress(null);
       setConfirmState((prev) => prev.open ? { ...prev, confirmLabel: "Delete" } : prev);
     }
   }
@@ -483,6 +492,7 @@ export default function LeadsPage() {
                   type="checkbox"
                   aria-label="Select all leads in this section"
                   checked={allSelected}
+                  disabled={bulkDeleting}
                   ref={(el) => {
                     if (el) el.indeterminate = someSelected;
                   }}
@@ -504,6 +514,7 @@ export default function LeadsPage() {
                       type="checkbox"
                       aria-label={`Select ${c.firstName} ${c.lastName}`.trim() || "Select lead"}
                       checked={selectedLeadIds.includes(c.id)}
+                      disabled={bulkDeleting}
                       onChange={(e) => toggleLeadSelection(c.id, e.target.checked)}
                     />
                   </td>
@@ -544,7 +555,7 @@ export default function LeadsPage() {
               );
             }}
           >
-            <Trash2 size={14} /> Delete{selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}
+            <Trash2 size={14} /> {bulkDeleting && bulkDeleteProgress ? `Deleting ${Math.min(bulkDeleteProgress.completed + 1, bulkDeleteProgress.total)} of ${bulkDeleteProgress.total}…` : `Delete${selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}`}
           </button>
           <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New</button>
           <button title="Export CSV" aria-label="Export CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => exportContacts(icpItems)}><Download size={14} /></button>

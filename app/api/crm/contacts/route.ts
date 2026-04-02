@@ -359,6 +359,8 @@ export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     const stampId = searchParams.get("stampId");
+    const body = await req.json().catch(() => null);
+    const ids = Array.isArray(body?.ids) ? body.ids.map((value: any) => String(value || "").trim()).filter(Boolean) : [];
     const { resolveActiveAccountId } = await import("@/lib/crm-scope");
     const accountId = await resolveActiveAccountId();
     const store = await getStore(accountId);
@@ -367,6 +369,18 @@ export async function DELETE(req: Request) {
       store.contactStamps = (store.contactStamps || []).filter((s: any) => s.id !== stampId);
       await saveStore(store, accountId);
       return NextResponse.json({ ok: true });
+    }
+
+    if (ids.length) {
+      const existingIds = new Set((store.contacts || []).map((c: any) => c.id));
+      const missingIds = ids.filter((contactId: string) => !existingIds.has(contactId));
+      if (missingIds.length) {
+        return NextResponse.json({ error: `Contact${missingIds.length === 1 ? "" : "s"} not found`, missingIds }, { status: 404 });
+      }
+
+      ids.forEach((contactId: string) => cleanupContactRelations(store, contactId));
+      await saveStore(store, accountId);
+      return NextResponse.json({ ok: true, deletedCount: ids.length });
     }
 
     if (!id) {
