@@ -236,7 +236,7 @@ export default function TasksPage() {
               <p className="mt-1 text-sm text-slate-400">Manage next steps for connector people, lead people, and deals.</p>
             </div>
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-lg bg-violet-700 px-3 py-2 font-semibold text-white hover:bg-violet-600" onClick={openCreate}><Plus size={14} /> New</button>
+          <button title="New task" aria-label="New task" className="inline-flex items-center justify-center rounded-lg bg-violet-700 px-3 py-2 font-semibold text-white hover:bg-violet-600" onClick={openCreate}><Plus size={14} /></button>
         </div>
       </section>
 

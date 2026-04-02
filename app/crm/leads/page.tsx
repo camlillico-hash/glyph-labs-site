@@ -544,7 +544,9 @@ export default function LeadsPage() {
         <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Target size={20} /> Leads ({icpItems.length})</h1>
         <div className="flex items-center gap-2">
           <button
-            className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-2 font-semibold text-red-200 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            title={bulkDeleting && bulkDeleteProgress ? `Deleting ${Math.min(bulkDeleteProgress.completed + 1, bulkDeleteProgress.total)} of ${bulkDeleteProgress.total}` : `Delete selected leads${selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}`}
+            aria-label={bulkDeleting && bulkDeleteProgress ? `Deleting ${Math.min(bulkDeleteProgress.completed + 1, bulkDeleteProgress.total)} of ${bulkDeleteProgress.total}` : `Delete selected leads${selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}`}
+            className="inline-flex items-center justify-center rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-2 font-semibold text-red-200 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={selectedLeadIds.length === 0 || bulkDeleting}
             onClick={() => {
               const idsToDelete = selectedLeadIds.filter((id) => icpItems.some((c) => c.id === id));
@@ -555,9 +557,9 @@ export default function LeadsPage() {
               );
             }}
           >
-            <Trash2 size={14} /> {bulkDeleting && bulkDeleteProgress ? `Deleting ${Math.min(bulkDeleteProgress.completed + 1, bulkDeleteProgress.total)} of ${bulkDeleteProgress.total}…` : `Delete${selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}`}
+            <Trash2 size={14} />
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New</button>
+          <button title="New lead" aria-label="New lead" className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /></button>
           <button title="Export CSV" aria-label="Export CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => exportContacts(icpItems)}><Download size={14} /></button>
           <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">

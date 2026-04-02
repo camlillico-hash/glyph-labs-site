@@ -452,7 +452,7 @@ export default function ConnectorsPage() {
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Users size={20} /> Connectors ({connectorItems.length})</h1>
         <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-sky-600 bg-sky-900/40 px-3 py-2 font-semibold text-sky-100 hover:bg-sky-800/70" onClick={() => openCreate("connector")}><Plus size={14} /> New</button>
+          <button title="New connector" aria-label="New connector" className="inline-flex items-center justify-center rounded-lg border border-sky-600 bg-sky-900/40 px-3 py-2 font-semibold text-sky-100 hover:bg-sky-800/70" onClick={() => openCreate("connector")}><Plus size={14} /></button>
           <button title="Export CSV" aria-label="Export CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => exportContacts(connectorItems)}><Download size={14} /></button>
                     <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
