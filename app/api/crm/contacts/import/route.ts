@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getStore, id, now, saveStore, CONNECTOR_STAGES, ICP_STAGES } from "@/lib/crm-store";
 import { resolveActiveAccountId } from "@/lib/crm-scope";
+import { getInitialStatusForPipeline } from "@/lib/crm-stage-transitions";
 
 const ALLOWED_TYPES = ["Influencer", "Decision maker", "Networker", "Other"];
 const ALLOWED_PRIMARY_PAIN = ["Execution", "Strategy", "Culture"];
@@ -247,7 +248,7 @@ export async function POST(req: Request) {
       store.activities = [activity, ...((store.activities as any) || [])];
       contact.lastActivityDate = activity.occurredAt;
       contact.lastActivityType = activity.type;
-      if (contact.status === "New") {
+      if (contact.status === getInitialStatusForPipeline(contact.pipelineType)) {
         contact.status = "Attempting";
       }
       contact.updatedAt = now();

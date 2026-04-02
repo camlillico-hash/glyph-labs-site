@@ -61,7 +61,7 @@ function CrmLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
       )}
-      <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-6">{children}</div>
+      <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-6" data-crm-top-scroll="true">{children}</div>
       {!isLogin && (
         <footer className="border-t border-neutral-700 bg-neutral-900/90 shadow-[0_-8px_28px_rgba(0,0,0,.35)]">
           <div className="mx-auto flex max-w-7xl items-center px-6 py-4 text-[11px] sm:text-sm text-slate-300">

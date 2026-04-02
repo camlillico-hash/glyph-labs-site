@@ -6,6 +6,30 @@ import { LoaderCircle } from "lucide-react";
 
 const MAX_PULL = 88;
 const TRIGGER_PULL = 64;
+const TOP_LEVEL_SCROLL_SELECTOR = "[data-crm-top-scroll='true']";
+const INTERACTIVE_SCROLL_SELECTOR = [
+  "[data-no-pull-to-refresh]",
+  "[data-radix-scroll-area-viewport]",
+  "[role='dialog']",
+  "textarea",
+  "input",
+  "select",
+  "button",
+  "a",
+].join(", ");
+
+function isTopLevelScrollAtTop(target: EventTarget | null) {
+  const element = target instanceof Element ? target : null;
+  const topLevelScroll = element?.closest(TOP_LEVEL_SCROLL_SELECTOR) as HTMLElement | null;
+  if (topLevelScroll) return topLevelScroll.scrollTop <= 0;
+  return window.scrollY <= 0;
+}
+
+function shouldIgnorePullTarget(target: EventTarget | null) {
+  const element = target instanceof Element ? target : null;
+  if (!element) return false;
+  return Boolean(element.closest(INTERACTIVE_SCROLL_SELECTOR));
+}
 
 export default function PullToRefresh() {
   const router = useRouter();
@@ -30,7 +54,7 @@ export default function PullToRefresh() {
 
   useEffect(() => {
     const onTouchStart = (event: TouchEvent) => {
-      if (window.innerWidth >= 768 || isRefreshing || window.scrollY > 0) {
+      if (window.innerWidth >= 768 || isRefreshing || shouldIgnorePullTarget(event.target) || !isTopLevelScrollAtTop(event.target)) {
         startY.current = null;
         pulling.current = false;
         return;
@@ -42,7 +66,9 @@ export default function PullToRefresh() {
 
     const onTouchMove = (event: TouchEvent) => {
       if (!pulling.current || startY.current === null || isRefreshing) return;
-      if (window.scrollY > 0) {
+      if (shouldIgnorePullTarget(event.target) || !isTopLevelScrollAtTop(event.target)) {
+        pulling.current = false;
+        startY.current = null;
         setPullDistance(0);
         return;
       }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStore, id, now, saveStore } from "@/lib/crm-store";
+import { advanceContactToAttemptingOnActivity, getInitialStatusForPipeline } from "@/lib/crm-stage-transitions";
 
 const TASK_STATUSES = ["Not started", "Completed", "Canceled"] as const;
 const TASK_TYPES = ["email", "call", "text", "linkedin", "in_person", "meeting", "to_do", "task_completed"] as const;
@@ -48,10 +49,9 @@ function archiveTaskAsActivity(store: any, task: any) {
   store.activities = [activity, ...(store.activities || [])];
   const cidx = (store.contacts || []).findIndex((c: any) => c.id === contactId);
   if (cidx >= 0) {
-    const currentStatus = store.contacts[cidx].status || "New";
     store.contacts[cidx] = {
       ...store.contacts[cidx],
-      status: currentStatus === "New" ? "Connected" : currentStatus,
+      status: advanceContactToAttemptingOnActivity(store.contacts[cidx]),
       lastActivityDate: activity.occurredAt,
       lastActivityType: activity.type,
       updatedAt: now(),
@@ -78,7 +78,7 @@ export async function GET() {
     if (cidx >= 0) {
       store.contacts[cidx] = {
         ...store.contacts[cidx],
-        status: store.contacts[cidx].pipelineType === "connector" ? "Identified" : "New",
+        status: getInitialStatusForPipeline(store.contacts[cidx].pipelineType),
         updatedAt: now(),
       };
       changed = true;
