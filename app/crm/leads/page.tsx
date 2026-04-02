@@ -414,32 +414,28 @@ export default function LeadsPage() {
     });
   }
 
-  async function bulkDeleteSelectedLeads() {
-    const ids = selectedLeadIds.filter((id) => icpItems.some((c) => c.id === id));
+  async function bulkDeleteSelectedLeads(idsOverride?: string[]) {
+    const ids = (idsOverride || selectedLeadIds).filter((id) => icpItems.some((c) => c.id === id));
     if (!ids.length || bulkDeleting) return;
     setBulkDeleting(true);
     setTrayError("");
+    setConfirmState((prev) => ({ ...prev, confirmLabel: "Deleting…" }));
     try {
-      const results = await Promise.all(ids.map(async (id) => {
+      for (const id of ids) {
         const res = await fetch(`/api/crm/contacts?id=${id}`, { method: "DELETE" });
         const data = await res.json().catch(() => null);
-        return { id, ok: res.ok, error: data?.error || null };
-      }));
-      const failures = results.filter((result) => !result.ok);
-      const deletedIds = results.filter((result) => result.ok).map((result) => result.id);
-      if (deletedIds.length) {
-        setSelectedLeadIds((prev) => prev.filter((id) => !deletedIds.includes(id)));
+        if (!res.ok) {
+          setTrayError(data?.error || `Could not delete selected leads. Deletion stopped after ${id}.`);
+          return;
+        }
+        setSelectedLeadIds((prev) => prev.filter((selectedId) => selectedId !== id));
       }
       await load();
-      if (failures.length) {
-        const firstError = failures[0]?.error || "Could not delete selected leads";
-        setTrayError(failures.length === ids.length ? firstError : `${deletedIds.length} deleted, ${failures.length} failed. ${firstError}`);
-        return;
-      }
       setConfirmState({ open: false, message: "", action: null, confirmLabel: "Delete" });
       closeTray();
     } finally {
       setBulkDeleting(false);
+      setConfirmState((prev) => prev.open ? { ...prev, confirmLabel: "Delete" } : prev);
     }
   }
 
@@ -539,7 +535,14 @@ export default function LeadsPage() {
           <button
             className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-2 font-semibold text-red-200 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={selectedLeadIds.length === 0 || bulkDeleting}
-            onClick={() => askConfirm(`Delete ${selectedLeadIds.length} selected lead${selectedLeadIds.length === 1 ? "" : "s"}? This will also remove related activities, tasks, and stamps.`, () => { void bulkDeleteSelectedLeads(); }, bulkDeleting ? "Deleting…" : "Delete selected")}
+            onClick={() => {
+              const idsToDelete = selectedLeadIds.filter((id) => icpItems.some((c) => c.id === id));
+              askConfirm(
+                `Delete ${idsToDelete.length} selected lead${idsToDelete.length === 1 ? "" : "s"}? This will also remove related activities, tasks, and stamps.`,
+                () => { void bulkDeleteSelectedLeads(idsToDelete); },
+                bulkDeleting ? "Deleting…" : "Delete selected",
+              );
+            }}
           >
             <Trash2 size={14} /> Delete{selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}
           </button>
