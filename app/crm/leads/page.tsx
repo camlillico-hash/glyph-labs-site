@@ -103,6 +103,8 @@ export default function LeadsPage() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [inlineDraft, setInlineDraft] = useState<any>(null);
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
   const [importError, setImportError] = useState("");
@@ -191,6 +193,10 @@ export default function LeadsPage() {
       items: icpOpenItems,
     },
   ] as const;
+
+  useEffect(() => {
+    setSelectedLeadIds((prev) => prev.filter((id) => icpItems.some((c) => c.id === id)));
+  }, [icpItems]);
 
   const selectedActivities = useMemo(() => {
     if (!selected?.id) return [];
@@ -387,8 +393,54 @@ export default function LeadsPage() {
       setTrayError(data?.error || "Could not delete contact");
       return;
     }
+    setSelectedLeadIds((prev) => prev.filter((id) => id !== selected.id));
     closeTray();
     await load();
+  }
+
+  function toggleLeadSelection(contactId: string, checked: boolean) {
+    setSelectedLeadIds((prev) => {
+      if (checked) return prev.includes(contactId) ? prev : [...prev, contactId];
+      return prev.filter((id) => id !== contactId);
+    });
+  }
+
+  function toggleSelectAllLeads(rows: Contact[], checked: boolean) {
+    const rowIds = rows.map((c) => c.id);
+    setSelectedLeadIds((prev) => {
+      if (checked) return Array.from(new Set([...prev, ...rowIds]));
+      const rowSet = new Set(rowIds);
+      return prev.filter((id) => !rowSet.has(id));
+    });
+  }
+
+  async function bulkDeleteSelectedLeads() {
+    const ids = selectedLeadIds.filter((id) => icpItems.some((c) => c.id === id));
+    if (!ids.length || bulkDeleting) return;
+    setBulkDeleting(true);
+    setTrayError("");
+    try {
+      const results = await Promise.all(ids.map(async (id) => {
+        const res = await fetch(`/api/crm/contacts?id=${id}`, { method: "DELETE" });
+        const data = await res.json().catch(() => null);
+        return { id, ok: res.ok, error: data?.error || null };
+      }));
+      const failures = results.filter((result) => !result.ok);
+      const deletedIds = results.filter((result) => result.ok).map((result) => result.id);
+      if (deletedIds.length) {
+        setSelectedLeadIds((prev) => prev.filter((id) => !deletedIds.includes(id)));
+      }
+      await load();
+      if (failures.length) {
+        const firstError = failures[0]?.error || "Could not delete selected leads";
+        setTrayError(failures.length === ids.length ? firstError : `${deletedIds.length} deleted, ${failures.length} failed. ${firstError}`);
+        return;
+      }
+      setConfirmState({ open: false, message: "", action: null, confirmLabel: "Delete" });
+      closeTray();
+    } finally {
+      setBulkDeleting(false);
+    }
   }
 
   async function unconvertFromTray() {
@@ -419,42 +471,79 @@ export default function LeadsPage() {
     setConfirmState({ open: true, message, action, confirmLabel });
   }
 
-  const renderContactsTable = (rows: Contact[]) => (
-    <div className="crm-card overflow-auto">
-      <table className="w-full text-sm">
-        <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Pipeline</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
-        <tbody>
-          {rows.map((c) => {
-            const editing = editingId === c.id;
-            const pipelineType = (c.pipelineType || "connector") as "connector" | "icp";
-            const stageOptions = stageOptionsForPipeline(pipelineType);
-            return (
-              <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
-                <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : <button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(c);}}>{`${c.firstName} ${c.lastName}`}</button>}</td>
-                <td className="px-3 py-2 text-slate-300">{pipelineLabel(pipelineType)}</td>
-                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5">{c.email}<a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a></span> : "—")}</td>
-                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
-                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
-                <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.type || ""} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}><option value="">Select type</option>{CONTACT_TYPES.map((t)=> <option key={t} value={t}>{t}</option>)}</select> : (c.type || "—")}</td>
-                <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || defaultStatusForPipeline(pipelineType)} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{stageOptions.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || defaultStatusForPipeline(pipelineType))}</td>
-                <td className="px-3 py-2 text-slate-300">{c.lastActivityDate ? new Date(c.lastActivityDate).toLocaleDateString() : "—"}</td>
-                <td className="px-3 py-2 text-slate-300">{c.lastActivityType ? prettyType(String(c.lastActivityType)) : "—"}</td>
-                <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
-                <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openTray(c)}><SquareArrowOutUpRight size={14} /></button>}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
+  const renderContactsTable = (rows: Contact[]) => {
+    const rowIds = rows.map((c) => c.id);
+    const selectedCount = rowIds.filter((id) => selectedLeadIds.includes(id)).length;
+    const allSelected = rowIds.length > 0 && selectedCount === rowIds.length;
+    const someSelected = selectedCount > 0 && !allSelected;
+
+    return (
+      <div className="crm-card overflow-auto">
+        <table className="w-full text-sm">
+          <thead className="border-b border-neutral-800 text-slate-400">
+            <tr>
+              <th className="px-3 py-2 text-left">
+                <input
+                  type="checkbox"
+                  aria-label="Select all leads in this section"
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someSelected;
+                  }}
+                  onChange={(e) => toggleSelectAllLeads(rows, e.target.checked)}
+                />
+              </th>
+              <th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Pipeline</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((c) => {
+              const editing = editingId === c.id;
+              const pipelineType = (c.pipelineType || "connector") as "connector" | "icp";
+              const stageOptions = stageOptionsForPipeline(pipelineType);
+              return (
+                <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
+                  <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${c.firstName} ${c.lastName}`.trim() || "Select lead"}
+                      checked={selectedLeadIds.includes(c.id)}
+                      onChange={(e) => toggleLeadSelection(c.id, e.target.checked)}
+                    />
+                  </td>
+                  <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : <button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(c);}}>{`${c.firstName} ${c.lastName}`}</button>}</td>
+                  <td className="px-3 py-2 text-slate-300">{pipelineLabel(pipelineType)}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5">{c.email}<a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a></span> : "—")}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.type || ""} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}><option value="">Select type</option>{CONTACT_TYPES.map((t)=> <option key={t} value={t}>{t}</option>)}</select> : (c.type || "—")}</td>
+                  <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || defaultStatusForPipeline(pipelineType)} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{stageOptions.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || defaultStatusForPipeline(pipelineType))}</td>
+                  <td className="px-3 py-2 text-slate-300">{c.lastActivityDate ? new Date(c.lastActivityDate).toLocaleDateString() : "—"}</td>
+                  <td className="px-3 py-2 text-slate-300">{c.lastActivityType ? prettyType(String(c.lastActivityType)) : "—"}</td>
+                  <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
+                  <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openTray(c)}><SquareArrowOutUpRight size={14} /></button>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Target size={20} /> Leads ({icpItems.length})</h1>
         <div className="flex items-center gap-2">
-                    <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New</button>
+          <button
+            className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-2 font-semibold text-red-200 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={selectedLeadIds.length === 0 || bulkDeleting}
+            onClick={() => askConfirm(`Delete ${selectedLeadIds.length} selected lead${selectedLeadIds.length === 1 ? "" : "s"}? This will also remove related activities, tasks, and stamps.`, () => { void bulkDeleteSelectedLeads(); }, bulkDeleting ? "Deleting…" : "Delete selected")}
+          >
+            <Trash2 size={14} /> Delete{selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}
+          </button>
+          <button className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /> New</button>
           <button title="Export CSV" aria-label="Export CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => exportContacts(icpItems)}><Download size={14} /></button>
           <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
