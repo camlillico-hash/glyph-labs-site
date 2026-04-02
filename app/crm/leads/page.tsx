@@ -622,7 +622,7 @@ export default function LeadsPage() {
                   }}
                 />
               </label>
-              <p className="mt-3 text-xs text-slate-500">CSV headers accepted: Contact ID, Company, Website, Industry, Employee Size, First Name, Last Name, Title, Area/Geo, Linkedin Connect Request, LinkedIn Profile, Email Address, Source, Notes 1: Trigger, and Notes 2: Why Now?.</p>
+              <p className="mt-3 text-xs text-slate-500">CSV headers accepted: Contact ID, Company, Website, Industry, Employee Size, First Name, Last Name, Title, Phone, Area/Geo, Linkedin Connect Request, LinkedIn Profile, Email Address, Source, Notes 1: Trigger, and Notes 2: Why Now?.</p>
               <p className="mt-1 text-xs text-slate-500">All listed columns are stored on the contact record. Export includes Contact ID, and reimporting with Contact ID updates missing fields only. A single Contact column still auto-splits into first and last name, and if pipelineType is omitted, imports default to leads.</p>
             </div>
 
