@@ -32,6 +32,8 @@ function shouldIgnorePullTarget(target: EventTarget | null) {
 }
 
 export default function PullToRefresh() {
+  return null;
+
   const router = useRouter();
   const pathname = usePathname();
   const startY = useRef<number | null>(null);

@@ -49,8 +49,8 @@ const activityTypeIcon = (v?: string) => {
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Connector";
-const TABLE_MAX_HEIGHT_CLASS = "max-h-[920px] overflow-y-auto";
-const BOARD_LANE_MAX_HEIGHT_CLASS = "max-h-[740px] overflow-y-auto pr-1";
+const TABLE_MAX_HEIGHT_CLASS = "max-h-[920px] overflow-y-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
+const BOARD_LANE_MAX_HEIGHT_CLASS = "max-h-[740px] overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
 
 const EXPORT_HEADERS = [
   "contactId",
@@ -418,8 +418,8 @@ export default function ConnectorsPage() {
   }
 
   const renderContactsTable = (rows: Contact[]) => (
-    <div className="crm-card overflow-auto">
-      <table className="w-full text-sm">
+    <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
+      <table className="w-full min-w-[980px] text-sm">
         <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Pipeline</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th></tr></thead>
         <tbody>
           {rows.map((c) => {
@@ -466,7 +466,7 @@ export default function ConnectorsPage() {
         <div className="space-y-6">
           {boardSections.map((section) => (
             <section key={section.key} className="space-y-3">
-              <div className="overflow-x-auto pb-2">
+              <div className="overflow-x-auto overscroll-x-contain pb-2" data-no-pull-to-refresh>
                 <div className="flex gap-4 min-w-max">
                   {section.stages.map((stage, i) => {
                     const laneKey = `${section.key}:${stage}`;
