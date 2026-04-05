@@ -592,7 +592,7 @@ export default function LeadsPage() {
     return (
       <div className={TABLE_MAX_HEIGHT_CLASS} style={tableViewportStyle}>
         <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
-          <table className="w-full min-w-[980px] text-sm">
+          <table className="w-full min-w-[1240px] text-sm">
           <thead className="border-b border-neutral-800 text-slate-400">
             <tr>
               <th className="px-3 py-2 text-left">
@@ -609,14 +609,15 @@ export default function LeadsPage() {
                 />
               </th>
               {renderSortableHeader("Name", "name")}
-              {renderSortableHeader("Pipeline", "pipeline")}
               {renderSortableHeader("Email", "email")}
               <th className="px-3 py-2 text-left">LinkedIn</th>
               {renderSortableHeader("Company", "company")}
-              {renderSortableHeader("Type", "type")}
+              <th className="px-3 py-2 text-left">Employee Size</th>
+              <th className="px-3 py-2 text-left">Area/Geo</th>
               {renderSortableHeader("Stage", "stage")}
               {renderSortableHeader("LI Accepted", "liAccepted")}
               {renderSortableHeader("Last Activity Date", "lastActivityDate")}
+              <th className="px-3 py-2 text-left">Count of Activities</th>
               {renderSortableHeader("Last Activity Type", "lastActivityType")}
               {renderSortableHeader("Created", "createdAt")}
               <th className="px-3 py-2 text-left">Actions</th>
@@ -627,6 +628,7 @@ export default function LeadsPage() {
               const editing = editingId === c.id;
               const pipelineType = (c.pipelineType || "connector") as "connector" | "icp";
               const stageOptions = stageOptionsForPipeline(pipelineType);
+              const activityCount = (activities || []).filter((a: any) => a.contactId === c.id).length;
               return (
                 <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
                   <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
@@ -640,14 +642,15 @@ export default function LeadsPage() {
                     />
                   </td>
                   <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : <button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(c);}}>{`${c.firstName} ${c.lastName}`}</button>}</td>
-                  <td className="px-3 py-2 text-slate-300">{pipelineLabel(pipelineType)}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5">{c.email}<a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a></span> : "—")}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
-                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.type || ""} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}><option value="">Select type</option>{CONTACT_TYPES.map((t)=> <option key={t} value={t}>{t}</option>)}</select> : (c.type || "—")}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.employeeSize || ""} onChange={(e)=>setInlineDraft({...inlineDraft, employeeSize:e.target.value})} /> : (c.employeeSize || "—")}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.areaGeo || ""} onChange={(e)=>setInlineDraft({...inlineDraft, areaGeo:e.target.value})} /> : (c.areaGeo || "—")}</td>
                   <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || defaultStatusForPipeline(pipelineType)} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{stageOptions.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || defaultStatusForPipeline(pipelineType))}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input type="checkbox" className={checkboxClassName} checked={Boolean(inlineDraft.liAccepted)} onChange={(e)=>setInlineDraft({...inlineDraft, liAccepted:e.target.checked})} aria-label="LI Accepted" /> : <input type="checkbox" className={checkboxClassName} checked={Boolean(c.liAccepted)} readOnly aria-label="LI Accepted" />}</td>
                   <td className="px-3 py-2 text-slate-300">{c.lastActivityDate ? new Date(c.lastActivityDate).toLocaleDateString() : "—"}</td>
+                  <td className="px-3 py-2 text-slate-300">{activityCount}</td>
                   <td className="px-3 py-2 text-slate-300">{c.lastActivityType ? prettyType(String(c.lastActivityType)) : "—"}</td>
                   <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
                   <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openTray(c)}><SquareArrowOutUpRight size={14} /></button>}</td>
