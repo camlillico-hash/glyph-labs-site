@@ -92,7 +92,7 @@ export default function LeadsPage() {
   const [draggingContactId, setDraggingContactId] = useState<string | null>(null);
   const [hoverLane, setHoverLane] = useState<string | null>(null);
   const [hoverDrop, setHoverDrop] = useState<{ laneKey: string; index: number } | null>(null);
-  const [view, setView] = useState<"bucket" | "table">("bucket");
+  const [view, setView] = useState<"bucket" | "table">("table");
 
   const [selected, setSelected] = useState<Contact | null>(null);
   const [draft, setDraft] = useState<any>(null);
@@ -107,7 +107,7 @@ export default function LeadsPage() {
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [bulkDeleteProgress, setBulkDeleteProgress] = useState<{ total: number; completed: number } | null>(null);
-  const [tableSort, setTableSort] = useState<{ key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "lastActivityDate" | "lastActivityType" | "createdAt"; direction: "asc" | "desc" }>({
+  const [tableSort, setTableSort] = useState<{ key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "lastActivityDate" | "lastActivityType" | "createdAt"; direction: "asc" | "desc" }>({
     key: "name",
     direction: "asc",
   });
@@ -237,6 +237,8 @@ export default function LeadsPage() {
           return contact.type || "";
         case "stage":
           return contact.status || defaultStatusForPipeline(contact.pipelineType);
+        case "liAccepted":
+          return contact.liAccepted ? "yes" : "no";
         case "lastActivityDate":
           return contact.lastActivityDate || "";
         case "lastActivityType":
@@ -494,7 +496,7 @@ export default function LeadsPage() {
     });
   }
 
-  function updateTableSort(key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "lastActivityDate" | "lastActivityType" | "createdAt") {
+  function updateTableSort(key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "lastActivityDate" | "lastActivityType" | "createdAt") {
     setTableSort((prev) => prev.key === key
       ? { key, direction: prev.direction === "asc" ? "desc" : "asc" }
       : { key, direction: "asc" });
@@ -567,7 +569,7 @@ export default function LeadsPage() {
     const someSelected = selectedCount > 0 && !allSelected;
     const renderSortableHeader = (
       label: string,
-      key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "lastActivityDate" | "lastActivityType" | "createdAt",
+      key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "lastActivityDate" | "lastActivityType" | "createdAt",
     ) => {
       const active = tableSort.key === key;
       const directionLabel = active ? (tableSort.direction === "asc" ? "A-Z" : "Z-A") : "A-Z";
@@ -613,7 +615,7 @@ export default function LeadsPage() {
               {renderSortableHeader("Company", "company")}
               {renderSortableHeader("Type", "type")}
               {renderSortableHeader("Stage", "stage")}
-              <th className="px-3 py-2 text-left">LI Accepted</th>
+              {renderSortableHeader("LI Accepted", "liAccepted")}
               {renderSortableHeader("Last Activity Date", "lastActivityDate")}
               {renderSortableHeader("Last Activity Type", "lastActivityType")}
               {renderSortableHeader("Created", "createdAt")}
