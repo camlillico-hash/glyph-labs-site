@@ -107,7 +107,7 @@ export default function LeadsPage() {
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [bulkDeleteProgress, setBulkDeleteProgress] = useState<{ total: number; completed: number } | null>(null);
-  const [tableSort, setTableSort] = useState<{ key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "lastActivityDate" | "lastActivityType" | "createdAt"; direction: "asc" | "desc" }>({
+  const [tableSort, setTableSort] = useState<{ key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "employeeSize" | "areaGeo" | "activityCount" | "lastActivityDate" | "lastActivityType" | "createdAt"; direction: "asc" | "desc" }>({
     key: "name",
     direction: "asc",
   });
@@ -239,6 +239,12 @@ export default function LeadsPage() {
           return contact.status || defaultStatusForPipeline(contact.pipelineType);
         case "liAccepted":
           return contact.liAccepted ? "yes" : "no";
+        case "employeeSize":
+          return contact.employeeSize || "";
+        case "areaGeo":
+          return contact.areaGeo || "";
+        case "activityCount":
+          return (activities || []).filter((activity: any) => activity.contactId === contact.id).length;
         case "lastActivityDate":
           return contact.lastActivityDate || "";
         case "lastActivityType":
@@ -261,7 +267,7 @@ export default function LeadsPage() {
     });
 
     return sorted;
-  }, [icpItems, tableSort, searchTerm]);
+  }, [icpItems, tableSort, searchTerm, activities]);
 
   const boardSections = [
     {
@@ -496,12 +502,6 @@ export default function LeadsPage() {
     });
   }
 
-  function updateTableSort(key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "lastActivityDate" | "lastActivityType" | "createdAt") {
-    setTableSort((prev) => prev.key === key
-      ? { key, direction: prev.direction === "asc" ? "desc" : "asc" }
-      : { key, direction: "asc" });
-  }
-
   async function bulkDeleteSelectedLeads(idsOverride?: string[]) {
     const ids = (idsOverride || selectedLeadIds).filter((id) => icpItems.some((c) => c.id === id));
     if (!ids.length || bulkDeleting) return;
@@ -561,6 +561,15 @@ export default function LeadsPage() {
     setConfirmState({ open: true, message, action, confirmLabel });
   }
 
+  function updateTableSort(
+    key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "employeeSize" | "areaGeo" | "activityCount" | "lastActivityDate" | "lastActivityType" | "createdAt",
+  ) {
+    setTableSort((prev) => ({
+      key,
+      direction: prev.key === key ? (prev.direction === "asc" ? "desc" : "asc") : "asc",
+    }));
+  }
+
   const renderContactsTable = (rows: Contact[]) => {
     const tableViewportStyle: CSSProperties = { maxHeight: `${tableViewportHeight}px` };
     const rowIds = rows.map((c) => c.id);
@@ -569,7 +578,7 @@ export default function LeadsPage() {
     const someSelected = selectedCount > 0 && !allSelected;
     const renderSortableHeader = (
       label: string,
-      key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "lastActivityDate" | "lastActivityType" | "createdAt",
+      key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "liAccepted" | "employeeSize" | "areaGeo" | "activityCount" | "lastActivityDate" | "lastActivityType" | "createdAt",
     ) => {
       const active = tableSort.key === key;
       const directionLabel = active ? (tableSort.direction === "asc" ? "A-Z" : "Z-A") : "A-Z";
@@ -612,12 +621,12 @@ export default function LeadsPage() {
               {renderSortableHeader("Email", "email")}
               <th className="px-3 py-2 text-left">LinkedIn</th>
               {renderSortableHeader("Company", "company")}
-              <th className="px-3 py-2 text-left">Employee Size</th>
-              <th className="px-3 py-2 text-left">Area/Geo</th>
+              {renderSortableHeader("Employee Size", "employeeSize")}
+              {renderSortableHeader("Area/Geo", "areaGeo")}
               {renderSortableHeader("Stage", "stage")}
               {renderSortableHeader("LI Accepted", "liAccepted")}
               {renderSortableHeader("Last Activity Date", "lastActivityDate")}
-              <th className="px-3 py-2 text-left">Count of Activities</th>
+              {renderSortableHeader("Count of Activities", "activityCount")}
               {renderSortableHeader("Last Activity Type", "lastActivityType")}
               {renderSortableHeader("Created", "createdAt")}
               <th className="px-3 py-2 text-left">Actions</th>
