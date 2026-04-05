@@ -106,6 +106,10 @@ export default function LeadsPage() {
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [bulkDeleteProgress, setBulkDeleteProgress] = useState<{ total: number; completed: number } | null>(null);
+  const [tableSort, setTableSort] = useState<{ key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "lastActivityDate" | "lastActivityType" | "createdAt"; direction: "asc" | "desc" }>({
+    key: "name",
+    direction: "asc",
+  });
   const [importOpen, setImportOpen] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
   const [importError, setImportError] = useState("");
@@ -183,6 +187,44 @@ export default function LeadsPage() {
   }, [deals]);
   const clientItems = useMemo(() => items.filter((c) => clientContactIds.has(c.id)), [items, clientContactIds]);
   const disqualifiedItems = useMemo(() => items.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden)), [items]);
+  const sortedIcpItems = useMemo(() => {
+    const getValue = (contact: Contact, key: typeof tableSort.key) => {
+      switch (key) {
+        case "name":
+          return `${contact.firstName || ""} ${contact.lastName || ""}`.trim();
+        case "pipeline":
+          return pipelineLabel(contact.pipelineType);
+        case "email":
+          return contact.email || "";
+        case "company":
+          return contact.company || "";
+        case "type":
+          return contact.type || "";
+        case "stage":
+          return contact.status || defaultStatusForPipeline(contact.pipelineType);
+        case "lastActivityDate":
+          return contact.lastActivityDate || "";
+        case "lastActivityType":
+          return contact.lastActivityType || "";
+        case "createdAt":
+          return contact.createdAt || "";
+        default:
+          return "";
+      }
+    };
+
+    const sorted = [...icpItems].sort((a, b) => {
+      const aValue = getValue(a, tableSort.key);
+      const bValue = getValue(b, tableSort.key);
+      const aText = String(aValue || "").trim().toLowerCase();
+      const bText = String(bValue || "").trim().toLowerCase();
+      const comparison = aText.localeCompare(bText, undefined, { numeric: true, sensitivity: "base" });
+      if (comparison !== 0) return tableSort.direction === "asc" ? comparison : -comparison;
+      return `${a.firstName || ""} ${a.lastName || ""}`.trim().localeCompare(`${b.firstName || ""} ${b.lastName || ""}`.trim(), undefined, { sensitivity: "base" });
+    });
+
+    return sorted;
+  }, [icpItems, tableSort]);
 
   const boardSections = [
     {
@@ -417,6 +459,12 @@ export default function LeadsPage() {
     });
   }
 
+  function updateTableSort(key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "lastActivityDate" | "lastActivityType" | "createdAt") {
+    setTableSort((prev) => prev.key === key
+      ? { key, direction: prev.direction === "asc" ? "desc" : "asc" }
+      : { key, direction: "asc" });
+  }
+
   async function bulkDeleteSelectedLeads(idsOverride?: string[]) {
     const ids = (idsOverride || selectedLeadIds).filter((id) => icpItems.some((c) => c.id === id));
     if (!ids.length || bulkDeleting) return;
@@ -481,6 +529,27 @@ export default function LeadsPage() {
     const selectedCount = rowIds.filter((id) => selectedLeadIds.includes(id)).length;
     const allSelected = rowIds.length > 0 && selectedCount === rowIds.length;
     const someSelected = selectedCount > 0 && !allSelected;
+    const renderSortableHeader = (
+      label: string,
+      key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "lastActivityDate" | "lastActivityType" | "createdAt",
+    ) => {
+      const active = tableSort.key === key;
+      const directionLabel = active ? (tableSort.direction === "asc" ? "A-Z" : "Z-A") : "A-Z";
+      return (
+        <th className="px-3 py-2 text-left" key={key}>
+          <button
+            type="button"
+            className={`inline-flex items-center gap-1 ${active ? "text-sky-300" : "text-slate-400 hover:text-slate-200"}`}
+            onClick={() => updateTableSort(key)}
+            aria-label={`Sort by ${label} ${directionLabel}`}
+            title={`Sort by ${label} ${directionLabel}`}
+          >
+            <span>{label}</span>
+            <span className="text-[10px] uppercase tracking-wide">{active ? (tableSort.direction === "asc" ? "A-Z" : "Z-A") : "↕"}</span>
+          </button>
+        </th>
+      );
+    };
 
     return (
       <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
@@ -499,7 +568,17 @@ export default function LeadsPage() {
                   onChange={(e) => toggleSelectAllLeads(rows, e.target.checked)}
                 />
               </th>
-              <th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Pipeline</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th><th className="px-3 py-2 text-left">Actions</th>
+              {renderSortableHeader("Name", "name")}
+              {renderSortableHeader("Pipeline", "pipeline")}
+              {renderSortableHeader("Email", "email")}
+              <th className="px-3 py-2 text-left">LinkedIn</th>
+              {renderSortableHeader("Company", "company")}
+              {renderSortableHeader("Type", "type")}
+              {renderSortableHeader("Stage", "stage")}
+              {renderSortableHeader("Last Activity Date", "lastActivityDate")}
+              {renderSortableHeader("Last Activity Type", "lastActivityType")}
+              {renderSortableHeader("Created", "createdAt")}
+              <th className="px-3 py-2 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -643,7 +722,7 @@ export default function LeadsPage() {
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
             Open leads ({icpOpenItems.length})
           </button>
-          {showOpenContacts && <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable([...icpOpenItems])}</div>}
+          {showOpenContacts && <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(sortedIcpItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden))}</div>}
         </div>
       )}
 
@@ -654,7 +733,7 @@ export default function LeadsPage() {
             Converted to deals ({convertedItems.length})
           </button>
           {showConverted && (
-            convertedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(convertedItems)}</div> : (
+            convertedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(sortedIcpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden))}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No leads have converted to deals yet.</div>
             )
           )}
@@ -666,7 +745,7 @@ export default function LeadsPage() {
             Clients ({clientItems.length})
           </button>
           {showClients && (
-            clientItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(clientItems)}</div> : (
+            clientItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(sortedIcpItems.filter((c) => clientContactIds.has(c.id)))}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client leads yet.</div>
             )
           )}
@@ -678,7 +757,7 @@ export default function LeadsPage() {
             Nurture / closed lost ({disqualifiedItems.length})
           </button>
           {showDisqualified && (
-            disqualifiedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(disqualifiedItems)}</div> : (
+            disqualifiedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(sortedIcpItems.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden)))}</div> : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No archived nurture or lost contacts.</div>
             )
           )}
