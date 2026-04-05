@@ -20,7 +20,7 @@ const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"], ["lastName", "Last name", "text"], ["email", "Email", "email"],
   ["phone", "Phone", "text"],
-  ["linkedin", "LinkedIn", "text"], ["website", "Website", "text"], ["company", "Company", "text"], ["industry", "Industry", "text"], ["employeeSize", "Employee size", "text"], ["areaGeo", "Area/Geo", "text"], ["linkedinConnectRequest", "LinkedIn connect request", "textarea"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["strengthTest", "Strength Test", "select"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
+  ["linkedin", "LinkedIn", "text"], ["website", "Website", "text"], ["company", "Company", "text"], ["industry", "Industry", "text"], ["employeeSize", "Employee size", "text"], ["areaGeo", "Area/Geo", "text"], ["linkedinConnectRequest", "LinkedIn connect request", "textarea"], ["liAccepted", "LI Accepted", "checkbox"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["strengthTest", "Strength Test", "select"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
 ];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 const stageColorClass = (stage: string) => {
@@ -131,6 +131,8 @@ export default function LeadsPage() {
     error: "",
     saving: false,
   });
+
+  const checkboxClassName = "h-4 w-4 cursor-pointer rounded border border-neutral-600 bg-neutral-300/70 text-sky-700 accent-slate-400 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] shadow-black/20 transition hover:border-neutral-500 hover:bg-neutral-300/85 disabled:cursor-not-allowed disabled:opacity-50";
 
   const load = async () => {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
@@ -563,7 +565,6 @@ export default function LeadsPage() {
     const selectedCount = rowIds.filter((id) => selectedLeadIds.includes(id)).length;
     const allSelected = rowIds.length > 0 && selectedCount === rowIds.length;
     const someSelected = selectedCount > 0 && !allSelected;
-    const checkboxClassName = "h-4 w-4 cursor-pointer rounded border border-neutral-600 bg-neutral-300/70 text-sky-700 accent-slate-400 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] shadow-black/20 transition hover:border-neutral-500 hover:bg-neutral-300/85 disabled:cursor-not-allowed disabled:opacity-50";
     const renderSortableHeader = (
       label: string,
       key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "lastActivityDate" | "lastActivityType" | "createdAt",
@@ -612,6 +613,7 @@ export default function LeadsPage() {
               {renderSortableHeader("Company", "company")}
               {renderSortableHeader("Type", "type")}
               {renderSortableHeader("Stage", "stage")}
+              <th className="px-3 py-2 text-left">LI Accepted</th>
               {renderSortableHeader("Last Activity Date", "lastActivityDate")}
               {renderSortableHeader("Last Activity Type", "lastActivityType")}
               {renderSortableHeader("Created", "createdAt")}
@@ -642,6 +644,7 @@ export default function LeadsPage() {
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.type || ""} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}><option value="">Select type</option>{CONTACT_TYPES.map((t)=> <option key={t} value={t}>{t}</option>)}</select> : (c.type || "—")}</td>
                   <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || defaultStatusForPipeline(pipelineType)} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{stageOptions.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || defaultStatusForPipeline(pipelineType))}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input type="checkbox" className={checkboxClassName} checked={Boolean(inlineDraft.liAccepted)} onChange={(e)=>setInlineDraft({...inlineDraft, liAccepted:e.target.checked})} aria-label="LI Accepted" /> : <input type="checkbox" className={checkboxClassName} checked={Boolean(c.liAccepted)} readOnly aria-label="LI Accepted" />}</td>
                   <td className="px-3 py-2 text-slate-300">{c.lastActivityDate ? new Date(c.lastActivityDate).toLocaleDateString() : "—"}</td>
                   <td className="px-3 py-2 text-slate-300">{c.lastActivityType ? prettyType(String(c.lastActivityType)) : "—"}</td>
                   <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
@@ -933,12 +936,17 @@ export default function LeadsPage() {
                         <option value="">No</option>
                         <option value="Yes">Yes</option>
                       </select>
+                     ) : k === "liAccepted" ? (
+                      <label className="inline-flex items-center gap-2 rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-200">
+                        <input type="checkbox" className={checkboxClassName} checked={Boolean(draft[k])} onChange={(e) => setDraft({ ...draft, [k]: e.target.checked })} />
+                        <span>Accepted</span>
+                      </label>
                      ) : k === "seederNotes" || type === "textarea" ? (
                       <textarea className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />
                     ) : (
                       <input type={type === "select" ? "text" : type} className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: type === "number" ? Number(e.target.value || 0) : e.target.value })} />
                     )
-                  ) : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{draft[k] || "—"}</p>}
+                  ) : <p onDoubleClick={() => setEditMode(true)} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm cursor-text">{type === "checkbox" ? (draft[k] ? "Yes" : "No") : (draft[k] || "—")}</p>}
                 </div>
               ))}
               {showDetailSection && (
