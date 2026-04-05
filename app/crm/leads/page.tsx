@@ -529,6 +529,7 @@ export default function LeadsPage() {
     const selectedCount = rowIds.filter((id) => selectedLeadIds.includes(id)).length;
     const allSelected = rowIds.length > 0 && selectedCount === rowIds.length;
     const someSelected = selectedCount > 0 && !allSelected;
+    const checkboxClassName = "h-4 w-4 cursor-pointer rounded border border-neutral-600 bg-neutral-300/70 text-sky-700 accent-slate-400 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] shadow-black/20 transition hover:border-neutral-500 hover:bg-neutral-300/85 disabled:cursor-not-allowed disabled:opacity-50";
     const renderSortableHeader = (
       label: string,
       key: "name" | "pipeline" | "email" | "company" | "type" | "stage" | "lastActivityDate" | "lastActivityType" | "createdAt",
@@ -559,6 +560,7 @@ export default function LeadsPage() {
               <th className="px-3 py-2 text-left">
                 <input
                   type="checkbox"
+                  className={checkboxClassName}
                   aria-label="Select all leads in this section"
                   checked={allSelected}
                   disabled={bulkDeleting}
@@ -591,6 +593,7 @@ export default function LeadsPage() {
                   <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="checkbox"
+                      className={checkboxClassName}
                       aria-label={`Select ${c.firstName} ${c.lastName}`.trim() || "Select lead"}
                       checked={selectedLeadIds.includes(c.id)}
                       disabled={bulkDeleting}

@@ -44,6 +44,8 @@ export default function TasksPage() {
   const [tasksOpen, setTasksOpen] = useState(true);
   const [activitiesOpen, setActivitiesOpen] = useState(true);
   const [activityCreateOpen, setActivityCreateOpen] = useState(false);
+  const [activitySelected, setActivitySelected] = useState<any>(null);
+  const [activityEditMode, setActivityEditMode] = useState(false);
   const [activityDraft, setActivityDraft] = useState<any>({ type: "email", occurredAtLocal: "" });
   const [activityError, setActivityError] = useState("");
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
@@ -117,6 +119,34 @@ export default function TasksPage() {
   function openCreate() { setCreateMode(true); setEditMode(true); setSelected(null); setDraft({ relatedType: "contact", type: "meeting", status: "Not started" }); setError(""); }
   function openTask(t: any) { setSelected(t); setDraft({ ...t, type: t.type || "meeting", status: t.status || (t.done ? "Completed" : "Not started") }); setCreateMode(false); setEditMode(false); setError(""); }
   function closeTray() { setSelected(null); setDraft(null); setCreateMode(false); setEditMode(false); setError(""); }
+  function openActivityCreate() { setActivitySelected(null); setActivityEditMode(true); setActivityCreateOpen(true); setActivityDraft({ type: "email", occurredAtLocal: "" }); setActivityError(""); }
+  function openActivity(a: any) {
+    setActivitySelected(a);
+    setActivityEditMode(false);
+    setActivityCreateOpen(true);
+    setActivityDraft({
+      ...a,
+      occurredAtLocal: a.occurredAt ? new Date(a.occurredAt).toISOString().slice(0, 16) : "",
+    });
+    setActivityError("");
+  }
+  function editActivity(a: any) {
+    setActivitySelected(a);
+    setActivityEditMode(true);
+    setActivityCreateOpen(true);
+    setActivityDraft({
+      ...a,
+      occurredAtLocal: a.occurredAt ? new Date(a.occurredAt).toISOString().slice(0, 16) : "",
+    });
+    setActivityError("");
+  }
+  function closeActivityTray() {
+    setActivityCreateOpen(false);
+    setActivitySelected(null);
+    setActivityEditMode(false);
+    setActivityDraft({ type: "email", occurredAtLocal: "" });
+    setActivityError("");
+  }
 
   function startInlineEdit(t: any) { setEditingId(t.id); setInlineDraft({ ...t, status: t.status || (t.done ? "Completed" : "Not started") }); }
   function cancelInlineEdit() { setEditingId(null); setInlineDraft(null); }
@@ -355,7 +385,7 @@ export default function TasksPage() {
               <p className="mt-1 text-sm text-slate-400">Every outreach log stays tied to a real CRM contact.</p>
             </div>
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-2 font-semibold text-slate-200 hover:border-neutral-500" onClick={() => { setActivityCreateOpen(true); setActivityDraft({ type: 'email', occurredAtLocal: '' }); setActivityError(''); }}><Activity size={14} /> New</button>
+          <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-2 font-semibold text-slate-200 hover:border-neutral-500" onClick={openActivityCreate}><Activity size={14} /> New</button>
         </div>
       </section>
 
@@ -374,13 +404,21 @@ export default function TasksPage() {
             </thead>
             <tbody>
               {activityItems.map((a) => (
-                <tr key={a.id} className="border-b border-neutral-900">
+                <tr key={a.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
                   <td className="px-3 py-2"><span className="inline-flex items-center gap-1.5">{(() => { const I = typeIcon(a.type); return <I size={13} />; })()}{ACTIVITY_TYPES.find((t) => t.value === a.type)?.label || a.type}</span></td>
                   <td className="px-3 py-2 text-slate-300">{a.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/${(contacts.find((c) => c.id === a.contactId)?.pipelineType || 'connector') === 'connector' ? 'connectors' : 'leads'}?contactId=${a.contactId}`}>{contactName(a.contactId)}</a> : '—'}</td>
                   <td className="px-3 py-2 text-slate-300">{a.contactId ? contactPipelineLabel(a.contactId) : '—'}</td>
-                  <td className="px-3 py-2 text-slate-300">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</td>
-                  <td className="px-3 py-2 text-slate-300">{a.note || '—'}</td>
-                  <td className="px-3 py-2"><button className="text-xs text-red-300 inline-flex items-center gap-1" onClick={() => setConfirmState({ open: true, message: 'Are you sure you want to delete this record?', action: () => deleteActivity(a.id) })}><Trash2 size={13} /> Delete</button></td>
+                  <td className="px-3 py-2 text-slate-300 whitespace-nowrap">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</td>
+                  <td className="px-3 py-2 text-slate-300 w-[320px] max-w-[320px]">
+                    <div className="truncate" title={a.note || '—'}>{a.note || '—'}</div>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openActivity(a)}><SquareArrowOutUpRight size={14} /></button>
+                      <button className="crm-btn-ghost" title="Edit activity" aria-label="Edit activity" onClick={() => editActivity(a)}><Pencil size={14} /></button>
+                      <button className="text-xs text-red-300 inline-flex items-center gap-1" onClick={() => setConfirmState({ open: true, message: 'Are you sure you want to delete this record?', action: () => deleteActivity(a.id) })}><Trash2 size={13} /> Delete</button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -413,36 +451,55 @@ export default function TasksPage() {
 
       {activityCreateOpen && (
         <div className="fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/55" onClick={() => setActivityCreateOpen(false)} />
+          <div className="absolute inset-0 bg-black/55" onClick={closeActivityTray} />
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-xl font-semibold">New activity</h2>
-              <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => setActivityCreateOpen(false)}><X size={14} /> Close</button>
+              <h2 className="text-xl font-semibold">{activitySelected ? `${ACTIVITY_TYPES.find((t) => t.value === activityDraft.type)?.label || prettyType(activityDraft.type)} activity` : 'New activity'}</h2>
+              <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeActivityTray}><X size={14} /> Close</button>
+            </div>
+            <div className="mt-4 flex gap-2">
+              {!activityEditMode && activitySelected ? <button className="crm-btn inline-flex items-center gap-1.5" title="Edit" aria-label="Edit" onClick={() => setActivityEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" onClick={saveActivity}><Save size={14} /> Save activity</button>{activitySelected && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => openActivity(activitySelected)}><X size={14} className="text-rose-300" /></button>}</>}
+              {activitySelected && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" title="Delete" aria-label="Delete" onClick={() => setConfirmState({ open: true, message: 'Are you sure you want to delete this record?', action: () => deleteActivity(activitySelected.id) })}><Trash2 size={14} /></button>}
             </div>
             <div className="mt-4 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Activity type</label>
-                <select className="crm-input" value={activityDraft.type || 'email'} onChange={(e) => setActivityDraft({ ...activityDraft, type: e.target.value })}>
-                  {ACTIVITY_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
+                {activityEditMode || !activitySelected ? (
+                  <select className="crm-input" value={activityDraft.type || 'email'} onChange={(e) => setActivityDraft({ ...activityDraft, type: e.target.value })}>
+                    {ACTIVITY_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  </select>
+                ) : (
+                  <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{ACTIVITY_TYPES.find((t) => t.value === activityDraft.type)?.label || prettyType(activityDraft.type)}</p>
+                )}
               </div>
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Person</label>
-                <select className="crm-input" value={activityDraft.contactId || ''} onChange={(e) => setActivityDraft({ ...activityDraft, contactId: e.target.value })}>
-                  <option value="">Select person *</option>
-                  {contacts.map((c) => <option key={c.id} value={c.id}>[{c.pipelineType === 'connector' ? 'Connector' : 'Lead'}] {c.firstName} {c.lastName} {c.email ? `(${c.email})` : ''}</option>)}
-                </select>
+                {activityEditMode || !activitySelected ? (
+                  <select className="crm-input" value={activityDraft.contactId || ''} onChange={(e) => setActivityDraft({ ...activityDraft, contactId: e.target.value })}>
+                    <option value="">Select person *</option>
+                    {contacts.map((c) => <option key={c.id} value={c.id}>[{c.pipelineType === 'connector' ? 'Connector' : 'Lead'}] {c.firstName} {c.lastName} {c.email ? `(${c.email})` : ''}</option>)}
+                  </select>
+                ) : (
+                  <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{activityDraft.contactId ? contactName(activityDraft.contactId) : '—'}</p>
+                )}
               </div>
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Occurred at</label>
-                <input type="datetime-local" className="crm-input" value={activityDraft.occurredAtLocal || ''} onClick={openPicker} onFocus={openPicker} onChange={(e) => setActivityDraft({ ...activityDraft, occurredAtLocal: e.target.value })} />
+                {activityEditMode || !activitySelected ? (
+                  <input type="datetime-local" className="crm-input" value={activityDraft.occurredAtLocal || ''} onClick={openPicker} onFocus={openPicker} onChange={(e) => setActivityDraft({ ...activityDraft, occurredAtLocal: e.target.value })} />
+                ) : (
+                  <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{activityDraft.occurredAtLocal ? new Date(activityDraft.occurredAtLocal).toLocaleString() : '—'}</p>
+                )}
               </div>
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Note</label>
-                <textarea className="crm-input min-h-28" value={activityDraft.note || ''} onChange={(e) => setActivityDraft({ ...activityDraft, note: e.target.value })} />
+                {activityEditMode || !activitySelected ? (
+                  <textarea className="crm-input min-h-28" value={activityDraft.note || ''} onChange={(e) => setActivityDraft({ ...activityDraft, note: e.target.value })} />
+                ) : (
+                  <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{activityDraft.note || '—'}</p>
+                )}
               </div>
               {activityError && <p className="text-sm text-red-300">{activityError}</p>}
-              <button className="crm-btn inline-flex items-center gap-1.5" onClick={saveActivity}><Save size={14} /> Save activity</button>
             </div>
           </aside>
         </div>
