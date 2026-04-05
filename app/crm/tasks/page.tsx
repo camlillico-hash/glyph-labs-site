@@ -391,14 +391,14 @@ export default function TasksPage() {
 
       {activitiesOpen && (
         <div className="crm-card overflow-auto">
-          <table className="w-full text-sm">
+          <table className="w-full table-fixed text-sm">
             <thead className="border-b border-neutral-800 text-slate-400">
               <tr>
                 <th className="px-3 py-2 text-left">Type</th>
                 <th className="px-3 py-2 text-left">Person</th>
                 <th className="px-3 py-2 text-left">Pipeline</th>
                 <th className="px-3 py-2 text-left">When</th>
-                <th className="px-3 py-2 text-left">Note</th>
+                <th className="w-[250px] px-3 py-2 text-left">Note</th>
                 <th className="px-3 py-2 text-left">Actions</th>
               </tr>
             </thead>
@@ -409,9 +409,7 @@ export default function TasksPage() {
                   <td className="px-3 py-2 text-slate-300">{a.contactId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/${(contacts.find((c) => c.id === a.contactId)?.pipelineType || 'connector') === 'connector' ? 'connectors' : 'leads'}?contactId=${a.contactId}`}>{contactName(a.contactId)}</a> : '—'}</td>
                   <td className="px-3 py-2 text-slate-300">{a.contactId ? contactPipelineLabel(a.contactId) : '—'}</td>
                   <td className="px-3 py-2 text-slate-300 whitespace-nowrap">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</td>
-                  <td className="px-3 py-2 text-slate-300 w-[320px] max-w-[320px]">
-                    <div className="truncate" title={a.note || '—'}>{a.note || '—'}</div>
-                  </td>
+                  <td className="w-[250px] max-w-[250px] px-3 py-2 text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis" title={a.note || '—'}>{a.note || '—'}</td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-2 whitespace-nowrap">
                       <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openActivity(a)}><SquareArrowOutUpRight size={14} /></button>

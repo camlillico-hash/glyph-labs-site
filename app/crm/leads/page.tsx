@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import { Target, Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Upload, Download, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight, Paperclip } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 import Papa from "papaparse";
@@ -49,7 +50,7 @@ const activityTypeIcon = (v?: string) => {
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Lead";
-const TABLE_MAX_HEIGHT_CLASS = "max-h-[920px] overflow-y-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
+const TABLE_MAX_HEIGHT_CLASS = "overflow-y-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
 const BOARD_LANE_MAX_HEIGHT_CLASS = "max-h-[740px] overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
 
 const EXPORT_HEADERS = [
@@ -110,6 +111,8 @@ export default function LeadsPage() {
     key: "name",
     direction: "asc",
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tableViewportHeight, setTableViewportHeight] = useState(560);
   const [importOpen, setImportOpen] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
   const [importError, setImportError] = useState("");
@@ -138,6 +141,17 @@ export default function LeadsPage() {
     setDeals((await (await fetch("/api/crm/deals", { cache: "no-store" })).json()).deals || []);
   };
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const updateTableViewportHeight = () => {
+      const nextHeight = Math.max(280, window.innerHeight - 260);
+      setTableViewportHeight(nextHeight);
+    };
+    updateTableViewportHeight();
+    window.addEventListener("resize", updateTableViewportHeight);
+    return () => window.removeEventListener("resize", updateTableViewportHeight);
+  }, []);
 
   function exportContacts(rows: Contact[]) {
     const csv = [
@@ -188,6 +202,25 @@ export default function LeadsPage() {
   const clientItems = useMemo(() => items.filter((c) => clientContactIds.has(c.id)), [items, clientContactIds]);
   const disqualifiedItems = useMemo(() => items.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden)), [items]);
   const sortedIcpItems = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const filtered = normalizedSearch
+      ? icpItems.filter((contact) => {
+          const haystack = [
+            `${contact.firstName || ""} ${contact.lastName || ""}`.trim(),
+            contact.email || "",
+            contact.company || "",
+            contact.title || "",
+            contact.linkedin || "",
+            contact.status || defaultStatusForPipeline(contact.pipelineType),
+            contact.type || "",
+            contact.areaGeo || "",
+          ]
+            .join(" ")
+            .toLowerCase();
+          return haystack.includes(normalizedSearch);
+        })
+      : icpItems;
+
     const getValue = (contact: Contact, key: typeof tableSort.key) => {
       switch (key) {
         case "name":
@@ -213,7 +246,7 @@ export default function LeadsPage() {
       }
     };
 
-    const sorted = [...icpItems].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       const aValue = getValue(a, tableSort.key);
       const bValue = getValue(b, tableSort.key);
       const aText = String(aValue || "").trim().toLowerCase();
@@ -224,7 +257,7 @@ export default function LeadsPage() {
     });
 
     return sorted;
-  }, [icpItems, tableSort]);
+  }, [icpItems, tableSort, searchTerm]);
 
   const boardSections = [
     {
@@ -525,6 +558,7 @@ export default function LeadsPage() {
   }
 
   const renderContactsTable = (rows: Contact[]) => {
+    const tableViewportStyle: CSSProperties = { maxHeight: `${tableViewportHeight}px` };
     const rowIds = rows.map((c) => c.id);
     const selectedCount = rowIds.filter((id) => selectedLeadIds.includes(id)).length;
     const allSelected = rowIds.length > 0 && selectedCount === rowIds.length;
@@ -553,8 +587,9 @@ export default function LeadsPage() {
     };
 
     return (
-      <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
-        <table className="w-full min-w-[980px] text-sm">
+      <div className={TABLE_MAX_HEIGHT_CLASS} style={tableViewportStyle}>
+        <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
+          <table className="w-full min-w-[980px] text-sm">
           <thead className="border-b border-neutral-800 text-slate-400">
             <tr>
               <th className="px-3 py-2 text-left">
@@ -617,14 +652,36 @@ export default function LeadsPage() {
           </tbody>
         </table>
       </div>
+    </div>
     );
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Target size={20} /> Leads ({icpItems.length})</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative w-full min-w-[220px] sm:w-[280px]">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search leads"
+              aria-label="Search leads"
+              className="crm-input h-10 w-full pr-9"
+            />
+            {searchTerm ? (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                aria-label="Clear search"
+                title="Clear search"
+              >
+                <X size={14} />
+              </button>
+            ) : null}
+          </div>
           <button
             title={bulkDeleting && bulkDeleteProgress ? `Deleting ${Math.min(bulkDeleteProgress.completed + 1, bulkDeleteProgress.total)} of ${bulkDeleteProgress.total}` : `Delete selected leads${selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}`}
             aria-label={bulkDeleting && bulkDeleteProgress ? `Deleting ${Math.min(bulkDeleteProgress.completed + 1, bulkDeleteProgress.total)} of ${bulkDeleteProgress.total}` : `Delete selected leads${selectedLeadIds.length ? ` (${selectedLeadIds.length})` : ""}`}
@@ -725,7 +782,7 @@ export default function LeadsPage() {
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
             Open leads ({icpOpenItems.length})
           </button>
-          {showOpenContacts && <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(sortedIcpItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden))}</div>}
+          {showOpenContacts && renderContactsTable(sortedIcpItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden))}
         </div>
       )}
 
@@ -736,7 +793,7 @@ export default function LeadsPage() {
             Converted to deals ({convertedItems.length})
           </button>
           {showConverted && (
-            convertedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(sortedIcpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden))}</div> : (
+            convertedItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden)) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No leads have converted to deals yet.</div>
             )
           )}
@@ -748,7 +805,7 @@ export default function LeadsPage() {
             Clients ({clientItems.length})
           </button>
           {showClients && (
-            clientItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(sortedIcpItems.filter((c) => clientContactIds.has(c.id)))}</div> : (
+            clientItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => clientContactIds.has(c.id))) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client leads yet.</div>
             )
           )}
@@ -760,7 +817,7 @@ export default function LeadsPage() {
             Nurture / closed lost ({disqualifiedItems.length})
           </button>
           {showDisqualified && (
-            disqualifiedItems.length > 0 ? <div className={TABLE_MAX_HEIGHT_CLASS}>{renderContactsTable(sortedIcpItems.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden)))}</div> : (
+            disqualifiedItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden))) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No archived nurture or lost contacts.</div>
             )
           )}
