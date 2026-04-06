@@ -12,6 +12,9 @@ export const CONTACT_STAGES = [...new Set([...CONNECTOR_STAGES, ...ICP_STAGES])]
 export const DEAL_STAGES = ["Warm intro booked", "Warm intro completed", "90-min disco booked", "90-min disco completed", "Proposal / commitment", "Launch paid (won)", "Lost"] as const;
 export const CLIENT_STAGES = ["Launch", "Active rhythm", "At Risk", "Paused", "Completed / Alumni"] as const;
 
+export const CONTACT_DISQUALIFICATION_REASONS = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Timing not right", "Relationship not viable right now", "Bad data / test lead", "Other"] as const;
+export type ContactDisqualificationReason = (typeof CONTACT_DISQUALIFICATION_REASONS)[number];
+
 export type Contact = {
   id: string;
   firstName?: string;
@@ -35,7 +38,7 @@ export type Contact = {
   primaryPain?: "Execution" | "Strategy" | "Culture";
   status?: string;
   strengthTest?: "Yes" | null;
-  disqualificationReason?: "Couldn't connect" | "Went cold" | "Said no" | "Not the right person" | "Shouldn't reach out just yet" | "Done tapping network for now." | "Test Lead or Bad Data" | "Other";
+  disqualificationReason?: ContactDisqualificationReason;
   whatNow?: "Leave them" | "Nurture (future)";
   referralCount?: number;
   nextReachOutAt?: string;
@@ -159,6 +162,20 @@ function normalizeLeadSource(value?: string) {
   return canonical || v;
 }
 
+function mapDisqualificationReason(value?: string): ContactDisqualificationReason | undefined {
+  const v = String(value || "").trim().replace(/[’`]/g, "'");
+  if (!v) return undefined;
+  const legacyMap: Record<string, ContactDisqualificationReason> = {
+    "Shouldn't reach out just yet": "Timing not right",
+    "Done tapping network for now.": "Relationship not viable right now",
+    "Test Lead or Bad Data": "Bad data / test lead",
+  };
+  const normalized = legacyMap[v] || v;
+  return (CONTACT_DISQUALIFICATION_REASONS as readonly string[]).includes(normalized)
+    ? (normalized as ContactDisqualificationReason)
+    : undefined;
+}
+
 function inferPipelineType(contact: Partial<Contact>) {
   const existing = String(contact.pipelineType || "").trim().toLowerCase();
   if (existing === "connector" || existing === "icp") return existing as ContactPipeline;
@@ -277,6 +294,7 @@ function normalizeStore(store: CrmStore): CrmStore {
       pipelineType,
       leadSource: normalizeLeadSource(c.leadSource),
       status: mapContactStatus(c.status, pipelineType),
+      disqualificationReason: mapDisqualificationReason(c.disqualificationReason),
       connectorName: c.connectorName || undefined,
       connectorContactId: c.connectorContactId || undefined,
       introDate: c.introDate || undefined,

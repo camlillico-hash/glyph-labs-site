@@ -14,7 +14,7 @@ const PIPELINE_LABELS = {
   icp: "Lead",
 } as const;
 const PRIMARY_PAIN_OPTIONS = ["Execution", "Strategy", "Culture"];
-const DISQUALIFICATION_REASONS = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Shouldn't reach out just yet", "Done tapping network for now.", "Test Lead or Bad Data", "Other"];
+const DISQUALIFICATION_REASONS = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Timing not right", "Relationship not viable right now", "Bad data / test lead", "Other"];
 const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"], ["lastName", "Last name", "text"], ["email", "Email", "email"],

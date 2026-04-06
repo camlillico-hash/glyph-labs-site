@@ -55,8 +55,14 @@ function statusNeedsEmail(status: string, pipelineType: string) {
 function normalizeDisqualificationReason(value: any) {
   const raw = String(value || "").trim();
   const v = raw.replace(/[’`]/g, "'");
-  const allowed = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Shouldn't reach out just yet", "Done tapping network for now.", "Test Lead or Bad Data", "Other"];
-  return allowed.includes(v) ? v : undefined;
+  const legacyMap: Record<string, string> = {
+    "Shouldn't reach out just yet": "Timing not right",
+    "Done tapping network for now.": "Relationship not viable right now",
+    "Test Lead or Bad Data": "Bad data / test lead",
+  };
+  const normalized = legacyMap[v] || v;
+  const allowed = ["Couldn't connect", "Went cold", "Said no", "Not the right person", "Timing not right", "Relationship not viable right now", "Bad data / test lead", "Other"];
+  return allowed.includes(normalized) ? normalized : undefined;
 }
 
 function normalizeWhatNow(value: any) {
