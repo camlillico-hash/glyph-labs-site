@@ -158,13 +158,13 @@ export default function BOS360ModelPage() {
           </div>
 
           <div className="group absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
-            <div className="flex cursor-pointer items-center justify-center transition-transform hover:scale-110">
+            <div className="flex h-36 w-36 cursor-pointer items-center justify-center rounded-[42%] bg-[#1c1b1b] shadow-[0_18px_45px_rgba(0,0,0,0.28)] transition-transform hover:scale-105 md:h-44 md:w-44">
               <Image
                 src="/bos360-logo.png"
                 alt="BOS360 logo"
                 width={220}
                 height={56}
-                className="h-auto w-[220px] drop-shadow-lg md:w-[260px]"
+                className="h-auto w-[100px] md:w-[128px]"
                 priority
               />
             </div>
