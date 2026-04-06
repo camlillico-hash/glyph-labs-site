@@ -617,6 +617,7 @@ export default function LeadsPage() {
                   onChange={(e) => toggleSelectAllLeads(rows, e.target.checked)}
                 />
               </th>
+              <th className="px-3 py-2 text-left">Actions</th>
               {renderSortableHeader("Name", "name")}
               {renderSortableHeader("Company", "company")}
               {renderSortableHeader("Stage", "stage")}
@@ -629,7 +630,6 @@ export default function LeadsPage() {
               {renderSortableHeader("Last Activity Date", "lastActivityDate")}
               {renderSortableHeader("Last Activity Type", "lastActivityType")}
               {renderSortableHeader("Created", "createdAt")}
-              <th className="px-3 py-2 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -640,20 +640,11 @@ export default function LeadsPage() {
               const activityCount = (activities || []).filter((a: any) => a.contactId === c.id).length;
               return (
                 <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
-                  <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      className={checkboxClassName}
-                      aria-label={`Select ${c.firstName} ${c.lastName}`.trim() || "Select lead"}
-                      checked={selectedLeadIds.includes(c.id)}
-                      disabled={bulkDeleting}
-                      onChange={(e) => toggleLeadSelection(c.id, e.target.checked)}
-                    />
-                  </td>
+                  <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openTray(c)}><SquareArrowOutUpRight size={14} /></button>}</td>
                   <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : <button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(c);}}>{`${c.firstName} ${c.lastName}`}</button>}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
                   <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || defaultStatusForPipeline(pipelineType)} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{stageOptions.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || defaultStatusForPipeline(pipelineType))}</td>
-                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5">{c.email}<a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a></span> : "—")}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5"><a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a>{c.email}</span> : "—")}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input type="checkbox" className={checkboxClassName} checked={Boolean(inlineDraft.liAccepted)} onChange={(e)=>setInlineDraft({...inlineDraft, liAccepted:e.target.checked})} aria-label="LI Accepted" /> : <input type="checkbox" className={checkboxClassName} checked={Boolean(c.liAccepted)} readOnly aria-label="LI Accepted" />}</td>
                   <td className="px-3 py-2 text-slate-300">{activityCount}</td>
@@ -662,7 +653,6 @@ export default function LeadsPage() {
                   <td className="px-3 py-2 text-slate-300">{c.lastActivityDate ? new Date(c.lastActivityDate).toLocaleDateString() : "—"}</td>
                   <td className="px-3 py-2 text-slate-300">{c.lastActivityType ? prettyType(String(c.lastActivityType)) : "—"}</td>
                   <td className="px-3 py-2 text-slate-400">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
-                  <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openTray(c)}><SquareArrowOutUpRight size={14} /></button>}</td>
                 </tr>
               );
             })}
@@ -751,7 +741,7 @@ export default function LeadsPage() {
                                 <button draggable onDragStart={() => setDraggingContactId(c.id)} onDragEnd={() => { setDraggingContactId(null); setHoverLane(null); setHoverDrop(null); }} className={`crm-card w-full min-w-0 p-3 text-left cursor-grab transition-all duration-300 ${draggingContactId === c.id ? "scale-[1.02] opacity-70" : ""} ${removingFromOpenIds.includes(c.id) ? "opacity-0 scale-95" : "opacity-100"}`} onClick={() => openTray(c)}>
                                   <p className="truncate font-semibold">{c.firstName} {c.lastName}</p>
                                   <p className="truncate text-[11px] text-slate-500">{pipelineLabel(c.pipelineType)}</p>
-                                  <p className="truncate text-xs text-slate-400 inline-flex items-center gap-1.5">{c.email || "No email"}{c.email && <a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={12} /></a>}</p>
+                                  <p className="truncate text-xs text-slate-400 inline-flex items-center gap-1.5">{c.email && <a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={12} /></a>}{c.email || "No email"}</p>
                                   {c.linkedin && <p className="truncate text-xs text-slate-400">{c.linkedin}</p>}
                                   <p className="truncate text-xs text-slate-500">{c.company || "No company"}</p>
                                   <p className="truncate text-xs text-slate-500">Type: {c.type || "—"}</p>
@@ -916,6 +906,64 @@ export default function LeadsPage() {
               {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" title="Delete" aria-label="Delete" onClick={() => askConfirm("Are you sure you want to delete this record?", () => { deleteFromTray(); })}><Trash2 size={14} /></button>}
             </div>
             <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
+              {!createMode && (
+                <>
+                  <button className="flex w-full items-center gap-2 pt-2 text-sm font-semibold uppercase tracking-wider text-slate-300" onClick={() => setShowActivitiesSection((v) => !v)}>
+                    {showActivitiesSection ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    Activities
+                  </button>
+                  {showActivitiesSection && <div className="rounded-xl border border-neutral-800 p-3">
+                  <h3 className="mb-2 text-sm font-semibold text-slate-200">Log activity</h3>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <select className="crm-input" value={activityDraft.type || "email"} onChange={(e) => setActivityDraft({ ...activityDraft, type: e.target.value, contactId: selected.id })}>
+                      <option value="email">Email</option>
+                      <option value="call">Call</option>
+                      <option value="text">Text</option>
+                      <option value="linkedin">LinkedIn</option>
+                      <option value="in_person">In person</option>
+                      <option value="meeting">Meeting</option>
+                    </select>
+                    <input type="datetime-local" className="crm-input" value={activityDraft.occurredAtLocal || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setActivityDraft({ ...activityDraft, occurredAtLocal: e.target.value, contactId: selected.id })} />
+                  </div>
+                  <textarea className="crm-input mt-2" placeholder="Activity note" value={activityDraft.note || ""} onChange={(e) => setActivityDraft({ ...activityDraft, note: e.target.value, contactId: selected.id })} />
+                  {activityError && <p className="mt-2 text-sm text-red-300">{activityError}</p>}
+                  <button className="crm-btn mt-2" onClick={async () => {
+                    setActivityError("");
+                    const res = await fetch('/api/crm/activities', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...activityDraft, contactId: selected.id, occurredAt: activityDraft.occurredAtLocal ? new Date(activityDraft.occurredAtLocal).toISOString() : undefined }) });
+                    if (!res.ok) { const j = await res.json().catch(() => ({})); setActivityError(j.error || 'Could not log activity'); return; }
+                    setActivityDraft({ type: "email", contactId: selected.id, note: "", occurredAtLocal: "" });
+                    setActivities(await (await fetch('/api/crm/activities', { cache: 'no-store' })).json());
+                  }}>Save activity</button>
+
+                  <div className="mt-3 space-y-2">
+                    {selectedActivities.map((a: any) => {
+                      const note = String(a.note || "");
+                      const pdfPathMatch = note.match(/(\/api\/strength-test\/submissions\/[^\s]+\/pdf)/);
+                      const pdfPath = pdfPathMatch ? pdfPathMatch[1] : "";
+                      const cleanNote = pdfPath ? note.replace(`PDF: ${pdfPath}`, "").trim() : note;
+
+                      return (
+                        <div key={a.id} className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-emerald-300 inline-flex items-center gap-1.5">{(() => { const I = activityTypeIcon(a.type); return <I size={12} />; })()}{prettyType(String(a.type))}</span>
+                            <span className="text-slate-400">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</span>
+                          </div>
+                          <p className="mt-1 text-slate-300">{cleanNote || "—"}</p>
+                          {pdfPath ? (
+                            <a href={pdfPath} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-500/10 px-2 py-1 text-[11px] font-semibold text-cyan-200 hover:bg-cyan-500/20">
+                              <Paperclip size={12} aria-hidden />
+                              Strength Test PDF
+                            </a>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                    {selectedActivities.length === 0 && <p className="text-xs text-slate-500">No activities yet.</p>}
+                  </div>
+                </div>}
+                </>
+              )}
+
               <button className="flex w-full items-center gap-2 pt-2 text-sm font-semibold uppercase tracking-wider text-slate-300" onClick={() => setShowDetailSection((v) => !v)}>
                 {showDetailSection ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 Contact details
@@ -974,90 +1022,36 @@ export default function LeadsPage() {
 
               {!createMode && (
                 <>
-                  <button className="mt-3 flex w-full items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-300" onClick={() => setShowActivitiesSection((v) => !v)}>
-                    {showActivitiesSection ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    Activities
+                  <button className="mt-3 flex w-full items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-300" onClick={() => setShowDealsSection((v) => !v)}>
+                    {showDealsSection ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    Associated deals
                   </button>
-                  {showActivitiesSection && <div className="rounded-xl border border-neutral-800 p-3">
-                  <h3 className="mb-2 text-sm font-semibold text-slate-200">Log activity</h3>
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <select className="crm-input" value={activityDraft.type || "email"} onChange={(e) => setActivityDraft({ ...activityDraft, type: e.target.value, contactId: selected.id })}>
-                      <option value="email">Email</option>
-                      <option value="call">Call</option>
-                      <option value="text">Text</option>
-                      <option value="linkedin">LinkedIn</option>
-                      <option value="in_person">In person</option>
-                      <option value="meeting">Meeting</option>
-                    </select>
-                    <input type="datetime-local" className="crm-input" value={activityDraft.occurredAtLocal || ""} onClick={openPicker} onFocus={openPicker} onChange={(e) => setActivityDraft({ ...activityDraft, occurredAtLocal: e.target.value, contactId: selected.id })} />
-                  </div>
-                  <textarea className="crm-input mt-2" placeholder="Activity note" value={activityDraft.note || ""} onChange={(e) => setActivityDraft({ ...activityDraft, note: e.target.value, contactId: selected.id })} />
-                  {activityError && <p className="mt-2 text-sm text-red-300">{activityError}</p>}
-                  <button className="crm-btn mt-2" onClick={async () => {
-                    setActivityError("");
-                    const res = await fetch('/api/crm/activities', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...activityDraft, contactId: selected.id, occurredAt: activityDraft.occurredAtLocal ? new Date(activityDraft.occurredAtLocal).toISOString() : undefined }) });
-                    if (!res.ok) { const j = await res.json().catch(() => ({})); setActivityError(j.error || 'Could not log activity'); return; }
-                    setActivityDraft({ type: "email", contactId: selected.id, note: "", occurredAtLocal: "" });
-                    setActivities(await (await fetch('/api/crm/activities', { cache: 'no-store' })).json());
-                  }}>Save activity</button>
+                  {showDealsSection && <div className="rounded-xl border border-neutral-800 p-3">
+                    {deals.filter((d:any) => d.contactId === selected?.id).length > 0 ? (
+                      <div className="space-y-2">
+                        {deals.filter((d:any) => d.contactId === selected?.id).map((d:any) => (
+                          <button key={d.id} className="w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-left text-sm hover:bg-neutral-800" onClick={() => window.location.href = '/crm/deals'}>
+                            <span className="font-medium text-slate-100">{d.name || 'Untitled deal'}</span>
+                            <span className="ml-2 text-slate-400">• {d.stage || '—'}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : <p className="text-xs text-slate-500">No associated deals.</p>}
+                  </div>}
 
-                  <div className="mt-3 space-y-2">
-                    {selectedActivities.map((a: any) => {
-                      const note = String(a.note || "");
-                      const pdfPathMatch = note.match(/(\/api\/strength-test\/submissions\/[^\s]+\/pdf)/);
-                      const pdfPath = pdfPathMatch ? pdfPathMatch[1] : "";
-                      const cleanNote = pdfPath ? note.replace(`PDF: ${pdfPath}`, "").trim() : note;
-
-                      return (
-                        <div key={a.id} className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-semibold text-emerald-300 inline-flex items-center gap-1.5">{(() => { const I = activityTypeIcon(a.type); return <I size={12} />; })()}{prettyType(String(a.type))}</span>
-                            <span className="text-slate-400">{new Date(a.occurredAt || a.createdAt).toLocaleString()}</span>
+                  <h3 className="pt-2 text-sm font-semibold uppercase tracking-wider text-slate-300">Completed tasks</h3>
+                  <div className="rounded-xl border border-neutral-800 p-3">
+                    {tasks.filter((t:any) => (t.relatedType === 'contact' && t.relatedId === selected?.id) && (t.status === 'Completed' || t.done)).length > 0 ? (
+                      <div className="space-y-2">
+                        {tasks.filter((t:any) => (t.relatedType === 'contact' && t.relatedId === selected?.id) && (t.status === 'Completed' || t.done)).map((t:any) => (
+                          <div key={t.id} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs">
+                            <p className="font-medium text-slate-200">{t.title || 'Task'}</p>
+                            <p className="text-slate-400">{t.type || 'task'}{t.dueDate ? ` • ${t.dueDate}` : ''}</p>
                           </div>
-                          <p className="mt-1 text-slate-300">{cleanNote || "—"}</p>
-                          {pdfPath ? (
-                            <a href={pdfPath} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded border border-cyan-400/40 bg-cyan-500/10 px-2 py-1 text-[11px] font-semibold text-cyan-200 hover:bg-cyan-500/20">
-                              <Paperclip size={12} aria-hidden />
-                              Strength Test PDF
-                            </a>
-                          ) : null}
-                        </div>
-                      );
-                    })}
-                    {selectedActivities.length === 0 && <p className="text-xs text-slate-500">No activities yet.</p>}
+                        ))}
+                      </div>
+                    ) : <p className="text-xs text-slate-500">No completed tasks.</p>}
                   </div>
-                </div>}
-
-                <button className="mt-3 flex w-full items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-300" onClick={() => setShowDealsSection((v) => !v)}>
-                  {showDealsSection ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                  Associated deals
-                </button>
-                {showDealsSection && <div className="rounded-xl border border-neutral-800 p-3">
-                  {deals.filter((d:any) => d.contactId === selected?.id).length > 0 ? (
-                    <div className="space-y-2">
-                      {deals.filter((d:any) => d.contactId === selected?.id).map((d:any) => (
-                        <button key={d.id} className="w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-left text-sm hover:bg-neutral-800" onClick={() => window.location.href = '/crm/deals'}>
-                          <span className="font-medium text-slate-100">{d.name || 'Untitled deal'}</span>
-                          <span className="ml-2 text-slate-400">• {d.stage || '—'}</span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : <p className="text-xs text-slate-500">No associated deals.</p>}
-                </div>}
-
-                <h3 className="pt-2 text-sm font-semibold uppercase tracking-wider text-slate-300">Completed tasks</h3>
-                <div className="rounded-xl border border-neutral-800 p-3">
-                  {tasks.filter((t:any) => (t.relatedType === 'contact' && t.relatedId === selected?.id) && (t.status === 'Completed' || t.done)).length > 0 ? (
-                    <div className="space-y-2">
-                      {tasks.filter((t:any) => (t.relatedType === 'contact' && t.relatedId === selected?.id) && (t.status === 'Completed' || t.done)).map((t:any) => (
-                        <div key={t.id} className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs">
-                          <p className="font-medium text-slate-200">{t.title || 'Task'}</p>
-                          <p className="text-slate-400">{t.type || 'task'}{t.dueDate ? ` • ${t.dueDate}` : ''}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : <p className="text-xs text-slate-500">No completed tasks.</p>}
-                </div>
                 </>
               )}
 
