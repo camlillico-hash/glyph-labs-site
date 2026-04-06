@@ -9,9 +9,31 @@ type ModelVersionProps = {
   title: string;
   badge: string;
   versionLabel: string;
+  centerTreatment: "svg-overlap" | "none";
 };
 
-function BOS360ModelVersion({ title, badge, versionLabel }: ModelVersionProps) {
+function CenterOverlapSVG() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="center-overlap-svg"
+      viewBox="0 0 600 600"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <defs>
+        <mask id="bos360-center-mask">
+          <rect width="600" height="600" fill="black" />
+          <circle cx="300" cy="190" r="190" fill="white" />
+          <circle cx="194" cy="396" r="190" fill="white" />
+          <circle cx="406" cy="396" r="190" fill="white" />
+        </mask>
+      </defs>
+      <rect width="600" height="600" fill="#1c1b1b" mask="url(#bos360-center-mask)" />
+    </svg>
+  );
+}
+
+function BOS360ModelVersion({ title, badge, versionLabel, centerTreatment }: ModelVersionProps) {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden border-b border-black/5 p-6 md:p-8">
       <div className="absolute left-6 top-8 md:left-12 md:top-12">
@@ -69,7 +91,7 @@ function BOS360ModelVersion({ title, badge, versionLabel }: ModelVersionProps) {
           </div>
         </div>
 
-        <div className="core-overlap" />
+        {centerTreatment === "svg-overlap" ? <CenterOverlapSVG /> : null}
 
         <div className="group absolute left-1/2 top-1/2 -translate-x-[110px] -translate-y-[80px]">
           <div className="cursor-help rounded-full px-4 py-2 transition-colors hover:bg-[#ff6b00]/10">
@@ -162,18 +184,14 @@ export default function BOS360ModelPage() {
           transform: translateY(0);
           pointer-events: auto;
         }
-        .core-overlap {
+        .center-overlap-svg {
           position: absolute;
-          left: 50%;
-          top: 50%;
-          width: 170px;
-          height: 170px;
-          transform: translate(-50%, -50%) rotate(45deg);
-          border-radius: 38% 38% 42% 42%;
-          background: #1c1b1b;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+          inset: 0;
+          width: 100%;
+          height: 100%;
           z-index: 8;
           pointer-events: none;
+          filter: drop-shadow(0 18px 45px rgba(0, 0, 0, 0.22));
         }
         @media (max-width: 900px) {
           .venn-container {
@@ -184,10 +202,6 @@ export default function BOS360ModelPage() {
           .circle-base {
             width: 250px;
             height: 250px;
-          }
-          .core-overlap {
-            width: 110px;
-            height: 110px;
           }
         }
         @media (max-width: 640px) {
@@ -213,10 +227,10 @@ export default function BOS360ModelPage() {
 
       <main>
         <div id="model-v1">
-          <BOS360ModelVersion title="THE MODEL" badge="100% STRONG" versionLabel="Version 1" />
+          <BOS360ModelVersion title="THE MODEL" badge="100% STRONG" versionLabel="Version 1" centerTreatment="svg-overlap" />
         </div>
         <div id="model-v2">
-          <BOS360ModelVersion title="THE MODEL" badge="100% STRONG" versionLabel="Version 2" />
+          <BOS360ModelVersion title="THE MODEL" badge="100% STRONG" versionLabel="Version 2" centerTreatment="none" />
         </div>
       </main>
 
