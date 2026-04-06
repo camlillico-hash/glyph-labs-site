@@ -40,6 +40,19 @@ export default function BOS360ModelPage() {
           transform: translateY(0);
           pointer-events: auto;
         }
+        .core-overlap {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 170px;
+          height: 170px;
+          transform: translate(-50%, -50%) rotate(45deg);
+          border-radius: 38% 38% 42% 42%;
+          background: #1c1b1b;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+          z-index: 8;
+          pointer-events: none;
+        }
         @media (max-width: 900px) {
           .venn-container {
             width: 100%;
@@ -49,6 +62,10 @@ export default function BOS360ModelPage() {
           .circle-base {
             width: 250px;
             height: 250px;
+          }
+          .core-overlap {
+            width: 110px;
+            height: 110px;
           }
         }
         @media (max-width: 640px) {
@@ -127,6 +144,8 @@ export default function BOS360ModelPage() {
             </div>
           </div>
 
+          <div className="core-overlap" />
+
           <div id="strategy" className="group absolute left-1/2 top-1/2 -translate-x-[110px] -translate-y-[80px]">
             <div className="cursor-help rounded-full px-4 py-2 transition-colors hover:bg-[#ff6b00]/10">
               <span className="text-xl font-bold italic tracking-tight text-[#a04100]">Strategy</span>
@@ -158,7 +177,7 @@ export default function BOS360ModelPage() {
           </div>
 
           <div className="group absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
-            <div className="flex h-36 w-36 cursor-pointer items-center justify-center rounded-[42%] bg-[#1c1b1b] shadow-[0_18px_45px_rgba(0,0,0,0.28)] transition-transform hover:scale-105 md:h-44 md:w-44">
+            <div className="flex cursor-pointer items-center justify-center transition-transform hover:scale-105">
               <Image
                 src="/bos360-logo.png"
                 alt="BOS360 logo"
