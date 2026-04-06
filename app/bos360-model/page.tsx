@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export const metadata = {
   title: "BOS360 | The Architectural Model",
   description: "Interactive BOS360 architectural model page.",
@@ -156,8 +158,15 @@ export default function BOS360ModelPage() {
           </div>
 
           <div className="group absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
-            <div className="flex h-32 w-32 cursor-pointer items-center justify-center rounded-full bg-[#ff6b00] shadow-lg transition-transform hover:scale-110">
-              <span className="text-xl font-black text-white">BOS360</span>
+            <div className="flex cursor-pointer items-center justify-center transition-transform hover:scale-110">
+              <Image
+                src="/bos360-logo.png"
+                alt="BOS360 logo"
+                width={220}
+                height={56}
+                className="h-auto w-[220px] drop-shadow-lg md:w-[260px]"
+                priority
+              />
             </div>
             <div className="info-panel absolute -top-40 left-1/2 z-50 w-80 -translate-x-1/2 rounded-[1.5rem] bg-[#1c1b1b] p-8 text-white shadow-2xl">
               <h4 className="mb-4 text-2xl font-black text-[#ff6b00]">THE CORE</h4>
