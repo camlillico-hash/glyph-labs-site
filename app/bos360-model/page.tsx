@@ -19,24 +19,26 @@ export default function BOS360ModelPage() {
         }
         .circle-base {
           position: absolute;
-          width: min(380px, 58vw);
-          height: min(380px, 58vw);
-          border-radius: 9999px;
+          width: min(340px, 52vw);
+          height: min(340px, 52vw);
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          mix-blend-mode: multiply;
+          background: rgba(229, 226, 225, 0.85);
+          border: 2px solid rgba(160, 65, 0, 0.15);
           cursor: pointer;
         }
         @media (hover: hover) {
           .circle-base:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 40px rgba(160, 65, 0, 0.15);
+            transform: scale(1.03);
+            background: rgba(229, 226, 225, 1);
+            box-shadow: 0 8px 32px rgba(160, 65, 0, 0.2);
           }
         }
         .circle-base:active {
-          transform: scale(0.98);
+          transform: scale(0.97);
         }
         .venn-text {
           pointer-events: none;
@@ -311,77 +313,81 @@ function InteractiveBOS360Model() {
       </div>
 
       <div className="venn-container flex items-center justify-center">
-        {/* Business Pillar */}
+        {/* Business Pillar - Top center */}
         <button
           onClick={() => handleItemClick("business")}
-          className="circle-base group left-1/2 top-0 -translate-x-1/2 bg-[#e5e2e1]/60 hover:bg-[#e5e2e1]/80"
+          className="circle-base"
+          style={{ top: '5%', left: '50%', transform: 'translateX(-50%)' }}
           aria-label="Click to learn more about Business"
         >
-          <span className="venn-text mb-32 text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Business</span>
+          <span className="venn-text text-2xl md:text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Business</span>
         </button>
 
-        {/* Brand Pillar */}
+        {/* Brand Pillar - Bottom left */}
         <button
           onClick={() => handleItemClick("brand")}
-          className="circle-base group bottom-4 left-4 bg-[#e5e2e1]/60 hover:bg-[#e5e2e1]/80"
+          className="circle-base"
+          style={{ bottom: '5%', left: '15%' }}
           aria-label="Click to learn more about Brand"
         >
-          <span className="venn-text mr-24 mt-32 text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Brand</span>
+          <span className="venn-text text-2xl md:text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Brand</span>
         </button>
 
-        {/* Team Pillar */}
+        {/* Team Pillar - Bottom right */}
         <button
           onClick={() => handleItemClick("team")}
-          className="circle-base group bottom-4 right-4 bg-[#e5e2e1]/60 hover:bg-[#e5e2e1]/80"
+          className="circle-base"
+          style={{ bottom: '5%', right: '15%' }}
           aria-label="Click to learn more about Team"
         >
-          <span className="venn-text ml-24 mt-32 text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Team</span>
+          <span className="venn-text text-2xl md:text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Team</span>
         </button>
 
-        <CenterOverlapSVG />
-
-        {/* Strategy Force (intersection of Brand + Business) */}
+        {/* Strategy Force - intersection of Brand + Business */}
         <button
           onClick={() => handleItemClick("strategy")}
-          className="group absolute left-1/2 top-1/2 -translate-x-[110px] -translate-y-[80px]"
+          className="absolute flex items-center justify-center"
+          style={{ left: '38%', top: '42%' }}
           aria-label="Click to learn more about Strategy"
         >
-          <div className="cursor-pointer rounded-full px-4 py-2 transition-all hover:scale-105 hover:bg-[#ff6b00]/10">
-            <span className="text-xl font-bold italic tracking-tight text-[#a04100]">Strategy</span>
+          <div className="cursor-pointer rounded-full bg-white/90 px-4 py-2 shadow-md transition-all hover:scale-110 hover:shadow-lg">
+            <span className="text-lg font-bold italic tracking-tight text-[#a04100]">Strategy</span>
           </div>
         </button>
 
-        {/* Execution Force (intersection of Business + Team) */}
+        {/* Execution Force - intersection of Business + Team */}
         <button
           onClick={() => handleItemClick("execution")}
-          className="group absolute left-1/2 top-1/2 translate-x-[10px] -translate-y-[80px]"
+          className="absolute flex items-center justify-center"
+          style={{ left: '62%', top: '42%' }}
           aria-label="Click to learn more about Execution"
         >
-          <div className="cursor-pointer rounded-full px-4 py-2 transition-all hover:scale-105 hover:bg-[#ff6b00]/10">
-            <span className="text-xl font-bold italic tracking-tight text-[#a04100]">Execution</span>
+          <div className="cursor-pointer rounded-full bg-white/90 px-4 py-2 shadow-md transition-all hover:scale-110 hover:shadow-lg">
+            <span className="text-lg font-bold italic tracking-tight text-[#a04100]">Execution</span>
           </div>
         </button>
 
-        {/* Culture Force (intersection of Brand + Team) */}
+        {/* Culture Force - intersection of Brand + Team */}
         <button
           onClick={() => handleItemClick("culture")}
-          className="group absolute bottom-[60px] left-1/2 -translate-x-1/2"
+          className="absolute flex items-center justify-center"
+          style={{ left: '50%', top: '65%', transform: 'translateX(-50%)' }}
           aria-label="Click to learn more about Culture"
         >
-          <div className="cursor-pointer rounded-full px-4 py-2 transition-all hover:scale-105 hover:bg-[#ff6b00]/10">
-            <span className="text-xl font-bold italic tracking-tight text-[#a04100]">Culture</span>
+          <div className="cursor-pointer rounded-full bg-white/90 px-4 py-2 shadow-md transition-all hover:scale-110 hover:shadow-lg">
+            <span className="text-lg font-bold italic tracking-tight text-[#a04100]">Culture</span>
           </div>
         </button>
 
-        {/* BOS360 Core Logo */}
-        <div className="group absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
+        {/* BOS360 Core Logo - center */}
+        <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center">
           <div className="flex cursor-pointer items-center justify-center transition-transform hover:scale-105">
             <Image
               src="/bos360-logo.png"
               alt="BOS360 logo"
               width={220}
               height={56}
-              className="h-auto w-[100px] md:w-[128px]"
+              className="h-auto w-[100px] md:w-[140px]"
               priority
             />
           </div>
