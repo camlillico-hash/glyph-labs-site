@@ -96,6 +96,13 @@ export default function BOS360ModelPage() {
           </div>
           <BOS360ModelVersion title="THE MODEL" badge="100% STRONG" versionLabel="Version 2" centerTreatment="none" />
         </div>
+        <div id="model-v3" className="relative">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#a04100]/30 to-transparent" />
+          <div className="absolute inset-x-0 -top-4 flex justify-center">
+            <div className="bg-[#fcf9f8] px-4 text-xs font-bold uppercase tracking-[0.35em] text-[#a04100]">Version 3</div>
+          </div>
+          <BOS360ModelVersion3 />
+        </div>
       </main>
 
       <footer className="w-full border-t border-black/5 bg-[#fcf9f8]">
@@ -495,6 +502,228 @@ function BOS360ModelVersion({ title, badge, versionLabel, centerTreatment }: Mod
         <div className="h-[2px] w-12 bg-[#1c1b1b]/10" />
         <div className="text-4xl font-black tracking-tighter text-[#1c1b1b]">BOS360</div>
       </div>
+    </section>
+  );
+}
+
+function BOS360ModelVersion3() {
+  return (
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden border-b border-black/5 p-6 md:p-8">
+      <div className="absolute left-6 top-8 md:left-12 md:top-12">
+        <div className="mb-2 text-xs font-bold uppercase tracking-[0.35em] text-[#a04100]">Version 3</div>
+        <h2 className="text-xl font-black tracking-widest text-[#1c1b1b]">THE MODEL</h2>
+      </div>
+      <div className="absolute right-6 top-8 text-right md:right-12 md:top-12">
+        <div className="mb-2 text-xs font-bold uppercase tracking-[0.35em] text-[#1c1b1b]/45">BOS360</div>
+        <h2 className="text-xl font-black tracking-widest text-[#a04100]">100% STRONG</h2>
+      </div>
+
+      <div className="v3-venn-container relative">
+        {/* Business Circle - Top */}
+        <div className="v3-circle v3-business group cursor-pointer">
+          <span className="v3-circle-text">BUSINESS</span>
+          <div className="v3-info-panel">
+            <h4 className="text-lg font-bold text-white">BUSINESS</h4>
+            <p className="text-sm text-white/80">Generate cash, create value, grow and be profitable</p>
+          </div>
+        </div>
+
+        {/* Brand Circle - Bottom Left */}
+        <div className="v3-circle v3-brand group cursor-pointer">
+          <span className="v3-circle-text">BRAND</span>
+          <div className="v3-info-panel">
+            <h4 className="text-lg font-bold text-white">BRAND</h4>
+            <p className="text-sm text-white/80">Identity, reputation, customer expectations</p>
+          </div>
+        </div>
+
+        {/* Team Circle - Bottom Right */}
+        <div className="v3-circle v3-team group cursor-pointer">
+          <span className="v3-circle-text">TEAM</span>
+          <div className="v3-info-panel">
+            <h4 className="text-lg font-bold text-white">TEAM</h4>
+            <p className="text-sm text-white/80">Competent, dependable, high-performing people</p>
+          </div>
+        </div>
+
+        {/* Intersection Labels */}
+        <div className="v3-intersection v3-strategy group cursor-pointer">
+          <span className="text-sm font-bold italic text-[#a04100]">STRATEGY</span>
+          <div className="v3-info-panel">
+            <h4 className="text-sm font-bold text-[#a04100]">STRATEGY</h4>
+            <p className="text-xs text-gray-600">Brand + Business</p>
+          </div>
+        </div>
+
+        <div className="v3-intersection v3-execution group cursor-pointer">
+          <span className="text-sm font-bold italic text-[#a04100]">EXECUTION</span>
+          <div className="v3-info-panel">
+            <h4 className="text-sm font-bold text-[#a04100]">EXECUTION</h4>
+            <p className="text-xs text-gray-600">Business + Team</p>
+          </div>
+        </div>
+
+        <div className="v3-intersection v3-culture group cursor-pointer">
+          <span className="text-sm font-bold italic text-[#a04100]">CULTURE</span>
+          <div className="v3-info-panel">
+            <h4 className="text-sm font-bold text-[#a04100]">CULTURE</h4>
+            <p className="text-xs text-gray-600">Brand + Team</p>
+          </div>
+        </div>
+
+        {/* Center Logo */}
+        <div className="v3-center-logo group cursor-pointer">
+          <Image
+            src="/bos360-logo.png"
+            alt="BOS360"
+            width={220}
+            height={56}
+            className="h-auto w-[80px] md:w-[100px]"
+            priority
+          />
+        </div>
+      </div>
+
+      <div className="absolute bottom-12 right-12 hidden items-center gap-4 md:flex">
+        <div className="h-[2px] w-12 bg-[#1c1b1b]/10" />
+        <div className="text-4xl font-black tracking-tighter text-[#1c1b1b]">BOS360</div>
+      </div>
+
+      <style jsx>{`
+        .v3-venn-container {
+          position: relative;
+          width: min(700px, 90vw);
+          height: min(500px, 70vw);
+        }
+        .v3-circle {
+          position: absolute;
+          width: min(320px, 45vw);
+          height: min(320px, 45vw);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .v3-business {
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          background: linear-gradient(135deg, #2d5a27 0%, #1e3d1a 100%);
+          border: 3px solid #3d7a35;
+        }
+        .v3-brand {
+          bottom: 0;
+          left: 0;
+          background: linear-gradient(135deg, #8b4513 0%, #5d2e0c 100%);
+          border: 3px solid #a65c1f;
+        }
+        .v3-team {
+          bottom: 0;
+          right: 0;
+          background: linear-gradient(135deg, #1e3d5c 0%, #152a3f 100%);
+          border: 3px solid #2a5278;
+        }
+        .v3-circle-text {
+          font-size: min(1.5rem, 4vw);
+          font-weight: 900;
+          letter-spacing: 0.1em;
+          color: white;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .v3-circle:hover {
+          transform: scale(1.05);
+          z-index: 20;
+        }
+        .v3-business:hover {
+          box-shadow: 0 0 40px rgba(45, 90, 39, 0.5);
+        }
+        .v3-brand:hover {
+          box-shadow: 0 0 40px rgba(139, 69, 19, 0.5);
+        }
+        .v3-team:hover {
+          box-shadow: 0 0 40px rgba(30, 61, 92, 0.5);
+        }
+        .v3-info-panel {
+          position: absolute;
+          bottom: -20px;
+          left: 50%;
+          transform: translateX(-50%) translateY(10px);
+          width: 200px;
+          padding: 12px;
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+          opacity: 0;
+          transition: all 0.3s ease;
+          pointer-events: none;
+          z-index: 30;
+        }
+        .group:hover .v3-info-panel {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+        .v3-intersection {
+          position: absolute;
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          transition: all 0.3s ease;
+          z-index: 15;
+        }
+        .v3-intersection:hover {
+          transform: scale(1.1);
+          box-shadow: 0 8px 24px rgba(160, 65, 0, 0.3);
+        }
+        .v3-strategy {
+          top: 45%;
+          left: 35%;
+        }
+        .v3-execution {
+          top: 45%;
+          right: 35%;
+        }
+        .v3-culture {
+          bottom: 10%;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        .v3-culture:hover {
+          transform: translateX(-50%) scale(1.1);
+        }
+        .v3-center-logo {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 25;
+          transition: all 0.3s ease;
+        }
+        .v3-center-logo:hover {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        @media (max-width: 768px) {
+          .v3-circle {
+            width: min(200px, 35vw);
+            height: min(200px, 35vw);
+          }
+          .v3-circle-text {
+            font-size: 0.7rem;
+          }
+          .v3-intersection {
+            width: 60px;
+            height: 60px;
+          }
+          .v3-intersection span {
+            font-size: 0.6rem;
+          }
+        }
+      `}</style>
     </section>
   );
 }
