@@ -640,6 +640,15 @@ export default function LeadsPage() {
               const activityCount = (activities || []).filter((a: any) => a.contactId === c.id).length;
               return (
                 <tr key={c.id} className="border-b border-neutral-900 hover:bg-neutral-900/60">
+                  <td className="px-3 py-2">
+                    <input
+                      type="checkbox"
+                      className={checkboxClassName}
+                      checked={selectedLeadIds.includes(c.id)}
+                      onChange={() => toggleLeadSelection(c.id)}
+                      aria-label={`Select ${c.firstName} ${c.lastName}`}
+                    />
+                  </td>
                   <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openTray(c)}><SquareArrowOutUpRight size={14} /></button>}</td>
                   <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : <button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(c);}}>{`${c.firstName} ${c.lastName}`}</button>}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
