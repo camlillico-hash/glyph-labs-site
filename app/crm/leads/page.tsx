@@ -645,7 +645,7 @@ export default function LeadsPage() {
                       type="checkbox"
                       className={checkboxClassName}
                       checked={selectedLeadIds.includes(c.id)}
-                      onChange={() => toggleLeadSelection(c.id)}
+                      onChange={(e) => toggleLeadSelection(c.id, e.target.checked)}
                       aria-label={`Select ${c.firstName} ${c.lastName}`}
                     />
                   </td>
