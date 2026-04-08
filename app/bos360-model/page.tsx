@@ -1,12 +1,115 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
-export const metadata = {
-  title: "BOS360 | The Architectural Model",
-  description: "Interactive BOS360 architectural model page.",
-};
+// Main component with metadata
+export default function BOS360ModelPage() {
+  useEffect(() => {
+    document.title = "BOS360 | The Architectural Model";
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-[#fcf9f8] text-[#1c1b1b] antialiased" style={{ fontFamily: 'Manrope, sans-serif' }}>
+      <style>{`
+        .venn-container {
+          position: relative;
+          width: min(600px, 90vw);
+          height: min(600px, 90vw);
+        }
+        .circle-base {
+          position: absolute;
+          width: min(380px, 58vw);
+          height: min(380px, 58vw);
+          border-radius: 9999px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          mix-blend-mode: multiply;
+          cursor: pointer;
+        }
+        @media (hover: hover) {
+          .circle-base:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 40px rgba(160, 65, 0, 0.15);
+          }
+        }
+        .circle-base:active {
+          transform: scale(0.98);
+        }
+        .venn-text {
+          pointer-events: none;
+          z-index: 10;
+        }
+        .center-overlap-svg {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 8;
+          pointer-events: none;
+          filter: drop-shadow(0 18px 45px rgba(0, 0, 0, 0.22));
+        }
+        @media (max-width: 900px) {
+          .venn-container {
+            width: 100%;
+            max-width: 420px;
+            height: 420px;
+          }
+          .circle-base {
+            width: 250px;
+            height: 250px;
+          }
+        }
+        @media (max-width: 640px) {
+          .mobile-stack {
+            position: static !important;
+            transform: none !important;
+          }
+        }
+      `}</style>
+
+      <nav className="sticky top-0 z-40 w-full border-b border-black/5 bg-[#fcf9f8]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-screen-2xl items-center justify-between px-6 py-6 md:px-12">
+          <div className="text-2xl font-black tracking-tight">BOS360</div>
+          <div className="hidden gap-8 md:flex">
+            <a className="font-bold tracking-tight text-[#1c1b1b] transition-colors duration-200 hover:text-[#ff6b00]" href="#model-v1">Version 1</a>
+            <a className="font-bold tracking-tight text-[#1c1b1b] transition-colors duration-200 hover:text-[#ff6b00]" href="#model-v2">Version 2</a>
+          </div>
+          <button className="rounded-full bg-[#ff6b00] px-6 py-3 font-bold tracking-tight text-white transition-transform hover:scale-[1.02] md:px-8">
+            Get Started
+          </button>
+        </div>
+      </nav>
+
+      <main>
+        <div id="model-v1">
+          <InteractiveBOS360Model />
+        </div>
+        <div className="relative">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#a04100]/30 to-transparent" />
+          <div className="absolute inset-x-0 -top-4 flex justify-center">
+            <div className="bg-[#fcf9f8] px-4 text-xs font-bold uppercase tracking-[0.35em] text-[#a04100]">Version 2</div>
+          </div>
+          <BOS360ModelVersion title="THE MODEL" badge="100% STRONG" versionLabel="Version 2" centerTreatment="none" />
+        </div>
+      </main>
+
+      <footer className="w-full border-t border-black/5 bg-[#fcf9f8]">
+        <div className="mx-auto flex w-full max-w-screen-2xl flex-col items-center justify-between gap-4 px-6 py-8 md:flex-row md:px-12">
+          <div className="text-lg font-bold">BOS360</div>
+          <div className="my-0 text-sm text-[#5e5e5e]">© 2024 BOS360. Architectural Precision.</div>
+          <div className="flex gap-6 md:gap-8">
+            <a className="text-sm text-[#5e5e5e] hover:text-[#ff6b00]" href="#">Privacy Policy</a>
+            <a className="text-sm text-[#5e5e5e] hover:text-[#ff6b00]" href="#">Terms of Service</a>
+            <a className="text-sm text-[#5e5e5e] hover:text-[#ff6b00]" href="#">Contact</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
 
 type PillarData = {
   id: string;
@@ -334,44 +437,17 @@ function BOS360ModelVersion({ title, badge, versionLabel, centerTreatment }: Mod
           <div className="circle-base left-1/2 top-0 -translate-x-1/2 bg-[#e5e2e1]/60 hover:bg-[#e5e2e1]/80">
             <span className="venn-text mb-32 text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Business</span>
           </div>
-          <div className="info-panel absolute -top-16 left-1/2 z-50 w-72 -translate-x-1/2 rounded-[1.5rem] border border-[#e2bfb0]/30 bg-white p-8 shadow-2xl">
-            <div className="mb-2 font-bold italic tracking-tight text-[#a04100]">Pillar 01</div>
-            <h3 className="mb-4 text-2xl font-bold text-[#1c1b1b]">BUSINESS</h3>
-            <p className="mb-4 text-sm leading-relaxed text-[#5e5e5e]">The structural foundation of the organization focusing on market positioning and financial health.</p>
-            <div className="flex flex-col gap-2 text-xs font-bold text-[#1c1b1b]">
-              <div>✓ MARKET ANALYSIS</div>
-              <div>✓ REVENUE DESIGN</div>
-            </div>
-          </div>
         </div>
 
         <div className="group">
           <div className="circle-base bottom-4 left-4 bg-[#e5e2e1]/60 hover:bg-[#e5e2e1]/80">
             <span className="venn-text mr-24 mt-32 text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Brand</span>
           </div>
-          <div className="info-panel absolute -left-48 bottom-0 z-50 w-72 rounded-[1.5rem] border border-[#e2bfb0]/30 bg-white p-8 shadow-2xl">
-            <div className="mb-2 font-bold italic tracking-tight text-[#a04100]">Pillar 02</div>
-            <h3 className="mb-4 text-2xl font-bold text-[#1c1b1b]">BRAND</h3>
-            <p className="mb-4 text-sm leading-relaxed text-[#5e5e5e]">The identity and reputation that creates emotional resonance with the target audience.</p>
-            <div className="flex flex-col gap-2 text-xs font-bold text-[#1c1b1b]">
-              <div>✓ VISUAL IDENTITY</div>
-              <div>✓ MARKET TRUST</div>
-            </div>
-          </div>
         </div>
 
         <div className="group">
           <div className="circle-base bottom-4 right-4 bg-[#e5e2e1]/60 hover:bg-[#e5e2e1]/80">
             <span className="venn-text ml-24 mt-32 text-3xl font-black uppercase tracking-tighter text-[#1c1b1b]">Team</span>
-          </div>
-          <div className="info-panel absolute -right-48 bottom-0 z-50 w-72 rounded-[1.5rem] border border-[#e2bfb0]/30 bg-white p-8 shadow-2xl">
-            <div className="mb-2 font-bold italic tracking-tight text-[#a04100]">Pillar 03</div>
-            <h3 className="mb-4 text-2xl font-bold text-[#1c1b1b]">TEAM</h3>
-            <p className="mb-4 text-sm leading-relaxed text-[#5e5e5e]">The human element that drives progress and embodies the organizational values.</p>
-            <div className="flex flex-col gap-2 text-xs font-bold text-[#1c1b1b]">
-              <div>✓ TALENT OPS</div>
-              <div>✓ SKILL ALIGNMENT</div>
-            </div>
           </div>
         </div>
 
@@ -381,29 +457,17 @@ function BOS360ModelVersion({ title, badge, versionLabel, centerTreatment }: Mod
           <div className="cursor-help rounded-full px-4 py-2 transition-colors hover:bg-[#ff6b00]/10">
             <span className="text-xl font-bold italic tracking-tight text-[#a04100]">Strategy</span>
           </div>
-          <div className="info-panel absolute -top-32 left-0 z-50 w-64 rounded-[1.5rem] border border-[#a04100]/20 bg-white p-6 shadow-xl">
-            <h4 className="mb-2 text-sm font-black text-[#a04100]">STRATEGY</h4>
-            <p className="text-xs italic text-[#5e5e5e]">Connecting Business goals with Brand identity to chart a clear course for market dominance.</p>
-          </div>
         </div>
 
         <div className="group absolute left-1/2 top-1/2 translate-x-[10px] -translate-y-[80px]">
           <div className="cursor-help rounded-full px-4 py-2 transition-colors hover:bg-[#ff6b00]/10">
             <span className="text-xl font-bold italic tracking-tight text-[#a04100]">Execution</span>
           </div>
-          <div className="info-panel absolute -top-32 right-0 z-50 w-64 rounded-[1.5rem] border border-[#a04100]/20 bg-white p-6 shadow-xl">
-            <h4 className="mb-2 text-sm font-black text-[#a04100]">EXECUTION</h4>
-            <p className="text-xs italic text-[#5e5e5e]">Bridging Business objectives and Team performance to ensure operational excellence.</p>
-          </div>
         </div>
 
         <div className="group absolute bottom-[60px] left-1/2 -translate-x-1/2">
           <div className="cursor-help rounded-full px-4 py-2 transition-colors hover:bg-[#ff6b00]/10">
             <span className="text-xl font-bold italic tracking-tight text-[#a04100]">Culture</span>
-          </div>
-          <div className="info-panel absolute bottom-12 left-1/2 z-50 w-64 -translate-x-1/2 rounded-[1.5rem] border border-[#a04100]/20 bg-white p-6 text-center shadow-xl">
-            <h4 className="mb-2 text-sm font-black uppercase text-[#a04100]">Culture</h4>
-            <p className="text-xs italic text-[#5e5e5e]">Harmonizing Brand promise and Team behavior to build an authentic organizational soul.</p>
           </div>
         </div>
 
@@ -418,10 +482,6 @@ function BOS360ModelVersion({ title, badge, versionLabel, centerTreatment }: Mod
               priority
             />
           </div>
-          <div className="info-panel absolute -top-40 left-1/2 z-50 w-80 -translate-x-1/2 rounded-[1.5rem] bg-[#1c1b1b] p-8 text-white shadow-2xl">
-            <h4 className="mb-4 text-2xl font-black text-[#ff6b00]">THE CORE</h4>
-            <p className="text-sm leading-relaxed text-[#e5e2e1]">BOS360 is the singularity where Business, Brand, and Team achieve 100% synergy. This is the architectural precision of high-performing ecosystems.</p>
-          </div>
         </div>
       </div>
 
@@ -430,108 +490,5 @@ function BOS360ModelVersion({ title, badge, versionLabel, centerTreatment }: Mod
         <div className="text-4xl font-black tracking-tighter text-[#1c1b1b]">BOS360</div>
       </div>
     </section>
-  );
-}
-
-export default function BOS360ModelPage() {
-  return (
-    <div className="min-h-screen bg-[#fcf9f8] text-[#1c1b1b] antialiased" style={{ fontFamily: 'Manrope, sans-serif' }}>
-      <style>{`
-        .venn-container {
-          position: relative;
-          width: min(600px, 90vw);
-          height: min(600px, 90vw);
-        }
-        .circle-base {
-          position: absolute;
-          width: min(380px, 58vw);
-          height: min(380px, 58vw);
-          border-radius: 9999px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          mix-blend-mode: multiply;
-          cursor: pointer;
-        }
-        @media (hover: hover) {
-          .circle-base:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 40px rgba(160, 65, 0, 0.15);
-          }
-        }
-        .circle-base:active {
-          transform: scale(0.98);
-        }
-        .venn-text {
-          pointer-events: none;
-          z-index: 10;
-        }
-        .center-overlap-svg {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          z-index: 8;
-          pointer-events: none;
-          filter: drop-shadow(0 18px 45px rgba(0, 0, 0, 0.22));
-        }
-        @media (max-width: 900px) {
-          .venn-container {
-            width: 100%;
-            max-width: 420px;
-            height: 420px;
-          }
-          .circle-base {
-            width: 250px;
-            height: 250px;
-          }
-        }
-        @media (max-width: 640px) {
-          .mobile-stack {
-            position: static !important;
-            transform: none !important;
-          }
-        }
-      `}</style>
-
-      <nav className="sticky top-0 z-40 w-full border-b border-black/5 bg-[#fcf9f8]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-screen-2xl items-center justify-between px-6 py-6 md:px-12">
-          <div className="text-2xl font-black tracking-tight">BOS360</div>
-          <div className="hidden gap-8 md:flex">
-            <a className="font-bold tracking-tight text-[#1c1b1b] transition-colors duration-200 hover:text-[#ff6b00]" href="#model-v1">Version 1</a>
-            <a className="font-bold tracking-tight text-[#1c1b1b] transition-colors duration-200 hover:text-[#ff6b00]" href="#model-v2">Version 2</a>
-          </div>
-          <button className="rounded-full bg-[#ff6b00] px-6 py-3 font-bold tracking-tight text-white transition-transform hover:scale-[1.02] md:px-8">
-            Get Started
-          </button>
-        </div>
-      </nav>
-
-      <main>
-        <div id="model-v1">
-          <InteractiveBOS360Model />
-        </div>
-        <div className="relative">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#a04100]/30 to-transparent" />
-          <div className="absolute inset-x-0 -top-4 flex justify-center">
-            <div className="bg-[#fcf9f8] px-4 text-xs font-bold uppercase tracking-[0.35em] text-[#a04100]">Version 2</div>
-          </div>
-          <BOS360ModelVersion title="THE MODEL" badge="100% STRONG" versionLabel="Version 2" centerTreatment="none" />
-        </div>
-      </main>
-
-      <footer className="w-full border-t border-black/5 bg-[#fcf9f8]">
-        <div className="mx-auto flex w-full max-w-screen-2xl flex-col items-center justify-between gap-4 px-6 py-8 md:flex-row md:px-12">
-          <div className="text-lg font-bold">BOS360</div>
-          <div className="my-0 text-sm text-[#5e5e5e]">© 2024 BOS360. Architectural Precision.</div>
-          <div className="flex gap-6 md:gap-8">
-            <a className="text-sm text-[#5e5e5e] hover:text-[#ff6b00]" href="#">Privacy Policy</a>
-            <a className="text-sm text-[#5e5e5e] hover:text-[#ff6b00]" href="#">Terms of Service</a>
-            <a className="text-sm text-[#5e5e5e] hover:text-[#ff6b00]" href="#">Contact</a>
-          </div>
-        </div>
-      </footer>
-    </div>
   );
 }
