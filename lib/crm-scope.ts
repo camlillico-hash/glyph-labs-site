@@ -13,22 +13,18 @@ export async function resolveActiveAccountId() {
   const memberships = await getUserAccountIds(session.uid);
   if (!memberships.length) throw new Error("NO_ACCOUNT");
   const allowed = new Set(memberships.map((m) => m.account_id));
+  const ordered = memberships.map((m) => m.account_id);
 
   // Admin can switch accounts via cookie, but only to accounts they belong to.
   const c = await cookies();
   const desired = c.get(activeAccountCookieName)?.value;
   if (session.role === "owner" && desired && allowed.has(desired)) return desired;
 
-  // Otherwise prefer an explicitly primary owner membership if present.
-  const ownerMembership = memberships.find((m) => m.role === "owner");
-  if (ownerMembership?.account_id) return ownerMembership.account_id;
-
-  // Then prefer the linked account that actually has CRM rows.
+  // Otherwise prefer the linked account that actually has CRM rows.
   try {
     const { getCrmPool } = await import("@/lib/crm-db");
     const pool = getCrmPool();
     if (pool) {
-      const ordered = memberships.map((m) => m.account_id);
       const q = await pool.query(
         `
         with counts as (
@@ -55,5 +51,9 @@ export async function resolveActiveAccountId() {
     console.error("[crm-scope] failed to choose populated account", error);
   }
 
-  return memberships[0].account_id;
+  // Then prefer an explicitly owner membership if present.
+  const ownerMembership = memberships.find((m) => m.role === "owner");
+  if (ownerMembership?.account_id) return ownerMembership.account_id;
+
+  return ordered[0];
 }
