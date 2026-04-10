@@ -932,7 +932,33 @@ export default function LeadsPage() {
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? `New ${pipelineLabel(draft.pipelineType)}` : `${selected?.firstName || ""} ${selected?.lastName || ""}`}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex flex-wrap gap-2">
-              {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(false)}><Save size={14} className="text-emerald-300" /></button>{createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(true)}><Save size={14} className="text-emerald-300" /></button>}{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
+              {!createMode && !editMode ? (
+                <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}>
+                  <Pencil size={14} />
+                </button>
+              ) : (
+                <>
+                  <button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={() => saveContact(false)}>
+                    <Save size={14} className="text-emerald-300" />
+                    {createMode ? <span>Save</span> : null}
+                  </button>
+                  {createMode ? (
+                    <button
+                      className="crm-btn-ghost inline-flex items-center gap-1.5"
+                      title="Save and add another"
+                      aria-label="Save and add another"
+                      onClick={() => saveContact(true)}
+                    >
+                      <Plus size={14} />
+                      <span>Save + Add Another</span>
+                    </button>
+                  ) : (
+                    <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setTrayError(""); }}>
+                      <X size={14} className="text-rose-300" />
+                    </button>
+                  )}
+                </>
+              )}
               {!createMode && selected?.pipelineType !== "connector" && selected?.status === "Warm intro booked" && (
                 <button className="crm-btn-ghost inline-flex items-center gap-1.5 text-amber-200" onClick={() => askConfirm("Unconvert this Lead contact and return it to the open funnel?", () => { unconvertFromTray(); }, "Unconvert")}>
                   Unconvert
