@@ -18,7 +18,10 @@ export async function resolveActiveAccountId() {
   // Admin can switch accounts via cookie, but only to accounts they belong to.
   const c = await cookies();
   const desired = c.get(activeAccountCookieName)?.value;
-  if (session.role === "owner" && desired && allowed.has(desired)) return desired;
+  const canUseDesired = session.role === "owner" && desired && allowed.has(desired);
+
+  let totalsByAccount: Map<string, number> | null = null;
+  let populated: string | undefined;
 
   // Otherwise prefer the linked account that actually has CRM rows.
   try {
@@ -40,16 +43,26 @@ export async function resolveActiveAccountId() {
         from counts
         group by account_id
         order by total_rows desc, array_position($1::text[], account_id) asc
-        limit 1
         `,
         [ordered]
       );
-      const populated = q.rows[0]?.account_id as string | undefined;
-      if (populated && allowed.has(populated)) return populated;
+      totalsByAccount = new Map(
+        q.rows.map((row: any) => [String(row.account_id), Number(row.total_rows || 0)])
+      );
+      populated = q.rows[0]?.account_id as string | undefined;
     }
   } catch (error) {
     console.error("[crm-scope] failed to choose populated account", error);
   }
+
+  if (canUseDesired) {
+    const desiredRows = totalsByAccount?.get(String(desired)) || 0;
+    if (desiredRows > 0 || !populated) return String(desired);
+    if (populated && allowed.has(populated)) return populated;
+    return String(desired);
+  }
+
+  if (populated && allowed.has(populated)) return populated;
 
   // Then prefer an explicitly owner membership if present.
   const ownerMembership = memberships.find((m) => m.role === "owner");

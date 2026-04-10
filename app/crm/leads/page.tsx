@@ -140,27 +140,19 @@ export default function LeadsPage() {
     setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
   };
 
-  const loadRelated = async () => {
-    const [gmailRes, activitiesRes, tasksRes, dealsRes] = await Promise.all([
-      fetch("/api/crm/gmail/messages", { cache: "no-store" }),
-      fetch("/api/crm/activities", { cache: "no-store" }),
-      fetch("/api/crm/tasks", { cache: "no-store" }),
-      fetch("/api/crm/deals", { cache: "no-store" }),
-    ]);
-    const [gmailData, activitiesData, tasksData, dealsData] = await Promise.all([
-      gmailRes.json(),
-      activitiesRes.json(),
-      tasksRes.json(),
-      dealsRes.json(),
-    ]);
-    setGmail(gmailData);
-    setActivities(activitiesData);
-    setTasks(tasksData.tasks || []);
-    setDeals(dealsData.deals || []);
+  const loadSnapshot = async () => {
+    const res = await fetch("/api/crm/snapshot", { cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || "Could not load CRM data");
+    setItems(Array.isArray(data.contacts) ? data.contacts : []);
+    setActivities(Array.isArray(data.activities) ? data.activities : []);
+    setTasks(Array.isArray(data.tasks) ? data.tasks : []);
+    setDeals(Array.isArray(data.deals) ? data.deals : []);
+    setGmail(Array.isArray(data.gmailMessages) ? data.gmailMessages : []);
   };
 
   const load = async () => {
-    await Promise.all([loadContacts(), loadRelated()]);
+    await loadSnapshot();
   };
   useEffect(() => { load(); }, []);
 

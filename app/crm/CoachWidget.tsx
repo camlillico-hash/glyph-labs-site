@@ -12,10 +12,23 @@ export default function CoachWidget({ mode = "desktop-inline" }: { mode?: "deskt
 
   useEffect(() => {
     let mounted = true;
+    const fallbackCoach = {
+      name: "Sales Sgt. Glyph",
+      statusLabel: "On the board.",
+      icon: "hammer",
+      iconColor: "blue",
+      avatar: "/glyphy-mood-on-it.jpg",
+      message: "Stay on your weekly scorecard and keep pipeline pressure on.",
+    };
     const run = async () => {
-      const res = await fetch("/api/crm/coach", { cache: "no-store" });
-      const j = await res.json();
-      if (mounted) setData(j);
+      try {
+        const res = await fetch("/api/crm/coach", { cache: "no-store" });
+        const j = await res.json().catch(() => null);
+        if (!res.ok || !j) throw new Error("coach fetch failed");
+        if (mounted) setData(j);
+      } catch {
+        if (mounted) setData((prev: any) => prev || fallbackCoach);
+      }
     };
     run();
     const t = setInterval(run, 60000);
