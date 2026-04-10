@@ -462,6 +462,42 @@ async function saveStorePg(store: CrmStore, accountId?: string) {
   if (!accountId) throw new Error("Missing accountId");
   await ensureSchema();
   const client = await pool.connect();
+
+  const bulkInsert = async (
+    table: "crm_contacts" | "crm_contact_stamps" | "crm_deals" | "crm_deal_stamps" | "crm_tasks",
+    rows: Array<{ id?: string }>
+  ) => {
+    const payload = rows
+      .filter((row) => String(row?.id || "").trim())
+      .map((row: any) => ({ id: String(row.id), data: row }));
+    await client.query(
+      `
+      insert into ${table} (id, account_id, data, updated_at)
+      select r.id, $1, r.data, now()
+      from jsonb_to_recordset($2::jsonb) as r(id text, data jsonb)
+      `,
+      [accountId, JSON.stringify(payload)]
+    );
+  };
+
+  const bulkInsertActivities = async (rows: Array<{ id?: string; occurredAt?: string }>) => {
+    const payload = rows
+      .filter((row) => String(row?.id || "").trim())
+      .map((row: any) => ({
+        id: String(row.id),
+        data: row,
+        occurred_at: row.occurredAt || null,
+      }));
+    await client.query(
+      `
+      insert into crm_activities (id, account_id, data, updated_at, occurred_at)
+      select r.id, $1, r.data, now(), r.occurred_at
+      from jsonb_to_recordset($2::jsonb) as r(id text, data jsonb, occurred_at timestamptz)
+      `,
+      [accountId, JSON.stringify(payload)]
+    );
+  };
+
   try {
     await client.query("begin");
 
@@ -473,24 +509,12 @@ async function saveStorePg(store: CrmStore, accountId?: string) {
     await client.query("delete from crm_activities where account_id=$1", [accountId]);
     await client.query("delete from crm_meta where account_id=$1", [accountId]);
 
-    for (const c of store.contacts) {
-      await client.query("insert into crm_contacts (id, account_id, data, updated_at) values ($1,$2,$3,now())", [c.id, accountId, c]);
-    }
-    for (const s of (store.contactStamps || [])) {
-      await client.query("insert into crm_contact_stamps (id, account_id, data, updated_at) values ($1,$2,$3,now())", [s.id, accountId, s]);
-    }
-    for (const d of store.deals) {
-      await client.query("insert into crm_deals (id, account_id, data, updated_at) values ($1,$2,$3,now())", [d.id, accountId, d]);
-    }
-    for (const s of (store.dealStamps || [])) {
-      await client.query("insert into crm_deal_stamps (id, account_id, data, updated_at) values ($1,$2,$3,now())", [s.id, accountId, s]);
-    }
-    for (const t of store.tasks) {
-      await client.query("insert into crm_tasks (id, account_id, data, updated_at) values ($1,$2,$3,now())", [t.id, accountId, t]);
-    }
-    for (const a of (store.activities || [])) {
-      await client.query("insert into crm_activities (id, account_id, data, updated_at, occurred_at) values ($1,$2,$3,now(),$4)", [a.id, accountId, a, a.occurredAt || null]);
-    }
+    await bulkInsert("crm_contacts", store.contacts || []);
+    await bulkInsert("crm_contact_stamps", store.contactStamps || []);
+    await bulkInsert("crm_deals", store.deals || []);
+    await bulkInsert("crm_deal_stamps", store.dealStamps || []);
+    await bulkInsert("crm_tasks", store.tasks || []);
+    await bulkInsertActivities(store.activities || []);
     await client.query(
       "insert into crm_meta (key, account_id, data, updated_at) values ('gmail',$1,$2::jsonb,now())",
       [accountId, JSON.stringify(store.gmail)]
