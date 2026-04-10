@@ -5,13 +5,24 @@ import { resolveActiveAccountId } from "@/lib/crm-scope";
 
 export async function GET() {
   // Prefer scoped account data when a CRM session exists.
-  // Keep endpoint resilient for unauthenticated render paths.
-  let store;
+  // Keep endpoint resilient for unauthenticated or transient DB issues.
   try {
     const accountId = await resolveActiveAccountId();
-    store = await getStore(accountId);
+    const store = await getStore(accountId);
+    return NextResponse.json(computeCoachMood(store));
+  } catch {}
+
+  try {
+    const store = await getStore();
+    return NextResponse.json(computeCoachMood(store));
   } catch {
-    store = await getStore();
+    return NextResponse.json(
+      computeCoachMood({
+        contacts: [],
+        deals: [],
+        tasks: [],
+        activities: [],
+      })
+    );
   }
-  return NextResponse.json(computeCoachMood(store));
 }
