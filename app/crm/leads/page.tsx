@@ -104,6 +104,7 @@ export default function LeadsPage() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [inlineDraft, setInlineDraft] = useState<any>(null);
+  const [inlineError, setInlineError] = useState("");
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [bulkDeleteProgress, setBulkDeleteProgress] = useState<{ total: number; completed: number } | null>(null);
@@ -338,12 +339,17 @@ export default function LeadsPage() {
     if (target) openTray(target);
   }, [items, selected?.id]);
 
-  function startInlineEdit(c: any) { setEditingId(c.id); setInlineDraft({ ...c }); }
-  function cancelInlineEdit() { setEditingId(null); setInlineDraft(null); }
+  function startInlineEdit(c: any) { setInlineError(""); setEditingId(c.id); setInlineDraft({ ...c }); }
+  function cancelInlineEdit() { setInlineError(""); setEditingId(null); setInlineDraft(null); }
   async function saveInlineEdit() {
     if (!inlineDraft) return;
     const res = await fetch('/api/crm/contacts', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(inlineDraft) });
-    if (!res.ok) return;
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      setInlineError(j.error || "Could not save contact");
+      return;
+    }
+    setInlineError("");
     await load();
     cancelInlineEdit();
   }
@@ -723,6 +729,7 @@ export default function LeadsPage() {
           </div>
         </div>
       </div>
+      {inlineError ? <p className="text-sm text-red-300">{inlineError}</p> : null}
 
       {view === "bucket" ? (
         <div className="space-y-6">

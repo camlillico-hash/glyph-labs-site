@@ -302,9 +302,6 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   const body = await req.json();
-  if (!String(body.firstName || "").trim() && !String(body.lastName || "").trim()) {
-    return NextResponse.json({ error: "A first or last name is required" }, { status: 400 });
-  }
 
   const { resolveActiveAccountId } = await import("@/lib/crm-scope");
   const accountId = await resolveActiveAccountId();
@@ -313,9 +310,14 @@ export async function PUT(req: Request) {
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const previous = store.contacts[idx];
+  const firstName = String(body.firstName ?? previous.firstName ?? "").trim();
+  const lastName = String(body.lastName ?? previous.lastName ?? "").trim();
+  if (!firstName && !lastName) {
+    return NextResponse.json({ error: "A first or last name is required" }, { status: 400 });
+  }
   const pipelineType = normalizePipelineType(body.pipelineType || previous.pipelineType);
   const status = normalizeStatus(body.status, pipelineType);
-  const email = normalizeEmail(body.email);
+  const email = body.email === undefined ? normalizeEmail(previous.email) : normalizeEmail(body.email);
   const disqualificationReason = normalizeDisqualificationReason(body.disqualificationReason);
   const whatNow = normalizeWhatNow(body.whatNow);
   if (statusNeedsEmail(status, pipelineType) && !email) {
