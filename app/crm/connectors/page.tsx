@@ -97,6 +97,7 @@ export default function ConnectorsPage() {
   const [editMode, setEditMode] = useState(false);
   const [createMode, setCreateMode] = useState(false);
   const [trayError, setTrayError] = useState("");
+  const [loadError, setLoadError] = useState("");
   const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; action: (() => void) | null; confirmLabel?: string }>({ open: false, message: "", action: null, confirmLabel: "Delete" });
   const [movePicker, setMovePicker] = useState<{ open: boolean; contactId?: string }>({ open: false });
 
@@ -138,8 +139,54 @@ export default function ConnectorsPage() {
     setGmail(Array.isArray(data.gmailMessages) ? data.gmailMessages : []);
   };
 
+  const loadLegacy = async () => {
+    const [contactsR, activitiesR, tasksR, dealsR, gmailR] = await Promise.allSettled([
+      fetch("/api/crm/contacts", { cache: "no-store" }),
+      fetch("/api/crm/activities", { cache: "no-store" }),
+      fetch("/api/crm/tasks", { cache: "no-store" }),
+      fetch("/api/crm/deals", { cache: "no-store" }),
+      fetch("/api/crm/gmail/messages", { cache: "no-store" }),
+    ]);
+
+    if (contactsR.status === "fulfilled" && contactsR.value.ok) {
+      const contacts = await contactsR.value.json().catch(() => ({}));
+      setItems(Array.isArray(contacts) ? contacts : contacts.contacts || []);
+    } else {
+      throw new Error("Could not load contacts");
+    }
+    if (activitiesR.status === "fulfilled" && activitiesR.value.ok) {
+      setActivities(await activitiesR.value.json().catch(() => []));
+    }
+    if (tasksR.status === "fulfilled" && tasksR.value.ok) {
+      const tasks = await tasksR.value.json().catch(() => ({}));
+      setTasks(Array.isArray(tasks) ? tasks : tasks.tasks || []);
+    }
+    if (dealsR.status === "fulfilled" && dealsR.value.ok) {
+      const deals = await dealsR.value.json().catch(() => ({}));
+      setDeals(Array.isArray(deals) ? deals : deals.deals || []);
+    }
+    if (gmailR.status === "fulfilled" && gmailR.value.ok) {
+      setGmail(await gmailR.value.json().catch(() => []));
+    }
+  };
+
   const load = async () => {
-    await loadSnapshot();
+    setLoadError("");
+    try {
+      await loadSnapshot();
+      return;
+    } catch (error: any) {
+      const reason = String(error?.message || "");
+      if (reason === "UNAUTHENTICATED" || reason === "NO_ACCOUNT") {
+        setLoadError("CRM session missing. Please log in again.");
+        return;
+      }
+    }
+    try {
+      await loadLegacy();
+    } catch {
+      setLoadError("Could not load CRM data. Refresh this page.");
+    }
   };
   useEffect(() => { load(); }, []);
 
@@ -478,6 +525,7 @@ export default function ConnectorsPage() {
           </div>
         </div>
       </div>
+      {loadError ? <p className="text-sm text-amber-300">{loadError}</p> : null}
       {inlineError ? <p className="text-sm text-red-300">{inlineError}</p> : null}
 
       {view === "bucket" ? (

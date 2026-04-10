@@ -14,6 +14,8 @@ export async function GET() {
       gmailMessages: Array.isArray(store.gmail?.messages) ? store.gmail.messages : [],
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || "Could not load CRM snapshot" }, { status: 401 });
+    const message = error?.message || "Could not load CRM snapshot";
+    const status = message === "UNAUTHENTICATED" || message === "NO_ACCOUNT" ? 401 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }
