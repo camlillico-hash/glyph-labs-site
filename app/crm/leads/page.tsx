@@ -135,13 +135,32 @@ export default function LeadsPage() {
 
   const checkboxClassName = "h-4 w-4 cursor-pointer rounded border border-neutral-600 bg-neutral-300/70 text-sky-700 accent-slate-400 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] shadow-black/20 transition hover:border-neutral-500 hover:bg-neutral-300/85 disabled:cursor-not-allowed disabled:opacity-50";
 
-  const load = async () => {
+  const loadContacts = async () => {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
     setItems(Array.isArray(contactsRes) ? contactsRes : contactsRes.contacts || []);
-    setGmail(await (await fetch("/api/crm/gmail/messages", { cache: "no-store" })).json());
-    setActivities(await (await fetch("/api/crm/activities", { cache: "no-store" })).json());
-    setTasks((await (await fetch("/api/crm/tasks", { cache: "no-store" })).json()).tasks || []);
-    setDeals((await (await fetch("/api/crm/deals", { cache: "no-store" })).json()).deals || []);
+  };
+
+  const loadRelated = async () => {
+    const [gmailRes, activitiesRes, tasksRes, dealsRes] = await Promise.all([
+      fetch("/api/crm/gmail/messages", { cache: "no-store" }),
+      fetch("/api/crm/activities", { cache: "no-store" }),
+      fetch("/api/crm/tasks", { cache: "no-store" }),
+      fetch("/api/crm/deals", { cache: "no-store" }),
+    ]);
+    const [gmailData, activitiesData, tasksData, dealsData] = await Promise.all([
+      gmailRes.json(),
+      activitiesRes.json(),
+      tasksRes.json(),
+      dealsRes.json(),
+    ]);
+    setGmail(gmailData);
+    setActivities(activitiesData);
+    setTasks(tasksData.tasks || []);
+    setDeals(dealsData.deals || []);
+  };
+
+  const load = async () => {
+    await Promise.all([loadContacts(), loadRelated()]);
   };
   useEffect(() => { load(); }, []);
 
@@ -350,7 +369,7 @@ export default function LeadsPage() {
       return;
     }
     setInlineError("");
-    await load();
+    await loadContacts();
     cancelInlineEdit();
   }
 
@@ -400,7 +419,7 @@ export default function LeadsPage() {
       return next;
     });
     await fetch("/api/crm/contacts", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...contact, status, openBoardHidden: false }) });
-    await load();
+    await loadContacts();
   }
 
   async function saveDisqualificationModal() {
@@ -441,7 +460,7 @@ export default function LeadsPage() {
     }
 
     setDqModal({ open: false, disqualificationReason: "", whatNow: "", error: "", saving: false });
-    await load();
+    await loadContacts();
   }
 
   async function removeFromOpen(contact: any) {
@@ -454,7 +473,7 @@ export default function LeadsPage() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      await load();
+      await loadContacts();
       setRemovingFromOpenIds((prev) => prev.filter((id) => id !== contact.id));
     }, 220);
   }
@@ -465,7 +484,7 @@ export default function LeadsPage() {
     const isCreate = createMode;
     const res = await fetch("/api/crm/contacts", { method: isCreate ? "POST" : "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(draft) });
     if (!res.ok) { const j = await res.json().catch(() => ({})); setTrayError(j.error || "Could not save contact"); return; }
-    await load();
+    await loadContacts();
     if (isCreate && createAnother) {
       const pipelineType = draft.pipelineType || "icp";
       setDraft({ pipelineType, status: defaultStatusForPipeline(pipelineType) });
@@ -487,7 +506,7 @@ export default function LeadsPage() {
     }
     setSelectedLeadIds((prev) => prev.filter((id) => id !== selected.id));
     closeTray();
-    await load();
+    await loadContacts();
   }
 
   function toggleLeadSelection(contactId: string, checked: boolean) {
@@ -529,7 +548,7 @@ export default function LeadsPage() {
         return;
       }
       setSelectedLeadIds((prev) => prev.filter((selectedId) => !ids.includes(selectedId)));
-      await load();
+      await loadContacts();
       setConfirmState({ open: false, message: "", action: null, confirmLabel: "Delete" });
       closeTray();
     } finally {
@@ -558,7 +577,7 @@ export default function LeadsPage() {
       setTrayError(updated?.error || 'Could not unconvert contact');
       return;
     }
-    await load();
+    await loadContacts();
     setSelected(updated);
     setDraft({ ...updated });
   }
