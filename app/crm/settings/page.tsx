@@ -1,6 +1,7 @@
 import { getStore, normalizeTransitionTargets, storageMode } from "@/lib/crm-store";
 import { gmailReady } from "@/lib/gmail";
 import { Settings, Mail, Database } from "lucide-react";
+import CrmDataTools from "./CrmDataTools";
 
 export const dynamic = "force-dynamic";
 
@@ -123,6 +124,8 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
           <p className="mt-2 text-sm text-amber-300">Set DATABASE_URL to use persistent hosted Postgres (recommended for production).</p>
         )}
       </section>
+
+      <CrmDataTools />
     </div>
   );
 }

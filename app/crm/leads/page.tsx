@@ -2,9 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
-import { Target, Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Upload, Download, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight, Paperclip } from "lucide-react";
+import { Target, Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight, Paperclip } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
-import Papa from "papaparse";
 
 type Contact = any;
 const CONNECTOR_STAGES = ["Identified", "Attempting", "Connected", "Positioned", "Activated", "Intro Pending", "Intro Delivered", "Nurture", "Closed Lost"];
@@ -115,9 +114,6 @@ export default function LeadsPage() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [tableViewportHeight, setTableViewportHeight] = useState(560);
-  const [importOpen, setImportOpen] = useState(false);
-  const [importResult, setImportResult] = useState<any>(null);
-  const [importError, setImportError] = useState("");
   const [showOpenContacts, setShowOpenContacts] = useState(true);
   const [showConverted, setShowConverted] = useState(false);
   const [showClients, setShowClients] = useState(false);
@@ -213,27 +209,6 @@ export default function LeadsPage() {
     window.addEventListener("resize", updateTableViewportHeight);
     return () => window.removeEventListener("resize", updateTableViewportHeight);
   }, []);
-
-  function exportContacts(rows: Contact[]) {
-    const csv = [
-      EXPORT_HEADERS.join(","),
-      ...rows.map((contact) => EXPORT_HEADERS.map((header) => {
-        if (header === "contactId") return csvEscape(contact.id || "");
-        return csvEscape(contact[header] ?? "");
-      }).join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    const prefix = window.location.pathname.includes("connectors") ? "crm-connectors" : "crm-leads";
-    link.download = prefix + "-" + new Date().toISOString().slice(0, 10) + ".csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }
 
 
   useEffect(() => {
@@ -779,8 +754,6 @@ export default function LeadsPage() {
             <Trash2 size={14} />
           </button>
           <button title="New lead" aria-label="New lead" className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-3 py-2 font-semibold text-white hover:bg-sky-600" onClick={() => openCreate("icp")}><Plus size={14} /></button>
-          <button title="Export CSV" aria-label="Export CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => exportContacts(icpItems)}><Download size={14} /></button>
-          <button title="Import CSV" aria-label="Import CSV" className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => { setImportOpen(true); setImportError(""); setImportResult(null); }}><Upload size={14} /></button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
             <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
             <button className={`px-2 py-1 rounded ${view === "table" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("table")}><List size={16} /></button>
@@ -905,67 +878,6 @@ export default function LeadsPage() {
           )}
         </div>
       </div>
-
-      {importOpen && (
-        <div className="fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/55" onClick={() => setImportOpen(false)} />
-          <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-neutral-700 bg-neutral-950 p-5 shadow-2xl">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-xl font-semibold">Import contacts from CSV</h2>
-              <button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={() => setImportOpen(false)}><X size={14} /> Close</button>
-            </div>
-            <div className="mt-4">
-              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-200 hover:bg-neutral-800">
-                <Upload size={14} /> Choose file
-                <input
-                  type="file"
-                  accept=".csv,text/csv"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setImportError("");
-                    setImportResult(null);
-                    const text = await file.text();
-                    const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-                    if (parsed.errors?.length) {
-                      setImportError(parsed.errors[0].message || "CSV parse error");
-                      return;
-                    }
-                    const rows = parsed.data as any[];
-                    const res = await fetch('/api/crm/contacts/import', {
-                      method: 'POST',
-                      headers: { 'content-type': 'application/json' },
-                      body: JSON.stringify({ rows }),
-                    });
-                    const j = await res.json().catch(() => ({}));
-                    if (!res.ok) {
-                      setImportError(j.error || 'Import failed');
-                      return;
-                    }
-                    setImportResult(j);
-                    await load();
-                  }}
-                />
-              </label>
-              <p className="mt-3 text-xs text-slate-500">CSV headers accepted: Contact ID, Company, Website, Industry, Employee Size, First Name, Last Name, Title, Phone, Area/Geo, Linkedin Connect Request, LinkedIn Profile, Email Address, Source, Notes 1: Trigger, and Notes 2: Why Now?.</p>
-              <p className="mt-1 text-xs text-slate-500">All listed columns are stored on the contact record. Export includes Contact ID, and reimporting with Contact ID updates missing fields only. A single Contact column still auto-splits into first and last name, and if pipelineType is omitted, imports default to leads.</p>
-            </div>
-
-            {importError && <p className="mt-3 text-sm text-red-300">{importError}</p>}
-            {importResult && (
-              <div className="mt-3 rounded-lg border border-neutral-800 bg-neutral-900 p-3 text-sm">
-                <p className="text-emerald-300">Created: {importResult.created} · Updated: {importResult.updated ?? 0} · Skipped: {importResult.skipped}</p>
-                {importResult.errors?.length > 0 && (
-                  <div className="mt-2 max-h-56 overflow-auto text-xs text-slate-300">
-                    {importResult.errors.map((er: any, i: number) => <p key={i}>Row {er.row}: {er.reason}</p>)}
-                  </div>
-                )}
-              </div>
-            )}
-          </aside>
-        </div>
-      )}
 
       {draft && (
         <div className="fixed inset-0 z-40"><div className="absolute inset-0 bg-black/55" onClick={closeTray} />
