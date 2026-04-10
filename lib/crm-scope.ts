@@ -19,6 +19,7 @@ export async function resolveActiveAccountId() {
   const c = await cookies();
   const desired = c.get(activeAccountCookieName)?.value;
   const canUseDesired = session.role === "owner" && desired && allowed.has(desired);
+  if (canUseDesired) return String(desired);
 
   let totalsByAccount: Map<string, number> | null = null;
   let populated: string | undefined;
@@ -53,13 +54,6 @@ export async function resolveActiveAccountId() {
     }
   } catch (error) {
     console.error("[crm-scope] failed to choose populated account", error);
-  }
-
-  if (canUseDesired && totalsByAccount) {
-    const desiredRows = totalsByAccount?.get(String(desired)) || 0;
-    if (desiredRows > 0 || !populated) return String(desired);
-    if (populated && allowed.has(populated)) return populated;
-    return String(desired);
   }
 
   if (populated && allowed.has(populated)) return populated;
