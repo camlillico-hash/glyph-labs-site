@@ -130,7 +130,7 @@ export default function LeadsPage() {
     saving: false,
   });
 
-  const checkboxClassName = "h-4 w-4 cursor-pointer rounded border border-neutral-600 bg-neutral-300/70 text-sky-700 accent-slate-400 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] shadow-black/20 transition hover:border-neutral-500 hover:bg-neutral-300/85 disabled:cursor-not-allowed disabled:opacity-50";
+  const checkboxClassName = "h-4 w-4 cursor-pointer rounded border border-neutral-600 bg-neutral-800/90 text-sky-700 accent-sky-500 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] shadow-black/20 transition hover:border-neutral-500 hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50";
 
   const loadContacts = async () => {
     const contactsRes = await (await fetch("/api/crm/contacts", { cache: "no-store" })).json();
