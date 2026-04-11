@@ -163,7 +163,7 @@ export default async function CrmHome() {
   const fullExitReady = activeClients >= requiredClients && annualizedRevenue >= targets.revenueGoalAnnual && potentialClients >= 2;
 
   const weeklyActivitiesRecords = activitiesThisWeek;
-  const weeklyNewConnectorRecords = connectorPeople.filter((c) => {
+  const weeklyNewLeadRecords = leadPeople.filter((c) => {
     const ms = new Date(c.createdAt || c.updatedAt).getTime();
     return Number.isFinite(ms) && ms >= oneWeekAgo;
   });
@@ -186,12 +186,12 @@ export default async function CrmHome() {
       })),
     },
     {
-      key: "weekly-connectors",
-      label: "New Connectors (weekly)",
-      value: weeklyNewConnectorRecords.length,
+      key: "weekly-leads",
+      label: "New Leads (weekly)",
+      value: weeklyNewLeadRecords.length,
       target: "3",
-      ok: weeklyNewConnectorRecords.length >= 3,
-      records: weeklyNewConnectorRecords.map((c) => ({
+      ok: weeklyNewLeadRecords.length >= 3,
+      records: weeklyNewLeadRecords.map((c) => ({
         id: `contact-${c.id}`,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim() || "Unnamed contact",
         status: c.status || ((c.pipelineType || "connector") === "connector" ? "Identified" : "New"),
