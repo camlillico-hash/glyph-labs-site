@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import { ArrowLeft, ArrowUp } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -16,7 +18,7 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: "Cam Lillico | Coaching",
+    title: `${post.title} | Cam Lillico`,
     description: post.description,
     robots: { index: false, follow: false },
   };
@@ -35,11 +37,11 @@ export default async function BlogPostPage({ params }) {
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
           <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Coaching">
-            <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
-              <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-7 w-7 object-contain sm:h-8 sm:w-8" />
-            </a>
+            <Link href="/coaching-v2" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
+              <Image src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" width={32} height={32} className="h-7 w-7 object-contain sm:h-8 sm:w-8" />
+            </Link>
             <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-orange-200">
-              Cam Lillico Business Coaching
+              Cam Lillico Leadership Insights
             </span>
           </div>
           <div className="flex items-center gap-2 whitespace-nowrap">
@@ -56,13 +58,13 @@ export default async function BlogPostPage({ params }) {
       </header>
 
       <section className="mx-auto max-w-3xl px-6 pb-16 pt-10 md:pt-12">
-        <a
-          href="/coaching#leadership-insights"
+        <Link
+          href="/coaching/blog"
           className="inline-flex items-center gap-2 rounded-lg border border-orange-300/40 bg-orange-500/10 px-3 py-1.5 text-sm font-semibold text-orange-100 transition hover:bg-orange-500/20"
         >
           <ArrowLeft size={16} aria-hidden />
-          Back to Coaching
-        </a>
+          Back to Leadership Insights
+        </Link>
 
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-orange-200/90">
           {post.category} · {post.readTime}
@@ -73,9 +75,12 @@ export default async function BlogPostPage({ params }) {
         <h1 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">{post.title}</h1>
         <p className="mt-4 text-lg text-slate-300">{post.description}</p>
 
-        <img
+        <Image
           src={post.thumbnail}
           alt={post.title}
+          width={1200}
+          height={640}
+          unoptimized
           className="mt-8 h-64 w-full rounded-2xl border border-neutral-700 object-cover md:h-80"
         />
 
@@ -90,7 +95,7 @@ export default async function BlogPostPage({ params }) {
             <h2 className="text-2xl font-bold">More Leadership Insights</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               {morePosts.map((item) => (
-                <a
+                <Link
                   key={item.slug}
                   href={`/coaching/blog/${item.slug}`}
                   className="blog-card group rounded-xl border border-neutral-700 bg-neutral-900/70 p-3 transition hover:border-neutral-500"
@@ -102,7 +107,7 @@ export default async function BlogPostPage({ params }) {
                     {item.title}
                   </h3>
                   <p className="mt-1 line-clamp-2 text-xs text-slate-400">{item.description}</p>
-                </a>
+                </Link>
               ))}
             </div>
           </section>
