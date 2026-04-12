@@ -312,7 +312,7 @@ export default function CoachingV2Page() {
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_23rem] lg:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-neutral-600 bg-neutral-800/85 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200 shadow-[0_12px_24px_-20px_rgba(0,0,0,0.7)]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-300 bg-orange-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-800 shadow-[0_12px_24px_-20px_rgba(15,23,42,0.18)]">
               <Layers3 size={14} />
               BOS360 for founder-led leadership teams
             </div>
