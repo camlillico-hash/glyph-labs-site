@@ -9,10 +9,12 @@ import {
   CircleDot,
   Crosshair,
   Layers3,
+  Mail,
   MoveRight,
   ShieldCheck,
   Sparkles,
   Target,
+  User,
   Workflow,
   XCircle,
 } from "lucide-react";
@@ -344,22 +346,39 @@ export default function CoachingV2Page() {
               </div>
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <PrimaryButton href={BOOKING_URL}>
-                Book a Warm Intro Call
-                <ArrowRight size={16} />
-              </PrimaryButton>
-              <SecondaryButton href={STRENGTH_TEST_URL}>
-                Take the Strength Test
-                <Sparkles size={16} />
-              </SecondaryButton>
-            </div>
+            <div className="mt-8 grid gap-4 xl:max-w-[52rem] md:grid-cols-2">
+              <div className="rounded-[1.5rem] border border-neutral-700 bg-neutral-900/85 p-4 shadow-[0_24px_50px_-34px_rgba(0,0,0,0.6)]">
+                <PrimaryButton href={BOOKING_URL}>
+                  Book an Intro Call
+                  <ArrowRight size={16} />
+                </PrimaryButton>
+                <p className="mt-4 text-sm leading-6 text-slate-300">
+                  The Intro Call is a short conversation to establish context, confirm
+                  fit, and determine whether it makes sense to bring your leadership team
+                  into a Discovery Meeting.
+                </p>
+              </div>
 
-            <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-400">
-              The Warm Intro Call is a short conversation to establish context, confirm
-              fit, and determine whether it makes sense to bring your leadership team
-              into a Discovery Meeting.
-            </p>
+              <div className="rounded-[1.5rem] border border-neutral-700 bg-neutral-900/85 p-4 shadow-[0_24px_50px_-34px_rgba(0,0,0,0.6)]">
+                <SecondaryButton href={STRENGTH_TEST_URL}>
+                  Take the Strength Test
+                  <Sparkles size={16} />
+                </SecondaryButton>
+                <p className="mt-4 text-sm leading-6 text-slate-300">
+                  In 3–5 minutes, you’ll get a clear baseline across Business, Brand,
+                  Team, Strategy, Execution, and Culture. It helps us focus your
+                  discovery call on the real bottlenecks instead of surface symptoms.
+                </p>
+                <div className="mt-4 inline-flex flex-col rounded-xl border border-neutral-700 bg-neutral-950/80 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
+                  <span>20 questions · Instant results</span>
+                  <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-[9px] tracking-[0.08em] text-slate-200">
+                    <User size={10} aria-hidden />
+                    <Mail size={10} aria-hidden />
+                    Name + email required
+                  </span>
+                </div>
+              </div>
+            </div>
 
             <div className="mt-8 grid gap-3 md:grid-cols-3">
               {trustItems.map((item) => (
