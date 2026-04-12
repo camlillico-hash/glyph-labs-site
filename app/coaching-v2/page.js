@@ -202,7 +202,7 @@ function PrimaryButton({ href, children }) {
       href={href}
       target={href.startsWith("http") ? "_blank" : undefined}
       rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-      className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_-22px_rgba(15,23,42,0.9)] transition hover:-translate-y-0.5 hover:bg-slate-800"
+      className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_18px_40px_-22px_rgba(0,0,0,0.72)] transition hover:-translate-y-0.5 hover:opacity-90"
     >
       {children}
     </a>
@@ -213,7 +213,7 @@ function SecondaryButton({ href, children }) {
   return (
     <Link
       href={href}
-      className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50"
+      className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-200 transition hover:-translate-y-0.5 hover:bg-cyan-500/15"
     >
       {children}
     </Link>
@@ -224,15 +224,15 @@ function SectionIntro({ eyebrow, title, body, align = "left", invert = false }) 
   return (
     <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
       {eyebrow ? (
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#b8612b]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-200">
           {eyebrow}
         </p>
       ) : null}
-      <h2 className={`mt-3 text-3xl font-bold tracking-tight md:text-4xl ${invert ? "text-white" : "text-slate-950"}`}>
+      <h2 className={`mt-3 text-3xl font-bold tracking-tight md:text-4xl ${invert ? "text-white" : "text-slate-100"}`}>
         {title}
       </h2>
       {body ? (
-        <p className={`mt-4 text-base leading-7 md:text-lg ${invert ? "text-slate-300" : "text-slate-600"}`}>
+        <p className={`mt-4 text-base leading-7 md:text-lg ${invert ? "text-slate-300" : "text-slate-300"}`}>
           {body}
         </p>
       ) : null}
@@ -244,65 +244,64 @@ export default function CoachingV2Page() {
   const featuredPosts = blogPosts.slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-[#f5f1ea] text-slate-950">
+    <main className="coaching-theme min-h-screen bg-neutral-950 text-slate-100">
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-0 top-0 h-[34rem] w-[34rem] rounded-full bg-[#f0d6c2]/70 blur-3xl" />
-        <div className="absolute right-[-8rem] top-[18rem] h-[30rem] w-[30rem] rounded-full bg-[#dce3ea]/85 blur-3xl" />
-        <div className="absolute inset-x-0 top-0 h-[26rem] bg-[linear-gradient(to_bottom,rgba(15,23,42,0.06),transparent)]" />
+        <div className="absolute -left-28 -top-36 h-[34rem] w-[34rem] rounded-full bg-[#ed7d31]/20 blur-3xl" />
+        <div className="absolute -right-24 top-[18rem] h-[30rem] w-[30rem] rounded-full bg-neutral-600/20 blur-3xl" />
       </div>
 
-      <header className="sticky top-0 z-30 border-b border-black/10 bg-[#f5f1ea]/88 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
           <Link href="/coaching-v2" className="inline-flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-[0_12px_30px_-20px_rgba(15,23,42,0.55)]">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-neutral-700 bg-neutral-900 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.7)]">
               <Image src="/logos/glyphlabs-coaching-mark.png" alt="Cam Lillico" width={28} height={28} className="h-7 w-7 object-contain" />
             </span>
             <span className="min-w-0">
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-[#b8612b]">
+              <span className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-200">
                 Cam Lillico
               </span>
-              <span className="block text-sm font-semibold text-slate-900">
+              <span className="block text-sm font-semibold text-slate-100">
                 BOS360 Coaching
               </span>
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
-            <Link href="/coaching-v2" className="transition hover:text-slate-950">
+          <nav className="hidden items-center gap-6 text-sm font-medium text-slate-300 md:flex">
+            <Link href="/coaching-v2" className="transition hover:text-slate-100">
               Coaching
             </Link>
-            <Link href={STRENGTH_TEST_URL} className="transition hover:text-slate-950">
+            <Link href={STRENGTH_TEST_URL} className="transition hover:text-slate-100">
               Strength Test
             </Link>
-            <Link href={BLOG_URL} className="transition hover:text-slate-950">
+            <Link href={BLOG_URL} className="transition hover:text-slate-100">
               Blog
             </Link>
             <a
               href={BOOKING_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-4 py-2 text-slate-950 transition hover:opacity-90"
             >
               Warm Intro Call
             </a>
           </nav>
         </div>
-        <div className="border-t border-black/6 px-6 py-3 md:hidden">
-          <div className="mx-auto flex max-w-7xl flex-wrap gap-2 text-xs font-semibold text-slate-700">
-            <Link href="/coaching-v2" className="rounded-full border border-slate-300 bg-white px-3 py-1.5">
+        <div className="border-t border-neutral-800 px-6 py-3 md:hidden">
+          <div className="mx-auto flex max-w-7xl flex-wrap gap-2 text-xs font-semibold text-slate-200">
+            <Link href="/coaching-v2" className="rounded-full border border-neutral-700 bg-neutral-900 px-3 py-1.5">
               Coaching
             </Link>
-            <Link href={STRENGTH_TEST_URL} className="rounded-full border border-slate-300 bg-white px-3 py-1.5">
+            <Link href={STRENGTH_TEST_URL} className="rounded-full border border-cyan-400/50 bg-cyan-500/10 px-3 py-1.5 text-cyan-200">
               Strength Test
             </Link>
-            <Link href={BLOG_URL} className="rounded-full border border-slate-300 bg-white px-3 py-1.5">
+            <Link href={BLOG_URL} className="rounded-full border border-neutral-700 bg-neutral-900 px-3 py-1.5">
               Blog
             </Link>
             <a
               href={BOOKING_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full border border-slate-300 bg-white px-3 py-1.5"
+              className="rounded-full bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-1.5 text-slate-950"
             >
               Warm Intro Call
             </a>
@@ -313,22 +312,22 @@ export default function CoachingV2Page() {
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_23rem] lg:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b8612b] shadow-[0_12px_24px_-20px_rgba(15,23,42,0.6)]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-neutral-600 bg-neutral-800/85 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200 shadow-[0_12px_24px_-20px_rgba(0,0,0,0.7)]">
               <Layers3 size={14} />
               BOS360 for founder-led leadership teams
             </div>
 
-            <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight text-slate-950 md:text-7xl">
+            <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight text-slate-100 md:text-7xl">
               Turn Vision Into
-              <span className="block text-[#8a4c26]">Execution with BOS360</span>
+              <span className="block text-orange-200">Execution with BOS360</span>
             </h1>
 
-            <p className="mt-6 max-w-4xl text-xl leading-8 text-slate-700">
+            <p className="mt-6 max-w-4xl text-xl leading-8 text-slate-300">
               I help founder-led companies implement BOS360 — a proven operating
               system that helps leadership teams get aligned, accountable, and
               executing consistently.
             </p>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
               For growing companies with a leadership team in place, where progress
               is real but friction, drift, or founder dependence is starting to show.
             </p>
@@ -344,7 +343,7 @@ export default function CoachingV2Page() {
               </SecondaryButton>
             </div>
 
-            <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-500">
+            <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-400">
               The Warm Intro Call is a short conversation to establish context, confirm
               fit, and determine whether it makes sense to bring your leadership team
               into a Discovery Meeting.
@@ -354,36 +353,36 @@ export default function CoachingV2Page() {
               {trustItems.map((item) => (
                 <div
                   key={item}
-                  className="rounded-2xl border border-white/60 bg-white/70 px-4 py-4 shadow-[0_24px_50px_-34px_rgba(15,23,42,0.65)] backdrop-blur"
+                  className="rounded-2xl border border-neutral-700 bg-neutral-900/80 px-4 py-4 shadow-[0_24px_50px_-34px_rgba(0,0,0,0.6)] backdrop-blur"
                 >
-                  <p className="text-sm font-semibold text-slate-800">{item}</p>
+                  <p className="text-sm font-semibold text-slate-100">{item}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <aside className="rounded-[2rem] border border-slate-200 bg-[#0f172a] p-6 text-slate-100 shadow-[0_40px_80px_-36px_rgba(15,23,42,0.85)]">
+          <aside className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-6 text-slate-100 shadow-[0_40px_80px_-36px_rgba(0,0,0,0.85)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f0b082]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                   BOS360 system view
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold">Vision. Momentum. Health.</h2>
               </div>
-              <div className="rounded-full border border-white/10 bg-white/5 p-3">
-                <Crosshair size={18} className="text-[#f0b082]" />
+              <div className="rounded-full border border-neutral-700 bg-neutral-950/70 p-3">
+                <Crosshair size={18} className="text-[#ed7d31]" />
               </div>
             </div>
 
             <div className="mt-8 space-y-4">
               {bos360Cards.map((item, index) => (
-                <div key={item.name} className="relative rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div key={item.name} className="relative rounded-2xl border border-neutral-700 bg-neutral-950/70 p-4">
                   {index < bos360Cards.length - 1 ? (
-                    <span className="absolute left-7 top-full h-4 w-px bg-white/15" />
+                    <span className="absolute left-7 top-full h-4 w-px bg-neutral-700" />
                   ) : null}
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 rounded-xl border border-white/10 bg-white/10 p-2">
-                      <item.icon size={16} className="text-[#f0b082]" />
+                    <div className="mt-0.5 rounded-xl border border-neutral-700 bg-neutral-900 p-2">
+                      <item.icon size={16} className="text-[#ed7d31]" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-300">
@@ -398,8 +397,8 @@ export default function CoachingV2Page() {
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-[#f0b082]/20 bg-[#f0b082]/10 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#f3c6a7]">
+            <div className="mt-6 rounded-2xl border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
                 Designed for
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-200">
@@ -411,7 +410,7 @@ export default function CoachingV2Page() {
         </div>
       </section>
 
-      <section className="border-y border-black/8 bg-white/70 py-20">
+      <section className="border-y border-neutral-800 bg-neutral-900/40 py-20">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
           <SectionIntro
             eyebrow="The friction"
@@ -420,28 +419,28 @@ export default function CoachingV2Page() {
           />
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-[1.75rem] border border-slate-200 bg-[#fcfaf6] p-6 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.35)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b8612b]">
+            <div className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-6 shadow-[0_24px_60px_-40px_rgba(0,0,0,0.45)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                 What it gets mistaken for
               </p>
               <ul className="mt-5 space-y-4">
                 {problemPoints.map((item) => (
                   <li key={item} className="flex gap-3">
-                    <CircleDot size={18} className="mt-0.5 shrink-0 text-[#8a4c26]" />
-                    <span className="text-sm leading-6 text-slate-700">{item}</span>
+                    <CircleDot size={18} className="mt-0.5 shrink-0 text-[#ed7d31]" />
+                    <span className="text-sm leading-6 text-slate-300">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="rounded-[1.75rem] border border-slate-200 bg-slate-950 p-6 text-slate-100 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.7)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f0b082]">
+            <div className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-6 text-slate-100 shadow-[0_24px_60px_-40px_rgba(0,0,0,0.7)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                 What it turns into
               </p>
               <ul className="mt-5 space-y-4">
                 {resultPoints.map((item) => (
                   <li key={item} className="flex gap-3">
-                    <MoveRight size={18} className="mt-0.5 shrink-0 text-[#f0b082]" />
+                    <MoveRight size={18} className="mt-0.5 shrink-0 text-[#ed7d31]" />
                     <span className="text-sm leading-6 text-slate-300">{item}</span>
                   </li>
                 ))}
@@ -453,40 +452,40 @@ export default function CoachingV2Page() {
 
       <section className="mx-auto max-w-7xl px-6 py-20">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-[0_28px_80px_-44px_rgba(15,23,42,0.45)]">
+          <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-8 shadow-[0_28px_80px_-44px_rgba(0,0,0,0.55)]">
             <SectionIntro
               eyebrow="The reframe"
               title="The Problem Usually Isn’t Talent"
               body="Most leadership teams are not underperforming because they lack smart or capable people."
             />
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700">
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
               More often, they are operating without a system that forces clarity,
               discipline, accountability, and follow-through.
             </p>
-            <div className="mt-8 rounded-[1.5rem] border border-[#d7c7ba] bg-[#f7efe8] p-6">
-              <p className="text-xl font-semibold leading-8 text-slate-900">
+            <div className="mt-8 rounded-[1.5rem] border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-6">
+              <p className="text-xl font-semibold leading-8 text-slate-100">
                 It is not usually a people problem first.
-                <span className="block text-[#8a4c26]">It is a system problem.</span>
+                <span className="block text-orange-200">It is a system problem.</span>
               </p>
             </div>
           </div>
 
           <div className="grid gap-4">
-            <div className="rounded-[1.75rem] border border-slate-200 bg-[#fcfaf6] p-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b8612b]">
+            <div className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                 System requirements
               </p>
               <div className="mt-5 space-y-3">
                 {["Clarity", "Discipline", "Accountability", "Follow-through"].map((item) => (
-                  <div key={item} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800">
+                  <div key={item} className="rounded-2xl border border-neutral-700 bg-neutral-950 px-4 py-3 text-sm font-semibold text-slate-100">
                     {item}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border border-slate-200 bg-slate-950 p-6 text-slate-100">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f0b082]">
+            <div className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-6 text-slate-100">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                 Executive reality
               </p>
               <p className="mt-4 text-sm leading-6 text-slate-300">
@@ -499,7 +498,7 @@ export default function CoachingV2Page() {
         </div>
       </section>
 
-      <section className="border-y border-black/8 bg-slate-950 py-20 text-slate-100">
+      <section className="border-y border-neutral-800 bg-neutral-900/40 py-20 text-slate-100">
         <div className="mx-auto max-w-7xl px-6">
           <SectionIntro
             eyebrow="The operating system"
@@ -512,11 +511,11 @@ export default function CoachingV2Page() {
             {bos360Cards.map((item) => (
               <article
                 key={item.name}
-                className="rounded-[1.75rem] border border-white/10 bg-white/5 p-7 shadow-[0_30px_70px_-42px_rgba(0,0,0,0.65)]"
+                className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-7 shadow-[0_30px_70px_-42px_rgba(0,0,0,0.65)]"
               >
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl border border-white/10 bg-white/10 p-3">
-                    <item.icon size={18} className="text-[#f0b082]" />
+                  <div className="rounded-xl border border-neutral-700 bg-neutral-950 p-3">
+                    <item.icon size={18} className="text-[#ed7d31]" />
                   </div>
                   <h3 className="text-2xl font-semibold">{item.name}</h3>
                 </div>
@@ -525,8 +524,8 @@ export default function CoachingV2Page() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-[1.75rem] border border-[#f0b082]/20 bg-[#f0b082]/10 px-6 py-5">
-            <p className="text-lg font-semibold text-[#fff0e2]">
+          <div className="mt-8 rounded-[1.75rem] border border-[#ed7d31]/30 bg-[#ed7d31]/10 px-6 py-5">
+            <p className="text-lg font-semibold text-slate-100">
               This is not generic coaching and it is not abstract advice. BOS360 is
               tried, tested, and true.
             </p>
@@ -546,15 +545,15 @@ export default function CoachingV2Page() {
           {outcomeCards.map((item) => (
             <article
               key={item.title}
-              className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_26px_70px_-44px_rgba(15,23,42,0.42)]"
+              className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-6 shadow-[0_26px_70px_-44px_rgba(0,0,0,0.55)]"
             >
               <div className="flex items-start gap-4">
-                <div className="rounded-2xl border border-[#d7c7ba] bg-[#f7efe8] p-3">
-                  <CheckCircle2 size={18} className="text-[#8a4c26]" />
+                <div className="rounded-2xl border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-3">
+                  <CheckCircle2 size={18} className="text-[#ed7d31]" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-slate-900">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+                  <h3 className="text-xl font-semibold text-slate-100">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-300">{item.text}</p>
                 </div>
               </div>
             </article>
@@ -562,7 +561,7 @@ export default function CoachingV2Page() {
         </div>
       </section>
 
-      <section className="border-y border-black/8 bg-[#ebe4db] py-20">
+      <section className="border-y border-neutral-800 bg-neutral-900/40 py-20">
         <div className="mx-auto max-w-7xl px-6">
           <SectionIntro
             eyebrow="How it works"
@@ -574,13 +573,13 @@ export default function CoachingV2Page() {
             {howItWorksCards.map((item, index) => (
               <article
                 key={item.title}
-                className="relative rounded-[1.75rem] border border-white/60 bg-white/80 p-7 shadow-[0_24px_70px_-46px_rgba(15,23,42,0.45)]"
+                className="relative rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-7 shadow-[0_24px_70px_-46px_rgba(0,0,0,0.55)]"
               >
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b8612b]">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                   0{index + 1}
                 </div>
-                <h3 className="mt-3 text-2xl font-semibold text-slate-900">{item.title}</h3>
-                <p className="mt-4 text-base leading-7 text-slate-600">{item.text}</p>
+                <h3 className="mt-3 text-2xl font-semibold text-slate-100">{item.title}</h3>
+                <p className="mt-4 text-base leading-7 text-slate-300">{item.text}</p>
               </article>
             ))}
           </div>
@@ -599,39 +598,39 @@ export default function CoachingV2Page() {
             {engagementSteps.map((step, index) => (
               <li
                 key={step.title}
-                className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-[0_22px_60px_-42px_rgba(15,23,42,0.36)]"
+                className="rounded-[1.5rem] border border-neutral-700 bg-neutral-900 p-6 shadow-[0_22px_60px_-42px_rgba(0,0,0,0.55)]"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="inline-flex items-center gap-3">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d7c7ba] bg-[#f7efe8] text-sm font-semibold text-[#8a4c26]">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#ed7d31]/30 bg-[#ed7d31]/10 text-sm font-semibold text-orange-200">
                       {index + 1}
                     </span>
-                    <h3 className="text-xl font-semibold text-slate-900">{step.title}</h3>
+                    <h3 className="text-xl font-semibold text-slate-100">{step.title}</h3>
                   </div>
                   {index === 0 ? (
                     <a
                       href={BOOKING_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                      className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-950 transition hover:opacity-90"
                     >
                       Book now
                       <ChevronRight size={14} />
                     </a>
                   ) : null}
                 </div>
-                <p className="mt-4 text-sm leading-6 text-slate-600">{step.text}</p>
+                <p className="mt-4 text-sm leading-6 text-slate-300">{step.text}</p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      <section className="border-y border-black/8 bg-slate-950 py-20 text-slate-100">
+      <section className="border-y border-neutral-800 bg-neutral-900/40 py-20 text-slate-100">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-center">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#f0b082]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-200">
                 Strength Test
               </p>
               <h2 className="mt-3 text-4xl font-bold tracking-tight md:text-5xl">
@@ -655,8 +654,8 @@ export default function CoachingV2Page() {
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f0b082]">
+            <div className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                 What it helps reveal
               </p>
               <div className="mt-5 space-y-3">
@@ -665,7 +664,7 @@ export default function CoachingV2Page() {
                   "where friction is building",
                   "where more structure may be needed",
                 ].map((item) => (
-                  <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200">
+                  <div key={item} className="rounded-2xl border border-neutral-700 bg-neutral-950 px-4 py-3 text-sm text-slate-200">
                     {item}
                   </div>
                 ))}
@@ -677,7 +676,7 @@ export default function CoachingV2Page() {
 
       <section className="mx-auto max-w-7xl px-6 py-20">
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-[0_32px_80px_-46px_rgba(15,23,42,0.42)]">
+          <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-8 shadow-[0_32px_80px_-46px_rgba(0,0,0,0.55)]">
             <SectionIntro
               eyebrow="Why Cam"
               title="An experienced operator with a practical, structured facilitation style"
@@ -688,10 +687,10 @@ export default function CoachingV2Page() {
               {whyCamCards.map((item) => (
                 <article
                   key={item.title}
-                  className="rounded-[1.5rem] border border-slate-200 bg-[#fcfaf6] p-5"
+                  className="rounded-[1.5rem] border border-neutral-700 bg-neutral-950 p-5"
                 >
-                  <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+                  <h3 className="text-lg font-semibold text-slate-100">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-300">{item.text}</p>
                 </article>
               ))}
             </div>
@@ -700,10 +699,10 @@ export default function CoachingV2Page() {
               {testimonials.map((item) => (
                 <blockquote
                   key={item.source}
-                  className="rounded-[1.5rem] border border-[#d7c7ba] bg-[#f7efe8] p-5"
+                  className="rounded-[1.5rem] border border-neutral-700 bg-neutral-950 p-5"
                 >
-                  <p className="text-sm leading-6 text-slate-700">{item.quote}</p>
-                  <footer className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#8a4c26]">
+                  <p className="text-sm leading-6 text-slate-300">{item.quote}</p>
+                  <footer className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
                     {item.source}
                   </footer>
                 </blockquote>
@@ -712,20 +711,20 @@ export default function CoachingV2Page() {
           </div>
 
           <div className="grid gap-5">
-            <div className="rounded-[2rem] border border-slate-200 bg-slate-950 p-7 text-slate-100 shadow-[0_30px_80px_-42px_rgba(15,23,42,0.85)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f0b082]">
+            <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-7 text-slate-100 shadow-[0_30px_80px_-42px_rgba(0,0,0,0.85)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                 Credentials at a glance
               </p>
               <div className="mt-5 space-y-3">
                 {credentials.map((item) => (
-                  <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200">
+                  <div key={item} className="rounded-2xl border border-neutral-700 bg-neutral-950 px-4 py-3 text-sm font-semibold text-slate-200">
                     {item}
                   </div>
                 ))}
               </div>
 
               <div className="mt-8">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#f0b082]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
                   Companies
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-3">
@@ -751,7 +750,7 @@ export default function CoachingV2Page() {
               {proofTags.map((tag) => (
                 <div
                   key={tag}
-                  className="rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4 text-sm font-semibold text-slate-800 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.36)]"
+                  className="rounded-[1.5rem] border border-neutral-700 bg-neutral-900 px-5 py-4 text-sm font-semibold text-slate-100 shadow-[0_20px_50px_-38px_rgba(0,0,0,0.5)]"
                 >
                   {tag}
                 </div>
@@ -761,7 +760,7 @@ export default function CoachingV2Page() {
         </div>
       </section>
 
-      <section className="border-y border-black/8 bg-[#ebe4db] py-20">
+      <section className="border-y border-neutral-800 bg-neutral-900/40 py-20">
         <div className="mx-auto max-w-7xl px-6">
           <SectionIntro
             eyebrow="Fit"
@@ -771,30 +770,30 @@ export default function CoachingV2Page() {
           />
 
           <div className="mt-12 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-[2rem] border border-[#d7c7ba] bg-white p-7 shadow-[0_24px_70px_-44px_rgba(15,23,42,0.38)]">
-              <h3 className="inline-flex items-center gap-3 text-2xl font-semibold text-slate-900">
-                <CheckCircle2 size={20} className="text-[#8a4c26]" />
+            <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-7 shadow-[0_24px_70px_-44px_rgba(0,0,0,0.55)]">
+              <h3 className="inline-flex items-center gap-3 text-2xl font-semibold text-slate-100">
+                <CheckCircle2 size={20} className="text-[#ed7d31]" />
                 Good fit
               </h3>
               <ul className="mt-6 space-y-4">
                 {fitGood.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm leading-6 text-slate-700">
-                    <ChevronRight size={18} className="mt-0.5 shrink-0 text-[#8a4c26]" />
+                  <li key={item} className="flex gap-3 text-sm leading-6 text-slate-300">
+                    <ChevronRight size={18} className="mt-0.5 shrink-0 text-[#ed7d31]" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-slate-950 p-7 text-slate-100 shadow-[0_24px_70px_-44px_rgba(15,23,42,0.75)]">
+            <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-7 text-slate-100 shadow-[0_24px_70px_-44px_rgba(0,0,0,0.75)]">
               <h3 className="inline-flex items-center gap-3 text-2xl font-semibold">
-                <XCircle size={20} className="text-[#f0b082]" />
+                <XCircle size={20} className="text-orange-200" />
                 Not a fit
               </h3>
               <ul className="mt-6 space-y-4">
                 {fitBad.map((item) => (
                   <li key={item} className="flex gap-3 text-sm leading-6 text-slate-300">
-                    <ChevronRight size={18} className="mt-0.5 shrink-0 text-[#f0b082]" />
+                    <ChevronRight size={18} className="mt-0.5 shrink-0 text-orange-200" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -817,7 +816,7 @@ export default function CoachingV2Page() {
               <Link
                 key={post.slug}
                 href={`/coaching/blog/${post.slug}`}
-                className="group rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-[0_22px_60px_-42px_rgba(15,23,42,0.38)] transition hover:-translate-y-0.5 hover:border-slate-300"
+                className="group rounded-[1.5rem] border border-neutral-700 bg-neutral-900 p-5 shadow-[0_22px_60px_-42px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:border-neutral-500"
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-center">
                   <Image
@@ -826,16 +825,16 @@ export default function CoachingV2Page() {
                     width={160}
                     height={96}
                     unoptimized
-                    className="h-32 w-full rounded-2xl border border-slate-200 object-cover md:h-24 md:w-40"
+                    className="h-32 w-full rounded-2xl border border-neutral-700 object-cover md:h-24 md:w-40"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#b8612b]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-orange-200">
                       {post.category} · {post.readTime}
                     </p>
-                    <h3 className="mt-2 text-xl font-semibold leading-tight text-slate-900 transition group-hover:text-[#8a4c26]">
+                    <h3 className="mt-2 text-xl font-semibold leading-tight text-slate-100 transition group-hover:text-orange-200">
                       {post.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
                       {post.description}
                     </p>
                   </div>
@@ -846,7 +845,7 @@ export default function CoachingV2Page() {
             <div className="pt-2">
               <Link
                 href={BLOG_URL}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50"
+                className="inline-flex items-center gap-2 rounded-full border border-cyan-400/50 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-500/15"
               >
                 Visit the Blog
                 <BookOpen size={16} />
@@ -856,9 +855,9 @@ export default function CoachingV2Page() {
         </div>
       </section>
 
-      <section className="border-t border-black/8 bg-slate-950 py-20 text-slate-100">
+      <section className="border-t border-neutral-800 bg-neutral-900/40 py-20 text-slate-100">
         <div className="mx-auto max-w-5xl px-6 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#f0b082]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-200">
             Final CTA
           </p>
           <h2 className="mt-3 text-4xl font-bold tracking-tight md:text-5xl">
@@ -886,28 +885,28 @@ export default function CoachingV2Page() {
         </div>
       </section>
 
-      <footer className="border-t border-black/8 bg-[#f5f1ea]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+      <footer className="border-t border-neutral-800 bg-neutral-950">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <Link href="/coaching-v2" className="transition hover:text-slate-900">
+            <Link href="/coaching-v2" className="transition hover:text-slate-100">
               Coaching
             </Link>
-            <Link href={STRENGTH_TEST_URL} className="transition hover:text-slate-900">
+            <Link href={STRENGTH_TEST_URL} className="transition hover:text-cyan-200">
               Strength Test
             </Link>
-            <Link href={BLOG_URL} className="transition hover:text-slate-900">
+            <Link href={BLOG_URL} className="transition hover:text-slate-100">
               Blog
             </Link>
             <a
               href={BOOKING_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="transition hover:text-slate-900"
+              className="transition hover:text-orange-200"
             >
               Warm Intro Call
             </a>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
           </p>
         </div>
