@@ -310,7 +310,7 @@ export default function CoachingV2Page() {
       </header>
 
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_25rem] lg:items-end">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_23rem] lg:items-end">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-orange-300 bg-orange-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-800 shadow-[0_12px_24px_-20px_rgba(15,23,42,0.18)]">
               <Layers3 size={14} />
@@ -361,61 +361,7 @@ export default function CoachingV2Page() {
             </div>
           </div>
 
-          <aside className="grid gap-5">
-            <div className="overflow-hidden rounded-[2rem] border border-neutral-700 bg-[linear-gradient(180deg,rgba(237,125,49,0.12),rgba(15,23,42,0.96)_28%,rgba(15,23,42,1)_100%)] p-6 text-slate-100 shadow-[0_40px_80px_-36px_rgba(0,0,0,0.85)]">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
-                    Cam Lillico
-                  </p>
-                  <h2 className="mt-2 max-w-[12rem] text-2xl font-semibold leading-tight">
-                    Practical facilitator for founder-led leadership teams
-                  </h2>
-                </div>
-                <div className="rounded-full border border-[#ed7d31]/30 bg-[#ed7d31]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-orange-200">
-                  Certified BOS360 Coach
-                </div>
-              </div>
-
-              <div className="relative mt-6 flex justify-center">
-                <div className="absolute inset-x-10 top-10 h-52 rounded-full bg-[#ed7d31]/18 blur-3xl" />
-                <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.14),rgba(255,255,255,0.03)_55%,transparent_75%)] px-6 pt-6">
-                  <Image
-                    src="/cam-headshot-circle.png"
-                    alt="Cam Lillico"
-                    width={520}
-                    height={520}
-                    priority
-                    className="mx-auto h-auto w-full max-w-[18rem] object-contain"
-                  />
-                </div>
-              </div>
-
-              <p className="mt-5 text-sm leading-6 text-slate-300">
-                Operating experience inside growth-stage B2B SaaS, paired with calm, structured facilitation that helps teams align, decide, and follow through.
-              </p>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-neutral-700 bg-neutral-950/70 px-4 py-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-orange-200">
-                    Focus
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-slate-200">
-                    Founder-led B2B SaaS leadership teams
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-neutral-700 bg-neutral-950/70 px-4 py-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-orange-200">
-                    Outcome
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-slate-200">
-                    More clarity, stronger accountability, steadier execution
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-6 text-slate-100 shadow-[0_32px_70px_-38px_rgba(0,0,0,0.72)]">
+          <aside className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-6 text-slate-100 shadow-[0_40px_80px_-36px_rgba(0,0,0,0.85)]">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
@@ -460,7 +406,6 @@ export default function CoachingV2Page() {
                   with a real leadership team and rising execution friction.
                 </p>
               </div>
-            </div>
           </aside>
         </div>
       </section>
