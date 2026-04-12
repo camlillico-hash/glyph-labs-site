@@ -322,15 +322,27 @@ export default function CoachingV2Page() {
               <span className="block text-orange-200">Execution with BOS360</span>
             </h1>
 
-            <p className="mt-6 max-w-4xl text-xl leading-8 text-slate-300">
-              I help founder-led companies implement BOS360 — a proven operating
-              system that helps leadership teams get aligned, accountable, and
-              executing consistently.
-            </p>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-              For growing companies with a leadership team in place, where progress
-              is real but friction, drift, or founder dependence is starting to show.
-            </p>
+            <div className="mt-6 flex max-w-4xl items-start gap-5">
+              <Image
+                src="/cam-headshot-circle.png"
+                alt="Cam Lillico"
+                width={112}
+                height={112}
+                priority
+                className="h-24 w-24 shrink-0 rounded-full border border-neutral-700 object-cover shadow-[0_18px_40px_-24px_rgba(0,0,0,0.6)] md:h-28 md:w-28"
+              />
+              <div>
+                <p className="text-xl leading-8 text-slate-300">
+                  I help founder-led companies implement BOS360 — a proven operating
+                  system that helps leadership teams get aligned, accountable, and
+                  executing consistently.
+                </p>
+                <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
+                  For growing companies with a leadership team in place, where progress
+                  is real but friction, drift, or founder dependence is starting to show.
+                </p>
+              </div>
+            </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <PrimaryButton href={BOOKING_URL}>
