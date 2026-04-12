@@ -254,19 +254,36 @@ export default function CoachingV2Page() {
 
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
-          <Link href="/coaching-v2" className="inline-flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-neutral-700 bg-neutral-900 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.7)]">
-              <Image src="/logos/glyphlabs-coaching-mark.png" alt="Cam Lillico" width={28} height={28} className="h-7 w-7 object-contain" />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-200">
-                Cam Lillico
+          <div className="flex min-w-0 items-center gap-3">
+            <Link href="/coaching-v2" className="inline-flex min-w-0 items-center gap-3">
+              <span className="inline-flex overflow-hidden rounded-2xl border border-neutral-700 bg-white p-1 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.7)]">
+                <Image
+                  src="/bos360-logo-white-bg.png"
+                  alt="BOS360"
+                  width={108}
+                  height={44}
+                  className="h-10 w-auto object-contain"
+                />
               </span>
-              <span className="block text-sm font-semibold text-slate-100">
-                BOS360 Coaching
+              <span className="min-w-0">
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-200">
+                  Cam Lillico
+                </span>
+                <span className="block text-sm font-semibold text-slate-100">
+                  BOS360 Coaching
+                </span>
               </span>
+            </Link>
+            <span className="hidden overflow-hidden rounded-xl border border-neutral-700 bg-white shadow-[0_12px_30px_-20px_rgba(0,0,0,0.6)] lg:inline-flex">
+              <Image
+                src="/bos360-certified-business-coach.jpg"
+                alt="BOS360 Certified Business Coach"
+                width={186}
+                height={68}
+                className="h-11 w-auto object-contain"
+              />
             </span>
-          </Link>
+          </div>
 
           <nav className="hidden items-center gap-6 text-sm font-medium text-slate-300 md:flex">
             <Link href="/coaching-v2" className="transition hover:text-slate-100">
