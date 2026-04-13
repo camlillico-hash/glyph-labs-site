@@ -8,10 +8,12 @@ import {
   CheckCircle2,
   ChevronRight,
   CircleDot,
+  TriangleAlert,
   Crosshair,
   Layers3,
   Mail,
   MoveRight,
+  MessageSquareQuote,
   Quote,
   ShieldCheck,
   Sparkles,
@@ -279,17 +281,12 @@ export default function CoachingV2Page() {
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_23rem] lg:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-300 bg-orange-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-800 shadow-[0_12px_24px_-20px_rgba(15,23,42,0.18)]">
-              <Layers3 size={14} />
-              BOS360 for founder-led leadership teams
-            </div>
-
-            <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight text-slate-100 md:text-7xl">
+            <h1 className="max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight text-slate-100 md:text-7xl">
               Turn Vision Into
               <span className="block text-orange-200">Execution with BOS360</span>
             </h1>
 
-            <div className="mt-6 flex max-w-4xl items-start gap-6">
+            <div className="mt-6 flex max-w-4xl items-center gap-6">
               <div className="w-36 shrink-0 md:w-44">
                 <Image
                   src="/cam-headshot-circle.png"
@@ -297,9 +294,9 @@ export default function CoachingV2Page() {
                   width={112}
                   height={112}
                   priority
-                  className="h-36 w-36 rounded-full border border-neutral-700 object-cover shadow-[0_18px_40px_-24px_rgba(0,0,0,0.6)] md:h-44 md:w-44"
+                  className="h-36 w-36 rounded-full border-[15px] border-white object-cover shadow-[0_18px_40px_-24px_rgba(0,0,0,0.6)] md:h-44 md:w-44"
                 />
-                <div className="-mt-6 mx-auto w-fit rounded-2xl border border-neutral-700 bg-neutral-900/85 px-3 py-3 shadow-[0_24px_50px_-34px_rgba(0,0,0,0.6)] backdrop-blur md:-mt-8">
+                <div className="-mt-6 mx-auto w-fit rounded-2xl bg-neutral-900/85 px-3 py-3 shadow-[0_24px_50px_-34px_rgba(0,0,0,0.6)] backdrop-blur md:-mt-8">
                   <div className="flex items-center gap-3">
                     <Image
                       src="/bos360-certified-business-coach.jpg"
@@ -312,15 +309,11 @@ export default function CoachingV2Page() {
                   </div>
                 </div>
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-xl leading-8 text-slate-300">
                   I help founder-led companies implement BOS360 — a proven operating
                   system that helps leadership teams get aligned, accountable, and
                   executing consistently.
-                </p>
-                <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-                  For growing companies with a leadership team in place, where progress
-                  is real but friction, drift, or founder dependence is starting to show.
                 </p>
               </div>
             </div>
@@ -347,7 +340,7 @@ export default function CoachingV2Page() {
                     Start the Strength Test
                   </span>
                 </Link>
-                <span className="inline-flex w-[260px] flex-col items-center justify-center rounded-xl border border-neutral-600 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
+                <span className="inline-flex w-[260px] flex-col items-center justify-center rounded-xl px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-300">
                   20 questions · Instant results
                   <span className="mt-1 inline-flex items-center justify-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/85 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] text-slate-200">
                     <User size={10} aria-hidden />
@@ -361,9 +354,18 @@ export default function CoachingV2Page() {
           </div>
 
           <aside className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-6 text-slate-100 shadow-[0_40px_80px_-36px_rgba(0,0,0,0.85)]">
-              <p className="block w-full border-b border-neutral-700 pb-4 text-base font-semibold uppercase tracking-[0.18em] text-orange-200">
-                BOS360 system view
-              </p>
+              <div className="border-b border-neutral-700 pb-4">
+                <Image
+                  src="/bos360-logo-watermark.png"
+                  alt="BOS360"
+                  width={218}
+                  height={50}
+                  className="h-auto w-[13.625rem] object-contain"
+                />
+                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-orange-200">
+                  proven to help you master:
+                </p>
+              </div>
 
               <div className="mt-8 space-y-4">
                 {bos360Cards.map((item, index) => (
@@ -440,48 +442,12 @@ export default function CoachingV2Page() {
             </div>
           </div>
 
-          <div className="mt-8 rounded-[1.75rem] border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-6 text-slate-100 shadow-[0_24px_70px_-46px_rgba(0,0,0,0.32)]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
-              Executive reality
-            </p>
-            <p className="mt-4 max-w-4xl text-base leading-7 text-slate-300 md:text-lg">
-              Strong people with a weak operating system still create drift,
-              ambiguity, and founder dependency. Usually this is not a talent
-              problem first. It is a system problem, and BOS360 is designed to
-              correct that at the leadership-team level.
-            </p>
-          </div>
         </div>
       </section>
 
-      <section className="border-y border-neutral-800 bg-neutral-900/40 py-20 text-slate-100">
-        <div className="mx-auto max-w-7xl px-6">
-          <SectionIntro
-            eyebrow="The operating system"
-            title="What BOS360 Actually Is"
-            body="BOS360 is a proven business operating system designed to help leadership teams strengthen three critical areas: Vision, Momentum, and Health."
-            invert
-            icon={Layers3}
-          />
-
-          <div className="mt-12 grid gap-5 lg:grid-cols-3">
-            {bos360Cards.map((item) => (
-              <article
-                key={item.name}
-                className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-7 shadow-[0_30px_70px_-42px_rgba(0,0,0,0.65)]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl border border-neutral-700 bg-neutral-950 p-3">
-                    <item.icon size={18} className="text-[#ed7d31]" />
-                  </div>
-                  <h3 className="text-2xl font-semibold">{item.name}</h3>
-                </div>
-                <p className="mt-5 text-base leading-7 text-slate-300">{item.text}</p>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,30rem)] lg:items-center">
+      <section className="mx-auto max-w-7xl px-6 py-20">
+        <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-8 text-slate-100 shadow-[0_30px_70px_-42px_rgba(0,0,0,0.65)] md:p-10">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,30rem)] lg:items-center">
             <div className="max-w-3xl">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-200">
                 How it works
@@ -512,7 +478,7 @@ export default function CoachingV2Page() {
               </div>
             </div>
 
-            <div className="mx-auto flex w-full max-w-[36.4rem] items-center justify-center rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-5 shadow-[0_24px_70px_-46px_rgba(0,0,0,0.55)]">
+            <div className="mx-auto flex w-full max-w-[36.4rem] items-center justify-center rounded-[1.75rem] border border-neutral-700 bg-neutral-950 p-5 shadow-[0_24px_70px_-46px_rgba(0,0,0,0.55)]">
               <Image
                 src="/bos360-core-model.png"
                 alt="BOS360 Core Model diagram"
@@ -524,7 +490,7 @@ export default function CoachingV2Page() {
           </div>
 
           <div className="mt-8 rounded-[1.75rem] border border-[#ed7d31]/30 bg-[#ed7d31]/10 px-6 py-5">
-            <div className="flex items-start gap-4">
+            <div className="flex items-center gap-4">
               <div className="rounded-2xl border border-[#ed7d31]/30 bg-neutral-950/20 p-3">
                 <Bell size={18} className="text-[#ed7d31]" />
               </div>
@@ -539,7 +505,7 @@ export default function CoachingV2Page() {
 
       <section className="mx-auto max-w-7xl px-6 py-20">
         <SectionIntro
-          eyebrow="What changes"
+          eyebrow="Results you feel, quickly"
           title="What Changes When BOS360 Is Working"
           body="The visible shift is not just better meetings or better plans. It is a leadership team that can actually hold alignment and execution together over time."
           align="center"
@@ -621,11 +587,11 @@ export default function CoachingV2Page() {
                 4
               </span>
               <Image
-                src="/bost360-diagram-rhythm.png"
+                src="/bos360-diagram-rhythm.png"
                 alt="BOS360 rhythm diagram"
                 width={1600}
                 height={900}
-                className="h-[40.25rem] w-auto object-contain"
+                className="h-[37.5rem] w-auto object-contain"
               />
             </div>
           </div>
@@ -673,7 +639,13 @@ export default function CoachingV2Page() {
           <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-8 shadow-[0_32px_80px_-46px_rgba(0,0,0,0.55)]">
             <div className="max-w-3xl">
               <p className="inline-flex items-center gap-3 text-lg font-semibold uppercase tracking-[0.18em] text-orange-200 md:text-xl">
-                <ShieldCheck size={22} className="shrink-0 text-[#ed7d31]" />
+                <Image
+                  src="/cam-headshot-circle.png"
+                  alt="Cam Lillico"
+                  width={36}
+                  height={36}
+                  className="h-8 w-8 shrink-0 rounded-full border border-white/70 object-cover md:h-9 md:w-9"
+                />
                 Why Cam
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-100 md:text-4xl">
@@ -688,9 +660,12 @@ export default function CoachingV2Page() {
               {whyCamCards.map((item) => (
                 <article
                   key={item.title}
-                  className="why-cam-card rounded-[1.5rem] border border-neutral-700 bg-neutral-950 p-5 transition"
+                  className="why-cam-card rounded-[1.5rem] border border-neutral-700 bg-[#ed7d31]/[0.06] p-5 transition"
                 >
-                  <h3 className="text-lg font-semibold text-slate-100">{item.title}</h3>
+                  <h3 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-100">
+                    <CheckCircle2 size={16} className="shrink-0 text-[#ed7d31]" />
+                    {item.title}
+                  </h3>
                   <p className="mt-3 text-sm leading-6 text-slate-300">{item.text}</p>
                 </article>
               ))}
@@ -709,7 +684,7 @@ export default function CoachingV2Page() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="credential-card group flex items-center gap-4 rounded-2xl border border-neutral-700 bg-neutral-950 px-4 py-3 transition"
+                    className="credential-card group inline-flex w-auto items-center gap-4 rounded-2xl border border-neutral-700 bg-[#ed7d31]/[0.06] px-4 py-3 transition"
                   >
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white p-2">
                       <Image
@@ -754,19 +729,28 @@ export default function CoachingV2Page() {
         </div>
 
         <div className="mt-8 rounded-[2rem] border border-neutral-700 bg-neutral-900 p-6 shadow-[0_30px_80px_-46px_rgba(0,0,0,0.55)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
-            Trusted by growing businesses
-          </p>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="flex items-center gap-3">
+            <div className="rounded-2xl border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-3">
+              <MessageSquareQuote size={18} className="text-[#ed7d31]" />
+            </div>
+            <p className="text-base font-semibold uppercase tracking-[0.18em] text-orange-200 md:text-lg">
+              Trusted by growing businesses
+            </p>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
             {testimonials.map((item) => (
               <blockquote
                 key={item.source}
                 className="rounded-[1.5rem] border border-neutral-700 bg-neutral-950 p-5"
               >
                 <p className="text-sm leading-6 text-slate-300">
-                  <Quote size={16} className="mr-1 inline-block -translate-y-0.5 rotate-180 text-[#ed7d31]" />
+                  <span className="mr-1 inline-block -translate-y-0.5 text-xl font-bold leading-none text-[#ed7d31]">
+                    &rdquo;
+                  </span>
                   {item.quote}
-                  <Quote size={16} className="ml-1 inline-block -translate-y-0.5 text-[#ed7d31]" />
+                  <span className="ml-1 inline-block -translate-y-0.5 text-xl font-bold leading-none text-[#ed7d31]">
+                    &ldquo;
+                  </span>
                 </p>
                 <footer className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
                   {item.source}

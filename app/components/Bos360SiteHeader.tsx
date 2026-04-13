@@ -98,14 +98,14 @@ export default function Bos360SiteHeader({ current }: { current: CurrentPage }) 
           {current === "coaching" ? (
             <span
               aria-current="page"
-              className="rounded-lg bg-[#ed7d31]/10 px-3 py-1.5 text-slate-100"
+              className="whitespace-nowrap rounded-lg bg-[#ed7d31]/10 px-2.5 py-1.5 text-slate-100"
             >
               Coaching
             </span>
           ) : (
             <Link
               href={COACHING_URL}
-              className="rounded-lg px-3 py-1.5 transition hover:bg-neutral-900"
+              className="whitespace-nowrap rounded-lg px-2.5 py-1.5 transition hover:bg-neutral-900"
             >
               Coaching
             </Link>
@@ -114,14 +114,14 @@ export default function Bos360SiteHeader({ current }: { current: CurrentPage }) 
           {current === "blog" ? (
             <span
               aria-current="page"
-              className="rounded-lg bg-[#ed7d31]/10 px-3 py-1.5 text-slate-100"
+              className="whitespace-nowrap rounded-lg bg-[#ed7d31]/10 px-2.5 py-1.5 text-slate-100"
             >
               Blog
             </span>
           ) : (
             <Link
               href={BLOG_URL}
-              className="rounded-lg px-3 py-1.5 transition hover:bg-neutral-900"
+              className="whitespace-nowrap rounded-lg px-2.5 py-1.5 transition hover:bg-neutral-900"
             >
               Blog
             </Link>
@@ -131,7 +131,7 @@ export default function Bos360SiteHeader({ current }: { current: CurrentPage }) 
             href={BOOKING_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-1.5 text-slate-950"
+            className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-2.5 py-1.5 text-slate-950 whitespace-nowrap"
           >
             <CalendarDays size={13} />
             Intro Call
@@ -148,7 +148,7 @@ export default function Bos360SiteHeader({ current }: { current: CurrentPage }) 
           ) : (
             <Link
               href={STRENGTH_TEST_URL}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-400/50 bg-cyan-500/10 px-3 py-1.5 text-cyan-200 transition hover:bg-cyan-500/15"
+              className="inline-flex items-center gap-1 rounded-lg border border-cyan-400/50 bg-cyan-500/10 px-2.5 py-1.5 text-cyan-200 transition hover:bg-cyan-500/15 whitespace-nowrap"
             >
               <Sparkles size={13} />
               Strength Test

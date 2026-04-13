@@ -400,23 +400,23 @@ html.theme-light .coaching-theme .cta-focus-box {
 }
 
 html.theme-light .coaching-theme .why-cam-card {
-  background: #ffffff !important;
-  border-color: #dbe3ef !important;
+  background: #fff2e8 !important;
+  border-color: #fdba74 !important;
 }
 
 html.theme-light .coaching-theme .why-cam-card:hover {
-  background: #f8fafc !important;
-  border-color: #cbd5e1 !important;
+  background: #ffe7d4 !important;
+  border-color: #fb923c !important;
 }
 
 html.theme-light .coaching-theme .credential-card {
-  background: #ffffff !important;
-  border-color: #dbe3ef !important;
+  background: #fff2e8 !important;
+  border-color: #fdba74 !important;
 }
 
 html.theme-light .coaching-theme .credential-card:hover {
-  background: #f8fafc !important;
-  border-color: #cbd5e1 !important;
+  background: #ffe7d4 !important;
+  border-color: #fb923c !important;
 }
 
 html.theme-light .coaching-theme .cta-panel-strength {
@@ -476,13 +476,13 @@ html.theme-dark .coaching-theme .cta-panel-strength {
 }
 
 html.theme-dark .coaching-theme .why-cam-card:hover {
-  background: #171717;
-  border-color: #525252;
+  background: rgba(237, 125, 49, 0.16);
+  border-color: rgba(237, 125, 49, 0.34);
 }
 
 html.theme-dark .coaching-theme .credential-card:hover {
-  background: #171717;
-  border-color: #525252;
+  background: rgba(237, 125, 49, 0.16);
+  border-color: rgba(237, 125, 49, 0.34);
 }
 
 html.theme-dark .coaching-theme .cta-panel-primary {
