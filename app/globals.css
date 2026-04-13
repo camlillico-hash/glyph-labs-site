@@ -440,22 +440,50 @@ html.theme-light .coaching-theme .cta-panel-secondary {
     linear-gradient(135deg, #f0f9ff, #f8fdff) !important;
 }
 
+html.theme-light .coaching-theme .cta-panel-tertiary {
+  border: 1px solid #c8d8be !important;
+  background:
+    radial-gradient(620px 280px at 100% 0%, rgba(148, 163, 124, 0.14), transparent 48%),
+    linear-gradient(135deg, #f4f7ef, #fbfdf8) !important;
+}
+
 html.theme-light .coaching-theme .cta-panel-strength h2,
 html.theme-light .coaching-theme .cta-panel-primary h2,
-html.theme-light .coaching-theme .cta-panel-secondary h2 {
+html.theme-light .coaching-theme .cta-panel-secondary h2,
+html.theme-light .coaching-theme .cta-panel-tertiary h2 {
   color: #0f172a !important;
 }
 
 html.theme-light .coaching-theme .cta-panel-strength .text-slate-300,
 html.theme-light .coaching-theme .cta-panel-primary .text-slate-300,
-html.theme-light .coaching-theme .cta-panel-secondary .text-slate-300 {
+html.theme-light .coaching-theme .cta-panel-secondary .text-slate-300,
+html.theme-light .coaching-theme .cta-panel-tertiary .text-slate-300 {
   color: #334155 !important;
 }
 
 html.theme-light .coaching-theme .cta-panel-strength .text-slate-400,
 html.theme-light .coaching-theme .cta-panel-primary .text-slate-400,
-html.theme-light .coaching-theme .cta-panel-secondary .text-slate-400 {
+html.theme-light .coaching-theme .cta-panel-secondary .text-slate-400,
+html.theme-light .coaching-theme .cta-panel-tertiary .text-slate-400 {
   color: #475569 !important;
+}
+
+html.theme-light .coaching-theme .tertiary-article-card {
+  background: #e9efe0 !important;
+  border-color: #bfd0b2 !important;
+}
+
+html.theme-light .coaching-theme .tertiary-article-card:hover {
+  background: #dde7d2 !important;
+  border-color: #adc29e !important;
+}
+
+html.theme-light .coaching-theme .tertiary-article-thumb {
+  background: #d7e3ca !important;
+}
+
+html.theme-light .coaching-theme .tertiary-article-card:hover .tertiary-article-thumb {
+  background: #c9d9ba !important;
 }
 
 html.theme-light .coaching-theme .blog-card {
@@ -497,4 +525,29 @@ html.theme-dark .coaching-theme .cta-panel-secondary {
   background:
     radial-gradient(circle at top right, rgba(34, 211, 238, 0.16), transparent 40%),
     linear-gradient(135deg, rgba(23, 23, 23, 0.96), rgba(10, 10, 10, 0.94));
+}
+
+html.theme-dark .coaching-theme .cta-panel-tertiary {
+  border: 1px solid rgba(148, 163, 124, 0.28);
+  background:
+    radial-gradient(circle at top right, rgba(148, 163, 124, 0.16), transparent 40%),
+    linear-gradient(135deg, rgba(23, 28, 22, 0.96), rgba(10, 10, 10, 0.94));
+}
+
+html.theme-dark .coaching-theme .tertiary-article-card {
+  background: rgba(84, 99, 74, 0.28);
+  border-color: rgba(148, 163, 124, 0.24);
+}
+
+html.theme-dark .coaching-theme .tertiary-article-card:hover {
+  background: rgba(84, 99, 74, 0.38);
+  border-color: rgba(148, 163, 124, 0.34);
+}
+
+html.theme-dark .coaching-theme .tertiary-article-thumb {
+  background: rgba(120, 138, 106, 0.28);
+}
+
+html.theme-dark .coaching-theme .tertiary-article-card:hover .tertiary-article-thumb {
+  background: rgba(120, 138, 106, 0.36);
 }

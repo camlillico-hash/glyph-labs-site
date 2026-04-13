@@ -16,25 +16,28 @@ import {
   MessageSquareQuote,
   Quote,
   ShieldCheck,
-  Sparkles,
+  Star,
   Target,
+  ThumbsUp,
   User,
   Workflow,
   XCircle,
 } from "lucide-react";
 import Bos360SiteHeader from "@/app/components/Bos360SiteHeader";
+import { blogPosts } from "@/app/coaching/blogPosts";
 export const metadata = {
   title: "Cam Lillico | BOS360 Coaching",
   icons: {
-    icon: "/coaching-v2/icon.png",
-    shortcut: "/coaching-v2/icon.png",
-    apple: "/coaching-v2/icon.png",
+    icon: "/bos360/icon.png",
+    shortcut: "/bos360/icon.png",
+    apple: "/bos360/icon.png",
   },
 };
 
 const BOOKING_URL = "https://calendar.app.google/M4pokXD8CBpc1c4U6";
 const STRENGTH_TEST_URL = "/strength-test";
 const BLOG_URL = "/coaching/blog";
+const FEATURED_ARTICLE = blogPosts[0];
 
 const trustItems = [
   "Certified BOS360 Coach",
@@ -162,7 +165,7 @@ const credentials = [
     imageAlt: "BOS360 certification badge",
   },
   {
-    title: "Expert in Residence Innovation Cluster",
+    title: "Expert in Residence",
     href: "https://innovationcluster.ca/",
     image: "/badge-innovation-cluster.jpg",
     imageAlt: "Innovation Cluster logo",
@@ -279,7 +282,7 @@ export default function CoachingV2Page() {
       <Bos360SiteHeader current="coaching" />
 
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-10 md:pb-24 md:pt-16">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_23rem] lg:items-end">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_23rem] lg:items-start">
           <div>
             <h1 className="max-w-5xl text-5xl font-bold leading-[0.95] tracking-tight text-slate-100 md:text-7xl">
               Turn Vision Into
@@ -354,20 +357,22 @@ export default function CoachingV2Page() {
           </div>
 
           <aside className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-6 text-slate-100 shadow-[0_40px_80px_-36px_rgba(0,0,0,0.85)]">
-              <div className="border-b border-neutral-700 pb-4">
+              <div className="pb-4">
                 <Image
                   src="/bos360-logo-watermark.png"
                   alt="BOS360"
                   width={218}
                   height={50}
-                  className="h-auto w-[13.625rem] object-contain"
+                  className="-ml-[10px] block h-auto w-[13.625rem] object-contain"
                 />
-                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-orange-200">
+                <div className="mt-3 border-t border-neutral-700 pt-3">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-200">
                   proven to help you master:
                 </p>
+                </div>
               </div>
 
-              <div className="mt-8 space-y-4">
+              <div className="mt-5 space-y-4">
                 {bos360Cards.map((item, index) => (
                   <div key={item.name} className="relative rounded-2xl border border-neutral-700 bg-neutral-950/70 p-4">
                     {index < bos360Cards.length - 1 ? (
@@ -391,7 +396,8 @@ export default function CoachingV2Page() {
               </div>
 
               <div className="mt-6 rounded-2xl border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
+                <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
+                  <ThumbsUp size={14} className="shrink-0" />
                   Designed for
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-200">
@@ -602,31 +608,25 @@ export default function CoachingV2Page() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="cta-panel-secondary relative overflow-hidden rounded-[2rem] px-8 py-10 shadow-[0_38px_90px_-52px_rgba(0,0,0,0.18)] md:px-10 md:py-12">
             <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-64 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.14),_transparent_62%)] lg:block" />
-            <div className="relative max-w-4xl">
+            <div className="relative mx-auto max-w-2xl text-center">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-200">
                 Strength Test
               </p>
               <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-100 md:text-5xl">
-                See Where Your Leadership Team Actually Stands
+                Get a Fast Read on Where the Friction Is
               </h2>
-              <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">
-                The Strength Test is a practical diagnostic that helps assess how
-                strong your business is across the key areas that drive alignment,
-                execution, and organizational health.
-              </p>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-                It is a simple way to identify where things are solid, where friction
-                is building, and where more structure may be needed.
+              <p className="mt-5 text-lg leading-8 text-slate-300">
+                Take the diagnostic to quickly see where alignment, execution, or
+                team health may be slipping.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                 <SecondaryButton href={STRENGTH_TEST_URL}>
                   Take the Strength Test
                   <ArrowRight size={16} />
                 </SecondaryButton>
-                <p className="text-sm font-medium text-slate-300">
-                  Start with the diagnostic before deciding whether BOS360 is the
-                  right fit.
+                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  20 questions · instant results
                 </p>
               </div>
             </div>
@@ -674,17 +674,17 @@ export default function CoachingV2Page() {
 
           <div className="grid gap-5">
             <div className="rounded-[2rem] border border-neutral-700 bg-neutral-900 p-7 text-slate-100 shadow-[0_30px_80px_-42px_rgba(0,0,0,0.85)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
+              <p className="mt-[15px] text-center text-[12px] font-semibold uppercase tracking-[0.18em] text-orange-200 md:text-[13px]">
                 Credentials at a glance
               </p>
-              <div className="mt-5 space-y-3">
+              <div className="mt-5 flex flex-col items-center gap-3">
                 {credentials.map((item) => (
                   <a
                     key={item.title}
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="credential-card group inline-flex w-auto items-center gap-4 rounded-2xl border border-neutral-700 bg-[#ed7d31]/[0.06] px-4 py-3 transition"
+                    className="credential-card group inline-flex w-full max-w-[18.5rem] items-center gap-4 rounded-2xl border border-neutral-700 bg-[#ed7d31]/[0.06] px-4 py-3 transition"
                   >
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white p-2">
                       <Image
@@ -702,8 +702,8 @@ export default function CoachingV2Page() {
                 ))}
               </div>
 
-              <div className="mt-8">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-200">
+              <div className="mt-8 border-t border-neutral-800 pt-8">
+                <p className="text-center text-[12px] font-semibold uppercase tracking-[0.18em] text-orange-200 md:text-[13px]">
                   Companies
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-3">
@@ -731,7 +731,7 @@ export default function CoachingV2Page() {
         <div className="mt-8 rounded-[2rem] border border-neutral-700 bg-neutral-900 p-6 shadow-[0_30px_80px_-46px_rgba(0,0,0,0.55)]">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-3">
-              <MessageSquareQuote size={18} className="text-[#ed7d31]" />
+              <Star size={18} className="fill-current text-[#ed7d31]" />
             </div>
             <p className="text-base font-semibold uppercase tracking-[0.18em] text-orange-200 md:text-lg">
               Trusted by growing businesses
@@ -809,51 +809,62 @@ export default function CoachingV2Page() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="cta-panel-primary rounded-[2rem] p-8 shadow-[0_34px_90px_-50px_rgba(0,0,0,0.2)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-200">
-                A simple next step
-              </p>
               <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-100 md:text-5xl">
-                Book the conversation
+                Ready to Scale with More Clarity?
               </h2>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                If the page describes the problem clearly, the best next move is a
-                Warm Intro Call.
-              </p>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-400">
-                It is a short conversation to determine whether BOS360 is relevant,
-                what may be missing in your current leadership rhythm, and whether a
-                Discovery Meeting makes sense.
+                Let&apos;s talk about your current stage, your next growth targets,
+                and the operating cadence to get you there.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <PrimaryButton href={BOOKING_URL}>
-                  Book a Warm Intro Call
+                  Book an intro call
                   <CalendarDays size={16} />
                 </PrimaryButton>
               </div>
             </div>
 
-            <div className="cta-panel-secondary rounded-[2rem] p-8 shadow-[0_28px_70px_-46px_rgba(0,0,0,0.16)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
-                Leadership Team Insights
-              </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-100 md:text-4xl">
-                Not ready for a meeting? Read on.
+            <div className="p-8 text-slate-100">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-100 md:text-4xl">
+                Still exploring?
               </h2>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">
-                If you want more signal before talking, the leadership insights are
-                the secondary path. They cover alignment, execution rhythm,
-                operating systems, and founder-led growth in a more editorial form.
+              <p className="mt-4 max-w-xl text-base leading-7 text-slate-300">
+                Start with this article for a quick feel for how I think about
+                alignment, execution, and founder-led growth.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href={BLOG_URL}
-                  className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-200 transition hover:-translate-y-0.5 hover:bg-cyan-500/15"
-                >
-                  Explore Leadership Insights
-                  <BookOpen size={16} />
-                </Link>
-              </div>
+
+              <Link
+                href={`/coaching/blog/${FEATURED_ARTICLE.slug}`}
+                className="group mt-7 block rounded-[1.5rem] border border-white/12 bg-white/5 p-4 transition hover:border-white/18 hover:bg-[#e5e7eb]"
+              >
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <div className="overflow-hidden rounded-[1rem] bg-white/8 transition group-hover:bg-[#d1d5db]">
+                    <Image
+                      src={FEATURED_ARTICLE.thumbnail}
+                      alt={FEATURED_ARTICLE.title}
+                      width={320}
+                      height={180}
+                      unoptimized
+                      className="h-28 w-full object-cover opacity-90 transition sm:w-40 group-hover:opacity-80"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 group-hover:text-slate-600">
+                      <span>{FEATURED_ARTICLE.category}</span>
+                      <span className="text-slate-400 group-hover:text-slate-500">•</span>
+                      <span>{FEATURED_ARTICLE.readTime}</span>
+                    </div>
+                    <h3 className="mt-2 text-xl font-semibold leading-tight text-slate-100 group-hover:text-slate-900">
+                      {FEATURED_ARTICLE.title}
+                    </h3>
+                    <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-200 group-hover:text-slate-800">
+                      Read the article
+                      <BookOpen size={16} />
+                    </div>
+                  </div>
+                </div>
+              </Link>
             </div>
           </div>
         </div>
@@ -862,7 +873,7 @@ export default function CoachingV2Page() {
       <footer className="border-t border-neutral-800 bg-neutral-950">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <Link href="/coaching-v2" className="transition hover:text-slate-100">
+            <Link href="/bos360" className="transition hover:text-slate-100">
               Coaching
             </Link>
             <Link href={BLOG_URL} className="transition hover:text-slate-100">

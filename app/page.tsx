@@ -48,7 +48,7 @@ export default function Home() {
           const bg = colors[ci];
           const showWord = i % 3 === 0; // less text density
           const word = words[(i / 3) % words.length | 0];
-          const link = showWord && word === "builder" ? "/crm" : showWord && word === "traction" ? "/coaching" : null;
+          const link = showWord && word === "builder" ? "/crm" : showWord && word === "traction" ? "/bos360" : null;
           const content = showWord ? word : "";
 
           return (

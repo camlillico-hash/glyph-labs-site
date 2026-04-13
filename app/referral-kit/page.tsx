@@ -36,7 +36,7 @@ export default function ReferralKitPage() {
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
           <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Coaching">
-            <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
+            <a href="/bos360" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
               <img
                 src="/logos/glyphlabs-coaching-mark.png"
                 alt="Coaching mark"

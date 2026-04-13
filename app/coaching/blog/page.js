@@ -14,7 +14,7 @@ export default function CoachingBlogIndexPage() {
       <Bos360SiteHeader current="blog" />
       <section className="mx-auto max-w-6xl px-6 py-14 md:py-20">
         <Link
-          href="/coaching-v2"
+          href="/bos360"
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
         >
           <ArrowLeft size={16} />

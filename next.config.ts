@@ -4,13 +4,13 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/bos360",
-        destination: "/coaching",
+        source: "/coaching",
+        destination: "/bos360",
         permanent: true,
       },
       {
-        source: "/bos360/:path*",
-        destination: "/coaching/:path*",
+        source: "/coaching/",
+        destination: "/bos360",
         permanent: true,
       },
     ];

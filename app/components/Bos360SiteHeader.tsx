@@ -4,7 +4,7 @@ import { CalendarDays, Sparkles } from "lucide-react";
 
 const BOOKING_URL = "https://calendar.app.google/M4pokXD8CBpc1c4U6";
 const BLOG_URL = "/coaching/blog";
-const COACHING_URL = "/coaching-v2";
+const COACHING_URL = "/bos360";
 const STRENGTH_TEST_URL = "/strength-test";
 
 type CurrentPage = "coaching" | "blog" | "strength-test";
