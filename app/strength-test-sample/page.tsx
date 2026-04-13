@@ -1,5 +1,14 @@
 import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, Download } from "lucide-react";
-import ThemeToggle from "@/app/components/ThemeToggle";
+import Bos360SiteHeader from "@/app/components/Bos360SiteHeader";
+
+export const metadata = {
+  title: "Cam Lillico | Strength Test",
+  icons: {
+    icon: "/strength-test-sample/icon.png",
+    shortcut: "/strength-test-sample/icon.png",
+    apple: "/strength-test-sample/icon.png",
+  },
+};
 
 type SectionKey = "Business" | "Brand" | "Team" | "Strategy" | "Execution" | "Culture";
 
@@ -99,29 +108,7 @@ export default function StrengthTestSamplePage() {
 
   return (
     <main className="strength-theme min-h-screen bg-[#06090f] text-slate-100">
-      <header className="z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-          <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Business Coaching">
-            <a href="/coaching" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
-              <img src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" className="h-8 w-8 object-contain" />
-            </a>
-            <span className="max-w-[170px] truncate rounded-full border border-neutral-600 bg-neutral-800/85 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-cyan-200 sm:max-w-none sm:px-3 sm:text-[11px] sm:tracking-widest">
-              Cam Lillico Business Coaching
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <a
-              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
-            >
-              Book an Intro Call
-            </a>
-          </div>
-        </div>
-      </header>
+      <Bos360SiteHeader current="strength-test" />
 
       <section className="mx-auto max-w-4xl px-6 py-8">
         <h1 className="text-4xl font-semibold leading-tight">Strength Test: Your Results</h1>

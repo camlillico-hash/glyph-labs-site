@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Clock3 } from "lucide-react";
 import { blogPosts } from "../blogPosts";
+import Bos360SiteHeader from "@/app/components/Bos360SiteHeader";
 
 export const metadata = {
   title: "Cam Lillico | Leadership Insights",
@@ -9,7 +10,8 @@ export const metadata = {
 
 export default function CoachingBlogIndexPage() {
   return (
-    <main className="min-h-screen bg-[#f5f1ea] text-slate-950">
+    <main className="coaching-theme min-h-screen bg-[#f5f1ea] text-slate-950">
+      <Bos360SiteHeader current="blog" />
       <section className="mx-auto max-w-6xl px-6 py-14 md:py-20">
         <Link
           href="/coaching-v2"

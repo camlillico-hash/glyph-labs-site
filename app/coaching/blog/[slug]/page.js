@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUp } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { blogPosts, getPostBySlug } from "../../blogPosts";
+import Bos360SiteHeader from "@/app/components/Bos360SiteHeader";
 
 export function generateStaticParams() {
   return blogPosts.map((post) => ({ slug: post.slug }));
@@ -34,28 +35,7 @@ export default async function BlogPostPage({ params }) {
 
   return (
     <main id="top" className="coaching-theme min-h-screen bg-neutral-950 text-slate-100">
-      <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-          <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Coaching">
-            <Link href="/coaching-v2" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
-              <Image src="/logos/glyphlabs-coaching-mark.png" alt="Coaching mark" width={32} height={32} className="h-7 w-7 object-contain sm:h-8 sm:w-8" />
-            </Link>
-            <span className="rounded-full border border-neutral-600 bg-neutral-800/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-orange-200">
-              Cam Lillico Leadership Insights
-            </span>
-          </div>
-          <div className="flex items-center gap-2 whitespace-nowrap">
-            <a
-              href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg bg-gradient-to-r from-orange-300 via-[#ed7d31] to-orange-500 px-3 py-2 text-xs font-semibold text-slate-950"
-            >
-              Book an Intro Call
-            </a>
-          </div>
-        </div>
-      </header>
+      <Bos360SiteHeader current="blog" />
 
       <section className="mx-auto max-w-3xl px-6 pb-16 pt-10 md:pt-12">
         <Link
