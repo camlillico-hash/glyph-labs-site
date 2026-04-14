@@ -1,6 +1,6 @@
 "use client";
 
-import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail, Download, Sparkles, Layers } from "lucide-react";
+import { BriefcaseBusiness, Tag, Users, Compass, Cog, Sprout, User, Mail, Download, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import Bos360SiteHeader from "@/app/components/Bos360SiteHeader";
 
@@ -262,30 +262,84 @@ export default function StrengthTestPage() {
                   Take the <strong className="font-semibold text-slate-100">BOS360™ Strength Test</strong> to identify your organization’s core strengths and growth areas. Unlock your business potential quickly with instant insights into performance — fast, easy, and free.
                 </p>
 
-                <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950/55 p-4">
-                  <p className="inline-flex items-center gap-2 text-sm font-semibold text-slate-100"><Layers size={14} className="text-cyan-300" />How it works</p>
-                  <p className="mt-2 text-sm text-slate-300">
-                    Take a few minutes to answer 20 questions across 3 foundational pillars and their bonding forces. Each question reflects an important aspect of organizational health and helps surface where your business excels and where it needs focus.
-                  </p>
-                  <p className="mt-3 text-sm text-slate-300">
-                    The most successful organizations simultaneously build three Core Pillars: <span className="font-semibold text-slate-100">Business, Brand, Team</span> — by strengthening the Three Bonding Forces: <span className="font-semibold text-slate-100">Strategy, Execution, Culture</span>.
-                  </p>
+                <div className="mt-6 space-y-3">
+                  <button
+                    type="button"
+                    className="inline-flex min-h-[54px] w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-cyan-400/50 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-500/15"
+                    onClick={() => setShowLeadModal(true)}
+                  >
+                    <Sparkles size={15} />
+                    Take the assessment
+                  </button>
+
+                  <div className="inline-flex w-full flex-col items-start gap-1 rounded-xl bg-neutral-900/85 px-3 py-2 text-slate-200">
+                    <span className="inline-flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em]">
+                      <User size={11} aria-hidden />
+                      <Mail size={11} aria-hidden />
+                      Name + email required
+                    </span>
+                    <span className="text-[11px] leading-snug text-slate-300">
+                      Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.
+                    </span>
+                  </div>
                 </div>
 
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><BriefcaseBusiness size={14} /> BUSINESS:</span> Profitable, growing, managing cash predictably</div>
-                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Tag size={14} /> BRAND:</span> Clear and consistent internally and externally</div>
-                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Users size={14} /> TEAM:</span> Right people in the right seats</div>
-                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Compass size={14} /> STRATEGY:</span> Decisive, aligned and inspired</div>
-                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Cog size={14} /> EXECUTION:</span> Accountability and discipline</div>
-                  <div className="pillar-card rounded-lg border border-orange-400/45 bg-orange-500/12 px-3 py-2.5 text-sm text-orange-100"><span className="inline-flex items-center gap-1.5 font-semibold"><Sprout size={14} /> CULTURE:</span> Happy and high performing</div>
-                </div>
+                <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <li className="flex gap-3 text-sm text-slate-300">
+                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-400/50 bg-cyan-500/10 text-cyan-200">
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.2]" aria-hidden>
+                        <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                      </svg>
+                    </span>
+                    <span><span className="font-semibold">Business:</span> Profitable, growing, managing cash predictably</span>
+                  </li>
+                  <li className="flex gap-3 text-sm text-slate-300">
+                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-400/50 bg-cyan-500/10 text-cyan-200">
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.2]" aria-hidden>
+                        <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                      </svg>
+                    </span>
+                    <span><span className="font-semibold">Brand:</span> Clear and consistent internally and externally</span>
+                  </li>
+                  <li className="flex gap-3 text-sm text-slate-300">
+                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-400/50 bg-cyan-500/10 text-cyan-200">
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.2]" aria-hidden>
+                        <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                      </svg>
+                    </span>
+                    <span><span className="font-semibold">Team:</span> Right people in the right seats</span>
+                  </li>
+                  <li className="flex gap-3 text-sm text-slate-300">
+                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-400/50 bg-cyan-500/10 text-cyan-200">
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.2]" aria-hidden>
+                        <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                      </svg>
+                    </span>
+                    <span><span className="font-semibold">Strategy:</span> Decisive, aligned and inspired</span>
+                  </li>
+                  <li className="flex gap-3 text-sm text-slate-300">
+                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-400/50 bg-cyan-500/10 text-cyan-200">
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.2]" aria-hidden>
+                        <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                      </svg>
+                    </span>
+                    <span><span className="font-semibold">Execution:</span> Accountability and discipline</span>
+                  </li>
+                  <li className="flex gap-3 text-sm text-slate-300">
+                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-400/50 bg-cyan-500/10 text-cyan-200">
+                      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-none stroke-current stroke-[2.2]" aria-hidden>
+                        <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                      </svg>
+                    </span>
+                    <span><span className="font-semibold">Culture:</span> Happy and high performing</span>
+                  </li>
+                </ul>
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-4 text-center">
-                  <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Sample results preview</p>
-                  <svg viewBox="0 0 240 240" className="mx-auto mt-2 h-44 w-44" aria-label="Sample donut chart with 6 sections">
+                <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-5 text-center">
+                  <p className="text-[13px] uppercase tracking-[0.14em] text-slate-300">Sample results preview</p>
+                  <svg viewBox="0 0 240 240" className="mx-auto mt-3 h-52 w-52" aria-label="Sample donut chart with 6 sections">
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#ffffff" strokeWidth="28" />
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#f97316" strokeWidth="24" strokeDasharray="82 427" strokeDashoffset="0" transform="rotate(-90 120 120)" />
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#38bdf8" strokeWidth="24" strokeDasharray="71 427" strokeDashoffset="-82" transform="rotate(-90 120 120)" />
@@ -294,10 +348,10 @@ export default function StrengthTestPage() {
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#22c55e" strokeWidth="24" strokeDasharray="62 427" strokeDashoffset="-293" transform="rotate(-90 120 120)" />
                     <circle cx="120" cy="120" r="68" fill="none" stroke="#14b8a6" strokeWidth="24" strokeDasharray="72 427" strokeDashoffset="-355" transform="rotate(-90 120 120)" />
                     <circle cx="120" cy="120" r="42" fill="#ffffff" />
-                    <text x="120" y="114" textAnchor="middle" fontSize="10" fill="#334155">Overall</text>
-                    <text x="120" y="134" textAnchor="middle" fontSize="22" fontWeight="700" fill="#67e8f9">78%</text>
+                    <text x="120" y="112" textAnchor="middle" fontSize="11" fill="#334155">Overall</text>
+                    <text x="120" y="136" textAnchor="middle" fontSize="26" fontWeight="700" fill="#67e8f9">78%</text>
                   </svg>
-                  <div className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-slate-400">
+                  <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-300">
                     <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-orange-500" />Business</span>
                     <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-sky-400" />Brand</span>
                     <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-violet-500" />Team</span>
@@ -305,25 +359,6 @@ export default function StrengthTestPage() {
                     <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" />Execution</span>
                     <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-teal-500" />Culture</span>
                   </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="w-full cursor-pointer rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-cyan-400"
-                  onClick={() => setShowLeadModal(true)}
-                >
-                  Take the assessment
-                </button>
-
-                <div className="inline-flex w-full flex-col items-start gap-1 rounded-xl border border-neutral-700 bg-neutral-900/85 px-3 py-2 text-slate-200">
-                  <span className="inline-flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em]">
-                    <User size={11} aria-hidden />
-                    <Mail size={11} aria-hidden />
-                    Name + email required
-                  </span>
-                  <span className="text-[11px] leading-snug text-slate-300">
-                    Before starting, you’ll be asked to share your contact details so I can send context and follow up on your results.
-                  </span>
                 </div>
               </div>
             </div>
