@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import { Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight, Paperclip } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 
@@ -48,8 +49,8 @@ const activityTypeIcon = (v?: string) => {
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Connector";
-const TABLE_MAX_HEIGHT_CLASS = "max-h-[920px] overflow-y-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
-const BOARD_LANE_MAX_HEIGHT_CLASS = "max-h-[740px] overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
+const TABLE_MAX_HEIGHT_CLASS = "overflow-y-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
+const BOARD_LANE_MAX_HEIGHT_CLASS = "overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
 
 const EXPORT_HEADERS = [
   "contactId",
@@ -110,6 +111,8 @@ export default function ConnectorsPage() {
   const [showDetailSection, setShowDetailSection] = useState(true);
   const [showActivitiesSection, setShowActivitiesSection] = useState(true);
   const [showDealsSection, setShowDealsSection] = useState(true);
+  const [tableViewportHeight, setTableViewportHeight] = useState(560);
+  const [boardLaneViewportHeight, setBoardLaneViewportHeight] = useState(500);
   const [removingFromOpenIds, setRemovingFromOpenIds] = useState<string[]>([]);
   const [dqModal, setDqModal] = useState<{ open: boolean; contactId?: string; status?: string; targetIndex?: number; disqualificationReason: string; whatNow: string; error?: string; saving?: boolean }>({
     open: false,
@@ -185,6 +188,17 @@ export default function ConnectorsPage() {
     }
   };
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const updateViewportHeights = () => {
+      setTableViewportHeight(Math.max(280, window.innerHeight - 260));
+      setBoardLaneViewportHeight(Math.max(220, window.innerHeight - 360));
+    };
+    updateViewportHeights();
+    window.addEventListener("resize", updateViewportHeights);
+    return () => window.removeEventListener("resize", updateViewportHeights);
+  }, []);
 
   useEffect(() => {
     if (!selected?.id) return;
@@ -457,8 +471,11 @@ export default function ConnectorsPage() {
     setConfirmState({ open: true, message, action, confirmLabel });
   }
 
-  const renderContactsTable = (rows: Contact[]) => (
-    <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
+  const renderContactsTable = (rows: Contact[]) => {
+    const tableViewportStyle: CSSProperties = { maxHeight: `${tableViewportHeight}px` };
+    return (
+    <div className={TABLE_MAX_HEIGHT_CLASS} style={tableViewportStyle}>
+      <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
       <table className="w-full min-w-[980px] text-sm">
         <thead className="border-b border-neutral-800 text-slate-400"><tr><th className="px-3 py-2 text-left">Actions</th><th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Pipeline</th><th className="px-3 py-2 text-left">Email</th><th className="px-3 py-2 text-left">LinkedIn</th><th className="px-3 py-2 text-left">Company</th><th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Stage</th><th className="px-3 py-2 text-left">Last Activity Date</th><th className="px-3 py-2 text-left">Last Activity Type</th><th className="px-3 py-2 text-left">Created</th></tr></thead>
         <tbody>
@@ -484,8 +501,10 @@ export default function ConnectorsPage() {
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
+  };
 
   return (
     <div className="space-y-6">
@@ -519,7 +538,7 @@ export default function ConnectorsPage() {
                             {laneContacts.length}
                           </span>
                         </h3>
-                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`}>
+                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`} style={{ maxHeight: `${boardLaneViewportHeight}px` }}>
                           {laneContacts.map((c, idx) => {
                             const cardLaneKey = `${section.key}:${stage}`;
                             return (

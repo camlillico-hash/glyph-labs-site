@@ -50,7 +50,7 @@ const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "co
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Lead";
 const TABLE_MAX_HEIGHT_CLASS = "overflow-y-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
-const BOARD_LANE_MAX_HEIGHT_CLASS = "max-h-[740px] overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
+const BOARD_LANE_MAX_HEIGHT_CLASS = "overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
 
 const EXPORT_HEADERS = [
   "contactId",
@@ -114,6 +114,7 @@ export default function LeadsPage() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [tableViewportHeight, setTableViewportHeight] = useState(560);
+  const [boardLaneViewportHeight, setBoardLaneViewportHeight] = useState(500);
   const [showOpenContacts, setShowOpenContacts] = useState(true);
   const [showConverted, setShowConverted] = useState(false);
   const [showClients, setShowClients] = useState(false);
@@ -201,13 +202,13 @@ export default function LeadsPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const updateTableViewportHeight = () => {
-      const nextHeight = Math.max(280, window.innerHeight - 260);
-      setTableViewportHeight(nextHeight);
+    const updateViewportHeights = () => {
+      setTableViewportHeight(Math.max(280, window.innerHeight - 260));
+      setBoardLaneViewportHeight(Math.max(220, window.innerHeight - 360));
     };
-    updateTableViewportHeight();
-    window.addEventListener("resize", updateTableViewportHeight);
-    return () => window.removeEventListener("resize", updateTableViewportHeight);
+    updateViewportHeights();
+    window.addEventListener("resize", updateViewportHeights);
+    return () => window.removeEventListener("resize", updateViewportHeights);
   }, []);
 
 
@@ -780,7 +781,7 @@ export default function LeadsPage() {
                             {laneContacts.length}
                           </span>
                         </h3>
-                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`}>
+                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`} style={{ maxHeight: `${boardLaneViewportHeight}px` }}>
                           {laneContacts.map((c, idx) => {
                             const cardLaneKey = `${section.key}:${stage}`;
                             return (
