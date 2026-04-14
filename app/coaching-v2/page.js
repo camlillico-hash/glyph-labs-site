@@ -576,7 +576,7 @@ export default function CoachingV2Page() {
               </div>
             ))}
 
-            <div className="relative flex h-[40.875rem] w-full items-center justify-center rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-[15px] shadow-[0_24px_70px_-46px_rgba(0,0,0,0.55)]">
+            <div className="relative flex min-h-[29rem] w-full items-center justify-center rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-3 shadow-[0_24px_70px_-46px_rgba(0,0,0,0.55)] md:h-[40.875rem] md:p-[15px]">
               <span className="absolute left-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#ed7d31]/30 bg-[#ed7d31]/10 text-sm font-semibold text-orange-200">
                 3
               </span>
@@ -585,7 +585,7 @@ export default function CoachingV2Page() {
                 alt="BOS360 launch diagram"
                 width={1600}
                 height={900}
-                className="h-[39rem] w-auto object-contain"
+                className="h-[26.75rem] w-auto object-contain md:h-[37.95rem]"
               />
             </div>
             <div className="relative flex h-[40.875rem] w-full items-center justify-center rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-[15px] shadow-[0_24px_70px_-46px_rgba(0,0,0,0.55)]">
@@ -597,7 +597,7 @@ export default function CoachingV2Page() {
                 alt="BOS360 rhythm diagram"
                 width={1600}
                 height={900}
-                className="h-[37.5rem] w-auto object-contain"
+                className="h-[36.8rem] w-auto object-contain"
               />
             </div>
           </div>
@@ -608,26 +608,80 @@ export default function CoachingV2Page() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="cta-panel-secondary relative overflow-hidden rounded-[2rem] px-8 py-10 shadow-[0_38px_90px_-52px_rgba(0,0,0,0.18)] md:px-10 md:py-12">
             <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-64 bg-[radial-gradient(circle_at_center,_rgba(251,191,36,0.14),_transparent_62%)] lg:block" />
-            <div className="relative mx-auto max-w-2xl text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-200">
-                Strength Test
-              </p>
-              <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-100 md:text-5xl">
-                Get a Fast Read on Where the Friction Is
-              </h2>
-              <p className="mt-5 text-lg leading-8 text-slate-300">
-                Take the diagnostic to quickly see where alignment, execution, or
-                team health may be slipping.
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                <SecondaryButton href={STRENGTH_TEST_URL}>
-                  Take the Strength Test
-                  <ArrowRight size={16} />
-                </SecondaryButton>
-                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  20 questions · instant results
+            <div className="relative mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+              <div className="text-center lg:text-left">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-200">
+                  Strength Test
                 </p>
+                <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-100 md:text-5xl">
+                  Get a Fast Read on Where the Friction Is
+                </h2>
+                <p className="mt-5 text-lg leading-8 text-slate-300">
+                  Take the diagnostic to quickly see where alignment, execution, or
+                  team health may be slipping.
+                </p>
+
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
+                  <SecondaryButton href={STRENGTH_TEST_URL}>
+                    Take the Strength Test
+                    <ArrowRight size={16} />
+                  </SecondaryButton>
+                  <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-400">
+                    20 questions · instant results
+                  </p>
+                </div>
+              </div>
+
+              <div className="mx-auto w-full max-w-[20rem] rounded-[1.5rem] border border-slate-700/70 bg-white p-4 text-center shadow-[0_24px_70px_-46px_rgba(0,0,0,0.4)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+                  Sample Results Preview
+                </p>
+                <svg
+                  viewBox="0 0 240 240"
+                  className="mx-auto mt-2 h-36 w-36"
+                  aria-label="Sample donut chart with 6 sections"
+                >
+                  <circle cx="120" cy="120" r="68" fill="none" stroke="#ffffff" strokeWidth="28" />
+                  <circle cx="120" cy="120" r="68" fill="none" stroke="#f97316" strokeWidth="24" strokeDasharray="82 427" strokeDashoffset="0" transform="rotate(-90 120 120)" />
+                  <circle cx="120" cy="120" r="68" fill="none" stroke="#38bdf8" strokeWidth="24" strokeDasharray="71 427" strokeDashoffset="-82" transform="rotate(-90 120 120)" />
+                  <circle cx="120" cy="120" r="68" fill="none" stroke="#8b5cf6" strokeWidth="24" strokeDasharray="66 427" strokeDashoffset="-153" transform="rotate(-90 120 120)" />
+                  <circle cx="120" cy="120" r="68" fill="none" stroke="#eab308" strokeWidth="24" strokeDasharray="74 427" strokeDashoffset="-219" transform="rotate(-90 120 120)" />
+                  <circle cx="120" cy="120" r="68" fill="none" stroke="#22c55e" strokeWidth="24" strokeDasharray="62 427" strokeDashoffset="-293" transform="rotate(-90 120 120)" />
+                  <circle cx="120" cy="120" r="68" fill="none" stroke="#14b8a6" strokeWidth="24" strokeDasharray="72 427" strokeDashoffset="-355" transform="rotate(-90 120 120)" />
+                  <circle cx="120" cy="120" r="42" fill="#ffffff" />
+                  <text x="120" y="114" textAnchor="middle" fontSize="10" fill="#334155">
+                    Overall
+                  </text>
+                  <text x="120" y="134" textAnchor="middle" fontSize="22" fontWeight="700" fill="#67e8f9">
+                    78%
+                  </text>
+                </svg>
+                <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-[10px] text-slate-600">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-orange-500" />
+                    Business
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-sky-400" />
+                    Brand
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-violet-500" />
+                    Team
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-yellow-500" />
+                    Strategy
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-green-500" />
+                    Execution
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-teal-500" />
+                    Culture
+                  </span>
+                </div>
               </div>
             </div>
           </div>
