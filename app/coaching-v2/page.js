@@ -509,32 +509,34 @@ export default function CoachingV2Page() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-20">
-        <SectionIntro
-          eyebrow="Results you feel, quickly"
-          title="What Changes When BOS360 Is Working"
-          body="The visible shift is not just better meetings or better plans. It is a leadership team that can actually hold alignment and execution together over time."
-          align="center"
-          icon={CheckCircle2}
-        />
+      <section className="border-y border-neutral-800 bg-neutral-900/40 py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <SectionIntro
+            eyebrow="Results you feel, quickly"
+            title="What Changes When BOS360 Is Working"
+            body="The visible shift is not just better meetings or better plans. It is a leadership team that can actually hold alignment and execution together over time."
+            align="center"
+            icon={CheckCircle2}
+          />
 
-        <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {outcomeCards.map((item) => (
-            <article
-              key={item.title}
-              className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-6 shadow-[0_26px_70px_-44px_rgba(0,0,0,0.55)]"
-            >
-              <div className="flex items-start gap-4">
-                <div className="rounded-2xl border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-3">
-                  <CheckCircle2 size={18} className="text-[#ed7d31]" />
+          <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {outcomeCards.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-[1.75rem] border border-neutral-700 bg-neutral-900 p-6 shadow-[0_26px_70px_-44px_rgba(0,0,0,0.55)]"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="rounded-2xl border border-[#ed7d31]/30 bg-[#ed7d31]/10 p-3">
+                    <CheckCircle2 size={18} className="text-[#ed7d31]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-slate-100">{item.title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">{item.text}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-slate-100">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-300">{item.text}</p>
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -795,18 +797,18 @@ export default function CoachingV2Page() {
             {testimonials.map((item) => (
               <blockquote
                 key={item.source}
-                className="rounded-[1.5rem] border border-neutral-700 bg-neutral-950 p-5"
+                className="rounded-[1.5rem] border border-neutral-700 bg-neutral-950 px-5 py-6"
               >
-                <p className="text-sm leading-6 text-slate-300">
-                  <span className="mr-1 inline-block -translate-y-0.5 text-xl font-bold leading-none text-[#ed7d31]">
+                <p className="relative pl-10 pr-4 text-sm leading-7 text-slate-300">
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-0 inline-block -scale-x-100 text-5xl font-bold leading-none text-[#ed7d31]/85"
+                  >
                     &rdquo;
                   </span>
                   {item.quote}
-                  <span className="ml-1 inline-block -translate-y-0.5 text-xl font-bold leading-none text-[#ed7d31]">
-                    &ldquo;
-                  </span>
                 </p>
-                <footer className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
+                <footer className="mt-5 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
                   {item.source}
                 </footer>
               </blockquote>
@@ -859,7 +861,7 @@ export default function CoachingV2Page() {
         </div>
       </section>
 
-      <section className="border-t border-neutral-800 bg-neutral-900/40 py-20 text-slate-100">
+      <section className="border-t border-neutral-800 py-20 text-slate-100">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="cta-panel-primary rounded-[2rem] p-8 shadow-[0_34px_90px_-50px_rgba(0,0,0,0.2)]">
