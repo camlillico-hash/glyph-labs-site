@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { CSSProperties } from "react";
 import { Target, Users, Save, Pencil, Trash2, X, SquareArrowOutUpRight, LayoutGrid, List, Plus, Mail, Phone, MessageSquare, Linkedin, CalendarCheck2, CheckCheck, ChevronDown, ChevronRight, Paperclip } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 
@@ -51,6 +50,8 @@ const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "con
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Lead";
 const TABLE_MAX_HEIGHT_CLASS = "overflow-y-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
 const BOARD_LANE_MAX_HEIGHT_CLASS = "overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
+const TABLE_VIEWPORT_STYLE = { maxHeight: "clamp(18rem, calc(100dvh - 18rem), 56rem)" } as const;
+const BOARD_LANE_VIEWPORT_STYLE = { maxHeight: "clamp(14rem, calc(100dvh - 24rem), 44rem)" } as const;
 
 const EXPORT_HEADERS = [
   "contactId",
@@ -113,8 +114,6 @@ export default function LeadsPage() {
     direction: "asc",
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const [tableViewportHeight, setTableViewportHeight] = useState(560);
-  const [boardLaneViewportHeight, setBoardLaneViewportHeight] = useState(500);
   const [showOpenContacts, setShowOpenContacts] = useState(true);
   const [showConverted, setShowConverted] = useState(false);
   const [showClients, setShowClients] = useState(false);
@@ -199,17 +198,6 @@ export default function LeadsPage() {
     }
   };
   useEffect(() => { load(); }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const updateViewportHeights = () => {
-      setTableViewportHeight(Math.max(280, window.innerHeight - 260));
-      setBoardLaneViewportHeight(Math.max(220, window.innerHeight - 360));
-    };
-    updateViewportHeights();
-    window.addEventListener("resize", updateViewportHeights);
-    return () => window.removeEventListener("resize", updateViewportHeights);
-  }, []);
 
 
   useEffect(() => {
@@ -611,7 +599,6 @@ export default function LeadsPage() {
   }
 
   const renderContactsTable = (rows: Contact[]) => {
-    const tableViewportStyle: CSSProperties = { maxHeight: `${tableViewportHeight}px` };
     const rowIds = rows.map((c) => c.id);
     const selectedCount = rowIds.filter((id) => selectedLeadIds.includes(id)).length;
     const allSelected = rowIds.length > 0 && selectedCount === rowIds.length;
@@ -639,7 +626,7 @@ export default function LeadsPage() {
     };
 
     return (
-      <div className={TABLE_MAX_HEIGHT_CLASS} style={tableViewportStyle}>
+      <div className={TABLE_MAX_HEIGHT_CLASS} style={TABLE_VIEWPORT_STYLE}>
         <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
           <table className="w-full min-w-[1240px] text-sm">
           <thead className="border-b border-neutral-800 text-slate-400">
@@ -781,7 +768,7 @@ export default function LeadsPage() {
                             {laneContacts.length}
                           </span>
                         </h3>
-                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`} style={{ maxHeight: `${boardLaneViewportHeight}px` }}>
+                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`} style={BOARD_LANE_VIEWPORT_STYLE}>
                           {laneContacts.map((c, idx) => {
                             const cardLaneKey = `${section.key}:${stage}`;
                             return (
