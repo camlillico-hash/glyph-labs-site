@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CheckSquare, Plus, Save, Trash2, LayoutGrid, List, X, Pencil, Circle, CircleCheck, Mail, Phone, MessageSquare, Linkedin, Users, CalendarCheck2, CheckCheck, SquareArrowOutUpRight, Activity, ChevronDown, ChevronRight } from "lucide-react";
+import { CheckSquare, Plus, Save, Trash2, LayoutGrid, List, X, Pencil, Circle, CircleCheck, Mail, Phone, MessageSquare, Linkedin, Users, CalendarCheck2, CheckCheck, SquareArrowOutUpRight, ChevronDown, ChevronRight } from "lucide-react";
 import ConfirmDialog from "../ConfirmDialog";
 
 const TASK_STATUSES = ["Overdue", "Not started", "Completed", "Canceled"];
@@ -385,7 +385,14 @@ export default function TasksPage() {
               <p className="mt-1 text-sm text-slate-400">Every outreach log stays tied to a real CRM contact.</p>
             </div>
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-2 font-semibold text-slate-200 hover:border-neutral-500" onClick={openActivityCreate}><Activity size={14} /> New</button>
+          <button
+            title="New activity"
+            aria-label="New activity"
+            className="inline-flex items-center justify-center rounded-lg border border-sky-600 bg-sky-900/40 px-3 py-2 font-semibold text-sky-100 hover:bg-sky-800/70"
+            onClick={openActivityCreate}
+          >
+            <Plus size={14} />
+          </button>
         </div>
       </section>
 
