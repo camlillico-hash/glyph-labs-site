@@ -48,12 +48,29 @@ const activityTypeIcon = (v?: string) => {
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Lead";
-const TABLE_SHELL_CLASS = "crm-card min-w-0 overflow-hidden";
-const TABLE_SCROLL_CLASS = "h-full overflow-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
-const BOARD_LANE_SHELL_CLASS = "crm-card p-3 w-[240px] shrink-0 overflow-hidden transition-all duration-150";
-const BOARD_LANE_SCROLL_CLASS = "min-h-10 h-full overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
-const TABLE_VIEWPORT_STYLE = { maxHeight: "clamp(18rem, calc(100dvh - 18rem), 56rem)" } as const;
-const BOARD_LANE_VIEWPORT_STYLE = { maxHeight: "clamp(14rem, calc(100dvh - 24rem), 44rem)" } as const;
+const TABLE_SHELL_CLASS = "crm-card min-w-0 overflow-auto overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
+const TABLE_SCROLL_CLASS = "min-w-0";
+const BOARD_LANE_SHELL_CLASS = "crm-card flex h-full flex-col p-3 w-[240px] shrink-0 overflow-hidden transition-all duration-150";
+const BOARD_LANE_SCROLL_CLASS = "min-h-0 flex-1 overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
+const TABLE_VIEWPORT_STYLE = { height: "clamp(18rem, calc(100dvh - 18rem), 56rem)" } as const;
+const BOARD_LANE_VIEWPORT_STYLE = { height: "clamp(14rem, calc(100dvh - 24rem), 44rem)" } as const;
+
+const contactMatchesSearch = (contact: Contact, normalizedSearch: string) => {
+  if (!normalizedSearch) return true;
+  const haystack = [
+    `${contact.firstName || ""} ${contact.lastName || ""}`.trim(),
+    contact.email || "",
+    contact.company || "",
+    contact.title || "",
+    contact.linkedin || "",
+    contact.status || defaultStatusForPipeline(contact.pipelineType),
+    contact.type || "",
+    contact.areaGeo || "",
+  ]
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(normalizedSearch);
+};
 
 const EXPORT_HEADERS = [
   "contactId",
@@ -228,26 +245,25 @@ export default function LeadsPage() {
   }, [deals]);
   const clientItems = useMemo(() => items.filter((c) => clientContactIds.has(c.id)), [items, clientContactIds]);
   const disqualifiedItems = useMemo(() => items.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden)), [items]);
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredIcpItems = useMemo(
+    () => (normalizedSearch ? icpItems.filter((contact) => contactMatchesSearch(contact, normalizedSearch)) : icpItems),
+    [icpItems, normalizedSearch],
+  );
+  const filteredIcpOpenItems = useMemo(
+    () => filteredIcpItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden),
+    [filteredIcpItems],
+  );
+  const filteredConvertedItems = useMemo(
+    () => filteredIcpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden),
+    [filteredIcpItems],
+  );
+  const filteredClientItems = useMemo(() => filteredIcpItems.filter((c) => clientContactIds.has(c.id)), [filteredIcpItems, clientContactIds]);
+  const filteredDisqualifiedItems = useMemo(
+    () => filteredIcpItems.filter((c) => ["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden),
+    [filteredIcpItems],
+  );
   const sortedIcpItems = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
-    const filtered = normalizedSearch
-      ? icpItems.filter((contact) => {
-          const haystack = [
-            `${contact.firstName || ""} ${contact.lastName || ""}`.trim(),
-            contact.email || "",
-            contact.company || "",
-            contact.title || "",
-            contact.linkedin || "",
-            contact.status || defaultStatusForPipeline(contact.pipelineType),
-            contact.type || "",
-            contact.areaGeo || "",
-          ]
-            .join(" ")
-            .toLowerCase();
-          return haystack.includes(normalizedSearch);
-        })
-      : icpItems;
-
     const getValue = (contact: Contact, key: typeof tableSort.key) => {
       switch (key) {
         case "name":
@@ -281,7 +297,7 @@ export default function LeadsPage() {
       }
     };
 
-    const sorted = [...filtered].sort((a, b) => {
+    const sorted = [...filteredIcpItems].sort((a, b) => {
       const aValue = getValue(a, tableSort.key);
       const bValue = getValue(b, tableSort.key);
       const aText = String(aValue || "").trim().toLowerCase();
@@ -292,7 +308,7 @@ export default function LeadsPage() {
     });
 
     return sorted;
-  }, [icpItems, tableSort, searchTerm, activities]);
+  }, [filteredIcpItems, tableSort, activities]);
 
   const boardSections = [
     {
@@ -301,7 +317,7 @@ export default function LeadsPage() {
       subtitle: "Prospects before the deal board takes over.",
       pipelineType: "icp",
       stages: ICP_STAGES,
-      items: icpOpenItems,
+      items: filteredIcpOpenItems,
     },
   ] as const;
 
@@ -825,7 +841,7 @@ export default function LeadsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-sky-200" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowOpenContacts((v) => !v)}>
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Open leads ({icpOpenItems.length})
+            Open leads ({filteredIcpOpenItems.length})
           </button>
           {showOpenContacts && renderContactsTable(sortedIcpItems.filter((c) => !["Warm intro booked", "Nurture", "Closed Lost"].includes(c.status || "New") || !c.openBoardHidden))}
         </div>
@@ -835,10 +851,10 @@ export default function LeadsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowConverted((v) => !v)}>
             {showConverted ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Converted to deals ({convertedItems.length})
+            Converted to deals ({filteredConvertedItems.length})
           </button>
           {showConverted && (
-            convertedItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden)) : (
+            filteredConvertedItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => (c.status || "New") === "Warm intro booked" && c.openBoardHidden)) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No leads have converted to deals yet.</div>
             )
           )}
@@ -847,10 +863,10 @@ export default function LeadsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-cyan-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowClients((v) => !v)}>
             {showClients ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Clients ({clientItems.length})
+            Clients ({filteredClientItems.length})
           </button>
           {showClients && (
-            clientItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => clientContactIds.has(c.id))) : (
+            filteredClientItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => clientContactIds.has(c.id))) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client leads yet.</div>
             )
           )}
@@ -859,10 +875,10 @@ export default function LeadsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-amber-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowDisqualified((v) => !v)}>
             {showDisqualified ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Nurture / closed lost ({disqualifiedItems.length})
+            Nurture / closed lost ({filteredDisqualifiedItems.length})
           </button>
           {showDisqualified && (
-            disqualifiedItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden))) : (
+            filteredDisqualifiedItems.length > 0 ? renderContactsTable(sortedIcpItems.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden))) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No archived nurture or lost contacts.</div>
             )
           )}

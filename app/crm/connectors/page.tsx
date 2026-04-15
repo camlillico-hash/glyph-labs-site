@@ -48,12 +48,29 @@ const activityTypeIcon = (v?: string) => {
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Connector";
-const TABLE_SHELL_CLASS = "crm-card min-w-0 overflow-hidden";
-const TABLE_SCROLL_CLASS = "h-full overflow-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
-const BOARD_LANE_SHELL_CLASS = "crm-card p-3 w-[240px] shrink-0 overflow-hidden transition-all duration-150";
-const BOARD_LANE_SCROLL_CLASS = "min-h-10 h-full overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
-const TABLE_VIEWPORT_STYLE = { maxHeight: "clamp(18rem, calc(100dvh - 18rem), 56rem)" } as const;
-const BOARD_LANE_VIEWPORT_STYLE = { maxHeight: "clamp(14rem, calc(100dvh - 24rem), 44rem)" } as const;
+const TABLE_SHELL_CLASS = "crm-card min-w-0 overflow-auto overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
+const TABLE_SCROLL_CLASS = "min-w-0";
+const BOARD_LANE_SHELL_CLASS = "crm-card flex h-full flex-col p-3 w-[240px] shrink-0 overflow-hidden transition-all duration-150";
+const BOARD_LANE_SCROLL_CLASS = "min-h-0 flex-1 overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
+const TABLE_VIEWPORT_STYLE = { height: "clamp(18rem, calc(100dvh - 18rem), 56rem)" } as const;
+const BOARD_LANE_VIEWPORT_STYLE = { height: "clamp(14rem, calc(100dvh - 24rem), 44rem)" } as const;
+
+const contactMatchesSearch = (contact: Contact, normalizedSearch: string) => {
+  if (!normalizedSearch) return true;
+  const haystack = [
+    `${contact.firstName || ""} ${contact.lastName || ""}`.trim(),
+    contact.email || "",
+    contact.company || "",
+    contact.title || "",
+    contact.linkedin || "",
+    contact.status || defaultStatusForPipeline(contact.pipelineType),
+    contact.type || "",
+    contact.areaGeo || "",
+  ]
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(normalizedSearch);
+};
 
 const EXPORT_HEADERS = [
   "contactId",
@@ -107,6 +124,7 @@ export default function ConnectorsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [inlineDraft, setInlineDraft] = useState<any>(null);
   const [inlineError, setInlineError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [showOpenContacts, setShowOpenContacts] = useState(true);
   const [showConverted, setShowConverted] = useState(false);
   const [showClients, setShowClients] = useState(false);
@@ -217,6 +235,27 @@ export default function ConnectorsPage() {
   }, [deals]);
   const clientItems = useMemo(() => items.filter((c) => clientContactIds.has(c.id)), [items, clientContactIds]);
   const disqualifiedItems = useMemo(() => items.filter((c) => (["Nurture", "Closed Lost"].includes(c.status || defaultStatusForPipeline(c.pipelineType)) && c.openBoardHidden)), [items]);
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredConnectorItems = useMemo(
+    () => (normalizedSearch ? connectorItems.filter((contact) => contactMatchesSearch(contact, normalizedSearch)) : connectorItems),
+    [connectorItems, normalizedSearch],
+  );
+  const filteredConnectorOpenItems = useMemo(
+    () => filteredConnectorItems.filter((c) => !["Intro Delivered", "Nurture", "Closed Lost"].includes(c.status || "Identified") || !c.openBoardHidden),
+    [filteredConnectorItems],
+  );
+  const filteredConvertedItems = useMemo(
+    () => (normalizedSearch ? convertedItems.filter((contact) => contactMatchesSearch(contact, normalizedSearch)) : convertedItems),
+    [convertedItems, normalizedSearch],
+  );
+  const filteredClientItems = useMemo(
+    () => (normalizedSearch ? clientItems.filter((contact) => contactMatchesSearch(contact, normalizedSearch)) : clientItems),
+    [clientItems, normalizedSearch],
+  );
+  const filteredDisqualifiedItems = useMemo(
+    () => (normalizedSearch ? disqualifiedItems.filter((contact) => contactMatchesSearch(contact, normalizedSearch)) : disqualifiedItems),
+    [disqualifiedItems, normalizedSearch],
+  );
 
   const boardSections = [
     {
@@ -225,7 +264,7 @@ export default function ConnectorsPage() {
       subtitle: "People who can open doors, make intros, and expand the network.",
       pipelineType: "connector",
       stages: CONNECTOR_STAGES,
-      items: connectorOpenItems,
+      items: filteredConnectorOpenItems,
     },
   ] as const;
 
@@ -497,9 +536,30 @@ export default function ConnectorsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <h1 className="text-lg sm:text-2xl font-bold inline-flex items-center gap-2 text-sky-200 whitespace-nowrap" style={{ fontFamily: "var(--font-playfair-display), serif" }}><Users size={20} /> Connectors ({connectorItems.length})</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative w-full min-w-[220px] sm:w-[280px]">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search connectors"
+              aria-label="Search connectors"
+              className="crm-input h-10 w-full pr-9"
+            />
+            {searchTerm ? (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                aria-label="Clear search"
+                title="Clear search"
+              >
+                <X size={14} />
+              </button>
+            ) : null}
+          </div>
           <button title="New connector" aria-label="New connector" className="inline-flex items-center justify-center rounded-lg border border-sky-600 bg-sky-900/40 px-3 py-2 font-semibold text-sky-100 hover:bg-sky-800/70" onClick={() => openCreate("connector")}><Plus size={14} /></button>
           <div className="inline-flex rounded-lg border border-neutral-700 p-1">
             <button className={`px-2 py-1 rounded ${view === "bucket" ? "bg-neutral-800 text-white" : "text-slate-400"}`} onClick={() => setView("bucket")}><LayoutGrid size={16} /></button>
@@ -582,9 +642,9 @@ export default function ConnectorsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-sky-200" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowOpenContacts((v) => !v)}>
             {showOpenContacts ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Open connectors ({connectorOpenItems.length})
+            Open connectors ({filteredConnectorOpenItems.length})
           </button>
-          {showOpenContacts && renderContactsTable([...connectorOpenItems])}
+          {showOpenContacts && renderContactsTable([...filteredConnectorOpenItems])}
         </div>
       )}
 
@@ -592,10 +652,10 @@ export default function ConnectorsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-emerald-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowConverted((v) => !v)}>
             {showConverted ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Converted to deals ({convertedItems.length})
+            Converted to deals ({filteredConvertedItems.length})
           </button>
           {showConverted && (
-            convertedItems.length > 0 ? renderContactsTable(convertedItems) : (
+            filteredConvertedItems.length > 0 ? renderContactsTable(filteredConvertedItems) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No leads have converted to deals yet.</div>
             )
           )}
@@ -604,10 +664,10 @@ export default function ConnectorsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-cyan-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowClients((v) => !v)}>
             {showClients ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Clients ({clientItems.length})
+            Clients ({filteredClientItems.length})
           </button>
           {showClients && (
-            clientItems.length > 0 ? renderContactsTable(clientItems) : (
+            filteredClientItems.length > 0 ? renderContactsTable(filteredClientItems) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No client contacts yet.</div>
             )
           )}
@@ -616,10 +676,10 @@ export default function ConnectorsPage() {
         <div className="space-y-2">
           <button className="inline-flex items-center gap-2 text-left text-base sm:text-xl font-bold text-amber-300" style={{ fontFamily: "var(--font-playfair-display), serif" }} onClick={() => setShowDisqualified((v) => !v)}>
             {showDisqualified ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-            Nurture / closed lost ({disqualifiedItems.length})
+            Nurture / closed lost ({filteredDisqualifiedItems.length})
           </button>
           {showDisqualified && (
-            disqualifiedItems.length > 0 ? renderContactsTable(disqualifiedItems) : (
+            filteredDisqualifiedItems.length > 0 ? renderContactsTable(filteredDisqualifiedItems) : (
               <div className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-500">No archived nurture or lost contacts.</div>
             )
           )}
