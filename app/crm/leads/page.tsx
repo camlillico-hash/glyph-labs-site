@@ -48,8 +48,10 @@ const activityTypeIcon = (v?: string) => {
 const defaultStatusForPipeline = (pipelineType?: string) => pipelineType === "connector" ? "Identified" : "New";
 const stageOptionsForPipeline = (pipelineType?: string) => pipelineType === "connector" ? CONNECTOR_STAGES : ICP_STAGES;
 const pipelineLabel = (pipelineType?: string) => PIPELINE_LABELS[(pipelineType || "connector") as "connector" | "icp"] || "Lead";
-const TABLE_MAX_HEIGHT_CLASS = "overflow-y-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
-const BOARD_LANE_MAX_HEIGHT_CLASS = "overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
+const TABLE_SHELL_CLASS = "crm-card min-w-0 overflow-hidden";
+const TABLE_SCROLL_CLASS = "h-full overflow-auto min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-x touch-pan-y";
+const BOARD_LANE_SHELL_CLASS = "crm-card p-3 w-[240px] shrink-0 overflow-hidden transition-all duration-150";
+const BOARD_LANE_SCROLL_CLASS = "min-h-10 h-full overflow-y-auto pr-1 min-w-0 overscroll-contain [scrollbar-gutter:stable] touch-pan-y";
 const TABLE_VIEWPORT_STYLE = { maxHeight: "clamp(18rem, calc(100dvh - 18rem), 56rem)" } as const;
 const BOARD_LANE_VIEWPORT_STYLE = { maxHeight: "clamp(14rem, calc(100dvh - 24rem), 44rem)" } as const;
 
@@ -626,8 +628,8 @@ export default function LeadsPage() {
     };
 
     return (
-      <div className={TABLE_MAX_HEIGHT_CLASS} style={TABLE_VIEWPORT_STYLE}>
-        <div className="crm-card min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-contain" data-no-pull-to-refresh>
+      <div className={TABLE_SHELL_CLASS} style={TABLE_VIEWPORT_STYLE} data-no-pull-to-refresh>
+        <div className={TABLE_SCROLL_CLASS}>
           <table className="w-full min-w-[1240px] text-sm">
           <thead className="border-b border-neutral-800 text-slate-400">
             <tr>
@@ -761,14 +763,14 @@ export default function LeadsPage() {
                     const laneKey = `${section.key}:${stage}`;
                     const laneContacts = section.items.filter((c) => (c.status || defaultStatusForPipeline(c.pipelineType)) === stage);
                     return (
-                      <div key={laneKey} className={`crm-card p-3 w-[240px] shrink-0 transition-all duration-150 ${hoverLane === laneKey ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverLane(laneKey)} onDragLeave={() => setHoverLane((s) => s === laneKey ? null : s)} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); setHoverLane(null); setHoverDrop(null); }}>
+                      <div key={laneKey} className={`${BOARD_LANE_SHELL_CLASS} ${hoverLane === laneKey ? "ring-2 ring-emerald-500/80 border-emerald-500/70" : ""}`} style={BOARD_LANE_VIEWPORT_STYLE} onDragOver={(e) => e.preventDefault()} onDragEnter={() => setHoverLane(laneKey)} onDragLeave={() => setHoverLane((s) => s === laneKey ? null : s)} onDrop={async () => { if (!draggingContactId) return; await moveContactStage(draggingContactId, stage); setDraggingContactId(null); setHoverLane(null); setHoverDrop(null); }}>
                         <h3 className={`mb-3 inline-flex items-center gap-1.5 font-semibold ${stageColorClass(stage)}`} style={{ fontFamily: "var(--font-libre-franklin), sans-serif" }}>
                           {stageLabel(stage, i)}
                           <span className="border-b border-slate-300 text-base font-semibold leading-none text-slate-100" style={{ fontFamily: "var(--font-libre-franklin), sans-serif" }}>
                             {laneContacts.length}
                           </span>
                         </h3>
-                        <div className={`min-h-10 ${BOARD_LANE_MAX_HEIGHT_CLASS}`} style={BOARD_LANE_VIEWPORT_STYLE}>
+                        <div className={BOARD_LANE_SCROLL_CLASS}>
                           {laneContacts.map((c, idx) => {
                             const cardLaneKey = `${section.key}:${stage}`;
                             return (
