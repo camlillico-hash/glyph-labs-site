@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { Client } from "pg";
 import { getStore } from "@/lib/crm-store";
 import { getCrmPool } from "@/lib/crm-db";
+import { getCrmDatabaseUrl } from "@/lib/crm-database-url";
 
 export async function GET() {
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = getCrmDatabaseUrl();
   const result: any = {
     dbConfigured: Boolean(databaseUrl),
     dbConnectOk: false,

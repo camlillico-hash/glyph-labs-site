@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Pool } from "pg";
+import { getCrmDatabaseUrl } from "@/lib/crm-database-url";
 
 export const CONTACT_PIPELINES = ["connector", "icp"] as const;
 export type ContactPipeline = (typeof CONTACT_PIPELINES)[number];
@@ -263,7 +264,7 @@ export const DEAL_STAGE_WEIGHTS: Record<string, number> = {
   "Lost": 0,
 };
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = getCrmDatabaseUrl();
 const pool = DATABASE_URL
   ? new Pool({
       connectionString: DATABASE_URL,

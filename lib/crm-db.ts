@@ -1,10 +1,11 @@
 import { Pool } from "pg";
+import { getCrmDatabaseUrl } from "@/lib/crm-database-url";
 
 let pool: Pool | null | undefined;
 
 export function getCrmPool() {
   if (pool !== undefined) return pool;
-  const DATABASE_URL = process.env.DATABASE_URL;
+  const DATABASE_URL = getCrmDatabaseUrl();
   if (!DATABASE_URL) {
     pool = null;
     return pool;
