@@ -190,12 +190,12 @@ const companyLogos = [
 const testimonials = [
   {
     quote:
-      "Cam balanced strategy with accountability. He challenged assumptions, clarified ownership, and helped us move from busy activity to focused execution.",
+      "Working with Cam through the BOS360 framework has been transformative for our leadership team. Cam has helped us align on the highest priorities, improve communication, and build stronger accountability across the team. His focus on creating a cohesive vision and facilitating open, honest discussions has improved both our performance and morale. I highly recommend Cam for any organization looking to strengthen leadership alignment and execution.",
     source: "Brennan Smith, CEO at CTC Communications",
   },
   {
     quote:
-      "Cam brought structure without bureaucracy. We left each session with clear decisions, named owners, and measurable momentum at the stage we needed it most.",
+      "Cam helped our leadership team use BOS360 to bring more structure, clarity, and accountability to how we operated. He wasn’t afraid to push into the tough conversations, get to the core issues, and help us leave each session with clear decisions and ownership. I’d recommend Cam to any leadership team looking to strengthen alignment and execution.",
     source: "Roy Firestein, CEO at Autohost",
   },
   {
