@@ -99,7 +99,7 @@ function mapThreadRow(row: unknown): CodexThread {
     id: String(data.id),
     userId: String(data.user_id),
     title: String(data.title || "New chat"),
-    model: String(data.model || "gpt-5.4-mini"),
+    model: String(data.model || "gpt-5.4"),
     createdAt: toIso(data.created_at),
     updatedAt: toIso(data.updated_at),
     lastMessageAt: toIso(data.last_message_at),
@@ -189,6 +189,20 @@ async function updateThreadTitleFile(userId: string, threadId: string, title: st
   return next;
 }
 
+async function updateThreadModelFile(userId: string, threadId: string, model: string) {
+  const store = await readFileStore();
+  const idx = store.threads.findIndex((t) => t.userId === userId && t.id === threadId);
+  if (idx < 0) return null;
+  const next = {
+    ...store.threads[idx],
+    model,
+    updatedAt: nowIso(),
+  };
+  store.threads[idx] = next;
+  await writeFileStore(store);
+  return next;
+}
+
 async function listMessagesFile(userId: string, threadId: string, limit = 300) {
   const store = await readFileStore();
   return store.messages
@@ -261,7 +275,7 @@ export async function createCodexThread(input: {
 }): Promise<CodexThread> {
   const userId = String(input.userId);
   const title = String(input.title || "New chat").trim() || "New chat";
-  const model = String(input.model || "gpt-5.4-mini").trim() || "gpt-5.4-mini";
+  const model = String(input.model || "gpt-5.4").trim() || "gpt-5.4";
 
   const pool = getCrmPool();
   if (!pool) return createThreadFile(userId, title, model);
@@ -289,6 +303,24 @@ export async function updateCodexThreadTitle(userId: string, threadId: string, t
      where id = $1 and user_id = $2
      returning id, user_id, title, model, created_at, updated_at, last_message_at, message_count`,
     [threadId, userId, nextTitle]
+  );
+  if (!result.rowCount) return null;
+  return mapThreadRow(result.rows[0]);
+}
+
+export async function updateCodexThreadModel(userId: string, threadId: string, model: string) {
+  const nextModel = String(model || "").trim();
+  if (!nextModel) return null;
+
+  const pool = getCrmPool();
+  if (!pool) return updateThreadModelFile(userId, threadId, nextModel);
+  await ensurePgSchema();
+  const result = await pool.query(
+    `update codex_threads
+     set model = $3, updated_at = now()
+     where id = $1 and user_id = $2
+     returning id, user_id, title, model, created_at, updated_at, last_message_at, message_count`,
+    [threadId, userId, nextModel]
   );
   if (!result.rowCount) return null;
   return mapThreadRow(result.rows[0]);

@@ -42,7 +42,7 @@ function readModel() {
   return (
     process.env.CODEX_MODEL ||
     process.env.OPENAI_MODEL ||
-    "gpt-5.4-mini"
+    "gpt-5.4"
   );
 }
 

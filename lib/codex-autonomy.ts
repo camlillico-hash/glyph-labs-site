@@ -279,7 +279,7 @@ function appendTimeline(run: AutonomyRun, stage: AutonomyStage, note?: string): 
 }
 
 function readModel() {
-  return asText(process.env.CODEX_MODEL || process.env.OPENAI_MODEL || "gpt-5.4-mini");
+  return asText(process.env.CODEX_MODEL || process.env.OPENAI_MODEL || "gpt-5.4");
 }
 
 function autonomyEnabled() {

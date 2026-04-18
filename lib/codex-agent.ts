@@ -376,7 +376,7 @@ export async function runCodexAgentTask(input: {
   if (!repo) throw new Error("REPO_NOT_AVAILABLE");
 
   const rootCwd = path.resolve(repo.path);
-  const model = asText(input.model || process.env.CODEX_AGENT_MODEL || process.env.CODEX_MODEL || "gpt-5.4-mini");
+  const model = asText(input.model || process.env.CODEX_AGENT_MODEL || process.env.CODEX_MODEL || "gpt-5.4");
   const plan = await planCommands({
     task,
     repo,

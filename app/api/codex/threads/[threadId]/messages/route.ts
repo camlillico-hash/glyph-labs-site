@@ -5,6 +5,7 @@ import {
   deriveThreadTitleFromMessage,
   getCodexThread,
   listCodexMessages,
+  updateCodexThreadModel,
   updateCodexThreadTitle,
 } from "@/lib/codex-store";
 import { requireCrmSession } from "@/lib/crm-scope";
@@ -54,6 +55,8 @@ export async function POST(
     if (!prompt) {
       return NextResponse.json({ ok: false, error: "PROMPT_REQUIRED" }, { status: 400 });
     }
+    const requestedModel = String(body?.model || "").trim();
+    const modelToUse = requestedModel || thread.model;
 
     const fileContexts = normalizeFileContexts(body?.fileContexts);
     const userMessage = await appendCodexMessage({
@@ -72,6 +75,9 @@ export async function POST(
       const title = deriveThreadTitleFromMessage(prompt);
       await updateCodexThreadTitle(session.uid, threadId, title);
     }
+    if (requestedModel && requestedModel !== thread.model) {
+      await updateCodexThreadModel(session.uid, threadId, requestedModel);
+    }
 
     const history = await listCodexMessages(session.uid, threadId, 80);
     const reply = await generateCodexReply({
@@ -79,7 +85,7 @@ export async function POST(
       prompt,
       history,
       fileContexts,
-      model: body?.model || thread.model,
+      model: modelToUse,
     });
 
     const assistantMessage = await appendCodexMessage({

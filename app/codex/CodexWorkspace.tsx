@@ -114,7 +114,7 @@ type AutonomyRun = {
   failedAt?: string;
 };
 
-const MODEL_OPTIONS = ["gpt-5.4-mini", "gpt-5.4", "gpt-5.2"] as const;
+const MODEL_OPTIONS = ["gpt-5.4", "gpt-5.2", "gpt-5.4-mini"] as const;
 const AUTONOMY_TARGET_OPTIONS = [
   { value: "coaching", label: "/coaching" },
   { value: "crm", label: "/crm" },
