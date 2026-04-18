@@ -18,6 +18,19 @@ export type CrmSessionPayload = {
   iat: number;
 };
 
+export function isLocalCrmBypassEnabled() {
+  return process.env.NODE_ENV !== "production" && process.env.CRM_LOCAL_BYPASS !== "0";
+}
+
+export function localCrmBypassSession(): CrmSessionPayload {
+  return {
+    v: 1,
+    uid: "local-dev",
+    role: "owner",
+    iat: Date.now(),
+  };
+}
+
 function b64url(input: string | Buffer) {
   return Buffer.from(input)
     .toString("base64")
@@ -64,7 +77,7 @@ export function parseSessionToken(token: string | undefined | null): CrmSessionP
 export async function authSessionFromCookies() {
   const c = await cookies();
   const v = c.get(sessionCookieName)?.value;
-  return parseSessionToken(v);
+  return parseSessionToken(v) || (isLocalCrmBypassEnabled() ? localCrmBypassSession() : null);
 }
 
 export async function authRoleFromCookies() {
