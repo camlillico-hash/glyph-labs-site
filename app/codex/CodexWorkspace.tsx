@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { FileText, Loader2, MessageSquare, Plus, Send, X } from "lucide-react";
+import { ChevronDown, FileText, Loader2, MessageSquare, Plus, Send, TerminalSquare, X } from "lucide-react";
 
 type Thread = {
   id: string;
@@ -23,6 +23,32 @@ type Attachment = {
   id: string;
   name: string;
   content: string;
+};
+
+type AgentRepo = {
+  alias: string;
+  path: string;
+};
+
+type AgentStep = {
+  command: string;
+  blocked: boolean;
+  blockedReason?: string;
+  exitCode: number | null;
+  timedOut: boolean;
+  durationMs: number;
+  stdout: string;
+  stderr: string;
+};
+
+type AgentResult = {
+  mode: "local";
+  repo: AgentRepo;
+  planReasoning: string;
+  commands: string[];
+  steps: AgentStep[];
+  summary: string;
+  warnings: string[];
 };
 
 const MODEL_OPTIONS = ["gpt-5.4-mini", "gpt-5.4", "gpt-5.2"] as const;
@@ -55,6 +81,14 @@ export default function CodexWorkspace() {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [model, setModel] = useState<string>(MODEL_OPTIONS[0]);
   const [threadSearch, setThreadSearch] = useState("");
+  const [agentOpen, setAgentOpen] = useState(false);
+  const [agentTask, setAgentTask] = useState("");
+  const [agentRepos, setAgentRepos] = useState<AgentRepo[]>([]);
+  const [agentRepoAlias, setAgentRepoAlias] = useState("");
+  const [agentLoadingConfig, setAgentLoadingConfig] = useState(false);
+  const [agentRunning, setAgentRunning] = useState(false);
+  const [agentError, setAgentError] = useState("");
+  const [agentResult, setAgentResult] = useState<AgentResult | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const deferredSearch = useDeferredValue(threadSearch);
 
@@ -66,6 +100,7 @@ export default function CodexWorkspace() {
 
   useEffect(() => {
     void loadThreads();
+    void loadAgentConfig();
   }, []);
 
   useEffect(() => {
@@ -119,6 +154,27 @@ export default function CodexWorkspace() {
       setMessages([]);
     } finally {
       setIsLoadingMessages(false);
+    }
+  }
+
+  async function loadAgentConfig() {
+    setAgentLoadingConfig(true);
+    setAgentError("");
+    try {
+      const res = await fetch("/api/codex/agent/config", { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(String(data?.error || "AGENT_CONFIG_FAILED"));
+      }
+      const repos = Array.isArray(data.repos) ? (data.repos as AgentRepo[]) : [];
+      setAgentRepos(repos);
+      setAgentRepoAlias((current) => current || String(repos[0]?.alias || ""));
+    } catch (err) {
+      setAgentError(String((err as Error)?.message || "Agent config failed."));
+      setAgentRepos([]);
+      setAgentRepoAlias("");
+    } finally {
+      setAgentLoadingConfig(false);
     }
   }
 
@@ -214,6 +270,35 @@ export default function CodexWorkspace() {
       setError(String((err as Error)?.message || "Failed to send message."));
     } finally {
       setIsSending(false);
+    }
+  }
+
+  async function runAgentTask() {
+    const task = agentTask.trim();
+    if (!task || agentRunning) return;
+
+    setAgentRunning(true);
+    setAgentError("");
+    setAgentResult(null);
+    try {
+      const res = await fetch("/api/codex/agent/run", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          task,
+          repoAlias: agentRepoAlias || undefined,
+          model,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(String(data?.error || "AGENT_RUN_FAILED"));
+      }
+      setAgentResult(data.result as AgentResult);
+    } catch (err) {
+      setAgentError(String((err as Error)?.message || "Agent run failed."));
+    } finally {
+      setAgentRunning(false);
     }
   }
 
@@ -334,6 +419,120 @@ export default function CodexWorkspace() {
           </div>
 
           <footer className="border-t border-slate-800 px-4 py-3">
+            <div className="mb-3 rounded-md border border-slate-700 bg-slate-950/60">
+              <button
+                type="button"
+                onClick={() => setAgentOpen((open) => !open)}
+                className="flex w-full cursor-pointer items-center justify-between px-3 py-2 text-left text-sm font-semibold text-slate-100 hover:bg-slate-900"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <TerminalSquare size={14} className="text-cyan-300" />
+                  Agent Task Runner (Beta)
+                </span>
+                <ChevronDown
+                  size={14}
+                  className={`transition ${agentOpen ? "rotate-180 text-cyan-300" : "text-slate-400"}`}
+                />
+              </button>
+
+              {agentOpen && (
+                <div className="border-t border-slate-800 px-3 py-3">
+                  <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <label className="text-xs text-slate-300">
+                      Repo
+                      <select
+                        value={agentRepoAlias}
+                        onChange={(e) => setAgentRepoAlias(e.target.value)}
+                        disabled={agentLoadingConfig || !agentRepos.length}
+                        className="ml-2 cursor-pointer rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {agentRepos.map((repo) => (
+                          <option key={repo.alias} value={repo.alias}>
+                            {repo.alias}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    {agentLoadingConfig && (
+                      <span className="text-xs text-slate-400">Loading repos...</span>
+                    )}
+                  </div>
+
+                  <textarea
+                    value={agentTask}
+                    onChange={(e) => setAgentTask(e.target.value)}
+                    placeholder="Example: investigate why /codex returns OPENAI_KEY_MISSING and propose a fix"
+                    className="min-h-[84px] w-full resize-y rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none ring-cyan-500/40 focus:ring-2"
+                  />
+
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-xs text-slate-400">
+                      Strict allowlist + capped runtime/output.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void runAgentTask()}
+                      disabled={agentRunning || !agentTask.trim()}
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-cyan-500/40 bg-cyan-500/20 px-3 py-1.5 text-sm font-semibold text-cyan-50 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-cyan-500/30"
+                    >
+                      {agentRunning ? <Loader2 size={14} className="animate-spin" /> : <TerminalSquare size={14} />}
+                      Run
+                    </button>
+                  </div>
+
+                  {agentError && <p className="mt-2 text-sm text-red-300">{agentError}</p>}
+
+                  {agentResult && (
+                    <div className="mt-3 rounded-md border border-slate-700 bg-slate-900/70 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">Summary</p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-slate-100">{agentResult.summary}</p>
+
+                      <p className="mt-3 text-xs uppercase tracking-[0.12em] text-cyan-300">Steps</p>
+                      <div className="mt-1 space-y-2">
+                        {agentResult.steps.map((step, idx) => (
+                          <div key={`${step.command}-${idx}`} className="rounded border border-slate-700 bg-slate-950 p-2">
+                            <p className="text-xs font-semibold text-slate-200">
+                              {idx + 1}. <span className="font-mono">{step.command}</span>
+                            </p>
+                            {step.blocked && (
+                              <p className="mt-1 text-xs text-amber-300">
+                                Blocked: {step.blockedReason || "disallowed command"}
+                              </p>
+                            )}
+                            {!step.blocked && (
+                              <p className="mt-1 text-xs text-slate-400">
+                                exit={String(step.exitCode)} • {step.durationMs}ms{step.timedOut ? " • timed out" : ""}
+                              </p>
+                            )}
+                            {step.stdout && (
+                              <pre className="mt-2 max-h-40 overflow-auto rounded border border-slate-800 bg-slate-900 p-2 text-[11px] text-slate-200">
+                                {step.stdout}
+                              </pre>
+                            )}
+                            {step.stderr && (
+                              <pre className="mt-2 max-h-40 overflow-auto rounded border border-slate-800 bg-slate-900 p-2 text-[11px] text-rose-200">
+                                {step.stderr}
+                              </pre>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {agentResult.warnings.length > 0 && (
+                        <div className="mt-2 rounded border border-amber-600/40 bg-amber-500/10 p-2">
+                          {agentResult.warnings.map((warning, idx) => (
+                            <p key={`${warning}-${idx}`} className="text-xs text-amber-200">
+                              {warning}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {attachments.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">
                 {attachments.map((file) => (
