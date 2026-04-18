@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -150,6 +150,21 @@ const MAX_TASK_CHARS = 3000;
 const MAX_SNIPPET_CHARS = 240;
 const MAX_COMMAND_OUTPUT = 12000;
 const MAX_CONCURRENT_DEFAULT = 1;
+const HEURISTIC_MAX_SCAN_FILES = 500;
+const CONTEXT_REPLAN_MAX_FILES = 8;
+const CONTEXT_REPLAN_SNIPPET_CHARS = 1200;
+const HEURISTIC_ALLOWED_EXTENSIONS = new Set([
+  ".js",
+  ".jsx",
+  ".ts",
+  ".tsx",
+  ".css",
+  ".scss",
+  ".md",
+  ".mdx",
+  ".json",
+  ".txt",
+]);
 
 let schemaReady = false;
 const runningApprovalsByUser = new Map<string, number>();
@@ -203,6 +218,17 @@ function allowedPathPrefixes() {
     .filter(Boolean);
 }
 
+function repositoryHintsForTargetArea(targetArea: TargetArea) {
+  if (targetArea === "coaching") {
+    return [
+      "/coaching is a redirect wrapper at app/coaching/page.js.",
+      "Real coaching page content is in app/coaching-v2/page.js (also used by /bos360).",
+      "Prefer editing app/coaching-v2/page.js for coaching hero/content changes.",
+    ];
+  }
+  return [];
+}
+
 function isWithinPrefixes(filePath: string, prefixes: string[]) {
   return prefixes.some((prefix) => filePath === prefix || filePath.startsWith(`${prefix}/`));
 }
@@ -213,6 +239,252 @@ function validateTargetArea(area: unknown): TargetArea | null {
     return normalized as TargetArea;
   }
   return null;
+}
+
+async function collectCandidateFiles(prefixes: string[]) {
+  const found: string[] = [];
+
+  async function walk(relativeDir: string) {
+    if (found.length >= HEURISTIC_MAX_SCAN_FILES) return;
+    const absoluteDir = path.join(process.cwd(), relativeDir);
+    let entries: import("node:fs").Dirent[] = [];
+    try {
+      entries = await readdir(absoluteDir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (found.length >= HEURISTIC_MAX_SCAN_FILES) return;
+      const childRelative = normalizeRepoPath(path.posix.join(relativeDir, entry.name));
+      if (entry.isDirectory()) {
+        await walk(childRelative);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      const ext = path.posix.extname(childRelative);
+      if (!HEURISTIC_ALLOWED_EXTENSIONS.has(ext)) continue;
+      found.push(childRelative);
+    }
+  }
+
+  for (const prefix of prefixes) {
+    await walk(normalizeRepoPath(prefix));
+    if (found.length >= HEURISTIC_MAX_SCAN_FILES) break;
+  }
+  return found;
+}
+
+function taskKeywords(task: string) {
+  const stopWords = new Set([
+    "the",
+    "and",
+    "for",
+    "with",
+    "from",
+    "into",
+    "that",
+    "this",
+    "then",
+    "run",
+    "ship",
+    "per",
+    "policy",
+    "hero",
+    "page",
+    "update",
+  ]);
+  return Array.from(
+    new Set(
+      String(task || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, " ")
+        .split(/\s+/)
+        .map((token) => token.trim())
+        .filter((token) => token.length >= 3 && !stopWords.has(token))
+    )
+  );
+}
+
+function extractSnippetAround(content: string, matchIndex: number) {
+  if (!content) return "";
+  if (matchIndex < 0) {
+    return content.slice(0, CONTEXT_REPLAN_SNIPPET_CHARS);
+  }
+  const halfWindow = Math.floor(CONTEXT_REPLAN_SNIPPET_CHARS / 2);
+  const start = Math.max(0, matchIndex - halfWindow);
+  const end = Math.min(content.length, start + CONTEXT_REPLAN_SNIPPET_CHARS);
+  return content.slice(start, end);
+}
+
+async function buildContextSnippets(task: string, targetArea: TargetArea) {
+  const keywords = taskKeywords(task);
+  const files = await collectCandidateFiles(TARGET_AREA_PREFIXES[targetArea]);
+  const scored: Array<{ path: string; score: number; snippet: string }> = [];
+
+  for (const filePath of files) {
+    const fullPath = path.join(process.cwd(), filePath);
+    let content = "";
+    try {
+      content = await readFile(fullPath, "utf8");
+    } catch {
+      continue;
+    }
+    if (!content.trim()) continue;
+    const lowerPath = filePath.toLowerCase();
+    const lower = content.toLowerCase();
+    let pathHits = 0;
+    let contentHits = 0;
+    let firstMatch = -1;
+    for (const keyword of keywords) {
+      if (lowerPath.includes(keyword)) pathHits += 1;
+      const idx = lower.indexOf(keyword);
+      if (idx >= 0) {
+        contentHits += 1;
+        if (firstMatch < 0 || idx < firstMatch) firstMatch = idx;
+      }
+    }
+    const score = contentHits * 4 + pathHits;
+    if (score <= 0 && keywords.length > 0) continue;
+    const snippet = extractSnippetAround(content, firstMatch);
+    scored.push({
+      path: filePath,
+      score,
+      snippet,
+    });
+  }
+
+  const fallbackPaths = targetArea === "coaching" ? ["app/coaching-v2/page.js"] : [];
+  for (const fallbackPath of fallbackPaths) {
+    if (scored.some((item) => item.path === fallbackPath)) continue;
+    try {
+      const content = await readFile(path.join(process.cwd(), fallbackPath), "utf8");
+      scored.push({
+        path: fallbackPath,
+        score: 1,
+        snippet: extractSnippetAround(content, -1),
+      });
+    } catch {
+      // ignore
+    }
+  }
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, CONTEXT_REPLAN_MAX_FILES)
+    .map((item) => ({ path: item.path, snippet: item.snippet }));
+}
+
+function findQuotedReplacePair(task: string) {
+  const match = task.match(/from\s+[\"'“”‘’]([\s\S]+?)[\"'“”‘’]\s+to\s+[\"'“”‘’]([\s\S]+?)[\"'“”‘’]/i);
+  if (!match) return null;
+  const fromText = String(match[1] || "").trim();
+  const toText = String(match[2] || "").trim();
+  if (!fromText || !toText) return null;
+  return { fromText, toText };
+}
+
+function textVariants(value: string) {
+  const v = String(value || "");
+  const variants = new Set<string>([
+    v,
+    v.replace(/'/g, "’"),
+    v.replace(/’/g, "'"),
+    v.replace(/"/g, "“"),
+    v.replace(/"/g, "”"),
+    v.replace(/–/g, "-"),
+    v.replace(/—/g, "-"),
+    v.replace(/-/g, "–"),
+  ]);
+  return Array.from(variants).filter(Boolean);
+}
+
+async function deriveHeuristicOperations(task: string, targetArea: TargetArea) {
+  const pair = findQuotedReplacePair(task);
+  if (!pair) return [] as ProposedOperation[];
+  const files = await collectCandidateFiles(TARGET_AREA_PREFIXES[targetArea]);
+  const fromVariants = textVariants(pair.fromText);
+  const toVariants = textVariants(pair.toText);
+  for (const filePath of files) {
+    const fullPath = path.join(process.cwd(), filePath);
+    let content = "";
+    try {
+      content = await readFile(fullPath, "utf8");
+    } catch {
+      continue;
+    }
+    const matchedFrom = fromVariants.find((variant) => content.includes(variant));
+    if (!matchedFrom) continue;
+    const matchedTo = toVariants.find((variant) => variant.length > 0) || pair.toText;
+    return [
+      {
+        path: filePath,
+        find: matchedFrom,
+        replace: matchedTo,
+        replaceAll: false,
+      },
+    ];
+  }
+  return [] as ProposedOperation[];
+}
+
+async function planOperationsWithRepoContext(input: {
+  task: string;
+  targetArea: TargetArea;
+  model: string;
+}) {
+  const contextFiles = await buildContextSnippets(input.task, input.targetArea);
+  if (!contextFiles.length) throw new Error("AUTONOMY_CONTEXT_EMPTY");
+  const system = [
+    "You are a coding planner for deterministic file edits.",
+    "Return ONLY valid JSON, no markdown or code fences.",
+    "Schema:",
+    "{",
+    '  "reasoning": "string",',
+    '  "summary": "string",',
+    '  "operations": [',
+    '    {"path":"relative/file/path","find":"exact text","replace":"new text","replaceAll":false}',
+    "  ]",
+    "}",
+    "Rules:",
+    "- Use exact find/replace operations only.",
+    "- Path must be one of the provided files.",
+    "- find MUST be copied verbatim from provided snippets so the replace can apply.",
+    "- No shell commands.",
+    `- Max ${MAX_OPERATIONS} operations.`,
+  ].join("\n");
+  const notes = repositoryHintsForTargetArea(input.targetArea);
+  const user = [
+    `Target area: ${input.targetArea}`,
+    `Task: ${input.task}`,
+    "Provided file excerpts:",
+    ...contextFiles.map(
+      (item) =>
+        `FILE: ${item.path}\n-----\n${item.snippet}\n-----`
+    ),
+    notes.length ? `Repository notes:\n${notes.join("\n")}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+  const raw = await callModel({
+    model: input.model,
+    system,
+    user,
+    maxCompletionTokens: 1500,
+  });
+  const parsed = parseJsonText(raw);
+  const obj = asObject(parsed);
+  if (!obj) throw new Error("AUTONOMY_PLAN_PARSE_FAILED");
+  const operationsRaw = Array.isArray(obj.operations) ? obj.operations : [];
+  const operations = operationsRaw
+    .map((item) => sanitizeOperation(item))
+    .filter((item): item is ProposedOperation => Boolean(item))
+    .slice(0, MAX_OPERATIONS);
+  if (!operations.length) throw new Error("NO_VALID_OPERATIONS");
+  return {
+    reasoning: asText(obj.reasoning) || "Planned by model (context re-plan).",
+    summary: asText(obj.summary) || "Proposed file updates are ready.",
+    operations,
+  } satisfies PlannerResponse;
 }
 
 function sanitizeOperation(raw: unknown): ProposedOperation | null {
@@ -472,6 +744,9 @@ async function planOperations(input: {
     `Task: ${input.task}`,
     "Allowed target area prefixes:",
     TARGET_AREA_PREFIXES[input.targetArea].join(", "),
+    repositoryHintsForTargetArea(input.targetArea).length
+      ? `Repository notes:\n${repositoryHintsForTargetArea(input.targetArea).join("\n")}`
+      : "",
   ].join("\n");
   const raw = await callModel({
     model: input.model,
@@ -796,16 +1071,40 @@ export async function createAutonomyRun(input: {
   if (!targetArea) throw new Error("TARGET_AREA_INVALID");
   const model = asText(input.model || readModel());
 
-  const planned = await planOperations({
+  let planned = await planOperations({
     task,
     targetArea,
     model,
   });
-
-  const scopeWarnings = validateOperationScope(targetArea, planned.operations);
-  const touchedPaths = planned.operations.map((item) => normalizeRepoPath(item.path));
+  let operations = planned.operations;
+  let scopeWarnings = validateOperationScope(targetArea, operations);
+  let diff: { items: ProposedDiffItem[]; warnings: string[] } | null = null;
+  try {
+    diff = await buildProposedDiff(operations);
+  } catch (error) {
+    const code = String((error as Error)?.message || "");
+    if (code !== "NO_APPLICABLE_OPERATIONS") throw error;
+    const fallbackOps = await deriveHeuristicOperations(task, targetArea).catch(() => []);
+    if (fallbackOps.length) {
+      operations = fallbackOps;
+      scopeWarnings = validateOperationScope(targetArea, operations);
+      diff = await buildProposedDiff(operations);
+      scopeWarnings.push("Used heuristic fallback to locate exact text/file match.");
+    } else {
+      const contextualPlan = await planOperationsWithRepoContext({
+        task,
+        targetArea,
+        model,
+      });
+      operations = contextualPlan.operations;
+      planned = contextualPlan;
+      scopeWarnings = validateOperationScope(targetArea, operations);
+      diff = await buildProposedDiff(operations);
+      scopeWarnings.push("Used context-aware fallback planning from repo snippets.");
+    }
+  }
+  const touchedPaths = operations.map((item) => normalizeRepoPath(item.path));
   const policy = classifyPolicy(targetArea, touchedPaths);
-  const diff = await buildProposedDiff(planned.operations);
 
   const createdAt = nowIso();
   let run: AutonomyRun = {
@@ -826,7 +1125,7 @@ export async function createAutonomyRun(input: {
     plan: {
       reasoning: planned.reasoning,
       summary: planned.summary,
-      operations: planned.operations,
+      operations,
       warnings: [...scopeWarnings, ...diff.warnings],
     },
     proposedDiff: {
