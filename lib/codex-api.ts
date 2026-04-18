@@ -119,7 +119,7 @@ export async function generateCodexReply(input: {
   fileContexts: FileContext[];
   model?: string;
 }) {
-  const apiKey = asText(process.env.OPENAI_API_KEY);
+  const apiKey = asText(process.env.OPENAI_API_KEY || process.env.OPEN_API_KEY);
   if (!apiKey) {
     throw new Error("OPENAI_KEY_MISSING");
   }
