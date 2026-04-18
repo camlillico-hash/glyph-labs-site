@@ -51,7 +51,75 @@ type AgentResult = {
   warnings: string[];
 };
 
+type PolicyRoute = "direct_main" | "pr_required";
+
+type AutonomyRun = {
+  id: string;
+  task: string;
+  targetArea: "coaching" | "crm" | "codex";
+  stage: string;
+  status: "pending_approval" | "running" | "completed" | "failed";
+  policy: {
+    route: PolicyRoute;
+    reason: string;
+    touchedPaths: string[];
+  };
+  plan: {
+    reasoning: string;
+    summary: string;
+    warnings: string[];
+    operations: Array<{
+      path: string;
+      find: string;
+      replace: string;
+      replaceAll?: boolean;
+    }>;
+  };
+  proposedDiff: {
+    items: Array<{
+      path: string;
+      beforeSnippet: string;
+      afterSnippet: string;
+    }>;
+  };
+  verification?: {
+    passed: boolean;
+    checks: Array<{
+      name: string;
+      command: string;
+      exitCode: number | null;
+      passed: boolean;
+      stdout: string;
+      stderr: string;
+      durationMs: number;
+    }>;
+  };
+  ship?: {
+    route: PolicyRoute;
+    mode: "direct" | "pr";
+    branch: string;
+    commitSha: string;
+    compareUrl?: string;
+    prUrl?: string;
+  };
+  revert?: {
+    branch: string;
+    commitSha: string;
+    compareUrl?: string;
+    prUrl?: string;
+  };
+  error?: string;
+  approvedAt?: string;
+  completedAt?: string;
+  failedAt?: string;
+};
+
 const MODEL_OPTIONS = ["gpt-5.4-mini", "gpt-5.4", "gpt-5.2"] as const;
+const AUTONOMY_TARGET_OPTIONS = [
+  { value: "coaching", label: "/coaching" },
+  { value: "crm", label: "/crm" },
+  { value: "codex", label: "/codex" },
+] as const;
 
 function formatDateTime(value?: string) {
   if (!value) return "";
@@ -81,6 +149,14 @@ export default function CodexWorkspace() {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [model, setModel] = useState<string>(MODEL_OPTIONS[0]);
   const [threadSearch, setThreadSearch] = useState("");
+  const [autonomyTask, setAutonomyTask] = useState("");
+  const [autonomyTargetArea, setAutonomyTargetArea] = useState<"coaching" | "crm" | "codex">("coaching");
+  const [autonomyOpen, setAutonomyOpen] = useState(false);
+  const [autonomyCreating, setAutonomyCreating] = useState(false);
+  const [autonomyApproving, setAutonomyApproving] = useState(false);
+  const [autonomyReverting, setAutonomyReverting] = useState(false);
+  const [autonomyError, setAutonomyError] = useState("");
+  const [autonomyRun, setAutonomyRun] = useState<AutonomyRun | null>(null);
   const [agentOpen, setAgentOpen] = useState(false);
   const [agentTask, setAgentTask] = useState("");
   const [agentRepos, setAgentRepos] = useState<AgentRepo[]>([]);
@@ -302,6 +378,93 @@ export default function CodexWorkspace() {
     }
   }
 
+  async function createAutonomyRun() {
+    const task = autonomyTask.trim();
+    if (!task || autonomyCreating) return;
+    setAutonomyCreating(true);
+    setAutonomyError("");
+    setAutonomyRun(null);
+    try {
+      const res = await fetch("/api/codex/autonomy/runs", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          task,
+          targetArea: autonomyTargetArea,
+          model,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(String(data?.error || "AUTONOMY_CREATE_FAILED"));
+      }
+      setAutonomyRun(data.run as AutonomyRun);
+    } catch (err) {
+      setAutonomyError(String((err as Error)?.message || "Could not create autonomy run."));
+    } finally {
+      setAutonomyCreating(false);
+    }
+  }
+
+  async function refreshAutonomyRun(runId: string) {
+    const res = await fetch(`/api/codex/autonomy/runs/${runId}`, { cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data?.ok) {
+      throw new Error(String(data?.error || "AUTONOMY_RUN_READ_FAILED"));
+    }
+    setAutonomyRun(data.run as AutonomyRun);
+  }
+
+  async function approveAutonomyRun() {
+    if (!autonomyRun || autonomyApproving) return;
+    setAutonomyApproving(true);
+    setAutonomyError("");
+    try {
+      const res = await fetch(`/api/codex/autonomy/runs/${autonomyRun.id}/approve`, {
+        method: "POST",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(String(data?.error || "AUTONOMY_APPROVE_FAILED"));
+      }
+      setAutonomyRun(data.run as AutonomyRun);
+    } catch (err) {
+      setAutonomyError(String((err as Error)?.message || "Approval/apply failed."));
+      try {
+        await refreshAutonomyRun(autonomyRun.id);
+      } catch {
+        // no-op
+      }
+    } finally {
+      setAutonomyApproving(false);
+    }
+  }
+
+  async function revertAutonomyRun() {
+    if (!autonomyRun || autonomyReverting) return;
+    setAutonomyReverting(true);
+    setAutonomyError("");
+    try {
+      const res = await fetch(`/api/codex/autonomy/runs/${autonomyRun.id}/revert`, {
+        method: "POST",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        throw new Error(String(data?.error || "AUTONOMY_REVERT_FAILED"));
+      }
+      setAutonomyRun(data.run as AutonomyRun);
+    } catch (err) {
+      setAutonomyError(String((err as Error)?.message || "Rollback failed."));
+      try {
+        await refreshAutonomyRun(autonomyRun.id);
+      } catch {
+        // no-op
+      }
+    } finally {
+      setAutonomyReverting(false);
+    }
+  }
+
   const activeThread = threads.find((thread) => thread.id === activeThreadId) || null;
 
   return (
@@ -419,6 +582,194 @@ export default function CodexWorkspace() {
           </div>
 
           <footer className="border-t border-slate-800 px-4 py-3">
+            <div className="mb-3 rounded-md border border-slate-700 bg-slate-950/60">
+              <button
+                type="button"
+                onClick={() => setAutonomyOpen((open) => !open)}
+                className="flex w-full cursor-pointer items-center justify-between px-3 py-2 text-left text-sm font-semibold text-slate-100 hover:bg-slate-900"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <TerminalSquare size={14} className="text-cyan-300" />
+                  Autonomous Task (Plan {">"} Diff {">"} Approve {">"} Ship)
+                </span>
+                <ChevronDown
+                  size={14}
+                  className={`transition ${autonomyOpen ? "rotate-180 text-cyan-300" : "text-slate-400"}`}
+                />
+              </button>
+
+              {autonomyOpen && (
+                <div className="border-t border-slate-800 px-3 py-3">
+                  <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <label className="text-xs text-slate-300">
+                      Target
+                      <select
+                        value={autonomyTargetArea}
+                        onChange={(e) => setAutonomyTargetArea(e.target.value as "coaching" | "crm" | "codex")}
+                        className="ml-2 cursor-pointer rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100"
+                      >
+                        {AUTONOMY_TARGET_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <span className="text-xs text-slate-400">
+                      Hybrid policy: coaching/codex UI can ship direct; CRM/backend forces PR.
+                    </span>
+                  </div>
+
+                  <textarea
+                    value={autonomyTask}
+                    onChange={(e) => setAutonomyTask(e.target.value)}
+                    placeholder="Describe the exact change you want."
+                    className="min-h-[88px] w-full resize-y rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none ring-cyan-500/40 focus:ring-2"
+                  />
+
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-xs text-slate-400">Single approval gate before writes.</p>
+                    <button
+                      type="button"
+                      onClick={() => void createAutonomyRun()}
+                      disabled={autonomyCreating || !autonomyTask.trim()}
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-cyan-500/40 bg-cyan-500/20 px-3 py-1.5 text-sm font-semibold text-cyan-50 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-cyan-500/30"
+                    >
+                      {autonomyCreating ? <Loader2 size={14} className="animate-spin" /> : <TerminalSquare size={14} />}
+                      Generate plan
+                    </button>
+                  </div>
+
+                  {autonomyError && <p className="mt-2 text-sm text-red-300">{autonomyError}</p>}
+
+                  {autonomyRun && (
+                    <div className="mt-3 rounded-md border border-slate-700 bg-slate-900/70 p-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs uppercase tracking-[0.12em] text-cyan-300">
+                          {autonomyRun.status}
+                        </span>
+                        <span
+                          className={`rounded-full border px-2 py-0.5 text-[11px] ${
+                            autonomyRun.policy.route === "direct_main"
+                              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
+                              : "border-amber-500/40 bg-amber-500/10 text-amber-200"
+                          }`}
+                        >
+                          {autonomyRun.policy.route === "direct_main" ? "Direct Main" : "PR Required"}
+                        </span>
+                        <span className="text-xs text-slate-400">Run #{autonomyRun.id.slice(0, 8)}</span>
+                      </div>
+
+                      <p className="mt-2 text-xs text-slate-300">{autonomyRun.policy.reason}</p>
+                      <p className="mt-2 text-sm text-slate-100">{autonomyRun.plan.summary}</p>
+                      <p className="mt-1 text-xs text-slate-400">{autonomyRun.plan.reasoning}</p>
+
+                      <p className="mt-3 text-xs uppercase tracking-[0.12em] text-cyan-300">Proposed diff</p>
+                      <div className="mt-1 space-y-2">
+                        {autonomyRun.proposedDiff.items.map((item, idx) => (
+                          <div key={`${item.path}-${idx}`} className="rounded border border-slate-700 bg-slate-950 p-2">
+                            <p className="text-xs font-semibold text-slate-200">{item.path}</p>
+                            <p className="mt-1 text-[11px] text-rose-200">- {item.beforeSnippet}</p>
+                            <p className="mt-1 text-[11px] text-emerald-200">+ {item.afterSnippet}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {autonomyRun.plan.warnings.length > 0 && (
+                        <div className="mt-2 rounded border border-amber-600/40 bg-amber-500/10 p-2">
+                          {autonomyRun.plan.warnings.map((warning, idx) => (
+                            <p key={`${warning}-${idx}`} className="text-xs text-amber-200">
+                              {warning}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+
+                      {autonomyRun.status === "pending_approval" && (
+                        <div className="mt-3 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => void approveAutonomyRun()}
+                            disabled={autonomyApproving}
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/20 px-3 py-1.5 text-sm font-semibold text-emerald-50 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-emerald-500/30"
+                          >
+                            {autonomyApproving ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                            Approve and apply
+                          </button>
+                        </div>
+                      )}
+
+                      {autonomyRun.verification && (
+                        <>
+                          <p className="mt-3 text-xs uppercase tracking-[0.12em] text-cyan-300">Verification</p>
+                          <div className="mt-1 space-y-2">
+                            {autonomyRun.verification.checks.map((check, idx) => (
+                              <div key={`${check.command}-${idx}`} className="rounded border border-slate-700 bg-slate-950 p-2">
+                                <p className="text-xs font-semibold text-slate-200">{check.name}</p>
+                                <p className="text-[11px] text-slate-400">{check.command}</p>
+                                <p className={`mt-1 text-[11px] ${check.passed ? "text-emerald-200" : "text-rose-200"}`}>
+                                  {check.passed ? "passed" : "failed"} • exit={String(check.exitCode)} • {check.durationMs}ms
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+
+                      {autonomyRun.ship && (
+                        <div className="mt-3 rounded border border-slate-700 bg-slate-950 p-2">
+                          <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">Ship result</p>
+                          <p className="mt-1 text-xs text-slate-200">
+                            {autonomyRun.ship.mode === "direct" ? "Pushed to main" : "PR branch pushed"} •{" "}
+                            <span className="font-mono">{autonomyRun.ship.commitSha.slice(0, 12)}</span>
+                          </p>
+                          {autonomyRun.ship.prUrl && (
+                            <a
+                              href={autonomyRun.ship.prUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="mt-1 inline-block text-xs text-cyan-300 underline decoration-cyan-500/50 underline-offset-2"
+                            >
+                              Open PR link
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      {autonomyRun.error && (
+                        <p className="mt-2 text-sm text-rose-300">Run error: {autonomyRun.error}</p>
+                      )}
+
+                      {autonomyRun.status === "completed" && !autonomyRun.revert && (
+                        <div className="mt-3 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => void revertAutonomyRun()}
+                            disabled={autonomyReverting}
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/20 px-3 py-1.5 text-sm font-semibold text-amber-100 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-amber-500/30"
+                          >
+                            {autonomyReverting ? <Loader2 size={14} className="animate-spin" /> : <TerminalSquare size={14} />}
+                            Revert via PR
+                          </button>
+                        </div>
+                      )}
+
+                      {autonomyRun.revert?.prUrl && (
+                        <a
+                          href={autonomyRun.revert.prUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-block text-xs text-cyan-300 underline decoration-cyan-500/50 underline-offset-2"
+                        >
+                          Open revert PR link
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className="mb-3 rounded-md border border-slate-700 bg-slate-950/60">
               <button
                 type="button"

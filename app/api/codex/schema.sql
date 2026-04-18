@@ -28,3 +28,15 @@ create index if not exists codex_messages_thread_created_idx
 
 create index if not exists codex_messages_user_created_idx
   on codex_messages(user_id, created_at desc);
+
+create table if not exists codex_autonomy_runs (
+  id text primary key,
+  user_id text not null,
+  status text not null,
+  data jsonb not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists codex_autonomy_runs_user_updated_idx
+  on codex_autonomy_runs(user_id, updated_at desc);
