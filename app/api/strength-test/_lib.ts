@@ -1,6 +1,5 @@
 import { getStore, id, now, saveStore, type StrengthTestSubmission } from "@/lib/crm-store";
-import { requireCrmSession } from "@/lib/crm-scope";
-import { getUserAccountIds } from "@/lib/crm-auth-store";
+import { getCrmPool } from "@/lib/crm-db";
 
 function normalizeEmail(value: unknown) {
   return String(value || "").trim().toLowerCase();
@@ -21,12 +20,39 @@ function applyStrengthTestLeadDefaults(contact: any, timestamp: string) {
 }
 
 export async function resolveStrengthTestAccountId() {
-  const session = await requireCrmSession();
-  const memberships = await getUserAccountIds(session.uid);
-  const ownerMembership = memberships.find((m) => m.role === "owner");
-  if (ownerMembership?.account_id) return ownerMembership.account_id;
-  if (memberships[0]?.account_id) return memberships[0].account_id;
-  throw new Error("NO_ACCOUNT");
+  const explicit =
+    String(process.env.STRENGTH_TEST_ACCOUNT_ID || "").trim() ||
+    String(process.env.CRM_DEFAULT_ACCOUNT_ID || "").trim();
+  if (explicit) return explicit;
+
+  const pool = getCrmPool();
+  if (!pool) return undefined;
+
+  const populated = await pool.query(
+    `
+    with counts as (
+      select account_id, count(*)::int as row_count from crm_contacts where account_id is not null group by account_id
+      union all
+      select account_id, count(*)::int as row_count from crm_deals where account_id is not null group by account_id
+      union all
+      select account_id, count(*)::int as row_count from crm_tasks where account_id is not null group by account_id
+      union all
+      select account_id, count(*)::int as row_count from crm_activities where account_id is not null group by account_id
+    )
+    select account_id, sum(row_count)::int as total_rows
+    from counts
+    group by account_id
+    order by total_rows desc
+    limit 1
+    `
+  );
+  const populatedAccountId = populated.rows[0]?.account_id as string | undefined;
+  if (populatedAccountId) return populatedAccountId;
+
+  const firstAccount = await pool.query(
+    `select id from crm_accounts order by created_at asc limit 1`
+  );
+  return firstAccount.rows[0]?.id as string | undefined;
 }
 
 export function findStrengthTestLeadByEmail(store: any, email: string) {
@@ -73,7 +99,7 @@ export function ensureStrengthTestLead(params: {
   return contact;
 }
 
-export async function saveStrengthTestStore(store: any, accountId: string) {
+export async function saveStrengthTestStore(store: any, accountId?: string) {
   await saveStore(store, accountId);
 }
 
