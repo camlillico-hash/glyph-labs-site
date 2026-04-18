@@ -35,7 +35,10 @@ export default function LoginPage() {
             const data = await res.json().catch(() => ({}));
             return setError(data?.error || "Login failed");
           }
-          window.location.href = "/crm";
+          const params = new URLSearchParams(window.location.search);
+          const next = String(params.get("next") || "").trim();
+          const redirectTarget = next.startsWith("/") && !next.startsWith("//") ? next : "/crm";
+          window.location.href = redirectTarget;
         }}
       >
         <div className="relative">

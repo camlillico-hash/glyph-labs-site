@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseSessionToken, sessionCookieName } from "@/lib/crm-auth";
+import { isLocalCrmBypassEnabled, parseSessionToken, sessionCookieName } from "@/lib/crm-auth";
 
 const PUBLIC_CRM_API_PATHS = ["/api/crm/auth", "/api/crm/gmail/callback", "/api/crm/coach"];
+const PROTECTED_PREFIXES = ["/crm", "/api/crm", "/codex", "/api/codex"];
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  if (!pathname.startsWith("/crm") && !pathname.startsWith("/api/crm")) return NextResponse.next();
+  if (!PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return NextResponse.next();
+  if (isLocalCrmBypassEnabled()) return NextResponse.next();
   if (pathname.startsWith("/crm/login") || PUBLIC_CRM_API_PATHS.some((publicPath) => pathname.startsWith(publicPath))) {
     return NextResponse.next();
   }
@@ -16,6 +18,10 @@ export function proxy(req: NextRequest) {
     if (pathname.startsWith("/api/")) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const url = req.nextUrl.clone();
     url.pathname = "/crm/login";
+    if (!pathname.startsWith("/crm")) {
+      const search = req.nextUrl.search || "";
+      url.searchParams.set("next", `${pathname}${search}`);
+    }
     return NextResponse.redirect(url);
   }
 
@@ -27,5 +33,5 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/crm/:path*", "/api/crm/:path*"],
+  matcher: ["/crm/:path*", "/api/crm/:path*", "/codex/:path*", "/api/codex/:path*"],
 };
