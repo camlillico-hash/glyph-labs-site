@@ -470,6 +470,18 @@ function findQuotedReplacePair(task: string) {
   return { fromText, toText };
 }
 
+function firstQuotedText(task: string) {
+  const match = String(task || "").match(/[\"'“”‘’]([^\"'“”‘’]{1,180})[\"'“”‘’]/);
+  return match ? String(match[1] || "").trim() : "";
+}
+
+function escapeJsxText(value: string) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 function textVariants(value: string) {
   const v = String(value || "");
   const variants = new Set<string>([
@@ -511,6 +523,64 @@ async function deriveHeuristicOperations(task: string, targetArea: TargetArea, w
       },
     ];
   }
+  return [] as ProposedOperation[];
+}
+
+async function deriveIntentAwareOperations(task: string, targetArea: TargetArea, workspaceRoot: string) {
+  const lowerTask = String(task || "").toLowerCase();
+  const wantsAdd = lowerTask.includes("add");
+  const mentionsFooter = lowerTask.includes("footer");
+  const quoted = firstQuotedText(task);
+  if (!wantsAdd || !mentionsFooter || !quoted) return [] as ProposedOperation[];
+
+  const escapedText = escapeJsxText(quoted);
+  const candidatePaths =
+    targetArea === "coaching"
+      ? ["app/coaching-v2/page.js", "app/coaching/page.js"]
+      : targetArea === "codex"
+      ? ["app/codex/page.js"]
+      : [];
+
+  for (const filePath of candidatePaths) {
+    const fullPath = path.join(workspaceRoot, filePath);
+    let content = "";
+    try {
+      content = await readFile(fullPath, "utf8");
+    } catch {
+      continue;
+    }
+    const closeIdx = content.lastIndexOf("</footer>");
+    if (closeIdx < 0) continue;
+    const openIdx = content.lastIndexOf("<footer", closeIdx);
+    if (openIdx >= 0) {
+      const footerBlock = content.slice(openIdx, closeIdx);
+      if (footerBlock.includes(quoted) || footerBlock.includes(escapedText)) {
+        return [] as ProposedOperation[];
+      }
+    }
+
+    const closeLineStart = content.lastIndexOf("\n", closeIdx) + 1;
+    if (closeLineStart < 0) continue;
+    const closeLineEnd = content.indexOf("\n", closeIdx);
+    if (closeLineEnd < 0) continue;
+    const nextLineEnd = content.indexOf("\n", closeLineEnd + 1);
+    if (nextLineEnd < 0) continue;
+    const closeLine = content.slice(closeLineStart, closeLineEnd);
+    const indentMatch = closeLine.match(/^(\s*)<\/footer>\s*$/);
+    if (!indentMatch) continue;
+    const innerIndent = `${indentMatch[1]}  `;
+    const anchor = content.slice(closeLineStart, nextLineEnd);
+
+    return [
+      {
+        path: filePath,
+        find: anchor,
+        replace: `${innerIndent}<div>${escapedText}</div>\n${anchor}`,
+        replaceAll: false,
+      },
+    ];
+  }
+
   return [] as ProposedOperation[];
 }
 
@@ -1325,11 +1395,19 @@ export async function createAutonomyRun(input: {
   const model = asText(input.model || readModel());
   const workspaceRoot = await resolveWorkspaceRoot();
 
-  let planned = await planOperations({
-    task,
-    targetArea,
-    model,
-  });
+  const intentAwareOps = await deriveIntentAwareOperations(task, targetArea, workspaceRoot).catch(() => []);
+  let planned =
+    intentAwareOps.length > 0
+      ? ({
+          reasoning: "Applied an intent-aware deterministic footer insertion rule.",
+          summary: "Prepared a deterministic footer text insertion.",
+          operations: intentAwareOps,
+        } satisfies PlannerResponse)
+      : await planOperations({
+          task,
+          targetArea,
+          model,
+        });
   let operations = planned.operations;
   let scopeWarnings = validateOperationScope(targetArea, operations);
   let diff: { items: ProposedDiffItem[]; warnings: string[] } | null = null;
