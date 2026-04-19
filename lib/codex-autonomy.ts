@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -168,6 +168,9 @@ const HEURISTIC_ALLOWED_EXTENSIONS = new Set([
 
 let schemaReady = false;
 const runningApprovalsByUser = new Map<string, number>();
+let workspaceRootPromise: Promise<string> | null = null;
+let gitRootPromise: Promise<string> | null = null;
+const DEFAULT_PATH_FALLBACK = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 
 function nowIso() {
   return new Date().toISOString();
@@ -209,6 +212,81 @@ function normalizeRepoPath(input: string) {
   return normalized.replace(/^\/+/, "");
 }
 
+async function pathExists(target: string) {
+  try {
+    await access(target);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function dedupeStrings(values: string[]) {
+  return Array.from(new Set(values.map((item) => String(item || "").trim()).filter(Boolean)));
+}
+
+async function hasWorkspaceMarkers(root: string) {
+  const packageJson = path.join(root, "package.json");
+  const appDir = path.join(root, "app");
+  return (await pathExists(packageJson)) && (await pathExists(appDir));
+}
+
+async function hasGitMarkers(root: string) {
+  const gitDir = path.join(root, ".git");
+  return pathExists(gitDir);
+}
+
+function candidateWorkspaceRoots() {
+  const cwd = process.cwd();
+  const parent = path.dirname(cwd);
+  const grandparent = path.dirname(parent);
+  return dedupeStrings([
+    asText(process.env.CODEX_REPO_ROOT),
+    asText(process.env.CODEX_WORKSPACE_ROOT),
+    cwd,
+    parent,
+    grandparent,
+    path.join(cwd, "bos360-site"),
+    path.join(parent, "bos360-site"),
+    path.join(grandparent, "bos360-site"),
+  ]);
+}
+
+async function resolveWorkspaceRoot() {
+  if (!workspaceRootPromise) {
+    workspaceRootPromise = (async () => {
+      const candidates = candidateWorkspaceRoots();
+      for (const candidate of candidates) {
+        if (await hasGitMarkers(candidate)) return candidate;
+      }
+      for (const candidate of candidates) {
+        if (await hasWorkspaceMarkers(candidate)) return candidate;
+      }
+      return process.cwd();
+    })();
+  }
+  return workspaceRootPromise;
+}
+
+async function resolveGitRoot() {
+  if (!gitRootPromise) {
+    gitRootPromise = (async () => {
+      const workspaceRoot = await resolveWorkspaceRoot();
+      const probe = await runShell("git rev-parse --show-toplevel", {
+        cwd: workspaceRoot,
+        timeoutMs: 15000,
+      });
+      if (probe.exitCode === 0) {
+        const root = asText(probe.stdout);
+        if (root) return root;
+      }
+      const detail = asText(probe.stderr || probe.stdout);
+      throw new Error(detail ? `GIT_REPO_NOT_FOUND:${detail.slice(0, 240)}` : "GIT_REPO_NOT_FOUND");
+    })();
+  }
+  return gitRootPromise;
+}
+
 function allowedPathPrefixes() {
   const raw = asText(process.env.CODEX_ALLOWED_PATHS);
   if (!raw) return AUTONOMY_DEFAULT_ALLOWED_PATHS;
@@ -241,12 +319,12 @@ function validateTargetArea(area: unknown): TargetArea | null {
   return null;
 }
 
-async function collectCandidateFiles(prefixes: string[]) {
+async function collectCandidateFiles(prefixes: string[], workspaceRoot: string) {
   const found: string[] = [];
 
   async function walk(relativeDir: string) {
     if (found.length >= HEURISTIC_MAX_SCAN_FILES) return;
-    const absoluteDir = path.join(process.cwd(), relativeDir);
+    const absoluteDir = path.join(workspaceRoot, relativeDir);
     let entries: import("node:fs").Dirent[] = [];
     try {
       entries = await readdir(absoluteDir, { withFileTypes: true });
@@ -316,13 +394,13 @@ function extractSnippetAround(content: string, matchIndex: number) {
   return content.slice(start, end);
 }
 
-async function buildContextSnippets(task: string, targetArea: TargetArea) {
+async function buildContextSnippets(task: string, targetArea: TargetArea, workspaceRoot: string) {
   const keywords = taskKeywords(task);
-  const files = await collectCandidateFiles(TARGET_AREA_PREFIXES[targetArea]);
+  const files = await collectCandidateFiles(TARGET_AREA_PREFIXES[targetArea], workspaceRoot);
   const scored: Array<{ path: string; score: number; snippet: string }> = [];
 
   for (const filePath of files) {
-    const fullPath = path.join(process.cwd(), filePath);
+    const fullPath = path.join(workspaceRoot, filePath);
     let content = "";
     try {
       content = await readFile(fullPath, "utf8");
@@ -357,7 +435,7 @@ async function buildContextSnippets(task: string, targetArea: TargetArea) {
   for (const fallbackPath of fallbackPaths) {
     if (scored.some((item) => item.path === fallbackPath)) continue;
     try {
-      const content = await readFile(path.join(process.cwd(), fallbackPath), "utf8");
+      const content = await readFile(path.join(workspaceRoot, fallbackPath), "utf8");
       scored.push({
         path: fallbackPath,
         score: 1,
@@ -398,14 +476,14 @@ function textVariants(value: string) {
   return Array.from(variants).filter(Boolean);
 }
 
-async function deriveHeuristicOperations(task: string, targetArea: TargetArea) {
+async function deriveHeuristicOperations(task: string, targetArea: TargetArea, workspaceRoot: string) {
   const pair = findQuotedReplacePair(task);
   if (!pair) return [] as ProposedOperation[];
-  const files = await collectCandidateFiles(TARGET_AREA_PREFIXES[targetArea]);
+  const files = await collectCandidateFiles(TARGET_AREA_PREFIXES[targetArea], workspaceRoot);
   const fromVariants = textVariants(pair.fromText);
   const toVariants = textVariants(pair.toText);
   for (const filePath of files) {
-    const fullPath = path.join(process.cwd(), filePath);
+    const fullPath = path.join(workspaceRoot, filePath);
     let content = "";
     try {
       content = await readFile(fullPath, "utf8");
@@ -431,8 +509,9 @@ async function planOperationsWithRepoContext(input: {
   task: string;
   targetArea: TargetArea;
   model: string;
+  workspaceRoot: string;
 }) {
-  const contextFiles = await buildContextSnippets(input.task, input.targetArea);
+  const contextFiles = await buildContextSnippets(input.task, input.targetArea, input.workspaceRoot);
   if (!contextFiles.length) throw new Error("AUTONOMY_CONTEXT_EMPTY");
   const system = [
     "You are a coding planner for deterministic file edits.",
@@ -776,11 +855,11 @@ function truncateSnippet(value: string) {
   return `${normalized.slice(0, MAX_SNIPPET_CHARS).trim()}...`;
 }
 
-async function buildProposedDiff(operations: ProposedOperation[]) {
+async function buildProposedDiff(operations: ProposedOperation[], workspaceRoot: string) {
   const warnings: string[] = [];
   const items: ProposedDiffItem[] = [];
   for (const operation of operations) {
-    const fullPath = path.join(process.cwd(), operation.path);
+    const fullPath = path.join(workspaceRoot, operation.path);
     let content = "";
     try {
       content = await readFile(fullPath, "utf8");
@@ -851,8 +930,8 @@ function runShell(command: string, options?: { cwd?: string; timeoutMs?: number 
       cwd,
       env: {
         ...process.env,
-        PATH: process.env.PATH || "",
-        HOME: process.env.HOME || "",
+        PATH: process.env.PATH || DEFAULT_PATH_FALLBACK,
+        HOME: process.env.HOME || "/tmp",
         LANG: process.env.LANG || "en_US.UTF-8",
       },
       stdio: ["ignore", "pipe", "pipe"],
@@ -914,10 +993,10 @@ function checkCommandsForPaths(paths: string[]) {
   return [{ name: "Typecheck", command: "npx tsc --noEmit", timeoutMs: 180000 }];
 }
 
-async function runVerification(paths: string[]): Promise<VerificationResult> {
+async function runVerification(paths: string[], workspaceRoot: string): Promise<VerificationResult> {
   const checks: VerificationCheck[] = [];
   for (const check of checkCommandsForPaths(paths)) {
-    const result = await runShell(check.command, { timeoutMs: check.timeoutMs });
+    const result = await runShell(check.command, { timeoutMs: check.timeoutMs, cwd: workspaceRoot });
     checks.push({
       name: check.name,
       command: check.command,
@@ -940,9 +1019,12 @@ async function runVerification(paths: string[]): Promise<VerificationResult> {
   };
 }
 
-async function ensureCleanWorktree() {
-  const status = await runShell("git status --porcelain");
-  if (status.exitCode !== 0) throw new Error("GIT_STATUS_FAILED");
+async function ensureCleanWorktree(gitRoot: string) {
+  const status = await runShell("git status --porcelain", { cwd: gitRoot });
+  if (status.exitCode !== 0) {
+    const detail = asText(status.stderr || status.stdout);
+    throw new Error(detail ? `GIT_STATUS_FAILED:${detail.slice(0, 240)}` : "GIT_STATUS_FAILED");
+  }
   if (asText(status.stdout)) {
     throw new Error("DIRTY_WORKTREE");
   }
@@ -961,30 +1043,30 @@ function remoteToHttps(remote: string) {
   return "";
 }
 
-async function shipRunChanges(run: AutonomyRun, changedFiles: string[]): Promise<ShipResult> {
-  const originalBranchRes = await runShell("git rev-parse --abbrev-ref HEAD");
+async function shipRunChanges(run: AutonomyRun, changedFiles: string[], gitRoot: string): Promise<ShipResult> {
+  const originalBranchRes = await runShell("git rev-parse --abbrev-ref HEAD", { cwd: gitRoot });
   if (originalBranchRes.exitCode !== 0) throw new Error("GIT_BRANCH_READ_FAILED");
   const originalBranch = asText(originalBranchRes.stdout);
-  const remoteRes = await runShell("git config --get remote.origin.url");
+  const remoteRes = await runShell("git config --get remote.origin.url", { cwd: gitRoot });
   const remoteHttps = remoteToHttps(remoteRes.stdout);
 
   if (run.policy.route === "direct_main") {
-    if (originalBranch !== "main") {
-      const checkoutMain = await runShell("git checkout main");
+      if (originalBranch !== "main") {
+      const checkoutMain = await runShell("git checkout main", { cwd: gitRoot });
       if (checkoutMain.exitCode !== 0) throw new Error("GIT_CHECKOUT_MAIN_FAILED");
     }
-    const addRes = await runShell(`git add ${changedFiles.map((item) => `'${item}'`).join(" ")}`);
+    const addRes = await runShell(`git add ${changedFiles.map((item) => `'${item}'`).join(" ")}`, { cwd: gitRoot });
     if (addRes.exitCode !== 0) throw new Error("GIT_ADD_FAILED");
     const commitMessage = `codex: ${run.task.slice(0, 72)} [run:${run.id.slice(0, 8)}]`;
-    const commitRes = await runShell(`git commit -m "${commitMessage.replace(/"/g, "'")}"`);
+    const commitRes = await runShell(`git commit -m "${commitMessage.replace(/"/g, "'")}"`, { cwd: gitRoot });
     if (commitRes.exitCode !== 0) throw new Error("GIT_COMMIT_FAILED");
-    const shaRes = await runShell("git rev-parse HEAD");
+    const shaRes = await runShell("git rev-parse HEAD", { cwd: gitRoot });
     if (shaRes.exitCode !== 0) throw new Error("GIT_SHA_FAILED");
-    const pushRes = await runShell("git push origin main");
+    const pushRes = await runShell("git push origin main", { cwd: gitRoot });
     if (pushRes.exitCode !== 0) throw new Error("GIT_PUSH_FAILED");
 
     if (originalBranch && originalBranch !== "main") {
-      await runShell(`git checkout ${originalBranch}`);
+      await runShell(`git checkout ${originalBranch}`, { cwd: gitRoot });
     }
 
     return {
@@ -996,20 +1078,20 @@ async function shipRunChanges(run: AutonomyRun, changedFiles: string[]): Promise
   }
 
   const branch = `codex/run-${run.id.slice(0, 8)}`;
-  const checkoutBranch = await runShell(`git checkout -b ${branch}`);
+  const checkoutBranch = await runShell(`git checkout -b ${branch}`, { cwd: gitRoot });
   if (checkoutBranch.exitCode !== 0) throw new Error("GIT_BRANCH_CREATE_FAILED");
-  const addRes = await runShell(`git add ${changedFiles.map((item) => `'${item}'`).join(" ")}`);
+  const addRes = await runShell(`git add ${changedFiles.map((item) => `'${item}'`).join(" ")}`, { cwd: gitRoot });
   if (addRes.exitCode !== 0) throw new Error("GIT_ADD_FAILED");
   const commitMessage = `codex: ${run.task.slice(0, 72)} [run:${run.id.slice(0, 8)}]`;
-  const commitRes = await runShell(`git commit -m "${commitMessage.replace(/"/g, "'")}"`);
+  const commitRes = await runShell(`git commit -m "${commitMessage.replace(/"/g, "'")}"`, { cwd: gitRoot });
   if (commitRes.exitCode !== 0) throw new Error("GIT_COMMIT_FAILED");
-  const shaRes = await runShell("git rev-parse HEAD");
+  const shaRes = await runShell("git rev-parse HEAD", { cwd: gitRoot });
   if (shaRes.exitCode !== 0) throw new Error("GIT_SHA_FAILED");
-  const pushRes = await runShell(`git push -u origin ${branch}`);
+  const pushRes = await runShell(`git push -u origin ${branch}`, { cwd: gitRoot });
   if (pushRes.exitCode !== 0) throw new Error("GIT_PUSH_FAILED");
 
   if (originalBranch) {
-    await runShell(`git checkout ${originalBranch}`);
+    await runShell(`git checkout ${originalBranch}`, { cwd: gitRoot });
   }
 
   const compareUrl = remoteHttps ? `${remoteHttps}/compare/main...${branch}` : undefined;
@@ -1023,11 +1105,11 @@ async function shipRunChanges(run: AutonomyRun, changedFiles: string[]): Promise
   };
 }
 
-async function applyOperations(operations: ProposedOperation[]) {
+async function applyOperations(operations: ProposedOperation[], workspaceRoot: string) {
   const backups = new Map<string, string>();
   const changedFiles = new Set<string>();
   for (const operation of operations) {
-    const fullPath = path.join(process.cwd(), operation.path);
+    const fullPath = path.join(workspaceRoot, operation.path);
     const original = await readFile(fullPath, "utf8");
     backups.set(operation.path, original);
     if (!original.includes(operation.find)) {
@@ -1049,9 +1131,9 @@ async function applyOperations(operations: ProposedOperation[]) {
   };
 }
 
-async function restoreBackups(backups: Map<string, string>) {
+async function restoreBackups(backups: Map<string, string>, workspaceRoot: string) {
   for (const [filePath, content] of backups.entries()) {
-    const fullPath = path.join(process.cwd(), filePath);
+    const fullPath = path.join(workspaceRoot, filePath);
     await writeFile(fullPath, content);
   }
 }
@@ -1070,6 +1152,7 @@ export async function createAutonomyRun(input: {
   const targetArea = validateTargetArea(input.targetArea);
   if (!targetArea) throw new Error("TARGET_AREA_INVALID");
   const model = asText(input.model || readModel());
+  const workspaceRoot = await resolveWorkspaceRoot();
 
   let planned = await planOperations({
     task,
@@ -1080,26 +1163,27 @@ export async function createAutonomyRun(input: {
   let scopeWarnings = validateOperationScope(targetArea, operations);
   let diff: { items: ProposedDiffItem[]; warnings: string[] } | null = null;
   try {
-    diff = await buildProposedDiff(operations);
+    diff = await buildProposedDiff(operations, workspaceRoot);
   } catch (error) {
     const code = String((error as Error)?.message || "");
     if (code !== "NO_APPLICABLE_OPERATIONS") throw error;
-    const fallbackOps = await deriveHeuristicOperations(task, targetArea).catch(() => []);
+    const fallbackOps = await deriveHeuristicOperations(task, targetArea, workspaceRoot).catch(() => []);
     if (fallbackOps.length) {
       operations = fallbackOps;
       scopeWarnings = validateOperationScope(targetArea, operations);
-      diff = await buildProposedDiff(operations);
+      diff = await buildProposedDiff(operations, workspaceRoot);
       scopeWarnings.push("Used heuristic fallback to locate exact text/file match.");
     } else {
       const contextualPlan = await planOperationsWithRepoContext({
         task,
         targetArea,
         model,
+        workspaceRoot,
       });
       operations = contextualPlan.operations;
       planned = contextualPlan;
       scopeWarnings = validateOperationScope(targetArea, operations);
-      diff = await buildProposedDiff(operations);
+      diff = await buildProposedDiff(operations, workspaceRoot);
       scopeWarnings.push("Used context-aware fallback planning from repo snippets.");
     }
   }
@@ -1147,12 +1231,14 @@ export async function approveAutonomyRun(input: {
   if (!writeModeEnabled()) throw new Error("WRITE_MODE_OFF");
   beginApprovalSlot(input.userId);
   try {
+    const workspaceRoot = await resolveWorkspaceRoot();
+    const gitRoot = await resolveGitRoot();
     const existing = await getAutonomyRun(input.userId, input.runId);
     if (!existing) throw new Error("RUN_NOT_FOUND");
     if (existing.status !== "pending_approval" || existing.stage !== "awaiting_approval") {
       throw new Error("RUN_NOT_APPROVABLE");
     }
-    await ensureCleanWorktree();
+    await ensureCleanWorktree(gitRoot);
 
     let run: AutonomyRun = {
       ...existing,
@@ -1162,13 +1248,13 @@ export async function approveAutonomyRun(input: {
     run = appendTimeline(run, "approved_apply", "Approval received.");
     await updateRunStore(run);
 
-    const { backups, changedFiles } = await applyOperations(run.plan.operations);
+    const { backups, changedFiles } = await applyOperations(run.plan.operations, workspaceRoot);
     let needsRestore = true;
     try {
       run = appendTimeline(run, "verify", "Running verification checks.");
       await updateRunStore(run);
 
-      const verification = await runVerification(changedFiles);
+      const verification = await runVerification(changedFiles, workspaceRoot);
       run = {
         ...run,
         verification,
@@ -1183,14 +1269,14 @@ export async function approveAutonomyRun(input: {
           error: "VERIFICATION_FAILED",
         };
         await updateRunStore(run);
-        await restoreBackups(backups);
+        await restoreBackups(backups, workspaceRoot);
         needsRestore = false;
         return run;
       }
 
       run = appendTimeline(run, "ship", "Shipping changes.");
       await updateRunStore(run);
-      const ship = await shipRunChanges(run, changedFiles);
+      const ship = await shipRunChanges(run, changedFiles, gitRoot);
       needsRestore = false;
 
       run = appendTimeline(run, "completed", "Run completed successfully.");
@@ -1205,7 +1291,7 @@ export async function approveAutonomyRun(input: {
       return run;
     } catch (error) {
       if (needsRestore) {
-        await restoreBackups(backups).catch(() => {});
+        await restoreBackups(backups, workspaceRoot).catch(() => {});
       }
       run = appendTimeline(run, "failed", "Run failed during apply/verify/ship.");
       run = {
@@ -1234,34 +1320,35 @@ export async function revertAutonomyRun(input: {
   if (existing.status !== "completed" || !existing.ship?.commitSha) {
     throw new Error("RUN_NOT_REVERTABLE");
   }
-  await ensureCleanWorktree();
+  const gitRoot = await resolveGitRoot();
+  await ensureCleanWorktree(gitRoot);
 
-  const originalBranchRes = await runShell("git rev-parse --abbrev-ref HEAD");
+  const originalBranchRes = await runShell("git rev-parse --abbrev-ref HEAD", { cwd: gitRoot });
   if (originalBranchRes.exitCode !== 0) throw new Error("GIT_BRANCH_READ_FAILED");
   const originalBranch = asText(originalBranchRes.stdout);
   if (originalBranch !== "main") {
-    const checkoutMain = await runShell("git checkout main");
+    const checkoutMain = await runShell("git checkout main", { cwd: gitRoot });
     if (checkoutMain.exitCode !== 0) throw new Error("GIT_CHECKOUT_MAIN_FAILED");
   }
   const revertBranch = `revert/run-${existing.id.slice(0, 8)}`;
-  const createBranch = await runShell(`git checkout -b ${revertBranch}`);
+  const createBranch = await runShell(`git checkout -b ${revertBranch}`, { cwd: gitRoot });
   if (createBranch.exitCode !== 0) throw new Error("REVERT_BRANCH_CREATE_FAILED");
-  const revert = await runShell(`git revert --no-edit ${existing.ship.commitSha}`);
+  const revert = await runShell(`git revert --no-edit ${existing.ship.commitSha}`, { cwd: gitRoot });
   if (revert.exitCode !== 0) {
-    await runShell(`git checkout ${originalBranch || "main"}`).catch(() => {});
+    await runShell(`git checkout ${originalBranch || "main"}`, { cwd: gitRoot }).catch(() => {});
     throw new Error("GIT_REVERT_FAILED");
   }
-  const shaRes = await runShell("git rev-parse HEAD");
+  const shaRes = await runShell("git rev-parse HEAD", { cwd: gitRoot });
   if (shaRes.exitCode !== 0) throw new Error("GIT_SHA_FAILED");
-  const pushRes = await runShell(`git push -u origin ${revertBranch}`);
+  const pushRes = await runShell(`git push -u origin ${revertBranch}`, { cwd: gitRoot });
   if (pushRes.exitCode !== 0) throw new Error("GIT_PUSH_FAILED");
 
-  const remoteRes = await runShell("git config --get remote.origin.url");
+  const remoteRes = await runShell("git config --get remote.origin.url", { cwd: gitRoot });
   const remoteHttps = remoteToHttps(remoteRes.stdout);
   const compareUrl = remoteHttps ? `${remoteHttps}/compare/main...${revertBranch}` : undefined;
 
   if (originalBranch && originalBranch !== revertBranch) {
-    await runShell(`git checkout ${originalBranch}`).catch(() => {});
+    await runShell(`git checkout ${originalBranch}`, { cwd: gitRoot }).catch(() => {});
   }
 
   const revertResult: RevertResult = {
