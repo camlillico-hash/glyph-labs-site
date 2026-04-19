@@ -1,4 +1,4 @@
-import { access, mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, symlink, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -1040,7 +1040,7 @@ function validateOperationScope(targetArea: TargetArea, operations: ProposedOper
   return warnings;
 }
 
-function runShell(command: string, options?: { cwd?: string; timeoutMs?: number }) {
+function runShell(command: string, options?: { cwd?: string; timeoutMs?: number; envAdd?: Record<string, string> }) {
   const timeoutMs = options?.timeoutMs || 120000;
   const cwd = options?.cwd || process.cwd();
   return new Promise<{
@@ -1058,6 +1058,7 @@ function runShell(command: string, options?: { cwd?: string; timeoutMs?: number 
         PATH: process.env.PATH || DEFAULT_PATH_FALLBACK,
         HOME: process.env.HOME || "/tmp",
         LANG: process.env.LANG || "en_US.UTF-8",
+        ...(options?.envAdd || {}),
       },
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -1122,13 +1123,37 @@ function checkCommandsForPaths(paths: string[]) {
   return [{ name: "Typecheck", command: "npx tsc --noEmit", timeoutMs: 180000 }];
 }
 
-async function runVerification(paths: string[], workspaceRoot: string): Promise<VerificationResult> {
+async function runVerification(
+  paths: string[],
+  workspaceRoot: string,
+  toolingRoot = workspaceRoot
+): Promise<VerificationResult> {
+  const toolingNodeModules = path.join(toolingRoot, "node_modules");
+  const toolingBin = path.join(toolingNodeModules, ".bin");
+  const envAdd =
+    toolingRoot !== workspaceRoot
+      ? {
+          PATH: `${toolingBin}:${process.env.PATH || DEFAULT_PATH_FALLBACK}`,
+          NODE_PATH: process.env.NODE_PATH
+            ? `${toolingNodeModules}:${process.env.NODE_PATH}`
+            : toolingNodeModules,
+        }
+      : undefined;
   const checks: VerificationCheck[] = [];
   for (const check of checkCommandsForPaths(paths)) {
-    const result = await runShell(check.command, { timeoutMs: check.timeoutMs, cwd: workspaceRoot });
+    let command = check.command;
+    if (toolingRoot !== workspaceRoot && check.command === "npx tsc --noEmit") {
+      const tscBin = path.join(toolingNodeModules, "typescript", "bin", "tsc");
+      command = `node ${shellQuote(tscBin)} --noEmit -p ${shellQuote(path.join(workspaceRoot, "tsconfig.json"))}`;
+    }
+    const result = await runShell(command, {
+      timeoutMs: check.timeoutMs,
+      cwd: workspaceRoot,
+      envAdd,
+    });
     checks.push({
       name: check.name,
-      command: check.command,
+      command,
       exitCode: result.exitCode,
       durationMs: result.durationMs,
       passed: result.exitCode === 0 && !result.timedOut,
@@ -1198,11 +1223,12 @@ async function shipRunChanges(run: AutonomyRun, changedFiles: string[], gitRoot:
   const originalBranchRes = await runShell("git rev-parse --abbrev-ref HEAD", { cwd: gitRoot });
   if (originalBranchRes.exitCode !== 0) throw new Error("GIT_BRANCH_READ_FAILED");
   const originalBranch = asText(originalBranchRes.stdout);
+  const detachedHead = originalBranch === "HEAD";
   const remoteRes = await runShell("git config --get remote.origin.url", { cwd: gitRoot });
   const remoteHttps = remoteToHttps(remoteRes.stdout);
 
   if (run.policy.route === "direct_main") {
-      if (originalBranch !== "main") {
+      if (!detachedHead && originalBranch !== "main") {
       const checkoutMain = await runShell("git checkout main", { cwd: gitRoot });
       if (checkoutMain.exitCode !== 0) throw new Error("GIT_CHECKOUT_MAIN_FAILED");
     }
@@ -1213,10 +1239,13 @@ async function shipRunChanges(run: AutonomyRun, changedFiles: string[], gitRoot:
     if (commitRes.exitCode !== 0) throw new Error("GIT_COMMIT_FAILED");
     const shaRes = await runShell("git rev-parse HEAD", { cwd: gitRoot });
     if (shaRes.exitCode !== 0) throw new Error("GIT_SHA_FAILED");
-    const pushRes = await runShell("git push origin main", { cwd: gitRoot });
+    const pushRes = await runShell(
+      detachedHead ? "git push origin HEAD:main" : "git push origin main",
+      { cwd: gitRoot }
+    );
     if (pushRes.exitCode !== 0) throw new Error("GIT_PUSH_FAILED");
 
-    if (originalBranch && originalBranch !== "main") {
+    if (originalBranch && !detachedHead && originalBranch !== "main") {
       await runShell(`git checkout ${originalBranch}`, { cwd: gitRoot });
     }
 
@@ -1289,15 +1318,28 @@ async function restoreBackups(backups: Map<string, string>, workspaceRoot: strin
   }
 }
 
+async function ensureWorktreeDependencyLinks(sourceWorkspaceRoot: string, isolatedWorkspaceRoot: string) {
+  const sourceNodeModules = path.join(sourceWorkspaceRoot, "node_modules");
+  const isolatedNodeModules = path.join(isolatedWorkspaceRoot, "node_modules");
+  if (!(await pathExists(sourceNodeModules))) return;
+  if (await pathExists(isolatedNodeModules)) return;
+  try {
+    await symlink(sourceNodeModules, isolatedNodeModules, "dir");
+  } catch {
+    // Best-effort: if linking fails, verification will surface a concrete tool error.
+  }
+}
+
 async function executeAutonomyRunInWorkspace(
   run: AutonomyRun,
   workspaceRoot: string,
-  gitRoot: string
+  gitRoot: string,
+  toolingRoot = workspaceRoot
 ): Promise<AutonomyExecutionResult> {
   const { backups, changedFiles } = await applyOperations(run.plan.operations, workspaceRoot);
   let needsRestore = true;
   try {
-    const verification = await runVerification(changedFiles, workspaceRoot);
+    const verification = await runVerification(changedFiles, workspaceRoot, toolingRoot);
     if (!verification.passed) {
       await restoreBackups(backups, workspaceRoot);
       needsRestore = false;
@@ -1344,7 +1386,7 @@ export async function executeAutonomyRunOnCurrentHost(run: AutonomyRun): Promise
   // worktree so approvals are not blocked by pre-existing dirty state.
   const dirty = Boolean(asText(status.stdout));
   if (!dirty) {
-    return executeAutonomyRunInWorkspace(run, workspaceRoot, gitRoot);
+    return executeAutonomyRunInWorkspace(run, workspaceRoot, gitRoot, workspaceRoot);
   }
 
   const relativeWorkspace = path.relative(gitRoot, workspaceRoot);
@@ -1367,7 +1409,13 @@ export async function executeAutonomyRunOnCurrentHost(run: AutonomyRun): Promise
       : tempWorktreeRoot;
 
   try {
-    return await executeAutonomyRunInWorkspace(run, isolatedWorkspaceRoot, tempWorktreeRoot);
+    await ensureWorktreeDependencyLinks(workspaceRoot, isolatedWorkspaceRoot);
+    return await executeAutonomyRunInWorkspace(
+      run,
+      isolatedWorkspaceRoot,
+      tempWorktreeRoot,
+      workspaceRoot
+    );
   } finally {
     const removeWorktree = await runShell(
       `git worktree remove --force ${shellQuote(tempWorktreeRoot)}`,
