@@ -1,5 +1,6 @@
 import { access, mkdir, mkdtemp, readFile, readdir, symlink, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -162,6 +163,7 @@ const MAX_CONCURRENT_DEFAULT = 1;
 const HEURISTIC_MAX_SCAN_FILES = 500;
 const CONTEXT_REPLAN_MAX_FILES = 8;
 const CONTEXT_REPLAN_SNIPPET_CHARS = 1200;
+const AUTONOMY_SYNTAX_CHECK_COMMAND = "__autonomy_syntax_check__";
 const HEURISTIC_ALLOWED_EXTENSIONS = new Set([
   ".js",
   ".jsx",
@@ -1125,11 +1127,76 @@ function checkCommandsForPaths(paths: string[]) {
   if (appUiTouched) {
     return [
       { name: "Typecheck", command: "npx tsc --noEmit", timeoutMs: 180000 },
-      { name: "Build", command: "npm run build", timeoutMs: 420000 },
+      { name: "Syntax", command: AUTONOMY_SYNTAX_CHECK_COMMAND, timeoutMs: 120000 },
     ];
   }
 
   return [{ name: "Typecheck", command: "npx tsc --noEmit", timeoutMs: 180000 }];
+}
+
+async function runSyntaxCheck(paths: string[], workspaceRoot: string, toolingRoot: string) {
+  const started = Date.now();
+  const candidates = paths
+    .map((item) => normalizeRepoPath(item))
+    .filter((item) => /\.(jsx?|tsx?|mjs|cjs)$/i.test(item))
+    .map((item) => path.join(workspaceRoot, item));
+
+  if (!candidates.length) {
+    return { exitCode: 0 as number | null, durationMs: Date.now() - started, stdout: "", stderr: "", timedOut: false };
+  }
+
+  let ts: any;
+  try {
+    const toolingRequire = createRequire(path.join(toolingRoot, "package.json"));
+    ts = toolingRequire("typescript");
+  } catch (error) {
+    return {
+      exitCode: 1 as number | null,
+      durationMs: Date.now() - started,
+      stdout: "",
+      stderr: `SYNTAX_CHECK_TYPESCRIPT_UNAVAILABLE:${asText((error as Error)?.message)}`,
+      timedOut: false,
+    };
+  }
+
+  const failures: string[] = [];
+  for (const filePath of candidates) {
+    let sourceText = "";
+    try {
+      sourceText = await readFile(filePath, "utf8");
+    } catch {
+      continue;
+    }
+    const ext = path.extname(filePath).toLowerCase();
+    const scriptKind =
+      ext === ".tsx"
+        ? ts.ScriptKind.TSX
+        : ext === ".ts"
+        ? ts.ScriptKind.TS
+        : ext === ".jsx"
+        ? ts.ScriptKind.JSX
+        : ts.ScriptKind.JS;
+    const source = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
+    const diagnostics = Array.isArray(source.parseDiagnostics) ? source.parseDiagnostics : [];
+    for (const diag of diagnostics) {
+      const start = Number(diag?.start || 0);
+      const pos = source.getLineAndCharacterOfPosition(start);
+      const message = ts.flattenDiagnosticMessageText(diag?.messageText || "Syntax error", "\n");
+      failures.push(`${filePath}:${pos.line + 1}:${pos.character + 1} ${message}`);
+    }
+  }
+
+  if (failures.length) {
+    return {
+      exitCode: 1 as number | null,
+      durationMs: Date.now() - started,
+      stdout: "",
+      stderr: failures.slice(0, 50).join("\n"),
+      timedOut: false,
+    };
+  }
+
+  return { exitCode: 0 as number | null, durationMs: Date.now() - started, stdout: "", stderr: "", timedOut: false };
 }
 
 async function runVerification(
@@ -1151,15 +1218,26 @@ async function runVerification(
   const checks: VerificationCheck[] = [];
   for (const check of checkCommandsForPaths(paths)) {
     let command = check.command;
+    let result: {
+      exitCode: number | null;
+      durationMs: number;
+      stdout: string;
+      stderr: string;
+      timedOut: boolean;
+    };
+    if (check.command === AUTONOMY_SYNTAX_CHECK_COMMAND) {
+      result = await runSyntaxCheck(paths, workspaceRoot, toolingRoot);
+    } else {
     if (toolingRoot !== workspaceRoot && check.command === "npx tsc --noEmit") {
       const tscBin = path.join(toolingNodeModules, "typescript", "bin", "tsc");
       command = `node ${shellQuote(tscBin)} --noEmit -p ${shellQuote(path.join(workspaceRoot, "tsconfig.json"))}`;
     }
-    const result = await runShell(command, {
-      timeoutMs: check.timeoutMs,
-      cwd: workspaceRoot,
-      envAdd,
-    });
+      result = await runShell(command, {
+        timeoutMs: check.timeoutMs,
+        cwd: workspaceRoot,
+        envAdd,
+      });
+    }
     checks.push({
       name: check.name,
       command,
