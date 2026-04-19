@@ -18,6 +18,9 @@ export async function POST(
     return NextResponse.json({ ok: true, run });
   } catch (error) {
     const code = String((error as Error)?.message || "");
+    const isRuntimeUnsupported =
+      code.startsWith("AUTONOMY_RUNTIME_GIT_MISSING") ||
+      code.startsWith("AUTONOMY_RUNTIME_READONLY");
     const isKnownGitWorktreeError =
       code.startsWith("GIT_STATUS_FAILED") ||
       code.startsWith("GIT_REPO_NOT_FOUND") ||
@@ -31,6 +34,7 @@ export async function POST(
       code === "RUN_NOT_FOUND" ||
       code === "RUN_NOT_APPROVABLE" ||
       code === "MAX_CONCURRENT_RUNS_REACHED" ||
+      isRuntimeUnsupported ||
       isKnownGitWorktreeError
     ) {
       return NextResponse.json({ ok: false, error: code }, { status: 400 });

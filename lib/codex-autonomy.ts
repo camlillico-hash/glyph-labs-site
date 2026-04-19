@@ -2,6 +2,7 @@ import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import crypto from "node:crypto";
+import { constants as fsConstants } from "node:fs";
 import { getCrmPool } from "@/lib/crm-db";
 
 export type TargetArea = "coaching" | "crm" | "codex";
@@ -1035,6 +1036,23 @@ async function ensureCleanWorktree(gitRoot: string) {
   }
 }
 
+async function ensureRuntimeSupportsGitAndWrites(workspaceRoot: string) {
+  const gitVersion = await runShell("git --version", { cwd: workspaceRoot, timeoutMs: 8000 });
+  if (gitVersion.exitCode !== 0) {
+    const detail = asText(gitVersion.stderr || gitVersion.stdout);
+    throw new Error(
+      detail
+        ? `AUTONOMY_RUNTIME_GIT_MISSING:${detail.slice(0, 240)}`
+        : "AUTONOMY_RUNTIME_GIT_MISSING"
+    );
+  }
+  try {
+    await access(workspaceRoot, fsConstants.W_OK);
+  } catch {
+    throw new Error(`AUTONOMY_RUNTIME_READONLY:${workspaceRoot}`);
+  }
+}
+
 function remoteToHttps(remote: string) {
   const value = asText(remote);
   if (!value) return "";
@@ -1237,6 +1255,7 @@ export async function approveAutonomyRun(input: {
   beginApprovalSlot(input.userId);
   try {
     const workspaceRoot = await resolveWorkspaceRoot();
+    await ensureRuntimeSupportsGitAndWrites(workspaceRoot);
     const gitRoot = await resolveGitRoot();
     const existing = await getAutonomyRun(input.userId, input.runId);
     if (!existing) throw new Error("RUN_NOT_FOUND");
@@ -1325,6 +1344,8 @@ export async function revertAutonomyRun(input: {
   if (existing.status !== "completed" || !existing.ship?.commitSha) {
     throw new Error("RUN_NOT_REVERTABLE");
   }
+  const workspaceRoot = await resolveWorkspaceRoot();
+  await ensureRuntimeSupportsGitAndWrites(workspaceRoot);
   const gitRoot = await resolveGitRoot();
   await ensureCleanWorktree(gitRoot);
 

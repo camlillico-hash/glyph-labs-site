@@ -122,7 +122,7 @@ export async function GET() {
       cwd,
     };
 
-    const gitPath = await runShell("which git", cwd, 8000);
+    const gitPath = await runShell("command -v git", cwd, 8000);
     const gitVersion = await runShell("git --version", cwd, 8000);
     const roots = candidateRoots().slice(0, 8);
 
@@ -170,4 +170,3 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: code }, { status });
   }
 }
-

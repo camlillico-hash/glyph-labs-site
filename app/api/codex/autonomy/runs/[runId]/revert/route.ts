@@ -18,6 +18,13 @@ export async function POST(
     return NextResponse.json({ ok: true, run });
   } catch (error) {
     const code = String((error as Error)?.message || "");
+    const isRuntimeUnsupported =
+      code.startsWith("AUTONOMY_RUNTIME_GIT_MISSING") ||
+      code.startsWith("AUTONOMY_RUNTIME_READONLY");
+    const isKnownGitWorktreeError =
+      code.startsWith("GIT_STATUS_FAILED") ||
+      code.startsWith("GIT_REPO_NOT_FOUND") ||
+      code === "DIRTY_WORKTREE";
     if (code === "UNAUTHENTICATED") {
       return NextResponse.json({ ok: false, error: code }, { status: 401 });
     }
@@ -26,7 +33,8 @@ export async function POST(
       code === "WRITE_MODE_OFF" ||
       code === "RUN_NOT_FOUND" ||
       code === "RUN_NOT_REVERTABLE" ||
-      code === "DIRTY_WORKTREE" ||
+      isRuntimeUnsupported ||
+      isKnownGitWorktreeError ||
       code === "GIT_REVERT_FAILED"
     ) {
       return NextResponse.json({ ok: false, error: code }, { status: 400 });
