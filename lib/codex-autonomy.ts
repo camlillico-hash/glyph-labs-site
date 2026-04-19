@@ -72,6 +72,12 @@ export type AutonomyExecutionResult = {
   error?: string;
 };
 
+export type AutonomyRevertExecutionResult = {
+  status: "completed" | "failed";
+  revert?: RevertResult;
+  error?: string;
+};
+
 export type AutonomyRun = {
   id: string;
   userId: string;
@@ -788,6 +794,51 @@ async function executeAutonomyRunViaRemoteExecutor(
     status: status as "completed" | "failed",
     verification: result.verification as VerificationResult | undefined,
     ship: result.ship as ShipResult | undefined,
+    error: asText(result.error) || undefined,
+  };
+}
+
+async function executeAutonomyRevertViaRemoteExecutor(
+  run: AutonomyRun,
+  executorUrl: string
+): Promise<AutonomyRevertExecutionResult> {
+  const secret = remoteExecutorSecret();
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+  };
+  if (secret) headers["x-codex-autonomy-secret"] = secret;
+  let res: Response;
+  try {
+    res = await fetch(executorUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ action: "revert", run }),
+    });
+  } catch (error) {
+    throw new Error(`REMOTE_EXECUTOR_FETCH_FAILED:${asText((error as Error)?.message).slice(0, 220)}`);
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data?.ok) {
+    const message = asText(data?.error) || `REMOTE_EXECUTOR_HTTP_${res.status}`;
+    throw new Error(message);
+  }
+  const result = asObject(data?.result);
+  if (!result) throw new Error("REMOTE_EXECUTOR_INVALID_RESPONSE");
+  const status = asText(result.status);
+  if (status !== "completed" && status !== "failed") {
+    throw new Error("REMOTE_EXECUTOR_INVALID_STATUS");
+  }
+  const revert = asObject(result.revert);
+  return {
+    status: status as "completed" | "failed",
+    revert: revert
+      ? {
+          branch: asText(revert.branch),
+          commitSha: asText(revert.commitSha),
+          compareUrl: asText(revert.compareUrl) || undefined,
+          prUrl: asText(revert.prUrl) || undefined,
+        }
+      : undefined,
     error: asText(result.error) || undefined,
   };
 }
@@ -1514,6 +1565,98 @@ export async function executeAutonomyRunOnCurrentHost(run: AutonomyRun): Promise
   }
 }
 
+async function executeAutonomyRevertInWorkspace(
+  run: AutonomyRun,
+  gitRoot: string
+): Promise<AutonomyRevertExecutionResult> {
+  if (!run.ship?.commitSha) {
+    return {
+      status: "failed",
+      error: "RUN_NOT_REVERTABLE",
+    };
+  }
+
+  const originalBranchRes = await runShell("git rev-parse --abbrev-ref HEAD", { cwd: gitRoot });
+  if (originalBranchRes.exitCode !== 0) {
+    return {
+      status: "failed",
+      error: "GIT_BRANCH_READ_FAILED",
+    };
+  }
+  const originalBranch = asText(originalBranchRes.stdout);
+  if (originalBranch !== "main") {
+    const checkoutMain = await runShell("git checkout main", { cwd: gitRoot });
+    if (checkoutMain.exitCode !== 0) {
+      return {
+        status: "failed",
+        error: "GIT_CHECKOUT_MAIN_FAILED",
+      };
+    }
+  }
+
+  const suffix = Date.now().toString(36).slice(-4);
+  const revertBranch = `revert/run-${run.id.slice(0, 8)}-${suffix}`;
+  const createBranch = await runShell(`git checkout -b ${revertBranch}`, { cwd: gitRoot });
+  if (createBranch.exitCode !== 0) {
+    return {
+      status: "failed",
+      error: "REVERT_BRANCH_CREATE_FAILED",
+    };
+  }
+  const revert = await runShell(`git revert --no-edit ${run.ship.commitSha}`, { cwd: gitRoot });
+  if (revert.exitCode !== 0) {
+    if (originalBranch && originalBranch !== "HEAD" && originalBranch !== revertBranch) {
+      await runShell(`git checkout ${originalBranch}`, { cwd: gitRoot }).catch(() => {});
+    }
+    return {
+      status: "failed",
+      error: "GIT_REVERT_FAILED",
+    };
+  }
+  const shaRes = await runShell("git rev-parse HEAD", { cwd: gitRoot });
+  if (shaRes.exitCode !== 0) {
+    return {
+      status: "failed",
+      error: "GIT_SHA_FAILED",
+    };
+  }
+  const pushRes = await runShell(`git push -u origin ${revertBranch}`, { cwd: gitRoot });
+  if (pushRes.exitCode !== 0) {
+    return {
+      status: "failed",
+      error: "GIT_PUSH_FAILED",
+    };
+  }
+
+  const remoteRes = await runShell("git config --get remote.origin.url", { cwd: gitRoot });
+  const remoteHttps = remoteToHttps(remoteRes.stdout);
+  const compareUrl = remoteHttps ? `${remoteHttps}/compare/main...${revertBranch}` : undefined;
+
+  if (originalBranch && originalBranch !== "HEAD" && originalBranch !== revertBranch) {
+    await runShell(`git checkout ${originalBranch}`, { cwd: gitRoot }).catch(() => {});
+  }
+
+  return {
+    status: "completed",
+    revert: {
+      branch: revertBranch,
+      commitSha: asText(shaRes.stdout),
+      compareUrl,
+      prUrl: compareUrl ? `${compareUrl}?expand=1` : undefined,
+    },
+  };
+}
+
+export async function executeAutonomyRevertOnCurrentHost(
+  run: AutonomyRun
+): Promise<AutonomyRevertExecutionResult> {
+  const workspaceRoot = await resolveWorkspaceRoot();
+  await ensureRuntimeSupportsGitAndWrites(workspaceRoot);
+  const gitRoot = await resolveGitRoot();
+  await ensureCleanWorktree(gitRoot);
+  return executeAutonomyRevertInWorkspace(run, gitRoot);
+}
+
 export async function createAutonomyRun(input: {
   userId: string;
   task: string;
@@ -1718,45 +1861,14 @@ export async function revertAutonomyRun(input: {
   if (existing.status !== "completed" || !existing.ship?.commitSha) {
     throw new Error("RUN_NOT_REVERTABLE");
   }
-  const workspaceRoot = await resolveWorkspaceRoot();
-  await ensureRuntimeSupportsGitAndWrites(workspaceRoot);
-  const gitRoot = await resolveGitRoot();
-  await ensureCleanWorktree(gitRoot);
-
-  const originalBranchRes = await runShell("git rev-parse --abbrev-ref HEAD", { cwd: gitRoot });
-  if (originalBranchRes.exitCode !== 0) throw new Error("GIT_BRANCH_READ_FAILED");
-  const originalBranch = asText(originalBranchRes.stdout);
-  if (originalBranch !== "main") {
-    const checkoutMain = await runShell("git checkout main", { cwd: gitRoot });
-    if (checkoutMain.exitCode !== 0) throw new Error("GIT_CHECKOUT_MAIN_FAILED");
+  const executor = remoteExecutorUrl();
+  const execution = executor
+    ? await executeAutonomyRevertViaRemoteExecutor(existing, executor)
+    : await executeAutonomyRevertOnCurrentHost(existing);
+  if (execution.status !== "completed" || !execution.revert) {
+    throw new Error(execution.error || "AUTONOMY_REVERT_FAILED");
   }
-  const revertBranch = `revert/run-${existing.id.slice(0, 8)}`;
-  const createBranch = await runShell(`git checkout -b ${revertBranch}`, { cwd: gitRoot });
-  if (createBranch.exitCode !== 0) throw new Error("REVERT_BRANCH_CREATE_FAILED");
-  const revert = await runShell(`git revert --no-edit ${existing.ship.commitSha}`, { cwd: gitRoot });
-  if (revert.exitCode !== 0) {
-    await runShell(`git checkout ${originalBranch || "main"}`, { cwd: gitRoot }).catch(() => {});
-    throw new Error("GIT_REVERT_FAILED");
-  }
-  const shaRes = await runShell("git rev-parse HEAD", { cwd: gitRoot });
-  if (shaRes.exitCode !== 0) throw new Error("GIT_SHA_FAILED");
-  const pushRes = await runShell(`git push -u origin ${revertBranch}`, { cwd: gitRoot });
-  if (pushRes.exitCode !== 0) throw new Error("GIT_PUSH_FAILED");
-
-  const remoteRes = await runShell("git config --get remote.origin.url", { cwd: gitRoot });
-  const remoteHttps = remoteToHttps(remoteRes.stdout);
-  const compareUrl = remoteHttps ? `${remoteHttps}/compare/main...${revertBranch}` : undefined;
-
-  if (originalBranch && originalBranch !== revertBranch) {
-    await runShell(`git checkout ${originalBranch}`, { cwd: gitRoot }).catch(() => {});
-  }
-
-  const revertResult: RevertResult = {
-    branch: revertBranch,
-    commitSha: asText(shaRes.stdout),
-    compareUrl,
-    prUrl: compareUrl ? `${compareUrl}?expand=1` : undefined,
-  };
+  const revertResult: RevertResult = execution.revert;
   const updated: AutonomyRun = {
     ...existing,
     revert: revertResult,

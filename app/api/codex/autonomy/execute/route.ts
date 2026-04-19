@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { executeAutonomyRunOnCurrentHost, type AutonomyRun } from "@/lib/codex-autonomy";
+import {
+  executeAutonomyRevertOnCurrentHost,
+  executeAutonomyRunOnCurrentHost,
+  type AutonomyRun,
+} from "@/lib/codex-autonomy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,8 +44,12 @@ export async function POST(req: Request) {
   try {
     requireExecutorSecret(req);
     const body = await req.json().catch(() => ({}));
+    const action = isObject(body) ? asText(body.action || "run") : "run";
     const run = parseRun(body);
-    const result = await executeAutonomyRunOnCurrentHost(run);
+    const result =
+      action === "revert"
+        ? await executeAutonomyRevertOnCurrentHost(run)
+        : await executeAutonomyRunOnCurrentHost(run);
     return NextResponse.json(
       { ok: true, result },
       { headers: { "cache-control": "no-store, max-age=0" } }
@@ -60,4 +68,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: code }, { status: 500 });
   }
 }
-
