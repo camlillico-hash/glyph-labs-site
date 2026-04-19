@@ -114,6 +114,12 @@ type AutonomyRun = {
   failedAt?: string;
 };
 
+type RuntimeVersion = {
+  commitSha: string;
+  commitShort: string;
+  branch: string;
+};
+
 const DEFAULT_MODEL = "gpt-5.4";
 const MODEL_OPTIONS = [DEFAULT_MODEL, "gpt-5.2", "gpt-5.4-mini"] as const;
 const AUTONOMY_TARGET_OPTIONS = [
@@ -166,6 +172,7 @@ export default function CodexWorkspace() {
   const [agentRunning, setAgentRunning] = useState(false);
   const [agentError, setAgentError] = useState("");
   const [agentResult, setAgentResult] = useState<AgentResult | null>(null);
+  const [runtimeVersion, setRuntimeVersion] = useState<RuntimeVersion | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const deferredSearch = useDeferredValue(threadSearch);
 
@@ -178,6 +185,7 @@ export default function CodexWorkspace() {
   useEffect(() => {
     void loadThreads();
     void loadAgentConfig();
+    void loadRuntimeVersion();
   }, []);
 
   useEffect(() => {
@@ -251,6 +259,21 @@ export default function CodexWorkspace() {
       setAgentRepoAlias("");
     } finally {
       setAgentLoadingConfig(false);
+    }
+  }
+
+  async function loadRuntimeVersion() {
+    try {
+      const res = await fetch("/api/codex/version", { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) return;
+      setRuntimeVersion({
+        commitSha: String(data.commitSha || ""),
+        commitShort: String(data.commitShort || ""),
+        branch: String(data.branch || ""),
+      });
+    } catch {
+      // no-op: version info is diagnostic only
     }
   }
 
@@ -539,6 +562,12 @@ export default function CodexWorkspace() {
                   </option>
                 ))}
               </select>
+              {runtimeVersion?.commitShort ? (
+                <span className="ml-2 text-[10px] text-slate-400">
+                  backend {runtimeVersion.commitShort}
+                  {runtimeVersion.branch ? `@${runtimeVersion.branch}` : ""}
+                </span>
+              ) : null}
             </label>
           </header>
 
