@@ -951,8 +951,7 @@ export default function CoachingV2Page() {
             © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
           </p>
         </div>
-        <div>hello</div>
       </footer>
-    </main
+    </main>
   );
 }
