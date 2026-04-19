@@ -63,6 +63,13 @@ export type RevertResult = {
   prUrl?: string;
 };
 
+export type AutonomyExecutionResult = {
+  status: "completed" | "failed";
+  verification?: VerificationResult;
+  ship?: ShipResult;
+  error?: string;
+};
+
 export type AutonomyRun = {
   id: string;
   userId: string;
@@ -642,6 +649,14 @@ function writeModeEnabled() {
   return asText(process.env.CODEX_WRITE_MODE || "on") !== "off";
 }
 
+function remoteExecutorUrl() {
+  return asText(process.env.CODEX_AUTONOMY_EXECUTOR_URL);
+}
+
+function remoteExecutorSecret() {
+  return asText(process.env.CODEX_AUTONOMY_EXECUTOR_SECRET);
+}
+
 function maxConcurrentPerUser() {
   const value = Number(process.env.CODEX_AUTONOMY_MAX_CONCURRENCY || MAX_CONCURRENT_DEFAULT);
   if (!Number.isFinite(value) || value <= 0) return MAX_CONCURRENT_DEFAULT;
@@ -664,6 +679,44 @@ function endApprovalSlot(userId: string) {
     return;
   }
   runningApprovalsByUser.set(userId, current - 1);
+}
+
+async function executeAutonomyRunViaRemoteExecutor(
+  run: AutonomyRun,
+  executorUrl: string
+): Promise<AutonomyExecutionResult> {
+  const secret = remoteExecutorSecret();
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+  };
+  if (secret) headers["x-codex-autonomy-secret"] = secret;
+  let res: Response;
+  try {
+    res = await fetch(executorUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ run }),
+    });
+  } catch (error) {
+    throw new Error(`REMOTE_EXECUTOR_FETCH_FAILED:${asText((error as Error)?.message).slice(0, 220)}`);
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data?.ok) {
+    const message = asText(data?.error) || `REMOTE_EXECUTOR_HTTP_${res.status}`;
+    throw new Error(message);
+  }
+  const result = asObject(data?.result);
+  if (!result) throw new Error("REMOTE_EXECUTOR_INVALID_RESPONSE");
+  const status = asText(result.status);
+  if (status !== "completed" && status !== "failed") {
+    throw new Error("REMOTE_EXECUTOR_INVALID_STATUS");
+  }
+  return {
+    status: status as "completed" | "failed",
+    verification: result.verification as VerificationResult | undefined,
+    ship: result.ship as ShipResult | undefined,
+    error: asText(result.error) || undefined,
+  };
 }
 
 async function ensureSchema() {
@@ -1161,6 +1214,44 @@ async function restoreBackups(backups: Map<string, string>, workspaceRoot: strin
   }
 }
 
+export async function executeAutonomyRunOnCurrentHost(run: AutonomyRun): Promise<AutonomyExecutionResult> {
+  const workspaceRoot = await resolveWorkspaceRoot();
+  await ensureRuntimeSupportsGitAndWrites(workspaceRoot);
+  const gitRoot = await resolveGitRoot();
+  await ensureCleanWorktree(gitRoot);
+
+  const { backups, changedFiles } = await applyOperations(run.plan.operations, workspaceRoot);
+  let needsRestore = true;
+  try {
+    const verification = await runVerification(changedFiles, workspaceRoot);
+    if (!verification.passed) {
+      await restoreBackups(backups, workspaceRoot);
+      needsRestore = false;
+      return {
+        status: "failed",
+        verification,
+        error: "VERIFICATION_FAILED",
+      };
+    }
+
+    const ship = await shipRunChanges(run, changedFiles, gitRoot);
+    needsRestore = false;
+    return {
+      status: "completed",
+      verification,
+      ship,
+    };
+  } catch (error) {
+    if (needsRestore) {
+      await restoreBackups(backups, workspaceRoot).catch(() => {});
+    }
+    return {
+      status: "failed",
+      error: String((error as Error)?.message || "RUN_FAILED"),
+    };
+  }
+}
+
 export async function createAutonomyRun(input: {
   userId: string;
   task: string;
@@ -1254,15 +1345,11 @@ export async function approveAutonomyRun(input: {
   if (!writeModeEnabled()) throw new Error("WRITE_MODE_OFF");
   beginApprovalSlot(input.userId);
   try {
-    const workspaceRoot = await resolveWorkspaceRoot();
-    await ensureRuntimeSupportsGitAndWrites(workspaceRoot);
-    const gitRoot = await resolveGitRoot();
     const existing = await getAutonomyRun(input.userId, input.runId);
     if (!existing) throw new Error("RUN_NOT_FOUND");
     if (existing.status !== "pending_approval" || existing.stage !== "awaiting_approval") {
       throw new Error("RUN_NOT_APPROVABLE");
     }
-    await ensureCleanWorktree(gitRoot);
 
     let run: AutonomyRun = {
       ...existing,
@@ -1272,36 +1359,52 @@ export async function approveAutonomyRun(input: {
     run = appendTimeline(run, "approved_apply", "Approval received.");
     await updateRunStore(run);
 
-    const { backups, changedFiles } = await applyOperations(run.plan.operations, workspaceRoot);
-    let needsRestore = true;
+    const executor = remoteExecutorUrl();
     try {
-      run = appendTimeline(run, "verify", "Running verification checks.");
+      run = appendTimeline(
+        run,
+        "verify",
+        executor
+          ? `Delegating apply/verify/ship to remote executor: ${executor}`
+          : "Running verification checks."
+      );
       await updateRunStore(run);
 
-      const verification = await runVerification(changedFiles, workspaceRoot);
-      run = {
-        ...run,
-        verification,
-      };
-      await updateRunStore(run);
-      if (!verification.passed) {
-        run = appendTimeline(run, "failed", "Verification failed.");
+      const execution = executor
+        ? await executeAutonomyRunViaRemoteExecutor(run, executor)
+        : await executeAutonomyRunOnCurrentHost(run);
+
+      if (execution.verification) {
+        run = {
+          ...run,
+          verification: execution.verification,
+        };
+        await updateRunStore(run);
+      }
+
+      if (execution.status !== "completed" || !execution.ship) {
+        run = appendTimeline(
+          run,
+          "failed",
+          executor ? "Remote executor reported failure." : "Run failed during apply/verify/ship."
+        );
         run = {
           ...run,
           status: "failed",
+          stage: "failed",
           failedAt: nowIso(),
-          error: "VERIFICATION_FAILED",
+          error: execution.error || "RUN_FAILED",
         };
         await updateRunStore(run);
-        await restoreBackups(backups, workspaceRoot);
-        needsRestore = false;
         return run;
       }
 
-      run = appendTimeline(run, "ship", "Shipping changes.");
+      run = appendTimeline(run, "ship", executor ? "Remote executor shipped changes." : "Shipping changes.");
+      run = {
+        ...run,
+        ship: execution.ship,
+      };
       await updateRunStore(run);
-      const ship = await shipRunChanges(run, changedFiles, gitRoot);
-      needsRestore = false;
 
       run = appendTimeline(run, "completed", "Run completed successfully.");
       run = {
@@ -1309,15 +1412,16 @@ export async function approveAutonomyRun(input: {
         status: "completed",
         stage: "completed",
         completedAt: nowIso(),
-        ship,
+        ship: execution.ship,
       };
       await updateRunStore(run);
       return run;
     } catch (error) {
-      if (needsRestore) {
-        await restoreBackups(backups, workspaceRoot).catch(() => {});
-      }
-      run = appendTimeline(run, "failed", "Run failed during apply/verify/ship.");
+      run = appendTimeline(
+        run,
+        "failed",
+        executor ? "Remote executor request failed." : "Run failed during apply/verify/ship."
+      );
       run = {
         ...run,
         status: "failed",

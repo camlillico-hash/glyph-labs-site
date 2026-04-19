@@ -119,6 +119,8 @@ export async function GET() {
       vercel: asText(process.env.VERCEL),
       vercelCommit: asText(process.env.VERCEL_GIT_COMMIT_SHA),
       vercelBranch: asText(process.env.VERCEL_GIT_COMMIT_REF),
+      executorUrlConfigured: Boolean(asText(process.env.CODEX_AUTONOMY_EXECUTOR_URL)),
+      executorSecretConfigured: Boolean(asText(process.env.CODEX_AUTONOMY_EXECUTOR_SECRET)),
       cwd,
     };
 
