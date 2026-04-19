@@ -1120,6 +1120,15 @@ function checkCommandsForPaths(paths: string[]) {
       { name: "Build", command: "npm run build", timeoutMs: 420000 },
     ];
   }
+
+  const appUiTouched = paths.some((p) => p.startsWith("app/"));
+  if (appUiTouched) {
+    return [
+      { name: "Typecheck", command: "npx tsc --noEmit", timeoutMs: 180000 },
+      { name: "Build", command: "npm run build", timeoutMs: 420000 },
+    ];
+  }
+
   return [{ name: "Typecheck", command: "npx tsc --noEmit", timeoutMs: 180000 }];
 }
 
