@@ -1023,7 +1023,12 @@ async function ensureCleanWorktree(gitRoot: string) {
   const status = await runShell("git status --porcelain", { cwd: gitRoot });
   if (status.exitCode !== 0) {
     const detail = asText(status.stderr || status.stdout);
-    throw new Error(detail ? `GIT_STATUS_FAILED:${detail.slice(0, 240)}` : "GIT_STATUS_FAILED");
+    if (detail) {
+      throw new Error(`GIT_STATUS_FAILED:${detail.slice(0, 240)}`);
+    }
+    throw new Error(
+      `GIT_STATUS_FAILED:exit=${String(status.exitCode)} timedOut=${status.timedOut ? "1" : "0"} cwd=${gitRoot}`
+    );
   }
   if (asText(status.stdout)) {
     throw new Error("DIRTY_WORKTREE");

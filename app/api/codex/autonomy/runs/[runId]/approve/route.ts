@@ -18,6 +18,10 @@ export async function POST(
     return NextResponse.json({ ok: true, run });
   } catch (error) {
     const code = String((error as Error)?.message || "");
+    const isKnownGitWorktreeError =
+      code.startsWith("GIT_STATUS_FAILED") ||
+      code.startsWith("GIT_REPO_NOT_FOUND") ||
+      code === "DIRTY_WORKTREE";
     if (code === "UNAUTHENTICATED") {
       return NextResponse.json({ ok: false, error: code }, { status: 401 });
     }
@@ -27,7 +31,7 @@ export async function POST(
       code === "RUN_NOT_FOUND" ||
       code === "RUN_NOT_APPROVABLE" ||
       code === "MAX_CONCURRENT_RUNS_REACHED" ||
-      code === "DIRTY_WORKTREE"
+      isKnownGitWorktreeError
     ) {
       return NextResponse.json({ ok: false, error: code }, { status: 400 });
     }
