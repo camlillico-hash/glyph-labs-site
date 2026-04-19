@@ -114,7 +114,8 @@ type AutonomyRun = {
   failedAt?: string;
 };
 
-const MODEL_OPTIONS = ["gpt-5.4", "gpt-5.2", "gpt-5.4-mini"] as const;
+const DEFAULT_MODEL = "gpt-5.4";
+const MODEL_OPTIONS = [DEFAULT_MODEL, "gpt-5.2", "gpt-5.4-mini"] as const;
 const AUTONOMY_TARGET_OPTIONS = [
   { value: "coaching", label: "/coaching" },
   { value: "crm", label: "/crm" },
@@ -147,7 +148,7 @@ export default function CodexWorkspace() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [model, setModel] = useState<string>(MODEL_OPTIONS[0]);
+  const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [threadSearch, setThreadSearch] = useState("");
   const [autonomyTask, setAutonomyTask] = useState("");
   const [autonomyTargetArea, setAutonomyTargetArea] = useState<"coaching" | "crm" | "codex">("coaching");
@@ -200,11 +201,11 @@ export default function CodexWorkspace() {
           ? activeThreadId
           : String(nextThreads[0].id);
         setActiveThreadId(nextActive);
-        setModel(String(nextThreads.find((thread: Thread) => thread.id === nextActive)?.model || MODEL_OPTIONS[0]));
         await loadMessages(nextActive);
       } else {
         setActiveThreadId(null);
         setMessages([]);
+        setModel(DEFAULT_MODEL);
       }
     } catch (err) {
       setError(String((err as Error)?.message || "Failed to load chats."));
@@ -224,7 +225,6 @@ export default function CodexWorkspace() {
       }
       const nextMessages = Array.isArray(data.messages) ? data.messages : [];
       setMessages(nextMessages);
-      if (data?.thread?.model) setModel(String(data.thread.model));
     } catch (err) {
       setError(String((err as Error)?.message || "Failed to load messages."));
       setMessages([]);
@@ -274,8 +274,6 @@ export default function CodexWorkspace() {
 
   async function pickThread(threadId: string) {
     setActiveThreadId(threadId);
-    const selected = threads.find((thread) => thread.id === threadId);
-    if (selected?.model) setModel(selected.model);
     await loadMessages(threadId);
   }
 
@@ -337,7 +335,6 @@ export default function CodexWorkspace() {
           return [data.thread, ...remaining];
         });
         setActiveThreadId(String(data.thread.id));
-        if (data.thread.model) setModel(String(data.thread.model));
       } else {
         await loadThreads();
       }
