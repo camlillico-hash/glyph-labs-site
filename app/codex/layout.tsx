@@ -15,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function CodexLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <div className="min-h-dvh bg-slate-950">{children}</div>;
 }
