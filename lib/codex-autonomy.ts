@@ -1,5 +1,6 @@
-import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
 import { constants as fsConstants } from "node:fs";
@@ -1028,6 +1029,10 @@ function runShell(command: string, options?: { cwd?: string; timeoutMs?: number 
   });
 }
 
+function shellQuote(value: string) {
+  return `'${String(value).replace(/'/g, `'\"'\"'`)}'`;
+}
+
 function checkCommandsForPaths(paths: string[]) {
   const backendTouched = paths.some((p) => {
     return (
@@ -1214,12 +1219,11 @@ async function restoreBackups(backups: Map<string, string>, workspaceRoot: strin
   }
 }
 
-export async function executeAutonomyRunOnCurrentHost(run: AutonomyRun): Promise<AutonomyExecutionResult> {
-  const workspaceRoot = await resolveWorkspaceRoot();
-  await ensureRuntimeSupportsGitAndWrites(workspaceRoot);
-  const gitRoot = await resolveGitRoot();
-  await ensureCleanWorktree(gitRoot);
-
+async function executeAutonomyRunInWorkspace(
+  run: AutonomyRun,
+  workspaceRoot: string,
+  gitRoot: string
+): Promise<AutonomyExecutionResult> {
   const { backups, changedFiles } = await applyOperations(run.plan.operations, workspaceRoot);
   let needsRestore = true;
   try {
@@ -1249,6 +1253,59 @@ export async function executeAutonomyRunOnCurrentHost(run: AutonomyRun): Promise
       status: "failed",
       error: String((error as Error)?.message || "RUN_FAILED"),
     };
+  }
+}
+
+export async function executeAutonomyRunOnCurrentHost(run: AutonomyRun): Promise<AutonomyExecutionResult> {
+  const workspaceRoot = await resolveWorkspaceRoot();
+  await ensureRuntimeSupportsGitAndWrites(workspaceRoot);
+  const gitRoot = await resolveGitRoot();
+
+  const status = await runShell("git status --porcelain", { cwd: gitRoot });
+  if (status.exitCode !== 0) {
+    const detail = asText(status.stderr || status.stdout);
+    return {
+      status: "failed",
+      error: detail ? `GIT_STATUS_FAILED:${detail.slice(0, 240)}` : "GIT_STATUS_FAILED",
+    };
+  }
+
+  // Worker environments can have unrelated local edits; isolate execution in a temporary
+  // worktree so approvals are not blocked by pre-existing dirty state.
+  const dirty = Boolean(asText(status.stdout));
+  if (!dirty) {
+    return executeAutonomyRunInWorkspace(run, workspaceRoot, gitRoot);
+  }
+
+  const relativeWorkspace = path.relative(gitRoot, workspaceRoot);
+  const tempWorktreeRoot = await mkdtemp(path.join(tmpdir(), "codex-autonomy-"));
+  const addWorktree = await runShell(
+    `git worktree add --detach ${shellQuote(tempWorktreeRoot)} HEAD`,
+    { cwd: gitRoot, timeoutMs: 45000 }
+  );
+  if (addWorktree.exitCode !== 0) {
+    await runShell(`rm -rf ${shellQuote(tempWorktreeRoot)}`, { timeoutMs: 20000 }).catch(() => {});
+    return {
+      status: "failed",
+      error: "GIT_WORKTREE_ADD_FAILED",
+    };
+  }
+
+  const isolatedWorkspaceRoot =
+    relativeWorkspace && !relativeWorkspace.startsWith("..")
+      ? path.join(tempWorktreeRoot, relativeWorkspace)
+      : tempWorktreeRoot;
+
+  try {
+    return await executeAutonomyRunInWorkspace(run, isolatedWorkspaceRoot, tempWorktreeRoot);
+  } finally {
+    const removeWorktree = await runShell(
+      `git worktree remove --force ${shellQuote(tempWorktreeRoot)}`,
+      { cwd: gitRoot, timeoutMs: 45000 }
+    );
+    if (removeWorktree.exitCode !== 0) {
+      await runShell(`rm -rf ${shellQuote(tempWorktreeRoot)}`, { timeoutMs: 20000 }).catch(() => {});
+    }
   }
 }
 
