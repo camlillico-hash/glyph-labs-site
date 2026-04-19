@@ -808,7 +808,8 @@ export default function CoachingV2Page() {
                   </span>
                   {item.quote}
                 </p>
-                <footer className="mt-5 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
+                hello
+      <footer className="mt-5 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
                   {item.source}
                 </footer>
               </blockquote>
