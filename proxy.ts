@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { isLocalCrmBypassEnabled, parseSessionToken, sessionCookieName } from "@/lib/crm-auth";
 
 const PUBLIC_CRM_API_PATHS = ["/api/crm/auth", "/api/crm/gmail/callback", "/api/crm/coach"];
+const PUBLIC_CODEX_API_PATHS = ["/api/codex/autonomy/execute"];
 const PROTECTED_PREFIXES = ["/crm", "/api/crm", "/codex", "/api/codex"];
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (!PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return NextResponse.next();
   if (isLocalCrmBypassEnabled()) return NextResponse.next();
-  if (pathname.startsWith("/crm/login") || PUBLIC_CRM_API_PATHS.some((publicPath) => pathname.startsWith(publicPath))) {
+  if (
+    pathname.startsWith("/crm/login") ||
+    PUBLIC_CRM_API_PATHS.some((publicPath) => pathname.startsWith(publicPath)) ||
+    PUBLIC_CODEX_API_PATHS.some((publicPath) => pathname.startsWith(publicPath))
+  ) {
     return NextResponse.next();
   }
 
