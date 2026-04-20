@@ -808,7 +808,6 @@ export default function CoachingV2Page() {
                   </span>
                   {item.quote}
                 </p>
-                
       <footer className="mt-5 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
                   {item.source}
                 </footer>
@@ -952,7 +951,6 @@ export default function CoachingV2Page() {
             © {new Date().getFullYear()} Cam Lillico Coaching. All rights reserved.
           </p>
         </div>
-        <div>hello</div>
       </footer>
     </main>
   );
