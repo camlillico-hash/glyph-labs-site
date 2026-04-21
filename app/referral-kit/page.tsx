@@ -28,7 +28,7 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-const BOOKING_URL = "https://calendar.app.google/M4pokXD8CBpc1c4U6";
+const BOOKING_URL = "https://calendar.app.google/DyjWgFksVWqBURJS6";
 
 export default function ReferralKitPage() {
   return (

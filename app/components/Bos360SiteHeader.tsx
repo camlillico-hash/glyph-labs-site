@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, Sparkles } from "lucide-react";
 
-const BOOKING_URL = "https://calendar.app.google/M4pokXD8CBpc1c4U6";
+const BOOKING_URL = "https://calendar.app.google/DyjWgFksVWqBURJS6";
 const BLOG_URL = "/coaching/blog";
 const COACHING_URL = "/bos360";
 const STRENGTH_TEST_URL = "/strength-test";

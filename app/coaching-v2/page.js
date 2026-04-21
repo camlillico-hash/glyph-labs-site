@@ -34,7 +34,7 @@ export const metadata = {
   },
 };
 
-const BOOKING_URL = "https://calendar.app.google/M4pokXD8CBpc1c4U6";
+const BOOKING_URL = "https://calendar.app.google/DyjWgFksVWqBURJS6";
 const STRENGTH_TEST_URL = "/strength-test";
 const BLOG_URL = "/coaching/blog";
 const FEATURED_ARTICLE = blogPosts[0];

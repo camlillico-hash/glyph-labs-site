@@ -220,7 +220,7 @@ export default function StrengthTestSamplePage() {
           <p className="text-2xl font-semibold">Ready to strengthen your next 90 days?</p>
           <p className="mt-2 text-slate-300">Book a discovery meeting and we’ll walk through your results together.</p>
           <a
-            href="https://calendar.app.google/M4pokXD8CBpc1c4U6"
+            href="https://calendar.app.google/DyjWgFksVWqBURJS6"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 inline-block rounded bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black"
