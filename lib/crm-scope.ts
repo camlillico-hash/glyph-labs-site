@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { authSessionFromCookies, activeAccountCookieName } from "@/lib/crm-auth";
+import { authSessionFromCookies, activeAccountCookieName, isLocalCrmBypassEnabled } from "@/lib/crm-auth";
 import { getUserAccountIds } from "@/lib/crm-auth-store";
 
 export async function requireCrmSession() {
@@ -11,6 +11,38 @@ export async function requireCrmSession() {
 export async function resolveActiveAccountId() {
   const session = await requireCrmSession();
   const memberships = await getUserAccountIds(session.uid);
+  if (!memberships.length && isLocalCrmBypassEnabled() && session.uid === "local-dev") {
+    const { getCrmPool } = await import("@/lib/crm-db");
+    const pool = getCrmPool();
+    if (!pool) throw new Error("NO_ACCOUNT");
+
+    const populated = await pool.query(
+      `
+      with counts as (
+        select account_id, count(*)::int as row_count from crm_contacts group by account_id
+        union all
+        select account_id, count(*)::int as row_count from crm_deals group by account_id
+        union all
+        select account_id, count(*)::int as row_count from crm_tasks group by account_id
+        union all
+        select account_id, count(*)::int as row_count from crm_activities group by account_id
+      )
+      select account_id, sum(row_count)::int as total_rows
+      from counts
+      group by account_id
+      order by total_rows desc
+      limit 1
+      `
+    );
+    const populatedAccountId = populated.rows[0]?.account_id as string | undefined;
+    if (populatedAccountId) return populatedAccountId;
+
+    const firstAccount = await pool.query(
+      `select id from crm_accounts order by created_at asc limit 1`
+    );
+    const firstAccountId = firstAccount.rows[0]?.id as string | undefined;
+    if (firstAccountId) return firstAccountId;
+  }
   if (!memberships.length) throw new Error("NO_ACCOUNT");
   const allowed = new Set(memberships.map((m) => m.account_id));
   const ordered = memberships.map((m) => m.account_id);
@@ -21,7 +53,6 @@ export async function resolveActiveAccountId() {
   const canUseDesired = session.role === "owner" && desired && allowed.has(desired);
   if (canUseDesired) return String(desired);
 
-  let totalsByAccount: Map<string, number> | null = null;
   let populated: string | undefined;
 
   // Otherwise prefer the linked account that actually has CRM rows.
@@ -46,9 +77,6 @@ export async function resolveActiveAccountId() {
         order by total_rows desc, array_position($1::text[], account_id) asc
         `,
         [ordered]
-      );
-      totalsByAccount = new Map(
-        q.rows.map((row: any) => [String(row.account_id), Number(row.total_rows || 0)])
       );
       populated = q.rows[0]?.account_id as string | undefined;
     }

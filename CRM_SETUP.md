@@ -15,6 +15,23 @@
 
 Use scope: `https://www.googleapis.com/auth/gmail.readonly`.
 
+## Optional Notion Custom Agent MCP connection
+
+- `CRM_MCP_API_KEY` - required bearer token or API key for the hosted CRM MCP endpoint
+- `CRM_MCP_ACCOUNT_ID` - optional fixed CRM account ID for the MCP server to use
+- `CRM_MCP_ALLOW_ACCOUNT_OVERRIDE=1` - optional; allows callers to pass `accountId` per tool call
+- `CRM_MCP_ALLOWED_ORIGINS` - optional comma-separated origin allowlist for browser-based MCP clients
+
+MCP endpoint:
+
+- `POST /api/crm/mcp`
+
+Health check:
+
+- `GET /api/crm/mcp/health`
+
+The MCP server is read-only in v1 and is intended for Notion Custom Agents using header-based authentication.
+
 ## Storage
 
 If `DATABASE_URL` is set, CRM data is stored in Postgres.
