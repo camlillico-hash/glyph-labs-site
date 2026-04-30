@@ -1,6 +1,7 @@
-import { getStore, normalizeTransitionTargets, storageMode } from "@/lib/crm-store";
+import { getStore, normalizeTransitionTargets, storageMode, type TransitionTargetsHistoryEntry } from "@/lib/crm-store";
 import { gmailReady } from "@/lib/gmail";
-import { Settings, Mail, Database } from "lucide-react";
+import { getConfiguredCrmMcpAccountId, getCrmMcpApiKey, isCrmMcpAccountOverrideEnabled, resolveCrmMcpAccountId } from "@/lib/crm-mcp-auth";
+import { Settings, Mail, Database, Bot } from "lucide-react";
 import CrmDataTools from "./CrmDataTools";
 
 export const dynamic = "force-dynamic";
@@ -43,8 +44,13 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
   const store = await getStore(accountId);
   const ready = gmailReady();
   const mode = storageMode();
+  const mcpApiKey = getCrmMcpApiKey();
+  const mcpConfigured = Boolean(mcpApiKey);
+  const configuredMcpAccountId = getConfiguredCrmMcpAccountId();
+  const resolvedMcpAccountId = await resolveCrmMcpAccountId(configuredMcpAccountId || undefined).catch(() => "");
+  const mcpAccountOverrideEnabled = isCrmMcpAccountOverrideEnabled();
   const targets = normalizeTransitionTargets(store.targets || {});
-  const targetsHistory = Array.isArray(store.targetsHistory) ? store.targetsHistory : [];
+  const targetsHistory: TransitionTargetsHistoryEntry[] = Array.isArray(store.targetsHistory) ? store.targetsHistory : [];
 
   return (
     <div className="space-y-6">
@@ -106,7 +112,7 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
             {targetsHistory.length === 0 ? (
               <p className="text-slate-400">No changes recorded yet.</p>
             ) : (
-              targetsHistory.map((entry: any, idx: number) => (
+              targetsHistory.map((entry, idx: number) => (
                 <div key={idx} className="rounded border border-neutral-800 p-2">
                   <p className="text-slate-300">{new Date(entry.changedAt).toLocaleString("en-CA", { timeZone: "America/Toronto" })} ET</p>
                   <p className="mt-1 text-slate-400">Changed: {(entry.changedFields || []).join(", ")}</p>
@@ -123,6 +129,50 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
         {mode === "file" && (
           <p className="mt-2 text-sm text-amber-300">Set DATABASE_URL to use persistent hosted Postgres (recommended for production).</p>
         )}
+      </section>
+
+      <section className="crm-card p-4">
+        <h2 className="font-semibold"><span className="inline-flex items-center gap-1.5"><Bot size={15} /> Notion MCP connection</span></h2>
+        <p className="mt-2 text-sm text-slate-400">This is the read-only CRM MCP surface intended for a Notion Custom Agent.</p>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="rounded border border-neutral-800 p-3">
+            <p className="text-xs uppercase tracking-wide text-slate-500">Status</p>
+            <p className={`mt-1 text-sm font-semibold ${mcpConfigured ? "text-emerald-300" : "text-amber-300"}`}>
+              {mcpConfigured ? "Configured" : "Missing API key"}
+            </p>
+            <p className="mt-2 text-xs text-slate-400">Auth: `Authorization: Bearer &lt;CRM_MCP_API_KEY&gt;`</p>
+          </div>
+
+          <div className="rounded border border-neutral-800 p-3">
+            <p className="text-xs uppercase tracking-wide text-slate-500">Endpoint</p>
+            <p className="mt-1 break-all font-mono text-sm text-slate-200">/api/crm/mcp</p>
+            <p className="mt-2 text-xs text-slate-400">Health: <span className="font-mono text-slate-300">/api/crm/mcp/health</span></p>
+          </div>
+
+          <div className="rounded border border-neutral-800 p-3">
+            <p className="text-xs uppercase tracking-wide text-slate-500">Account scope</p>
+            <p className="mt-1 text-sm text-slate-200">Configured account: <span className="font-mono">{configuredMcpAccountId || "auto"}</span></p>
+            <p className="mt-2 text-sm text-slate-200">Resolved account: <span className="font-mono">{resolvedMcpAccountId || "none"}</span></p>
+          </div>
+
+          <div className="rounded border border-neutral-800 p-3">
+            <p className="text-xs uppercase tracking-wide text-slate-500">Behavior</p>
+            <p className="mt-1 text-sm text-slate-200">Mode: read-only</p>
+            <p className="mt-2 text-sm text-slate-200">Per-call account override: <span className={mcpAccountOverrideEnabled ? "text-emerald-300" : "text-slate-400"}>{mcpAccountOverrideEnabled ? "enabled" : "disabled"}</span></p>
+          </div>
+        </div>
+
+        {!mcpConfigured ? (
+          <p className="mt-4 text-sm text-amber-300">Set `CRM_MCP_API_KEY` in the environment before connecting Notion.</p>
+        ) : null}
+
+        <div className="mt-4 rounded border border-neutral-800 bg-neutral-950/60 p-3 text-xs text-slate-300">
+          <p className="font-semibold text-slate-200">Recommended Notion Custom Agent setup</p>
+          <p className="mt-2">MCP URL: <span className="font-mono">https://&lt;your-domain&gt;/api/crm/mcp</span></p>
+          <p className="mt-1">Header: <span className="font-mono">Authorization: Bearer &lt;CRM_MCP_API_KEY&gt;</span></p>
+          <p className="mt-1">Suggested tools: daily digest, pipeline health, overdue tasks, contact brief, deal brief.</p>
+        </div>
       </section>
 
       <CrmDataTools />

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isLocalCrmBypassEnabled, parseSessionToken, sessionCookieName } from "@/lib/crm-auth";
 
-const PUBLIC_CRM_API_PATHS = ["/api/crm/auth", "/api/crm/gmail/callback", "/api/crm/coach"];
+const PUBLIC_CRM_API_PATHS = ["/api/crm/auth", "/api/crm/gmail/callback", "/api/crm/coach", "/api/crm/mcp"];
 const PUBLIC_CODEX_API_PATHS = ["/api/codex/autonomy/execute"];
 const PROTECTED_PREFIXES = ["/crm", "/api/crm", "/codex", "/api/codex"];
 
