@@ -23,7 +23,8 @@ export async function POST(req: Request) {
     passOk = verifyPassword(password, user.password_hash);
   } catch (e: unknown) {
     // DEBUG: verifyPassword can throw (e.g., malformed stored hash).
-    return NextResponse.json({ ok: false, where: "verify_throw", message: String(e?.message || e) }, { status: 401 });
+    const message = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ ok: false, where: "verify_throw", message }, { status: 401 });
   }
 
   if (!passOk) {
