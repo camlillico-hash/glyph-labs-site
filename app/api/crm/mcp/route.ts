@@ -135,8 +135,14 @@ const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
+        scope: {
+          type: "string",
+          enum: ["current_account"],
+          description: "Use current_account for the default CRM account context.",
+        },
         accountId: { type: "string" },
       },
+      required: ["scope"],
       additionalProperties: false,
     },
   },
