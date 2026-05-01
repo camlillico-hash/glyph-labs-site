@@ -101,6 +101,33 @@ async function findPopulatedAccountId() {
   return String(populated.rows[0]?.account_id || "").trim();
 }
 
+async function countRowsForAccountId(accountId: string) {
+  const normalized = String(accountId || "").trim();
+  const pool = getCrmPool();
+  if (!pool || !normalized) return 0;
+  try {
+    const result = await pool.query(
+      `
+      with counts as (
+        select count(*)::int as row_count from crm_contacts where account_id = $1
+        union all
+        select count(*)::int as row_count from crm_deals where account_id = $1
+        union all
+        select count(*)::int as row_count from crm_tasks where account_id = $1
+        union all
+        select count(*)::int as row_count from crm_activities where account_id = $1
+      )
+      select coalesce(sum(row_count), 0)::int as total_rows
+      from counts
+      `,
+      [normalized]
+    );
+    return Number(result.rows[0]?.total_rows || 0);
+  } catch {
+    return 0;
+  }
+}
+
 async function findFirstAccountId() {
   const pool = getCrmPool();
   if (!pool) return "";
@@ -115,7 +142,10 @@ export async function resolveCrmMcpAccountId(preferred?: string) {
   if (requested && isCrmMcpAccountOverrideEnabled()) return requested;
 
   const configured = getConfiguredCrmMcpAccountId();
-  if (configured) return configured;
+  if (configured) {
+    const configuredRows = await countRowsForAccountId(configured);
+    if (configuredRows > 0) return configured;
+  }
   if (requested) return requested;
 
   const populated = await findPopulatedAccountId();
