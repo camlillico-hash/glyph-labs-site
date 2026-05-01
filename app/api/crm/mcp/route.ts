@@ -233,7 +233,7 @@ async function runTool(name: string, args: Record<string, unknown>) {
         `Task completions: ${summary.totals.followThroughCount}`,
       ];
       if (summary.totals.activityCount === 0) {
-        const latestLine = latestRecordedActivityLine(summary.recentActivities || []);
+        const latestLine = latestRecordedActivityLine(listRecentActivities(store, { limit: 1 }));
         if (latestLine) lines.push(latestLine);
         lines.push("No activity entries fall inside the requested time window.");
       }
