@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { authSessionFromCookies, activeAccountCookieName, isLocalCrmBypassEnabled } from "@/lib/crm-auth";
-import { getUserAccountIds } from "@/lib/crm-auth-store";
+import { ensureOwnerAccountMembership, getUserAccountIds } from "@/lib/crm-auth-store";
 
 export async function requireCrmSession() {
   const session = await authSessionFromCookies();
@@ -10,7 +10,13 @@ export async function requireCrmSession() {
 
 export async function resolveActiveAccountId() {
   const session = await requireCrmSession();
-  const memberships = await getUserAccountIds(session.uid);
+  let memberships = await getUserAccountIds(session.uid);
+  if (!memberships.length && session.role === "owner") {
+    const attachedAccountId = await ensureOwnerAccountMembership(session.uid).catch(() => null);
+    if (attachedAccountId) {
+      memberships = await getUserAccountIds(session.uid);
+    }
+  }
   if (!memberships.length && isLocalCrmBypassEnabled() && session.uid === "local-dev") {
     const { getCrmPool } = await import("@/lib/crm-db");
     const pool = getCrmPool();
