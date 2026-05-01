@@ -276,6 +276,32 @@ const pool = DATABASE_URL
   : null;
 let schemaReady = false;
 
+async function backfillLegacyAccountIds(pool: Pool) {
+  const accountTableQ = await pool.query("select to_regclass('public.crm_accounts') as table_name");
+  if (!accountTableQ.rows[0]?.table_name) return;
+
+  const accountCountQ = await pool.query("select count(*)::int as count from crm_accounts");
+  const accountCount = Number(accountCountQ.rows[0]?.count || 0);
+  if (accountCount !== 1) return;
+
+  const accountQ = await pool.query("select id from crm_accounts order by created_at asc limit 1");
+  const onlyAccountId = String(accountQ.rows[0]?.id || "").trim();
+  if (!onlyAccountId) return;
+
+  await pool.query(
+    `
+    update crm_contacts set account_id=$1 where account_id is null;
+    update crm_contact_stamps set account_id=$1 where account_id is null;
+    update crm_deals set account_id=$1 where account_id is null;
+    update crm_deal_stamps set account_id=$1 where account_id is null;
+    update crm_tasks set account_id=$1 where account_id is null;
+    update crm_activities set account_id=$1 where account_id is null;
+    update crm_meta set account_id=$1 where account_id is null;
+    `,
+    [onlyAccountId]
+  );
+}
+
 function mapLegacyDealStage(stage: string | undefined) {
   const s = String(stage || "").trim();
   if (s === "90-minute booked") return "Fit meeting booked";
@@ -401,7 +427,19 @@ async function ensureSchema() {
       primary key (key, account_id)
     );
     create index if not exists crm_meta_account_id_idx on crm_meta(account_id);
+
+    alter table if exists crm_contacts add column if not exists account_id text;
+    alter table if exists crm_contact_stamps add column if not exists account_id text;
+    alter table if exists crm_deals add column if not exists account_id text;
+    alter table if exists crm_deal_stamps add column if not exists account_id text;
+    alter table if exists crm_tasks add column if not exists account_id text;
+    alter table if exists crm_activities add column if not exists account_id text;
+    alter table if exists crm_meta add column if not exists account_id text;
+
+    create index if not exists crm_contact_stamps_account_id_idx on crm_contact_stamps(account_id);
+    create index if not exists crm_deal_stamps_account_id_idx on crm_deal_stamps(account_id);
   `);
+  await backfillLegacyAccountIds(pool);
   schemaReady = true;
 }
 
