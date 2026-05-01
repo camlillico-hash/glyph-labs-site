@@ -1,4 +1,5 @@
 import { getCrmPool } from "@/lib/crm-db";
+import { isAdminEmail } from "@/lib/crm-auth";
 
 let schemaReady = false;
 
@@ -92,7 +93,7 @@ export async function listAccounts() {
   if (!pool) throw new Error("No database");
   await ensureCrmAuthSchema();
   const q = await pool.query("select id, name, created_at from crm_accounts order by created_at desc");
-  return q.rows as any[];
+  return q.rows as Array<{ id: string; name: string; created_at: string }>;
 }
 
 export async function getUserAccountIds(userId: string) {
@@ -101,4 +102,46 @@ export async function getUserAccountIds(userId: string) {
   await ensureCrmAuthSchema();
   const q = await pool.query("select account_id, role from crm_account_users where user_id=$1", [userId]);
   return q.rows as { account_id: string; role: string }[];
+}
+
+export async function ensureOwnerAccountMembership(userId: string) {
+  const pool = getCrmPool();
+  if (!pool) throw new Error("No database");
+  await ensureCrmAuthSchema();
+
+  const existingMemberships = await getUserAccountIds(userId);
+  if (existingMemberships.length) return existingMemberships[0]?.account_id || null;
+
+  const userQ = await pool.query(
+    "select email, is_admin from crm_users where id=$1 limit 1",
+    [userId]
+  );
+  const user = userQ.rows[0] as
+    | { email?: string; is_admin?: boolean }
+    | undefined;
+  const eligibleOwner = Boolean(user?.is_admin) || isAdminEmail(String(user?.email || ""));
+  if (!eligibleOwner) return null;
+
+  const accountCountQ = await pool.query(
+    "select count(*)::int as count from crm_accounts"
+  );
+  const accountCount = Number(accountCountQ.rows[0]?.count || 0);
+  if (accountCount !== 1) return null;
+
+  const accountQ = await pool.query(
+    "select id from crm_accounts order by created_at asc limit 1"
+  );
+  const accountId = String(accountQ.rows[0]?.id || "").trim();
+  if (!accountId) return null;
+
+  await pool.query(
+    `
+    insert into crm_account_users (account_id, user_id, role)
+    values ($1, $2, 'owner')
+    on conflict (account_id, user_id) do nothing
+    `,
+    [accountId, userId]
+  );
+
+  return accountId;
 }
