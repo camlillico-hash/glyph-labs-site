@@ -194,6 +194,17 @@ function errorMessage(error: unknown) {
   return String(error || "unknown error");
 }
 
+function latestRecordedActivityLine(
+  activities: Array<{ occurredAt?: string; type?: string; contactName?: string }>
+) {
+  const latest = activities.find((activity) => String(activity.occurredAt || "").trim());
+  if (!latest?.occurredAt) return null;
+  const when = latest.occurredAt;
+  const type = String(latest.type || "activity");
+  const contact = String(latest.contactName || "").trim();
+  return `Latest recorded activity: ${when} (${type}${contact ? ` with ${contact}` : ""})`;
+}
+
 async function runTool(name: string, args: Record<string, unknown>) {
   const { accountId, store } = await loadSnapshot(asOptionalString(args.accountId));
 
@@ -214,13 +225,19 @@ async function runTool(name: string, args: Record<string, unknown>) {
     }
     case "get_activity_summary": {
       const summary = buildActivitySummary(store, asOptionalString(args.window));
-      return formatToolResult("CRM Activity Summary", { accountId, ...summary }, [
+      const lines = [
         `Window: ${summary.window.label}`,
         `Activity count: ${summary.totals.activityCount}`,
         `Contacts touched: ${summary.totals.contactsTouched}`,
         `Meetings: ${summary.totals.meetingCount}`,
         `Task completions: ${summary.totals.followThroughCount}`,
-      ]);
+      ];
+      if (summary.totals.activityCount === 0) {
+        const latestLine = latestRecordedActivityLine(summary.recentActivities || []);
+        if (latestLine) lines.push(latestLine);
+        lines.push("No activity entries fall inside the requested time window.");
+      }
+      return formatToolResult("CRM Activity Summary", { accountId, ...summary }, lines);
     }
     case "get_pipeline_health": {
       const health = buildPipelineHealth(store, asOptionalString(args.window));
