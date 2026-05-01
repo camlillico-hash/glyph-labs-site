@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { roleCookieName, sessionCookieName, makeSessionToken, isAdminEmail } from "@/lib/crm-auth";
-import { getUserByEmail } from "@/lib/crm-auth-store";
+import { ensureOwnerAccountMembership, getUserByEmail } from "@/lib/crm-auth-store";
 import { verifyPassword } from "@/lib/crm-crypto";
 
 export async function POST(req: Request) {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   let passOk = false;
   try {
     passOk = verifyPassword(password, user.password_hash);
-  } catch (e: any) {
+  } catch (e: unknown) {
     // DEBUG: verifyPassword can throw (e.g., malformed stored hash).
     return NextResponse.json({ ok: false, where: "verify_throw", message: String(e?.message || e) }, { status: 401 });
   }
@@ -31,6 +31,12 @@ export async function POST(req: Request) {
   }
 
   const role = (user.is_admin || isAdminEmail(user.email)) ? ("owner" as const) : ("guest" as const);
+
+  if (role === "owner") {
+    await ensureOwnerAccountMembership(user.id).catch((error) => {
+      console.error("[crm/auth] failed to ensure owner account membership", error);
+    });
+  }
 
   const token = makeSessionToken({ v: 1, uid: user.id, role, iat: Date.now() });
   const res = NextResponse.json({ ok: true, role });
