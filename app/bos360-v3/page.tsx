@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { ArrowUpRight, Check, Compass, UsersRound, Workflow } from "lucide-react";
 import styles from "./page.module.css";
 
 const BOOKING_URL = "https://calendar.app.google/DyjWgFksVWqBURJS6";
@@ -37,14 +38,17 @@ const symptoms = [
 const outcomes = [
   {
     title: "Vision",
+    icon: Compass,
     text: "Everyone understands where the company is going and what matters most.",
   },
   {
     title: "Momentum",
+    icon: Workflow,
     text: "Priorities, meetings and accountability create consistent execution.",
   },
   {
     title: "Health",
+    icon: UsersRound,
     text: "The leadership team handles difficult issues openly and works as one team.",
   },
 ];
@@ -65,7 +69,7 @@ function BookingLink({ compact = false }: { compact?: boolean }) {
       rel="noopener noreferrer"
     >
       Book an Intro Call
-      {!compact && <span aria-hidden="true">↗</span>}
+      {!compact && <ArrowUpRight size={20} strokeWidth={1.6} aria-hidden="true" />}
     </a>
   );
 }
@@ -124,14 +128,6 @@ export default function Bos360V3Page() {
               className={styles.headshot}
             />
             <figcaption className={styles.portraitCaption}>
-              <Image
-                src="/badge-bos360.png"
-                alt="BOS360 Certified Business Coach credential"
-                width={890}
-                height={817}
-                sizes="76px"
-                className={styles.certification}
-              />
               <div><strong>Cam Lillico</strong><span>Your BOS360 coach</span></div>
             </figcaption>
           </figure>
@@ -166,7 +162,7 @@ export default function Bos360V3Page() {
             <dl className={styles.outcomes}>
               {outcomes.map((outcome) => (
                 <div key={outcome.title}>
-                  <dt>{outcome.title}</dt>
+                  <dt><outcome.icon className={styles.outcomeIcon} strokeWidth={1.6} aria-hidden="true" />{outcome.title}</dt>
                   <dd>{outcome.text}</dd>
                 </div>
               ))}
@@ -197,18 +193,31 @@ export default function Bos360V3Page() {
               </blockquote>
               <figcaption><strong>Brennan Smith</strong><span>CEO, CTC Communications</span></figcaption>
             </figure>
-            <ul className={styles.credentials}>
-              <li>Certified BOS360 Coach</li>
-              <li>Expert in Residence at the Innovation Cluster</li>
-              <li>Growth-stage operating experience</li>
-            </ul>
-            <div className={styles.experience}>
-              <p>Experience with teams at</p>
-              <ul className={styles.companyLogos} aria-label="Company experience">
-                <li><Image src="/credential-touchbistro-from-url.png" alt="TouchBistro" width={4716} height={822} sizes="145px" /></li>
-                <li><Image src="/credential-autohost.png" alt="Autohost" width={600} height={83} sizes="140px" className={styles.opaqueLogo} /></li>
-                <li><Image src="/logos/ctc-communications.png" alt="CTC Communications" width={220} height={131} sizes="70px" className={styles.ctcLogo} /></li>
+          </div>
+          <div className={styles.trustDetails}>
+            <div className={styles.container}>
+              <ul className={styles.credentials} aria-label="Credentials and experience">
+                <li>
+                  <Image src="/badge-bos360.png" alt="BOS360 Certified Business Coach badge" width={890} height={817} sizes="88px" />
+                  <div><strong>Certified BOS360 Coach</strong></div>
+                </li>
+                <li>
+                  <Image src="/bos360-v3/innovation-cluster-expert-in-residence.png" alt="Innovation Cluster Expert in Residence badge" width={1254} height={1254} sizes="88px" />
+                  <div><strong>Expert in Residence</strong><span>Innovation Cluster</span></div>
+                </li>
+                <li>
+                  <Image src="/badge-eos.jpg" alt="EOS Entrepreneurial Operating System logo" width={307} height={307} sizes="88px" />
+                  <div><strong>EOS Implementor</strong><span>2020–2025</span></div>
+                </li>
               </ul>
+              <div className={styles.experience}>
+                <p>Growth-stage operating experience<br />with teams at</p>
+                <ul className={styles.companyLogos} aria-label="Company experience">
+                  <li><Image src="/credential-touchbistro-from-url.png" alt="TouchBistro" width={4716} height={822} sizes="145px" /></li>
+                  <li><Image src="/credential-autohost.png" alt="Autohost" width={600} height={83} sizes="145px" /></li>
+                  <li><Image src="/logos/ctc-communications.png" alt="CTC Communications" width={220} height={131} sizes="70px" className={styles.ctcLogo} /></li>
+                </ul>
+              </div>
             </div>
           </div>
         </section>
@@ -218,7 +227,7 @@ export default function Bos360V3Page() {
             <h2 id="fit-title" className={styles.sectionTitle}>Built for Leadership Teams Ready to Operate Differently</h2>
             <ul className={styles.fitCriteria}>
               {fitCriteria.map((criterion) => (
-                <li key={criterion}><span aria-hidden="true">✓</span>{criterion}</li>
+                <li key={criterion}><Check className={styles.fitIcon} strokeWidth={1.8} aria-hidden="true" />{criterion}</li>
               ))}
             </ul>
           </div>
