@@ -131,11 +131,12 @@
 .credentials img { width: 5.5rem; height: 5.5rem; flex-shrink: 0; object-fit: contain; mix-blend-mode: multiply; }
 .credentials strong { display: block; font-weight: 600; }
 .credentials span { display: block; color: var(--muted); margin-top: 0.25rem; }
-.experience { display: flex; align-items: center; gap: 3rem; margin-top: 2rem; padding-top: 1.75rem; border-top: 1px solid var(--line); }
+.experience { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); align-items: center; gap: 3rem; margin-top: 2rem; padding-top: 1.75rem; border-top: 1px solid var(--line); }
 .experience > p { color: var(--muted); font-size: 0.75rem; line-height: 1.7; }
-.companyLogos { display: flex; flex-wrap: wrap; align-items: center; gap: 2.75rem; list-style: none; }
-.companyLogos img { width: 9rem; height: auto; max-height: 2.75rem; object-fit: contain; mix-blend-mode: multiply; }
+.companyLogos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 1.75rem 2.75rem; list-style: none; }
+.companyLogos img { width: 100%; max-width: 9rem; height: auto; max-height: 2.75rem; object-fit: contain; object-position: left center; mix-blend-mode: multiply; }
 .companyLogos .ctcLogo { width: 4.25rem; }
+.companyLogos .coffeesLogo { width: 5.5rem; }
 
 .fitIntro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 7vw, 7rem); }
 .fitCriteria { list-style: none; }
@@ -205,9 +206,9 @@
   .trustDetails { margin-top: 2.5rem; padding-block: 2rem; }
   .credentials { grid-template-columns: 1fr; gap: 1.5rem; }
   .credentials li { flex-direction: row; align-items: center; gap: 1.25rem; }
-  .experience { align-items: flex-start; flex-direction: column; gap: 1.25rem; }
-  .companyLogos { gap: 1.5rem; }
-  .companyLogos img { width: 6.5rem; }
+  .experience { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  .companyLogos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+  .companyLogos img { max-width: 6.5rem; }
   .companyLogos .ctcLogo { width: 3rem; }
   .fitIntro { grid-template-columns: 1fr; gap: 1.75rem; }
   .finalCta { margin-top: 3.5rem; }

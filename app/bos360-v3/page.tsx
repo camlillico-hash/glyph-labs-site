@@ -216,6 +216,9 @@ export default function Bos360V3Page() {
                   <li><Image src="/credential-touchbistro-from-url.png" alt="TouchBistro" width={4716} height={822} sizes="145px" /></li>
                   <li><Image src="/credential-autohost.png" alt="Autohost" width={600} height={83} sizes="145px" /></li>
                   <li><Image src="/logos/ctc-communications.png" alt="CTC Communications" width={220} height={131} sizes="70px" className={styles.ctcLogo} /></li>
+                  <li><Image src="/bos360-v3/merchant-logo.svg" alt="Merchant" width={240} height={24} /></li>
+                  <li><Image src="/credential-kira-talent.png" alt="Kira Talent" width={345} height={94} sizes="145px" /></li>
+                  <li><Image src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees (10KC)" width={270} height={148} sizes="90px" className={styles.coffeesLogo} /></li>
                 </ul>
               </div>
             </div>
