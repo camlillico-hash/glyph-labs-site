@@ -135,7 +135,7 @@
 .experience > p { color: var(--muted); font-size: 0.75rem; line-height: 1.7; }
 .companyLogos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 1.75rem 2.75rem; list-style: none; }
 .companyLogos img { width: 100%; max-width: min(100%, 9rem); height: auto; max-height: 2.75rem; object-fit: contain; object-position: left center; mix-blend-mode: multiply; }
-.companyLogos .ctcLogo { width: 4.25rem; }
+.companyLogos .ctcLogo { max-width: min(100%, 12rem); }
 .companyLogos .coffeesLogo { width: 5.5rem; }
 
 .fitIntro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 7vw, 7rem); }
@@ -209,7 +209,6 @@
   .experience { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
   .companyLogos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
   .companyLogos img { max-width: min(100%, 6.5rem); }
-  .companyLogos .ctcLogo { width: 3rem; }
   .fitIntro { grid-template-columns: 1fr; gap: 1.75rem; }
   .finalCta { margin-top: 3.5rem; }
   .footer { flex-direction: column; gap: 0.5rem; }
