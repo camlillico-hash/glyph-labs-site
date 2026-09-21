@@ -3,7 +3,7 @@ import Image from "next/image";
 import { ArrowUpRight, Check, Compass, UsersRound, Workflow } from "lucide-react";
 import styles from "./page.module.css";
 
-const BOOKING_URL = "https://calendar.app.google/DyjWgFksVWqBURJS6";
+const BOOKING_URL = "https://calendar.notion.so/meet/camlillico/bos360-intro";
 const title = "BOS360 Business Coaching | Cam Lillico";
 const description =
   "Cam Lillico helps founder-led companies use BOS360 to create clearer direction, stronger accountability and more consistent execution.";
