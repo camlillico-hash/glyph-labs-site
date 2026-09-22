@@ -119,7 +119,14 @@ export default function Bos360V3Page() {
             </p>
             <div className={styles.heroActions}>
               <BookingLink />
-              <a className={styles.textLink} href="/strength-test">Take the Strength Test</a>
+              <a
+                className={styles.textLink}
+                href="/strength-test"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Take the Strength Test
+              </a>
             </div>
             <p className={styles.heroCredibility}>
               Certified BOS360 Coach <span aria-hidden="true">·</span> Growth-stage operator{" "}
@@ -252,7 +259,17 @@ export default function Bos360V3Page() {
             <h3>Let’s Determine Whether BOS360 Fits Your Company</h3>
             <p>We’ll discuss your current stage, where execution is breaking down and whether BOS360 is the right next step.</p>
             <BookingLink />
-            <p className={styles.quietAlternative}>Not ready to talk? <a className={styles.textLink} href="/strength-test">Take the Strength Test.</a></p>
+            <p className={styles.quietAlternative}>
+              Not ready to talk?{" "}
+              <a
+                className={styles.textLink}
+                href="/strength-test"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Take the Strength Test.
+              </a>
+            </p>
           </div>
         </section>
       </main>
@@ -264,3 +281,4 @@ export default function Bos360V3Page() {
     </div>
   );
 }
+
