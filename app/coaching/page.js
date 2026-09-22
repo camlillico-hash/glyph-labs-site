@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function CoachingRedirectPage() {
-  redirect("/bos360");
+  redirect("/");
 }

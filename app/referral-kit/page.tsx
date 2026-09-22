@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import {
   ClipboardList,
   BookOpenCheck,
@@ -28,7 +29,7 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-const BOOKING_URL = "https://calendar.app.google/DyjWgFksVWqBURJS6";
+const BOOKING_URL = "https://calendar.notion.so/meet/camlillico/bos360-intro";
 
 export default function ReferralKitPage() {
   return (
@@ -36,13 +37,13 @@ export default function ReferralKitPage() {
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
           <div className="inline-flex min-w-0 items-center gap-2" aria-label="Cam Lillico Coaching">
-            <a href="/bos360" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
+            <Link href="/" className="inline-flex items-center" aria-label="Cam Lillico Coaching home">
               <img
                 src="/logos/glyphlabs-coaching-mark.png"
                 alt="Coaching mark"
                 className="h-7 w-7 object-contain sm:h-8 sm:w-8"
               />
-            </a>
+            </Link>
             <span className="hidden rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-slate-700 sm:inline-flex">
               Cam Lillico Business Coaching
             </span>

@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, Sparkles } from "lucide-react";
 
-const BOOKING_URL = "https://calendar.app.google/DyjWgFksVWqBURJS6";
+const BOOKING_URL = "https://calendar.notion.so/meet/camlillico/bos360-intro";
 const BLOG_URL = "/coaching/blog";
-const COACHING_URL = "/bos360";
+const COACHING_URL = "/";
 const STRENGTH_TEST_URL = "/strength-test";
 
 type CurrentPage = "coaching" | "blog" | "strength-test";

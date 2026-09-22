@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://bos360-site.vercel.app/cam-headshot-circle.png",
+        url: "https://www.camlillico.com/cam-headshot-circle.png",
         width: 420,
         height: 420,
         alt: "Cam Lillico, Certified BOS360 Business Coach",
@@ -281,4 +281,3 @@ export default function Bos360V3Page() {
     </div>
   );
 }
-

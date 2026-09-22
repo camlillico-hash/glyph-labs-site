@@ -4,9 +4,9 @@ The previous `/bos360` page is preserved at `/bos360-archive` with `noindex, nof
 
 Its original implementation remains unchanged in `app/coaching-v2/page.js`, including its shared header and assets. Before the V3 promotion, `/bos360` re-exported this same implementation.
 
-The production `/bos360` route now renders the approved `app/bos360-v3/page.tsx` with indexable metadata. `/bos360-v3` remains available with `noindex, nofollow`.
+The approved `app/bos360-v3/page.tsx` is now the homepage at `/`, with indexable metadata and a self-referencing canonical. `/bos360` and `/bos360-v3` permanently redirect to `/`.
 
-To restore the previous production page, replace `app/bos360/page.js` with:
+To restore the previous coaching page, replace `app/bos360/page.js` with:
 
 ```js
 export { metadata } from "../coaching-v2/page";

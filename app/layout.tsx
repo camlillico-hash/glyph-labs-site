@@ -20,10 +20,10 @@ export const metadata: Metadata = {
   // NOTE: Most pages set their own explicit title. We intentionally avoid a title
   // template here because it can cause confusing tab titles (especially on Safari)
   // when combined with route-level <head.tsx> or page metadata.
-  title: "Glyph Labs",
+  title: "Cam Lillico Coaching",
   description:
-    "Glyph Labs is a studio for practical insight, building tools and frameworks that reveal patterns, simplify complexity, and improve decision-making.",
-  applicationName: "Glyph Labs",
+    "Cam Lillico helps founder-led companies use BOS360 to create clearer direction, stronger accountability and more consistent execution.",
+  applicationName: "Cam Lillico Coaching",
   icons: {
     // Cache-bust favicons aggressively (Chrome is notoriously sticky here).
     icon: [
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Glyph Labs",
+    title: "Cam Lillico Coaching",
   },
 };
 

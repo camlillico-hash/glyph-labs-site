@@ -5,12 +5,22 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/coaching",
-        destination: "/bos360",
+        destination: "/",
         permanent: true,
       },
       {
         source: "/coaching/",
-        destination: "/bos360",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/bos360",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/bos360-v3",
+        destination: "/",
         permanent: true,
       },
     ];
