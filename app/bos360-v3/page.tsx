@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ArrowUpRight, Check, Compass, UsersRound, Workflow } from "lucide-react";
+import {
+  ArrowUpRight,
+  Check,
+  Compass,
+  Repeat2,
+  Shuffle,
+  UserRoundCog,
+  UsersRound,
+  Workflow,
+} from "lucide-react";
 import styles from "./page.module.css";
 
 const BOOKING_URL = "https://calendar.notion.so/meet/camlillico/bos360-intro";
@@ -30,9 +39,9 @@ export const metadata: Metadata = {
 };
 
 const symptoms = [
-  "Priorities keep shifting",
-  "Accountability still depends on the founder",
-  "The same important issues keep returning",
+  { text: "Priorities keep shifting", icon: Shuffle },
+  { text: "Accountability still depends on the founder", icon: UserRoundCog },
+  { text: "The same important issues keep returning", icon: Repeat2 },
 ];
 
 const outcomes = [
@@ -133,23 +142,28 @@ export default function Bos360V3Page() {
           </figure>
         </section>
 
-        <section className={`${styles.container} ${styles.section} ${styles.problem}`} aria-labelledby="problem-title">
-          <h2 id="problem-title" className={styles.sectionTitle}>
-            Growth Exposes the Gaps in How a Company Operates
-          </h2>
-          <p className={styles.intro}>The business may be growing, but the leadership system has not kept pace.</p>
-          <ul className={styles.symptoms}>
-            {symptoms.map((symptom, index) => (
-              <li key={symptom}>
-                <span className={styles.number} aria-hidden="true">0{index + 1}</span>
-                <p>{symptom}</p>
-              </li>
-            ))}
-          </ul>
-          <p className={styles.transition}>
-            These are rarely isolated people problems. They are usually signs
-            that the company needs a stronger operating system.
-          </p>
+        <section className={`${styles.section} ${styles.problem}`} aria-labelledby="problem-title">
+          <div className={styles.container}>
+            <h2 id="problem-title" className={styles.sectionTitle}>
+              Growth Exposes the Gaps in How a Company Operates
+            </h2>
+            <p className={styles.intro}>The business may be growing, but the leadership system has not kept pace.</p>
+            <ul className={styles.symptoms}>
+              {symptoms.map((symptom, index) => (
+                <li key={symptom.text}>
+                  <div className={styles.symptomMarker} aria-hidden="true">
+                    <symptom.icon className={styles.symptomIcon} strokeWidth={1.6} />
+                    <span className={styles.number}>0{index + 1}</span>
+                  </div>
+                  <p>{symptom.text}</p>
+                </li>
+              ))}
+            </ul>
+            <p className={styles.transition}>
+              These are rarely isolated people problems. They are usually signs
+              that the company needs a stronger operating system.
+            </p>
+          </div>
         </section>
 
         <section className={`${styles.container} ${styles.section} ${styles.system}`} aria-labelledby="system-title">

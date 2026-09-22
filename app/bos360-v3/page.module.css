@@ -78,7 +78,7 @@
   grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(2rem, 5vw, 5rem);
-  padding-block: 5.5rem 6rem;
+  padding-block: 4.5rem 4.75rem;
 }
 
 .heroCopy { min-width: 0; }
@@ -90,22 +90,37 @@
 .heroCredibility { max-width: 36rem; margin-top: 1.75rem; font-size: 0.75rem; line-height: 1.9; color: var(--muted); }
 .heroCredibility span { padding-inline: 0.3rem; }
 .portrait { width: 100%; max-width: 20rem; justify-self: center; }
-.headshot { width: 100%; height: auto; border-radius: 50%; }
+.headshot {
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(164, 71, 11, 0.45), 0 0 0 7px rgba(237, 125, 49, 0.08);
+}
 .portraitCaption { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
 .portraitCaption strong { display: block; font-weight: 600; font-size: 0.9375rem; }
 .portraitCaption span { display: block; margin-top: 0.3rem; color: var(--muted); font-size: 0.75rem; }
 
-.section { padding-block: 5rem; }
+.section { padding-block: 4.25rem; }
 .sectionTitle { max-width: 44rem; font-size: clamp(2rem, 3vw, 2.75rem); line-height: 1.2; font-weight: 500; letter-spacing: -0.03em; text-wrap: balance; }
 .intro { max-width: 44rem; margin-top: 1.25rem; font-size: 1rem; line-height: 1.8; color: var(--muted); }
-.problem { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.problem { background: #f3efe8; border-top: 1px solid #e2ddd3; border-bottom: 1px solid #e2ddd3; }
 .symptoms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 2.5rem; list-style: none; }
 .symptoms li { padding-inline: 2rem; border-left: 1px solid var(--line); }
 .symptoms li:first-child { padding-left: 0; border-left: 0; }
 .symptoms li:last-child { padding-right: 0; }
-.number { display: block; margin-bottom: 1rem; font-size: 0.75rem; color: #a4470b; }
+.symptomMarker { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1rem; }
+.symptomIcon { width: 1.25rem; height: 1.25rem; flex-shrink: 0; color: #a4470b; }
+.number { display: block; font-size: 0.7rem; letter-spacing: 0.08em; color: #8c8176; }
 .symptoms p { max-width: 18rem; font-size: 1.25rem; line-height: 1.5; font-weight: 500; }
-.transition { max-width: 45rem; margin-top: 2.5rem; font-size: 0.9375rem; line-height: 1.8; color: var(--muted); }
+.transition {
+  max-width: 48rem;
+  margin-top: 2.5rem;
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--accent);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: #454741;
+}
 
 .system { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(2rem, 7vw, 7rem); align-items: center; }
 .outcomes { margin-top: 2rem; }
@@ -114,7 +129,13 @@
 .outcomeIcon { width: 1.25rem; height: 1.25rem; flex-shrink: 0; align-self: flex-start; margin-top: 0.15rem; color: #a4470b; }
 .outcomes dd { font-size: 0.9375rem; line-height: 1.7; color: var(--muted); }
 .model { max-width: 25rem; width: 100%; justify-self: center; }
-.modelImage { width: 100%; height: auto; mix-blend-mode: multiply; }
+.modelImage {
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0.75rem rgba(237, 125, 49, 0.055);
+  mix-blend-mode: multiply;
+}
 .model figcaption { margin-top: 1.25rem; text-align: center; font-size: 0.75rem; color: var(--muted); }
 
 .proof { padding-top: 4.5rem; background: #252724; color: #faf9f6; }
@@ -154,12 +175,12 @@
 
 @media (max-width: 899px) {
   .container { width: calc(100% - 3rem); }
-  .hero { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 2rem; padding-block: 4rem; }
+  .hero { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 2rem; padding-block: 3.5rem; }
   .heroTitle { font-size: 2.75rem; }
   .heroDescription { font-size: 1rem; }
   .portrait { max-width: 14.375rem; }
   .portraitCaption { flex-direction: column; gap: 0.75rem; text-align: center; }
-  .section { padding-block: 3.5rem; }
+  .section { padding-block: 3.25rem; }
   .system { grid-template-columns: 1fr; gap: 2.5rem; }
   .system .sectionTitle { max-width: 34rem; }
   .model { max-width: 22.5rem; }
@@ -179,7 +200,7 @@
   .brand span { font-size: 0.75rem; }
   .logo { width: 6.25rem; }
   .compactBooking { font-size: 0.75rem; padding-inline: 0.75rem; }
-  .hero { grid-template-columns: 1fr; gap: 2.5rem; padding-block: 3rem; }
+  .hero { grid-template-columns: 1fr; gap: 2.25rem; padding-block: 2.5rem; }
   .heroTitle { font-size: clamp(2.5rem, 10.5vw, 3.5rem); }
   .desktopBreak { display: none; }
   .eyebrow { margin-bottom: 1.25rem; }
@@ -193,10 +214,10 @@
   .portraitCaption span { font-size: 0.75rem; }
   .sectionTitle { font-size: 2rem; }
   .symptoms { grid-template-columns: 1fr; margin-top: 1.75rem; }
-  .symptoms li, .symptoms li:first-child { display: flex; align-items: baseline; gap: 1.25rem; padding: 1.25rem 0; border-left: 0; border-bottom: 1px solid var(--line); }
-  .number { margin: 0; }
+  .symptoms li, .symptoms li:first-child { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 1.25rem; padding: 1.25rem 0; border-left: 0; border-bottom: 1px solid var(--line); }
+  .symptomMarker { min-width: 3.4rem; margin: 0; }
   .symptoms p { max-width: none; font-size: 1.125rem; }
-  .transition { margin-top: 1.75rem; }
+  .transition { margin-top: 1.75rem; padding-left: 1rem; font-size: 1rem; }
   .outcomes > div { grid-template-columns: 1fr; gap: 0.35rem; }
   .model { max-width: 22rem; }
   .proof { padding-top: 3.5rem; }
