@@ -1,13 +1,5 @@
 import { buildStrengthTestPdf } from "@/lib/strength-test-pdf";
-
-const sectionMax: Record<string, number> = {
-  Business: 20,
-  Brand: 15,
-  Team: 15,
-  Strategy: 15,
-  Execution: 20,
-  Culture: 15,
-};
+import { scoreLabel, sectionMax } from "@/lib/strength-test-score";
 
 const sampleSectionScores: Record<string, number> = {
   Business: 18,
@@ -32,7 +24,7 @@ const sampleAnswers = Array.from({ length: 20 }).map((_, i) => {
 export async function GET() {
   const totalRaw = Object.values(sampleSectionScores).reduce((a, b) => a + b, 0);
   const overallScore = Math.round((totalRaw / 100) * 100);
-  const overallLabel = overallScore <= 50 ? "Weak" : overallScore <= 84 ? "Moderate" : "Strong";
+  const overallLabel = scoreLabel(overallScore);
 
   const buffer = await buildStrengthTestPdf({
     name: "Sample Prospect",

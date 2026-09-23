@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { scoreLabel, strengthSections, type StrengthSection } from "@/lib/strength-test-score";
 
 export type SubmissionPdfInput = {
   name: string;
@@ -20,178 +21,129 @@ export type SubmissionPdfInput = {
   }>;
 };
 
-const PAGE_W = 612;
-const PAGE_H = 792;
-const MARGIN = 44;
+const W = 612;
+const H = 792;
+const M = 46;
+const ink = rgb(0.145, 0.153, 0.141);
+const muted = rgb(0.37, 0.385, 0.36);
+const paper = rgb(0.98, 0.976, 0.965);
+const warm = rgb(0.953, 0.937, 0.91);
+const line = rgb(0.84, 0.85, 0.82);
+const orange = rgb(0.929, 0.49, 0.192);
 
-const SECTION_COLORS: Record<string, ReturnType<typeof rgb>> = {
-  Business: rgb(0.93, 0.49, 0.19),
-  Brand: rgb(0.23, 0.64, 0.94),
-  Team: rgb(0.52, 0.67, 0.17),
-  Strategy: rgb(0.59, 0.33, 0.78),
-  Execution: rgb(0.07, 0.73, 0.74),
-  Culture: rgb(0.95, 0.62, 0.16),
-};
-
-function wrapText(text: string, maxChars = 95) {
-  const words = text.split(" ");
+function linesFor(text: string, font: PDFFont, size: number, width: number) {
+  const words = text.split(/\s+/);
   const lines: string[] = [];
   let current = "";
-  for (const w of words) {
-    const next = current ? `${current} ${w}` : w;
-    if (next.length > maxChars) {
-      if (current) lines.push(current);
-      current = w;
-    } else current = next;
+  for (const word of words) {
+    const candidate = current ? current + " " + word : word;
+    if (font.widthOfTextAtSize(candidate, size) > width && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
   }
   if (current) lines.push(current);
   return lines;
 }
 
-function scoreColor(score: number) {
-  if (score <= 50) return rgb(0.88, 0.16, 0.26); // rose
-  if (score <= 84) return rgb(0.96, 0.62, 0.14); // amber
-  return rgb(0.45, 0.70, 0.16); // green
+function drawTextLines(page: PDFPage, lines: string[], x: number, y: number, size: number, font: PDFFont, color = ink, leading = size * 1.5) {
+  lines.forEach((text, index) => page.drawText(text, { x, y: y - index * leading, size, font, color }));
 }
 
-function drawFooter(page: any, font: any) {
-  page.drawText("Prepared by Cam Lillico Coaching", { x: MARGIN, y: 22, size: 9.5, font, color: rgb(0.4, 0.4, 0.45) });
-  page.drawText("camlillico.com", { x: PAGE_W - MARGIN - 75, y: 22, size: 9.5, font, color: rgb(0.4, 0.4, 0.45) });
+function drawFooter(page: PDFPage, font: PDFFont, pageNumber: number) {
+  page.drawLine({ start: { x: M, y: 45 }, end: { x: W - M, y: 45 }, thickness: 0.7, color: line });
+  page.drawText("Cam Lillico  ·  camlillico.com", { x: M, y: 29, size: 8.5, font, color: muted });
+  const label = String(pageNumber);
+  page.drawText(label, { x: W - M - font.widthOfTextAtSize(label, 8.5), y: 29, size: 8.5, font, color: muted });
 }
 
-function polar(cx: number, cy: number, r: number, angleDeg: number) {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+function percentFor(input: SubmissionPdfInput, section: StrengthSection) {
+  const max = Number(input.sectionMax[section] || 0);
+  return max ? Math.round((Number(input.sectionScores[section] || 0) / max) * 100) : 0;
 }
 
-function donutSlicePath(cx: number, cy: number, rOuter: number, rInner: number, startDeg: number, endDeg: number) {
-  const startOuter = polar(cx, cy, rOuter, startDeg);
-  const endOuter = polar(cx, cy, rOuter, endDeg);
-  const startInner = polar(cx, cy, rInner, startDeg);
-  const endInner = polar(cx, cy, rInner, endDeg);
-  const largeArc = endDeg - startDeg > 180 ? 1 : 0;
-
-  return `M ${startOuter.x} ${startOuter.y} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${endOuter.x} ${endOuter.y} L ${endInner.x} ${endInner.y} A ${rInner} ${rInner} 0 ${largeArc} 0 ${startInner.x} ${startInner.y} Z`;
+function drawSectionRow(page: PDFPage, input: SubmissionPdfInput, section: StrengthSection, y: number, font: PDFFont, bold: PDFFont) {
+  const percent = percentFor(input, section);
+  page.drawText(section, { x: M, y, size: 11, font: bold, color: ink });
+  page.drawText(scoreLabel(percent), { x: 258, y: y + 1, size: 9, font, color: muted });
+  const score = String(percent) + "%";
+  page.drawText(score, { x: W - M - bold.widthOfTextAtSize(score, 11), y, size: 11, font: bold, color: ink });
+  page.drawRectangle({ x: M, y: y - 15, width: W - M * 2, height: 6, color: warm });
+  page.drawRectangle({ x: M, y: y - 15, width: (W - M * 2) * percent / 100, height: 6, color: orange });
 }
 
 export async function buildStrengthTestPdf(input: SubmissionPdfInput): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const page = pdf.addPage([W, H]);
+  page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: paper });
 
-  // PAGE 1 — branded summary
-  const page1 = pdf.addPage([PAGE_W, PAGE_H]);
-
-  page1.drawRectangle({ x: 0, y: PAGE_H - 96, width: PAGE_W, height: 96, color: rgb(0.03, 0.06, 0.10) });
-
-  let brandTextX = MARGIN;
   try {
-    const logoPath = path.join(process.cwd(), "public", "logos", "glyphlabs-coaching-mark.png");
-    const logoBytes = await readFile(logoPath);
+    const logoBytes = await readFile(path.join(process.cwd(), "public", "bos360-logo-white-bg.png"));
     const logo = await pdf.embedPng(logoBytes);
-    const logoHeight = 20;
-    const logoWidth = (logo.width / logo.height) * logoHeight;
-    const logoY = PAGE_H - 44;
-    page1.drawImage(logo, { x: MARGIN, y: logoY, width: logoWidth, height: logoHeight });
-    brandTextX = MARGIN + logoWidth + 10;
+    page.drawImage(logo, { x: M, y: H - 80, width: 129, height: 32 });
   } catch {
-    // non-fatal if logo is unavailable
+    page.drawText("BOS360", { x: M, y: H - 63, size: 20, font: bold, color: ink });
   }
+  page.drawText("CAM LILLICO", { x: W - M - 88, y: H - 62, size: 9, font: bold, color: ink });
+  page.drawLine({ start: { x: M, y: H - 91 }, end: { x: W - M, y: H - 91 }, thickness: 0.8, color: line });
 
-  page1.drawText("Cam Lillico Business Coaching", { x: brandTextX, y: PAGE_H - 38, size: 12, font: bold, color: rgb(1, 1, 1) });
-  page1.drawText("BOS360™ Strength Test Report", { x: MARGIN, y: PAGE_H - 66, size: 22, font: bold, color: rgb(1, 1, 1) });
+  page.drawText("BOS360 STRENGTH TEST", { x: M, y: H - 124, size: 9, font: bold, color: rgb(0.64, 0.28, 0.08) });
+  page.drawText("Your results, at a glance", { x: M, y: H - 160, size: 24, font: bold, color: ink });
+  const companyLine = input.company ? input.name + "  ·  " + input.company : input.name;
+  drawTextLines(page, linesFor(companyLine, font, 10, W - M * 2), M, H - 181, 10, font, muted, 14);
+  page.drawText("Submitted " + new Date(input.submittedAt).toLocaleDateString("en-CA", { timeZone: "UTC" }), { x: M, y: H - 198, size: 9, font, color: muted });
 
-  let y = PAGE_H - 130;
+  page.drawRectangle({ x: M, y: 455, width: W - M * 2, height: 110, color: warm });
+  page.drawText("OVERALL SCORE", { x: M + 18, y: 538, size: 9, font: bold, color: muted });
+  page.drawText(String(input.overallScore) + "%", { x: M + 18, y: 485, size: 44, font: bold, color: ink });
+  page.drawRectangle({ x: 313, y: 488, width: 1, height: 52, color: line });
+  page.drawText(input.overallLabel, { x: 333, y: 520, size: 17, font: bold, color: rgb(0.59, 0.26, 0.05) });
+  page.drawText("A starting point for a sharper conversation.", { x: 333, y: 500, size: 9, font, color: muted });
 
-  page1.drawRectangle({ x: MARGIN, y: y - 72, width: PAGE_W - MARGIN * 2, height: 72, color: rgb(0.95, 0.97, 1) });
-  page1.drawText(`Name: ${input.name}`, { x: MARGIN + 12, y: y - 24, size: 11, font: bold, color: rgb(0.1, 0.1, 0.12) });
-  page1.drawText(`Company: ${input.company || "—"}`, { x: MARGIN + 12, y: y - 40, size: 10.5, font, color: rgb(0.2, 0.2, 0.25) });
-  page1.drawText(`Email: ${input.email || "—"}`, { x: MARGIN + 12, y: y - 55, size: 10.5, font, color: rgb(0.2, 0.2, 0.25) });
-  page1.drawText(`Submitted: ${new Date(input.submittedAt).toLocaleString("en-CA", { timeZone: "UTC" })} UTC`, {
-    x: PAGE_W - MARGIN - 250,
-    y: y - 24,
-    size: 10,
-    font,
-    color: rgb(0.2, 0.2, 0.25),
-  });
-  if (input.phone) {
-    page1.drawText(`Phone: ${input.phone}`, { x: PAGE_W - MARGIN - 250, y: y - 40, size: 10.5, font, color: rgb(0.2, 0.2, 0.25) });
-  }
+  page.drawText("WHERE YOU STAND", { x: M, y: 425, size: 9, font: bold, color: rgb(0.64, 0.28, 0.08) });
+  strengthSections.forEach((section, index) => drawSectionRow(page, input, section, 403 - index * 39, font, bold));
 
-  y -= 98;
+  const ranked = [...strengthSections].sort((a, b) => percentFor(input, b) - percentFor(input, a));
+  const strongest = ranked[0];
+  const focus = ranked[ranked.length - 1];
+  const focusTied = percentFor(input, focus) === percentFor(input, ranked[ranked.length - 2]);
+  page.drawLine({ start: { x: M, y: 155 }, end: { x: W - M, y: 155 }, thickness: 0.8, color: line });
+  page.drawText("YOUR NEXT CONVERSATION", { x: M, y: 136, size: 9, font: bold, color: rgb(0.64, 0.28, 0.08) });
+  page.drawText("Highest-scoring area: " + strongest, { x: M, y: 117, size: 10, font: bold, color: ink });
+  if (focus !== strongest) page.drawText((focusTied ? "One lower-scoring area: " : "Lowest-scoring area: ") + focus, { x: M, y: 101, size: 10, font, color: ink });
+  page.drawText("Discuss your results with Cam: camlillico.com", { x: M, y: 77, size: 9, font, color: muted });
+  drawFooter(page, font, 1);
 
-  page1.drawRectangle({ x: MARGIN, y: y - 84, width: PAGE_W - MARGIN * 2, height: 84, color: rgb(0.07, 0.10, 0.16) });
-  page1.drawText("Overall Rating", { x: MARGIN + 12, y: y - 22, size: 11, font, color: rgb(0.72, 0.79, 0.89) });
-  page1.drawText(`${input.overallScore}%  (${input.overallLabel})`, {
-    x: MARGIN + 12,
-    y: y - 54,
-    size: 26,
-    font: bold,
-    color: scoreColor(input.overallScore),
-  });
+  let detailPage = pdf.addPage([W, H]);
+  let pageNumber = 2;
+  let y = H - 65;
+  const addDetailHeader = (continued: boolean) => {
+    detailPage.drawRectangle({ x: 0, y: 0, width: W, height: H, color: paper });
+    detailPage.drawText(continued ? "Your responses (continued)" : "Your responses", { x: M, y: H - 66, size: 21, font: bold, color: ink });
+    detailPage.drawText("Each statement was rated from 0 (not in place) to 5 (consistently true).", { x: M, y: H - 84, size: 9, font, color: muted });
+    drawFooter(detailPage, font, pageNumber);
+    y = H - 115;
+  };
+  addDetailHeader(false);
 
-  y -= 108;
-  page1.drawText("Section Scores", { x: MARGIN, y, size: 14, font: bold, color: rgb(0.1, 0.1, 0.12) });
-
-  const entries = Object.entries(input.sectionScores);
-  const total = entries.reduce((sum, [, val]) => sum + Number(val || 0), 0) || 1;
-  const cx = PAGE_W - MARGIN - 96;
-  const cy = y - 66;
-  const rOuter = 54;
-  const rInner = 30;
-
-  let angle = -90;
-  for (const [section, rawScore] of entries) {
-    const score = Number(rawScore || 0);
-    const sweep = (score / total) * 360;
-    const path = donutSlicePath(cx, cy, rOuter, rInner, angle, angle + sweep);
-    page1.drawSvgPath(path, { color: SECTION_COLORS[section] || rgb(0.6, 0.6, 0.7), borderColor: rgb(1, 1, 1), borderWidth: 0.6 });
-    angle += sweep;
-  }
-
-  page1.drawText("Legend", { x: MARGIN, y: y - 20, size: 10.5, font: bold, color: rgb(0.2, 0.2, 0.25) });
-  let ly = y - 36;
-  for (const [section, score] of entries) {
-    const max = input.sectionMax[section] || 0;
-    const pct = max ? Math.round((Number(score) / max) * 100) : 0;
-    const c = SECTION_COLORS[section] || rgb(0.6, 0.6, 0.7);
-    page1.drawCircle({ x: MARGIN + 4, y: ly + 3, size: 3.5, color: c });
-    page1.drawText(section, { x: MARGIN + 14, y: ly, size: 10.2, font: bold, color: rgb(0.15, 0.15, 0.2) });
-    page1.drawText(`${score}/${max} (${pct}%)`, { x: MARGIN + 120, y: ly, size: 10.2, font, color: rgb(0.15, 0.15, 0.2) });
-    ly -= 17;
-  }
-
-  drawFooter(page1, font);
-
-  // PAGE 2+ — detailed Q&A
-  let page = pdf.addPage([PAGE_W, PAGE_H]);
-  drawFooter(page, font);
-  let qy = PAGE_H - MARGIN;
-  page.drawText("Question-by-Question Responses", { x: MARGIN, y: qy, size: 18, font: bold, color: rgb(0.1, 0.1, 0.12) });
-  qy -= 26;
-
-  for (const a of input.answers) {
-    const lines = wrapText(a.questionText, 88);
-    const blockHeight = 18 + lines.length * 13 + 18;
-
-    if (qy < MARGIN + blockHeight) {
-      page = pdf.addPage([PAGE_W, PAGE_H]);
-      drawFooter(page, font);
-      qy = PAGE_H - MARGIN;
-      page.drawText("Question-by-Question Responses (cont.)", { x: MARGIN, y: qy, size: 14, font: bold, color: rgb(0.1, 0.1, 0.12) });
-      qy -= 22;
+  for (const answer of input.answers) {
+    const answerLines = linesFor(answer.questionText, font, 10, W - M * 2 - 20);
+    const blockHeight = 31 + answerLines.length * 15;
+    if (y - blockHeight < 69) {
+      detailPage = pdf.addPage([W, H]);
+      pageNumber += 1;
+      addDetailHeader(true);
     }
-
-    page.drawRectangle({ x: MARGIN, y: qy - blockHeight + 6, width: PAGE_W - MARGIN * 2, height: blockHeight, color: rgb(0.98, 0.98, 0.99) });
-    page.drawText(`${a.questionId}. ${a.section}`, { x: MARGIN + 10, y: qy - 12, size: 10.5, font: bold, color: rgb(0.18, 0.18, 0.24) });
-    let ly = qy - 26;
-    for (const line of lines) {
-      page.drawText(line, { x: MARGIN + 10, y: ly, size: 10.5, font, color: rgb(0.15, 0.15, 0.2) });
-      ly -= 13;
-    }
-    page.drawText(`Score: ${a.score}/5`, { x: MARGIN + 10, y: ly - 2, size: 10.5, font: bold, color: scoreColor(Math.round((a.score / 5) * 100)) });
-
-    qy -= blockHeight + 10;
+    detailPage.drawLine({ start: { x: M, y: y + 8 }, end: { x: W - M, y: y + 8 }, thickness: 0.6, color: line });
+    detailPage.drawText(String(answer.questionId).padStart(2, "0") + "  " + answer.section.toUpperCase(), { x: M, y: y - 6, size: 8, font: bold, color: rgb(0.64, 0.28, 0.08) });
+    const scoreText = String(answer.score) + " / 5";
+    detailPage.drawText(scoreText, { x: W - M - bold.widthOfTextAtSize(scoreText, 9), y: y - 6, size: 9, font: bold, color: ink });
+    drawTextLines(detailPage, answerLines, M, y - 23, 10, font, ink, 15);
+    y -= blockHeight + 11;
   }
 
   return await pdf.save();
