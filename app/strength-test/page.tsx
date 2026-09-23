@@ -83,6 +83,11 @@ export default function StrengthTestPage() {
   const firstFieldRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const questionRef = useRef<HTMLHeadingElement>(null);
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+  }, []);
 
   useEffect(() => {
     if (showLeadModal) firstFieldRef.current?.focus();
@@ -139,6 +144,23 @@ export default function StrengthTestPage() {
     setLeadForm((currentForm) => ({ ...currentForm, [field]: value }));
   }
 
+  function selectScore(score: number) {
+    setAnswers((prior) => ({ ...prior, [current.id]: score }));
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    if (index < questions.length - 1) {
+      advanceTimerRef.current = setTimeout(() => {
+        setIndex((questionIndex) => Math.min(questions.length - 1, questionIndex + 1));
+        advanceTimerRef.current = null;
+      }, 180);
+    }
+  }
+
+  function goToQuestion(questionIndex: number) {
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    advanceTimerRef.current = null;
+    setIndex(questionIndex);
+  }
+
   async function submitLead(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLeadError("");
@@ -151,12 +173,12 @@ export default function StrengthTestPage() {
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(response.status >= 500 ? "We could not start the assessment right now. Please try again shortly." : data?.error || "Please check your details and try again.");
+        throw new Error(response.status >= 500 ? "The assessment could not start right now. Please try again shortly." : data?.error || "Please check your details and try again.");
       }
       setShowLeadModal(false);
       setStarted(true);
     } catch (error) {
-      setLeadError(error instanceof Error ? error.message : "We could not start the assessment right now.");
+      setLeadError(error instanceof Error ? error.message : "The assessment could not start right now.");
     } finally {
       setLeadSubmitting(false);
     }
@@ -183,13 +205,13 @@ export default function StrengthTestPage() {
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(response.status >= 500 ? "We could not save your results right now. Your answers are still here; please try again." : data?.error || "Please try again.");
+        throw new Error(response.status >= 500 ? "Your results could not be saved right now. Your answers are still here; please try again." : data?.error || "Please try again.");
       }
       const data = await response.json();
       setResultPdfUrl(String(data.pdfUrl || ""));
       setSubmitted(true);
     } catch (error) {
-      setResultError(error instanceof Error ? error.message : "We could not save your results right now.");
+      setResultError(error instanceof Error ? error.message : "Your results could not be saved right now.");
     } finally {
       setResultSaving(false);
     }
@@ -203,12 +225,12 @@ export default function StrengthTestPage() {
           <div className={styles.landingCopy}>
             <p className={styles.eyebrow}>BOS360 Strength Test</p>
             <h1>See where your business is strong—and where execution needs work.</h1>
-            <p className={styles.lead}>A 20-question self-assessment across the six parts of the BOS360 Core Model. Get a clear view of your strengths and the areas that need your leadership team’s attention.</p>
+            <p className={styles.lead}>Answer 20 questions across the six parts of the BOS360 Core Model. See what’s working and where your leadership team needs focus.</p>
             <button ref={startButtonRef} className={styles.primaryButton} type="button" onClick={() => setShowLeadModal(true)}>
               Take the assessment <ArrowRight size={18} aria-hidden="true" />
             </button>
-            <p className={styles.smallNote}>About 5 minutes · Results and a downloadable report at the end</p>
-            <p className={styles.contactNote}>Before starting, we’ll ask for your name, company and email. Cam will personally review your results and follow up with context.</p>
+            <p className={styles.smallNote}>About 5 minutes · Results and a PDF report at the end</p>
+            <p className={styles.contactNote}>I’ll ask for your name, company and email, then personally review your results and follow up with context.</p>
           </div>
           <div className={styles.preview} aria-label="Illustrative results preview">
             <p className={styles.previewEyebrow}>A clearer picture</p>
@@ -265,8 +287,13 @@ export default function StrengthTestPage() {
         <Header />
         <main className={styles.results}>
           <p className={styles.eyebrow}>Your BOS360 Strength Test</p>
-          <h1>Your results, at a glance.</h1>
-          <p className={styles.resultsIntro}>This is a starting point for a sharper conversation about how your company runs—not a verdict on your team.</p>
+          <div className={styles.resultsLead}>
+            <div>
+              <h1>Your results, at a glance.</h1>
+              <p className={styles.resultsIntro}>This is a starting point for a sharper conversation about how your company runs—not a verdict on your team.</p>
+            </div>
+            {resultPdfUrl && <a className={styles.reportButton} href={resultPdfUrl} target="_blank" rel="noopener noreferrer"><Download size={21} aria-hidden="true" /><span><strong>Download my report</strong><small>Full results and every answer</small></span></a>}
+          </div>
           <section className={styles.summary} aria-label="Overall result">
             <div>
               <p className={styles.statLabel}>Overall score</p>
@@ -310,13 +337,8 @@ export default function StrengthTestPage() {
             <div>
               <p className={styles.eyebrow}>Your next step</p>
               <h2>Talk through what the scores mean for your company.</h2>
-              <p>Cam will review your responses. An intro call is a chance to discuss where execution is breaking down and whether BOS360 can help.</p>
+              <p>I’ll review your responses. In an intro call, we can discuss where execution is breaking down and whether BOS360 can help.</p>
               <a className={styles.primaryButton} href={BOOKING_URL} target="_blank" rel="noopener noreferrer">Book an Intro Call <ArrowUpRight size={18} aria-hidden="true" /></a>
-            </div>
-            <div className={styles.downloadBlock}>
-              <p>Keep a copy of your results</p>
-              {resultPdfUrl && <a className={styles.downloadLink} href={resultPdfUrl} target="_blank" rel="noopener noreferrer"><Download size={18} aria-hidden="true" /> Download my report</a>}
-              <span>Your report includes every answer you gave.</span>
             </div>
           </section>
         </main>
@@ -340,7 +362,7 @@ export default function StrengthTestPage() {
             <div className={styles.scaleOptions}>
               {[0, 1, 2, 3, 4, 5].map((score) => (
                 <label key={score} className={selected === score ? styles.selectedScore : undefined}>
-                  <input type="radio" name={"question-" + current.id} value={score} checked={selected === score} onChange={() => setAnswers((prior) => ({ ...prior, [current.id]: score }))} />
+                  <input type="radio" name={"question-" + current.id} value={score} checked={selected === score} onChange={() => selectScore(score)} />
                   <span>{score}</span>
                 </label>
               ))}
@@ -348,9 +370,9 @@ export default function StrengthTestPage() {
             <p className={styles.scaleEnds}><span>0 · Not in place</span><span>5 · Consistently true</span></p>
           </fieldset>
           <div className={styles.questionActions}>
-            <button className={styles.quietButton} type="button" onClick={() => setIndex((i) => Math.max(0, i - 1))} disabled={index === 0}>Back</button>
+            <button className={styles.quietButton} type="button" onClick={() => goToQuestion(Math.max(0, index - 1))} disabled={index === 0}>Back</button>
             {index < questions.length - 1 ? (
-              <button className={styles.primaryButton} type="button" onClick={() => setIndex((i) => i + 1)} disabled={selected === undefined}>Next question <ArrowRight size={17} aria-hidden="true" /></button>
+              selected !== undefined && <button className={styles.continueButton} type="button" onClick={() => goToQuestion(index + 1)}>Keep this answer <ArrowRight size={17} aria-hidden="true" /></button>
             ) : (
               <button className={styles.primaryButton} type="button" onClick={submitResults} disabled={completed !== questions.length || resultSaving}>{resultSaving ? "Saving…" : "See my results"} <ArrowRight size={17} aria-hidden="true" /></button>
             )}
