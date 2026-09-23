@@ -1,21 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildStrengthTestPdf } from "@/lib/strength-test-pdf";
 import { getStrengthTestStore } from "@/app/api/strength-test/_lib";
-
-const sectionMax: Record<string, number> = {
-  Business: 20,
-  Brand: 15,
-  Team: 15,
-  Strategy: 15,
-  Execution: 20,
-  Culture: 15,
-};
-
-function scoreLabel(total: number) {
-  if (total <= 50) return "Weak";
-  if (total <= 84) return "Moderate";
-  return "Strong";
-}
+import { scoreLabel, sectionMax } from "@/lib/strength-test-score";
 
 export async function GET(_: Request, context: { params: Promise<{ id: string }> }) {
   try {
