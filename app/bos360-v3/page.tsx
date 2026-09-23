@@ -134,15 +134,17 @@ export default function Bos360V3Page() {
             </p>
           </div>
           <figure className={styles.portrait}>
-            <Image
-              src="/cam-headshot-circle.png"
-              alt="Cam Lillico, BOS360 business coach"
-              width={420}
-              height={420}
-              priority
-              sizes="(max-width: 599px) 180px, (max-width: 899px) 230px, 320px"
-              className={styles.headshot}
-            />
+            <div className={styles.headshotFrame}>
+              <Image
+                src="/cam-headshot-circle.png"
+                alt="Cam Lillico, BOS360 business coach"
+                width={420}
+                height={420}
+                priority
+                sizes="(max-width: 599px) 180px, (max-width: 899px) 230px, 320px"
+                className={styles.headshot}
+              />
+            </div>
             <figcaption className={styles.portraitCaption}>
               <div><strong>Cam Lillico</strong><span>Your BOS360 coach</span></div>
             </figcaption>
