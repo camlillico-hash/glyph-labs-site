@@ -90,12 +90,14 @@
 .heroCredibility { max-width: 36rem; margin-top: 1.75rem; font-size: 0.75rem; line-height: 1.9; color: var(--muted); }
 .heroCredibility span { padding-inline: 0.3rem; }
 .portrait { width: 100%; max-width: 20rem; justify-self: center; }
-.headshot {
+.headshotFrame {
   width: 100%;
-  height: auto;
+  aspect-ratio: 1;
+  overflow: hidden;
   border-radius: 50%;
   box-shadow: 0 0 0 1px rgba(164, 71, 11, 0.45), 0 0 0 7px rgba(237, 125, 49, 0.08);
 }
+.headshot { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.03); }
 .portraitCaption { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
 .portraitCaption strong { display: block; font-weight: 600; font-size: 0.9375rem; }
 .portraitCaption span { display: block; margin-top: 0.3rem; color: var(--muted); font-size: 0.75rem; }
@@ -208,7 +210,7 @@
   .heroActions { align-items: flex-start; flex-direction: column; gap: 0.5rem; margin-top: 1.5rem; }
   .heroCredibility { margin-top: 1rem; }
   .portrait { max-width: none; display: flex; align-items: center; gap: 1.25rem; }
-  .headshot { width: 50%; max-width: 11.25rem; }
+  .headshotFrame { width: 50%; max-width: 11.25rem; flex: none; }
   .portraitCaption { min-width: 0; flex: 1; margin-top: 0; }
   .portraitCaption strong { font-size: 0.8125rem; }
   .portraitCaption span { font-size: 0.75rem; }
