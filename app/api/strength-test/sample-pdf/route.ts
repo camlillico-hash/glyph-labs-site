@@ -1,25 +1,20 @@
 import { buildStrengthTestPdf } from "@/lib/strength-test-pdf";
-import { scoreLabel, sectionMax } from "@/lib/strength-test-score";
+import { questions } from "@/app/strength-test/questions";
+import { scoreLabel, sectionMax, strengthSections } from "@/lib/strength-test-score";
 
-const sampleSectionScores: Record<string, number> = {
-  Business: 18,
-  Brand: 6,
-  Team: 11,
-  Strategy: 7,
-  Execution: 14,
-  Culture: 14,
-};
-
-const sampleAnswers = Array.from({ length: 20 }).map((_, i) => {
-  const id = i + 1;
-  const sections = ["Business", "Business", "Business", "Business", "Brand", "Brand", "Brand", "Team", "Team", "Team", "Strategy", "Strategy", "Strategy", "Execution", "Execution", "Execution", "Execution", "Culture", "Culture", "Culture"];
-  return {
-    questionId: id,
-    section: sections[i],
-    questionText: `Sample question ${id} for ${sections[i]}.`,
-    score: (id % 5) + 1,
-  };
-});
+const sampleScores = [5, 5, 4, 4, 2, 2, 2, 4, 4, 3, 3, 2, 2, 4, 4, 3, 3, 5, 5, 4];
+const sampleAnswers = questions.map((question, index) => ({
+  questionId: question.id,
+  section: question.section,
+  questionText: question.text,
+  score: sampleScores[index],
+}));
+const sampleSectionScores = Object.fromEntries(
+  strengthSections.map((section) => [
+    section,
+    sampleAnswers.filter((answer) => answer.section === section).reduce((sum, answer) => sum + answer.score, 0),
+  ]),
+);
 
 export async function GET() {
   const totalRaw = Object.values(sampleSectionScores).reduce((a, b) => a + b, 0);
