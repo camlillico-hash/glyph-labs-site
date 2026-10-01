@@ -139,6 +139,13 @@
   mix-blend-mode: multiply;
 }
 .model figcaption { margin-top: 1.25rem; text-align: center; font-size: 0.75rem; color: var(--muted); }
+.deeperLink { margin-top: 1.5rem; font-size: 0.875rem; line-height: 1.7; color: var(--muted); }
+.deeperLink a { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: #999b92; }
+.deeperLink a:hover { text-decoration-color: currentColor; }
+
+.role { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 7vw, 7rem); align-items: start; padding-block: 0 4.5rem; }
+.role .sectionTitle { font-size: clamp(1.75rem, 2.55vw, 2.25rem); }
+.role p { max-width: 37rem; font-size: 1rem; line-height: 1.8; color: var(--muted); }
 
 .proof { padding-top: 4.5rem; background: #252724; color: #faf9f6; }
 .proofLabel { font-family: var(--font-libre-franklin), sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #edaa7d; }
@@ -186,6 +193,7 @@
   .system { grid-template-columns: 1fr; gap: 2.5rem; }
   .system .sectionTitle { max-width: 34rem; }
   .model { max-width: 22.5rem; }
+  .role { grid-template-columns: 1fr; gap: 1.25rem; padding-bottom: 3.25rem; }
   .symptoms li { padding-inline: 1.25rem; }
   .symptoms p { font-size: 1.0625rem; }
   .credentials { gap: 1rem; }
