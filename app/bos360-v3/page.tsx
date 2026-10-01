@@ -169,8 +169,8 @@ export default function Bos360V3Page() {
               ))}
             </ul>
             <p className={styles.transition}>
-              These are rarely isolated people problems. They are usually signs
-              that the company needs a stronger operating system.
+              These are rarely isolated problems. They are signs the company
+              has outgrown the way it has been run.
             </p>
           </div>
         </section>
@@ -179,8 +179,9 @@ export default function Bos360V3Page() {
           <div>
             <h2 id="system-title" className={styles.sectionTitle}>A Practical System for Running the Business Better</h2>
             <p className={styles.intro}>
-              BOS360 gives leadership teams a shared framework for setting
-              direction, executing consistently and building a healthier organization.
+              BOS360 helps your leadership team build a practical system for running
+              the company: where you’re going, what matters now, how progress is
+              measured, and how decisions turn into action.
             </p>
             <dl className={styles.outcomes}>
               {outcomes.map((outcome) => (
@@ -190,6 +191,10 @@ export default function Bos360V3Page() {
                 </div>
               ))}
             </dl>
+            <p className={styles.deeperLink}>
+              Want the deeper explanation?{" "}
+              <a href="/how-bos360-works">Read what BOS360 is — and isn’t <span aria-hidden="true">→</span></a>
+            </p>
           </div>
           <figure className={styles.model}>
             <Image
@@ -202,6 +207,19 @@ export default function Bos360V3Page() {
             />
             <figcaption>The BOS360 Core Model</figcaption>
           </figure>
+        </section>
+
+        <section className={`${styles.container} ${styles.role}`} aria-labelledby="role-title">
+          <h2 id="role-title" className={styles.sectionTitle}>
+            I don’t run the company. I help your team build a better way to run it.
+          </h2>
+          <p>
+            I bring an outside perspective to the conversations your team needs to have.
+            I ask harder questions, challenge assumptions and help turn decisions into
+            clear priorities, ownership and follow-through. Your leaders make the
+            decisions and run the business. The aim is a team that gets better at doing
+            that together.
+          </p>
         </section>
 
         <section className={styles.proof} aria-labelledby="proof-title">
