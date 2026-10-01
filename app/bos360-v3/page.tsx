@@ -15,7 +15,7 @@ import styles from "./page.module.css";
 const BOOKING_URL = "https://calendar.notion.so/meet/camlillico/bos360-intro";
 const title = "BOS360 Business Coaching | Cam Lillico";
 const description =
-  "Cam Lillico helps founder-led companies use BOS360 to create clearer direction, stronger accountability and more consistent execution.";
+  "Help your leadership team focus on what matters, make better decisions, and follow through, so your business performs better today and stands stronger through uncertainty.";
 
 export const metadata: Metadata = {
   title,
@@ -110,12 +110,12 @@ export default function Bos360V3Page() {
           <div className={styles.heroCopy}>
             <p className={styles.eyebrow}>BOS360 Business Coach</p>
             <h1 id="hero-title" className={styles.heroTitle}>
-              Turn Vision Into<br className={styles.desktopBreak} /> Consistent Execution
+              Strengthen the business you’ve built.
             </h1>
             <p className={styles.heroDescription}>
-              I help founder-led companies build the clarity, accountability and
-              operating rhythm needed to scale without everything depending on
-              the founder.
+              Help your leadership team focus on what matters, make better decisions,
+              and follow through, so your business performs better today and stands
+              stronger through uncertainty.
             </p>
             <div className={styles.heroActions}>
               <BookingLink />
