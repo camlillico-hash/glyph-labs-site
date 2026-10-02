@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getStore, id, now, saveStore, CONNECTOR_STAGES, ICP_STAGES } from "@/lib/crm-store";
+import { getStore, id, now, saveStore, recordLeadStage, CONNECTOR_STAGES, ICP_STAGES } from "@/lib/crm-store";
 import { resolveActiveAccountId } from "@/lib/crm-scope";
 import { getInitialStatusForPipeline } from "@/lib/crm-stage-transitions";
 
@@ -201,6 +201,7 @@ export async function POST(req: Request) {
       const merged = fillMissing(existing, parsed);
       merged.updatedAt = now();
       contacts[existingIdx] = merged;
+      recordLeadStage(store, existing, merged);
       if (parsed.normalizedEmail) existingEmails.set(parsed.normalizedEmail, merged);
       updated++;
       return;
@@ -254,6 +255,7 @@ export async function POST(req: Request) {
       contact.updatedAt = now();
     }
     if (parsed.normalizedEmail) existingEmails.set(parsed.normalizedEmail, contact);
+    recordLeadStage(store, null, contact);
     created++;
   });
 

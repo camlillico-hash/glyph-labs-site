@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getStore, id, now, saveStore } from "@/lib/crm-store";
+import { getStore, id, now, saveStore, recordLeadStage } from "@/lib/crm-store";
 import { advanceContactToAttemptingOnActivity, getInitialStatusForPipeline } from "@/lib/crm-stage-transitions";
 
 const TASK_STATUSES = ["Not started", "Completed", "Canceled"] as const;
@@ -49,6 +49,7 @@ function archiveTaskAsActivity(store: any, task: any) {
   store.activities = [activity, ...(store.activities || [])];
   const cidx = (store.contacts || []).findIndex((c: any) => c.id === contactId);
   if (cidx >= 0) {
+    const previous = store.contacts[cidx];
     store.contacts[cidx] = {
       ...store.contacts[cidx],
       status: advanceContactToAttemptingOnActivity(store.contacts[cidx]),
@@ -56,6 +57,7 @@ function archiveTaskAsActivity(store: any, task: any) {
       lastActivityType: activity.type,
       updatedAt: now(),
     };
+    recordLeadStage(store, previous, store.contacts[cidx]);
   }
 }
 
@@ -76,11 +78,13 @@ export async function GET() {
 
     const cidx = (store.contacts || []).findIndex((c: any) => c.id === t.followUpForContactId);
     if (cidx >= 0) {
+      const previous = store.contacts[cidx];
       store.contacts[cidx] = {
         ...store.contacts[cidx],
         status: getInitialStatusForPipeline(store.contacts[cidx].pipelineType),
         updatedAt: now(),
       };
+      recordLeadStage(store, previous, store.contacts[cidx]);
       changed = true;
     }
 

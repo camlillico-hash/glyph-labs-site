@@ -9,6 +9,7 @@ import {
   id,
   now,
   saveStore,
+  recordLeadStage,
 } from "@/lib/crm-store";
 
 
@@ -159,7 +160,7 @@ function maybeCreateIcpContactFromConnector(store: any, previous: any | null, co
   const lastName = String(contact.lastName || "").trim();
   const connectorName = `${firstName} ${lastName}`.trim() || contact.company || "Connector";
 
-  store.contacts.unshift({
+  const lead: any = {
     id: id(),
     firstName: "",
     lastName: contact.company || "Intro target",
@@ -185,7 +186,9 @@ function maybeCreateIcpContactFromConnector(store: any, previous: any | null, co
     openBoardHidden: false,
     createdAt: now(),
     updatedAt: now(),
-  });
+  };
+  store.contacts.unshift(lead);
+  recordLeadStage(store, null, lead);
 }
 
 function maybeCreateDealForWarmIntro(store: any, contact: any) {
@@ -218,6 +221,7 @@ function maybeCreateDealForWarmIntro(store: any, contact: any) {
 function cleanupContactRelations(store: any, contactId: string) {
   store.contacts = (store.contacts || []).filter((c: any) => c.id !== contactId);
   store.contactStamps = (store.contactStamps || []).filter((s: any) => s.contactId !== contactId);
+  store.leadStageEvents = (store.leadStageEvents || []).filter((e: any) => e.contactId !== contactId);
   store.activities = (store.activities || []).filter((a: any) => a.contactId !== contactId);
   store.tasks = (store.tasks || []).filter((t: any) => t.relatedId !== contactId && t.followUpForContactId !== contactId);
   store.deals = (store.deals || []).filter((d: any) => d.contactId !== contactId && d.connectorContactId !== contactId);
@@ -296,6 +300,7 @@ export async function POST(req: Request) {
   maybeCreateNurtureTaskForContact(store, null, record);
   syncContactStamp(store, null, record);
   store.contacts.unshift(record);
+  recordLeadStage(store, null, record);
   await saveStore(store, accountId);
   return NextResponse.json(record);
 }
@@ -359,6 +364,7 @@ export async function PUT(req: Request) {
   maybeCreateNurtureTaskForContact(store, previous, updated);
   syncContactStamp(store, previous, updated);
   store.contacts[idx] = updated;
+  recordLeadStage(store, previous, updated);
 
   await saveStore(store, accountId);
   return NextResponse.json(updated);

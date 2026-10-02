@@ -91,6 +91,7 @@ export type Activity = { id: string; contactId: string; type: "email" | "call" |
 
 export type DealStamp = { id: string; dealId: string; name?: string; company?: string; contactId?: string; value?: number; wonAt: string; removedAt?: string };
 export type ContactStamp = { id: string; contactId: string; name?: string; company?: string; email?: string; wonAt: string; removedAt?: string };
+export type LeadStageEvent = { id: string; contactId: string; fromStatus?: string; toStatus: string; occurredAt: string; leadSource?: string; kind: "created" | "transition" | "baseline" };
 
 export type TransitionTargets = {
   revenueGoalAnnual: number;
@@ -127,7 +128,7 @@ export type StrengthTestSubmission = {
   pdfFilename?: string;
 };
 
-type CrmStore = { contacts: Contact[]; contactStamps: ContactStamp[]; deals: Deal[]; dealStamps: DealStamp[]; tasks: Task[]; activities: Activity[]; strengthTests?: StrengthTestSubmission[]; gmail: { connectedAt?: string; lastSyncedAt?: string; messages: GmailMessage[]; tokens?: { access_token?: string; refresh_token?: string; expiry_date?: number; }; }; targets?: TransitionTargets; targetsHistory?: TransitionTargetsHistoryEntry[]; };
+type CrmStore = { contacts: Contact[]; contactStamps: ContactStamp[]; leadStageEvents: LeadStageEvent[]; deals: Deal[]; dealStamps: DealStamp[]; tasks: Task[]; activities: Activity[]; strengthTests?: StrengthTestSubmission[]; gmail: { connectedAt?: string; lastSyncedAt?: string; messages: GmailMessage[]; tokens?: { access_token?: string; refresh_token?: string; expiry_date?: number; }; }; targets?: TransitionTargets; targetsHistory?: TransitionTargetsHistoryEntry[]; };
 
 const dataRoot = process.env.VERCEL ? "/tmp" : process.cwd();
 const dataDir = path.join(dataRoot, "data");
@@ -252,7 +253,16 @@ function pruneOrphanRelations(store: CrmStore): CrmStore {
   };
 }
 
-const initialStore: CrmStore = { contacts: [], contactStamps: [], deals: [], dealStamps: [], tasks: [], activities: [], strengthTests: [], gmail: { messages: [] }, targets: defaultTargets, targetsHistory: [] };
+const initialStore: CrmStore = { contacts: [], contactStamps: [], leadStageEvents: [], deals: [], dealStamps: [], tasks: [], activities: [], strengthTests: [], gmail: { messages: [] }, targets: defaultTargets, targetsHistory: [] };
+
+export function recordLeadStage(store: CrmStore, previous: Contact | null, contact: Contact, kind?: LeadStageEvent["kind"]) {
+  if (contact.pipelineType !== "icp") return;
+  const fromStatus = previous?.pipelineType === "icp" ? previous.status : undefined;
+  const toStatus = contact.status || "New";
+  if (fromStatus === toStatus) return;
+  store.leadStageEvents ||= [];
+  store.leadStageEvents.push({ id: id(), contactId: contact.id, fromStatus, toStatus, occurredAt: now(), leadSource: contact.leadSource, kind: kind || (fromStatus ? "transition" : "created") });
+}
 
 export const DEAL_STAGE_WEIGHTS: Record<string, number> = {
   "Warm intro booked": 10,
@@ -355,6 +365,7 @@ function normalizeStore(store: CrmStore): CrmStore {
     deals,
     dealStamps: store.dealStamps || [],
     contactStamps: store.contactStamps || [],
+    leadStageEvents: store.leadStageEvents || [],
     strengthTests,
     targets,
     targetsHistory: Array.isArray(store.targetsHistory) ? store.targetsHistory : [],
@@ -390,6 +401,14 @@ async function ensureSchema() {
       updated_at timestamptz default now()
     );
     create index if not exists crm_contact_stamps_account_id_idx on crm_contact_stamps(account_id);
+    create table if not exists crm_lead_stage_events (
+      id text primary key,
+      account_id text,
+      data jsonb not null,
+      occurred_at timestamptz not null
+    );
+    create index if not exists crm_lead_stage_events_account_id_idx on crm_lead_stage_events(account_id, occurred_at);
+    create index if not exists crm_lead_stage_events_contact_id_idx on crm_lead_stage_events(account_id, (data->>'contactId'));
 
     create table if not exists crm_tasks (
       id text primary key,
@@ -440,6 +459,17 @@ async function ensureSchema() {
     create index if not exists crm_deal_stamps_account_id_idx on crm_deal_stamps(account_id);
   `);
   await backfillLegacyAccountIds(pool);
+  await pool.query(`
+    insert into crm_lead_stage_events (id, account_id, data, occurred_at)
+    select 'baseline-' || c.id, c.account_id,
+      jsonb_build_object('id', 'baseline-' || c.id, 'contactId', c.id,
+        'toStatus', coalesce(c.data->>'status', 'New'), 'occurredAt', now(),
+        'leadSource', coalesce(c.data->>'leadSource', ''), 'kind', 'baseline'), now()
+    from crm_contacts c
+    where c.data->>'pipelineType' = 'icp'
+      and not exists (select 1 from crm_lead_stage_events e where e.account_id is not distinct from c.account_id and e.data->>'contactId' = c.id)
+    on conflict (id) do nothing
+  `);
   schemaReady = true;
 }
 
@@ -447,13 +477,16 @@ async function getStorePg(accountId?: string): Promise<CrmStore> {
   if (!pool) throw new Error("No database");
   await ensureSchema();
   const scoped = Boolean(accountId);
-  const [contactsQ, contactStampsQ, dealsQ, dealStampsQ, tasksQ, activitiesQ, gmailQ, targetsQ, targetsHistoryQ, strengthTestsQ] = await Promise.all([
+  const [contactsQ, contactStampsQ, leadStageEventsQ, dealsQ, dealStampsQ, tasksQ, activitiesQ, gmailQ, targetsQ, targetsHistoryQ, strengthTestsQ] = await Promise.all([
     scoped
       ? pool.query("select data from crm_contacts where account_id=$1 order by updated_at desc", [accountId])
       : pool.query("select data from crm_contacts order by updated_at desc"),
     scoped
       ? pool.query("select data from crm_contact_stamps where account_id=$1 order by updated_at desc", [accountId])
       : pool.query("select data from crm_contact_stamps order by updated_at desc"),
+    scoped
+      ? pool.query("select data from crm_lead_stage_events where account_id=$1 order by occurred_at asc", [accountId])
+      : pool.query("select data from crm_lead_stage_events order by occurred_at asc"),
     scoped
       ? pool.query("select data from crm_deals where account_id=$1 order by updated_at desc", [accountId])
       : pool.query("select data from crm_deals order by updated_at desc"),
@@ -486,6 +519,7 @@ async function getStorePg(accountId?: string): Promise<CrmStore> {
   return normalizeStore({
     contacts: contactsQ.rows.map((r: any) => r.data),
     contactStamps: contactStampsQ.rows.map((r: any) => r.data),
+    leadStageEvents: leadStageEventsQ.rows.map((r: any) => r.data),
     deals: dealsQ.rows.map((r: any) => r.data),
     dealStamps: dealStampsQ.rows.map((r: any) => r.data),
     tasks: tasksQ.rows.map((r: any) => r.data),
@@ -551,6 +585,20 @@ async function saveStorePg(store: CrmStore, accountId?: string) {
 
     await bulkInsert("crm_contacts", store.contacts || []);
     await bulkInsert("crm_contact_stamps", store.contactStamps || []);
+    const events = (store.leadStageEvents || []).filter((event) => event.id && event.contactId && event.occurredAt);
+    await client.query(
+      `insert into crm_lead_stage_events (id, account_id, data, occurred_at)
+       select r.id, $1, r.data, r.occurred_at
+       from jsonb_to_recordset($2::jsonb) as r(id text, data jsonb, occurred_at timestamptz)
+       on conflict (id) do nothing`,
+      [accountId, JSON.stringify(events.map((event) => ({ id: event.id, data: event, occurred_at: event.occurredAt })))],
+    );
+    await client.query(
+      `delete from crm_lead_stage_events e
+       where e.account_id=$1
+         and not exists (select 1 from crm_contacts c where c.account_id=$1 and c.id=e.data->>'contactId')`,
+      [accountId],
+    );
     await bulkInsert("crm_deals", store.deals || []);
     await bulkInsert("crm_deal_stamps", store.dealStamps || []);
     await bulkInsert("crm_tasks", store.tasks || []);
@@ -584,7 +632,18 @@ async function getStoreFile(): Promise<CrmStore> {
   await mkdir(dataDir, { recursive: true });
   try {
     const parsed = JSON.parse(await readFile(dbPath, "utf8")) as CrmStore;
-    return normalizeStore({ ...initialStore, ...parsed, gmail: { ...initialStore.gmail, ...(parsed.gmail || {}), messages: parsed.gmail?.messages || [] } });
+    const store = normalizeStore({ ...initialStore, ...parsed, gmail: { ...initialStore.gmail, ...(parsed.gmail || {}), messages: parsed.gmail?.messages || [] } });
+    const tracked = new Set(store.leadStageEvents.map((event) => event.contactId));
+    const untracked = store.contacts.filter((contact) => contact.pipelineType === "icp" && !tracked.has(contact.id));
+    if (untracked.length) {
+      const occurredAt = now();
+      store.leadStageEvents.push(...untracked.map((contact) => ({
+        id: `baseline-${contact.id}`, contactId: contact.id, toStatus: contact.status || "New",
+        occurredAt, leadSource: contact.leadSource, kind: "baseline" as const,
+      })));
+      await writeFile(dbPath, JSON.stringify(store, null, 2));
+    }
+    return store;
   } catch {
     await writeFile(dbPath, JSON.stringify(initialStore, null, 2));
     return initialStore;
