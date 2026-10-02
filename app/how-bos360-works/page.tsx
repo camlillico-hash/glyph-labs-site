@@ -7,7 +7,7 @@ import styles from "./page.module.css";
 const url = "https://www.camlillico.com/how-bos360-works";
 const title = "What BOS360 Is, What It Isn’t, and What You’re Actually Getting";
 const description =
-  "BOS360 helps founder-led leadership teams create greater clarity, accountability and execution. Learn what BOS360 is, what it isn’t, and how the approach works.";
+  "BOS360 is a management system for founder-led companies. See how it connects direction, decisions and week-to-week execution.";
 
 export const metadata: Metadata = {
   title: "What Is BOS360? How the Business Operating System Works | Cam Lillico",
@@ -50,152 +50,176 @@ export default function HowBos360WorksPage() {
             <p className={styles.eyebrow}>The BOS360 approach</p>
             <h1>{title}</h1>
             <p className={styles.lead}>
-              A growing company can have good people and a sound strategy, yet still
-              struggle to turn decisions into consistent action. Often the way it is
-              run has not kept pace with the business.
+              BOS360 is a management system for founder-led companies.
             </p>
           </header>
 
           <div className={styles.prose}>
             <p>
-              There is a stage in a growing company when working harder stops
-              producing the same return. The founder is still capable. The leadership
-              team is full of good people. The opportunities are real. Yet decisions
-              take longer, priorities drift, and issues everyone thought were settled
-              keep coming back.
+              It gives a leadership team a practical way to decide where the company is
+              going, determine what matters most right now, deal with the issues getting
+              in the way, and make sure decisions actually turn into action.
             </p>
-            <p>Usually the company has changed faster than the way it is run.</p>
             <p>
-              When there were fewer people and fewer moving parts, the founder could
-              keep the whole picture in their head. A quick conversation could settle
-              a decision. Everyone knew what mattered because they worked close to
-              one another. Growth adds people, customers, decisions and competing
-              demands. That informal approach starts to strain. The founder becomes
-              the point of connection between functions, and the team spends more time
-              reacting than moving the business forward.
+              It is not another strategy exercise. It is not a set of meetings. And it
+              is not me coming into your company and running it for you.
             </p>
-            <p>That is the problem BOS360 is designed to address.</p>
+            <p><strong>It is a way of running the business.</strong></p>
 
-            <h2>A system for running the business</h2>
+            <h2>What that actually looks like</h2>
+            <p>Most growing companies do not have a shortage of ideas.</p>
             <p>
-              BOS360 is a management system for founder-led companies. It gives a
-              leadership team a practical way to set direction, focus its effort,
-              measure progress, resolve issues and work together. It is more than a
-              planning session, a better meeting agenda or a set of goals. Those
-              things matter, but they need to connect.
+              The problem is connecting long-term direction to what the leadership
+              team does every week.
             </p>
-            <p>At its simplest, the team needs to answer three questions repeatedly:</p>
+            <p>BOS360 creates that connection through a simple operating rhythm.</p>
+
+            <h3>Establish the foundation</h3>
+            <p>We start by getting the leadership team clear on the business itself:</p>
+            <ul>
+              <li>Where are we going?</li>
+              <li>What matters most?</li>
+              <li>How will we measure whether we are making progress?</li>
+              <li>Who owns what?</li>
+              <li>What issues are preventing the company from moving forward?</li>
+            </ul>
+            <p>
+              The goal is not to produce a strategy document. It is to create enough
+              shared clarity that the team can make better decisions without constantly
+              returning to the founder for direction.
+            </p>
+
+            <h3>Decide what matters now</h3>
+            <p>
+              The leadership team periodically steps out of the day-to-day business to
+              look at the company as a whole.
+            </p>
+            <p>
+              We assess where things actually stand, resolve the most important
+              issues, and agree on the small number of priorities that matter most for
+              the next period.
+            </p>
+            <p><strong>That forces choices.</strong></p>
+            <p>
+              Every growing company has more things it <em>could</em> do than it has
+              the capacity to execute. The job of the leadership team is to decide
+              what deserves attention now — and what does not.
+            </p>
+
+            <h3>Run the business week to week</h3>
+            <p>The system then moves into the normal rhythm of the company.</p>
+            <p>
+              Leadership meetings are used to track important numbers, review
+              commitments, surface issues, make decisions and maintain accountability.
+            </p>
+            <p>
+              Instead of strategy living in one conversation and execution happening
+              somewhere else, the two stay connected.
+            </p>
+            <p>At its simplest, the team keeps returning to three questions:</p>
             <ol>
               <li>Where are we going?</li>
               <li>What matters right now?</li>
               <li>What is getting in the way?</li>
             </ol>
-            <p>
-              The first question gives people a shared direction. The second forces
-              choices: a company cannot treat every good idea as a priority. The third
-              makes it possible to address reality while there is still time to act.
-              Together, those conversations create a rhythm between strategy and
-              daily work. Decisions turn into clear ownership; progress becomes
-              visible; problems have somewhere to go.
-            </p>
-            <p>
-              The BOS360 Core Model looks at Business, Brand and Team through the
-              lenses of Strategy, Execution and Culture. It is a reminder that the
-              parts of a company affect one another. A sales issue may be a positioning
-              issue. A profitability issue may start in operations. A people issue may
-              be a lack of role clarity or a decision nobody has made. Labelling the
-              symptom correctly matters less than finding the issue underneath it and
-              doing something about it.
-            </p>
-            <p>
-              The model helps a team see the whole company without turning every
-              conversation into a framework exercise.
-            </p>
+            <p>That rhythm is the core of BOS360.</p>
 
             <h2>Where I fit</h2>
+            <p>My role sits somewhere between facilitator, operating advisor and coach.</p>
+            <p>I work with the leadership team to install the system and help them use it well.</p>
             <p>
-              My role sits somewhere between facilitator, operating advisor and
-              coach. Each describes part of the job; none quite covers it.
+              That means asking questions the team may not stop to ask itself,
+              challenging assumptions, separating symptoms from underlying issues and
+              pushing vague conversations toward decisions.
+            </p>
+            <ul>
+              <li>What matters?</li>
+              <li>Who owns it?</li>
+              <li>What are we actually deciding?</li>
+              <li>How will we know whether it worked?</li>
+              <li>What happens next?</li>
+            </ul>
+            <p>I also create space for conversations that can be difficult for a CEO to lead alone.</p>
+            <p>
+              A CEO is often expected to participate in a decision, challenge the
+              team&apos;s thinking, manage the conversation and remain neutral at the
+              same time.
             </p>
             <p>
-              I ask questions a leadership team may not stop to ask itself. I
-              challenge assumptions, help separate symptoms from causes, and
-              facilitate conversations that are easy to postpone when everyone is
-              busy running a function. I push vague ideas toward a decision: what
-              matters, who owns it, how we will know it is working, and when we will
-              look again.
+              An outside facilitator changes that dynamic. I have no department to
+              protect and no internal answer that needs to win. My job is to help the
+              team get to the best decision it can.
+            </p>
+            <p>But I do not become the CEO or a fractional COO.</p>
+            <p>I do not take over departments.</p>
+            <p>
+              And I do not disappear, study the company and return with a presentation
+              telling everyone what they should do.
+            </p>
+            <p>The leadership team continues to run the business.</p>
+            <p>My job is to help them become better at doing it.</p>
+
+            <h2>What BOS360 is not</h2>
+            <h3>It is not traditional consulting</h3>
+            <p>
+              You are not hiring me to diagnose the business and hand you a report.
             </p>
             <p>
-              I do not become the CEO or a fractional COO. I do not take over
-              departments or disappear for a month and return with a deck of answers.
-              The leadership team makes the decisions and does the work. My job is to
-              help them build a better way to do both.
-            </p>
-            <p>
-              This is also why an outside person can help. In a difficult leadership
-              conversation, the CEO is often expected to contribute, guide the
-              discussion, challenge weak thinking and remain neutral at the same
-              time. That is a hard set of roles to hold. I have no department to
-              defend and no preferred answer that needs to win. I can concentrate on
-              the quality of the conversation and the decision that comes out of it.
+              We work directly with the people running the company on the real
+              decisions and issues they are facing.
             </p>
 
-            <h2>What it is not</h2>
+            <h3>It is not outsourced management</h3>
+            <p>Your leaders continue to own their functions, priorities and results.</p>
             <p>
-              BOS360 is not traditional management consulting. You are not hiring me
-              to study the business and hand back a report full of recommendations
-              that someone else must somehow implement. We work with the people who
-              run the company, on the decisions they actually face.
-            </p>
-            <p>
-              It is not outsourced execution. I will help make priorities and
-              accountability clear, but your leaders remain responsible for their
-              functions and results. If the system only works while I am in the room,
-              it is not doing its job.
-            </p>
-            <p>
-              It is not leadership therapy. Trust, candour and team dynamics matter
-              because they affect decisions and performance. We address them in
-              service of a healthier, more effective organization.
-            </p>
-            <p>
-              And it is not rigid framework implementation. BOS360 is a scaffold,
-              not a cage. A company should keep tools that already work. If your team
-              uses OKRs well, we do not need to rename them for the sake of adopting
-              a system. The point is to make direction, execution and accountability
-              work together, with enough consistency to be useful and enough
-              judgment to fit the business.
+              The system should create stronger leadership inside the company, not
+              dependence on someone outside it.
             </p>
 
-            <h2>What changes</h2>
+            <h3>It is not executive coaching</h3>
             <p>
-              There is no single meeting or planning day that fixes a company.
-              Improvement tends to compound. The team becomes clearer about what
-              matters. Fewer priorities compete for the same capacity. Owners know
-              what they have committed to, and progress can be discussed without
-              guesswork. Issues surface earlier and get resolved closer to where
-              they arise. Leadership meetings become a place to make decisions
-              rather than exchange updates.
+              There is coaching involved, particularly with founders and leadership
+              teams, but the work is centred on how the company operates.
+            </p>
+            <p>The unit of improvement is the business, not simply the individual executive.</p>
+
+            <h3>It is not a planning workshop</h3>
+            <p>
+              Planning is part of the system, but a good quarterly plan is not
+              particularly valuable if it disappears into everyone&apos;s day jobs
+              three weeks later.
             </p>
             <p>
-              Over time, more initiatives finish. The team spends more time working
-              on the business, not only inside it. The founder can participate as a
-              leader without being the backstop for every important decision.
+              The operating rhythm between planning sessions is what turns decisions
+              into execution.
             </p>
+
+            <h2>What changes when it works</h2>
+            <p>BOS360 does not remove the complexity of running a growing company.</p>
+            <p>It gives the leadership team a better way to deal with it.</p>
+            <ul>
+              <li>Priorities become clearer.</li>
+              <li>Fewer initiatives compete for the same people and capacity.</li>
+              <li>Leadership meetings become places where issues are resolved and decisions are made instead of simply exchanging updates.</li>
+              <li>Commitments become visible.</li>
+              <li>Problems surface earlier.</li>
+              <li>Important decisions stop depending entirely on the founder.</li>
+              <li>More of the leadership team begins thinking about the company as a whole instead of only its own function.</li>
+            </ul>
             <p>
-              That does not mean every week becomes tidy or every disagreement
-              disappears. Growing companies are complicated. A good operating system
-              gives the team a way to deal with that complexity together, repeatedly,
-              instead of starting from scratch each time it shows up.
+              And over time, the business becomes less dependent on informal knowledge,
+              heroic effort and the founder holding everything together.
             </p>
+            <p>That is the real objective.</p>
             <p className={styles.closingThought}>
-              The goal of BOS360 isn’t to create a company that is good at BOS360.
-              It’s to create a company that is good at running itself.
+              The goal of BOS360 is not to create a company that is good at BOS360.
+              <br />
+              It is to create a company that is good at running itself.
             </p>
           </div>
 
           <footer className={styles.articleCta}>
-            <p>If this sounds like the problem your leadership team is trying to solve, we can talk about what it looks like in your company.</p>
+            <p>If that sounds like the problem your leadership team is trying to solve, we should talk.</p>
             <a className={styles.bookingLink} href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
               Book an Intro Call <ArrowUpRight size={20} strokeWidth={1.6} aria-hidden="true" />
             </a>
