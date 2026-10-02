@@ -18,7 +18,7 @@ const WHAT_NOW_OPTIONS = ["Leave them", "Nurture (future)"];
 const contactFields: Array<[string, string, string]> = [
   ["firstName", "First name", "text"], ["lastName", "Last name", "text"], ["email", "Email", "email"],
   ["phone", "Phone", "text"],
-  ["linkedin", "LinkedIn", "text"], ["website", "Website", "text"], ["company", "Company", "text"], ["industry", "Industry", "text"], ["employeeSize", "Employee size", "text"], ["areaGeo", "Area/Geo", "text"], ["linkedinConnectRequest", "LinkedIn connect request", "textarea"], ["liAccepted", "LI Accepted", "checkbox"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["strengthTest", "Strength Test", "select"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
+  ["linkedin", "LinkedIn", "text"], ["website", "Website", "text"], ["company", "Company", "text"], ["industry", "Industry", "text"], ["employeeSize", "Employee size", "text"], ["areaGeo", "Area/Geo", "text"], ["linkedinConnectRequest", "LinkedIn connect request", "textarea"], ["liAccepted", "LI Accepted", "checkbox"], ["doNotContact", "Do not contact", "checkbox"], ["title", "Title", "text"], ["type", "Type", "select"], ["primaryPain", "Primary pain", "select"], ["leadSource", "Lead source", "text"], ["strengthTest", "Strength Test", "select"], ["referralCount", "Referral count", "number"], ["nextReachOutAt", "Next reach-out", "date"], ["seederNotes", "Seeder notes", "text"],
 ];
 const stageLabel = (stage: string, idx: number) => `${idx + 1}. ${stage}`;
 const stageColorClass = (stage: string) => {
@@ -85,6 +85,7 @@ const EXPORT_HEADERS = [
   "employeeSize",
   "areaGeo",
   "linkedinConnectRequest",
+  "doNotContact",
   "title",
   "type",
   "primaryPain",
@@ -669,6 +670,7 @@ export default function LeadsPage() {
               {renderSortableHeader("Email", "email")}
               <th className="px-3 py-2 text-left">LinkedIn</th>
               {renderSortableHeader("LI Accepted", "liAccepted")}
+              <th className="px-3 py-2 text-left">Do not contact</th>
               {renderSortableHeader("Count of Activities", "activityCount")}
               {renderSortableHeader("Employee Size", "employeeSize")}
               {renderSortableHeader("Area/Geo", "areaGeo")}
@@ -695,12 +697,13 @@ export default function LeadsPage() {
                     />
                   </td>
                   <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openTray(c)}><SquareArrowOutUpRight size={14} /></button>}</td>
-                  <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : <button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(c);}}>{`${c.firstName} ${c.lastName}`}</button>}</td>
+                  <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(c)}>{editing ? <div className="grid grid-cols-2 gap-1"><input className="crm-input" value={inlineDraft.firstName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, firstName:e.target.value})} /><input className="crm-input" value={inlineDraft.lastName || ""} onChange={(e)=>setInlineDraft({...inlineDraft, lastName:e.target.value})} /></div> : <><button className="font-medium text-sky-300 hover:text-sky-200" onClick={(e)=>{e.stopPropagation(); openTray(c);}}>{`${c.firstName} ${c.lastName}`}</button>{c.doNotContact === true && <span className="ml-2 text-xs font-semibold text-rose-300">Do not contact</span>}</>}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.company || ""} onChange={(e)=>setInlineDraft({...inlineDraft, company:e.target.value})} /> : (c.company || "—")}</td>
                   <td className="px-3 py-2 text-emerald-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <select className="crm-input" value={inlineDraft.status || defaultStatusForPipeline(pipelineType)} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{stageOptions.map((s)=> <option key={s} value={s}>{s}</option>)}</select> : (c.status || defaultStatusForPipeline(pipelineType))}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.email || ""} onChange={(e)=>setInlineDraft({...inlineDraft, email:e.target.value})} /> : (c.email ? <span className="inline-flex items-center gap-1.5"><a href={gmailComposeUrl(c.email)} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} title="Compose email"><Mail size={13} /></a>{c.email}</span> : "—")}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.linkedin || ""} onChange={(e)=>setInlineDraft({...inlineDraft, linkedin:e.target.value})} /> : (c.linkedin ? <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center" onClick={(e)=>e.stopPropagation()}><img src="https://cdn-icons-png.flaticon.com/512/2496/2496097.png" alt="LinkedIn" className="h-4 w-4" /></a> : "—")}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input type="checkbox" className={checkboxClassName} checked={Boolean(inlineDraft.liAccepted)} onChange={(e)=>setInlineDraft({...inlineDraft, liAccepted:e.target.checked})} aria-label="LI Accepted" /> : <input type="checkbox" className={checkboxClassName} checked={Boolean(c.liAccepted)} readOnly aria-label="LI Accepted" />}</td>
+                  <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input type="checkbox" className={checkboxClassName} checked={Boolean(inlineDraft.doNotContact)} onChange={(e)=>setInlineDraft({...inlineDraft, doNotContact:e.target.checked})} aria-label="Do not contact" /> : <input type="checkbox" className={checkboxClassName} checked={Boolean(c.doNotContact)} readOnly aria-label="Do not contact" />}</td>
                   <td className="px-3 py-2 text-slate-300">{activityCount}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.employeeSize || ""} onChange={(e)=>setInlineDraft({...inlineDraft, employeeSize:e.target.value})} /> : (c.employeeSize || "—")}</td>
                   <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(c)}>{editing ? <input className="crm-input" value={inlineDraft.areaGeo || ""} onChange={(e)=>setInlineDraft({...inlineDraft, areaGeo:e.target.value})} /> : (c.areaGeo || "—")}</td>
@@ -1017,10 +1020,10 @@ export default function LeadsPage() {
                         <option value="">No</option>
                         <option value="Yes">Yes</option>
                       </select>
-                     ) : k === "liAccepted" ? (
+                     ) : type === "checkbox" ? (
                       <label className="inline-flex items-center gap-2 rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-slate-200">
                         <input type="checkbox" className={checkboxClassName} checked={Boolean(draft[k])} onChange={(e) => setDraft({ ...draft, [k]: e.target.checked })} />
-                        <span>Accepted</span>
+                        <span>{k === "doNotContact" ? "Never automate outreach to this contact" : "Accepted"}</span>
                       </label>
                      ) : k === "seederNotes" || type === "textarea" ? (
                       <textarea className="crm-input" value={draft[k] || ""} onChange={(e) => setDraft({ ...draft, [k]: e.target.value })} />

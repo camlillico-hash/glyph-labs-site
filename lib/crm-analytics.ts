@@ -409,6 +409,8 @@ export function buildContactBrief(snapshot: CrmSnapshot, contactId: string) {
       title: contact.title || "",
       pipelineType: contact.pipelineType || "icp",
       status: contact.status || "",
+      doNotContact: contact.doNotContact === true,
+      outreachAllowed: contact.doNotContact !== true,
       leadSource: contact.leadSource || "",
       lastActivityDate: contact.lastActivityDate || null,
       lastActivityType: contact.lastActivityType || null,

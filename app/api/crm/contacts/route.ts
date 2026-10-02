@@ -107,6 +107,7 @@ function syncContactStamp(store: any, previous: any | null, contact: any) {
 }
 
 function maybeCreateNurtureTaskForContact(store: any, previous: any | null, contact: any) {
+  if (contact.doNotContact === true) return;
   if (!["Nurture", "Closed Lost"].includes(contact.status)) return;
   if (contact.whatNow !== "Nurture (future)") return;
 
@@ -282,6 +283,7 @@ export async function POST(req: Request) {
     status,
     email,
     liAccepted: Boolean(body.liAccepted),
+    doNotContact: body.doNotContact === true,
     leadSource: normalizeLeadSource(body.leadSource, pipelineType),
     disqualificationReason,
     whatNow,
@@ -345,6 +347,7 @@ export async function PUT(req: Request) {
     status,
     email,
     liAccepted: Boolean(body.liAccepted),
+    doNotContact: body.doNotContact === undefined ? previous.doNotContact === true : body.doNotContact === true,
     leadSource: normalizeLeadSource(body.leadSource ?? previous.leadSource, pipelineType),
     disqualificationReason,
     whatNow,
