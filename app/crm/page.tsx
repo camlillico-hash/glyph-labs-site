@@ -9,6 +9,7 @@ import { getStore, now, CONTACT_PIPELINES, CONNECTOR_STAGES, ICP_STAGES, DEAL_ST
 import { computeCoachMood } from "@/lib/coach-mood";
 import { BriefcaseBusiness, CheckSquare, Handshake, Users, Crosshair, Funnel, BarChart3, Percent, Trophy, CircleX, Flame, Hammer, Heart, Clock3, Medal } from "lucide-react";
 import KpiScoreboard from "./KpiScoreboard";
+import LeadFunnelHistory from "./LeadFunnelHistory";
 
 export default async function CrmHome() {
   let storeRaw: any = null;
@@ -21,8 +22,9 @@ export default async function CrmHome() {
     storeRaw = {};
   }
 
-  const store: { contacts: any[]; deals: any[]; tasks: any[]; activities: any[]; gmail: any; targets?: any } = {
+  const store: { contacts: any[]; leadStageEvents: any[]; deals: any[]; tasks: any[]; activities: any[]; gmail: any; targets?: any } = {
     contacts: Array.isArray(storeRaw?.contacts) ? storeRaw.contacts : [],
+    leadStageEvents: Array.isArray(storeRaw?.leadStageEvents) ? storeRaw.leadStageEvents : [],
     deals: Array.isArray(storeRaw?.deals) ? storeRaw.deals : [],
     tasks: Array.isArray(storeRaw?.tasks) ? storeRaw.tasks : [],
     activities: Array.isArray(storeRaw?.activities) ? storeRaw.activities : [],
@@ -361,6 +363,8 @@ export default async function CrmHome() {
           <li className="flex items-center justify-between"><span>Discovery → Launch</span><span className="font-semibold">{conversion.discoveryToLaunch}%</span></li>
         </ul>
       </Link>
+
+      <LeadFunnelHistory contacts={leadPeople.map((lead) => ({ id: lead.id, leadSource: lead.leadSource }))} events={store.leadStageEvents} />
 
       <section className="crm-card p-4">
         <div className="mb-3 flex items-center justify-between gap-3">

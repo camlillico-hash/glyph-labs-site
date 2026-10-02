@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getStore, id, now, saveStore } from "@/lib/crm-store";
+import { getStore, id, now, saveStore, recordLeadStage } from "@/lib/crm-store";
 import { advanceContactToAttemptingOnActivity } from "@/lib/crm-stage-transitions";
 
 const TYPES = ["email", "call", "text", "linkedin", "in_person", "meeting", "task_completed"] as const;
@@ -46,6 +46,7 @@ export async function POST(req: Request) {
   store.activities = [record as any, ...((store.activities as any) || [])] as any;
   const cidx = store.contacts.findIndex((c: any) => c.id === record.contactId);
   if (cidx >= 0) {
+    const previous = store.contacts[cidx];
     store.contacts[cidx] = {
       ...store.contacts[cidx],
       status: advanceContactToAttemptingOnActivity(store.contacts[cidx]),
@@ -53,6 +54,7 @@ export async function POST(req: Request) {
       lastActivityType: record.type,
       updatedAt: now(),
     };
+    recordLeadStage(store, previous, store.contacts[cidx]);
   }
   await saveStore(store, accountId);
   return NextResponse.json(record);
@@ -78,6 +80,7 @@ export async function PUT(req: Request) {
   };
   const cidx2 = store.contacts.findIndex((c: any) => c.id === (store.activities as any)[idx].contactId);
   if (cidx2 >= 0) {
+    const previous = store.contacts[cidx2];
     store.contacts[cidx2] = {
       ...store.contacts[cidx2],
       status: advanceContactToAttemptingOnActivity(store.contacts[cidx2]),
@@ -85,6 +88,7 @@ export async function PUT(req: Request) {
       lastActivityType: (store.activities as any)[idx].type,
       updatedAt: now(),
     };
+    recordLeadStage(store, previous, store.contacts[cidx2]);
   }
   await saveStore(store, accountId);
   return NextResponse.json((store.activities as any)[idx]);

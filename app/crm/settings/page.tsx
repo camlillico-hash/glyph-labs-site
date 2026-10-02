@@ -38,7 +38,8 @@ function DateField({ label, name, value }: { label: string; name: string; value:
   );
 }
 
-export default async function SettingsPage({ searchParams }: { searchParams?: { gmail?: string; reason?: string; count?: string; activities?: string; targets?: string } }) {
+export default async function SettingsPage({ searchParams }: { searchParams?: Promise<{ gmail?: string; reason?: string; count?: string; activities?: string; targets?: string }> }) {
+  const params = await searchParams;
   const { resolveActiveAccountId } = await import("@/lib/crm-scope");
   const accountId = await resolveActiveAccountId();
   const store = await getStore(accountId);
@@ -61,10 +62,10 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
         <p className="mt-2 text-sm text-slate-400">
           Status: {store.gmail.connectedAt ? `Connected (${new Date(store.gmail.connectedAt).toLocaleString("en-CA", { timeZone: "America/Toronto" })} ET)` : "Not connected"}
         </p>
-        {searchParams?.gmail === "connected" && <p className="mt-2 text-sm text-emerald-300">Gmail connected successfully.</p>}
-        {searchParams?.gmail === "synced" && <p className="mt-2 text-sm text-emerald-300">Sync complete: {searchParams?.count || 0} messages checked, {searchParams?.activities || 0} activities created.</p>}
-        {searchParams?.gmail === "error" && <p className="mt-2 text-sm text-rose-300">Gmail connect failed{searchParams?.reason ? `: ${decodeURIComponent(searchParams.reason)}` : "."}</p>}
-        {searchParams?.gmail === "sync_error" && <p className="mt-2 text-sm text-rose-300">Gmail sync failed{searchParams?.reason ? `: ${searchParams.reason}` : "."}</p>}
+        {params?.gmail === "connected" && <p className="mt-2 text-sm text-emerald-300">Gmail connected successfully.</p>}
+        {params?.gmail === "synced" && <p className="mt-2 text-sm text-emerald-300">Sync complete: {params?.count || 0} messages checked, {params?.activities || 0} activities created.</p>}
+        {params?.gmail === "error" && <p className="mt-2 text-sm text-rose-300">Gmail connect failed{params?.reason ? `: ${decodeURIComponent(params.reason)}` : "."}</p>}
+        {params?.gmail === "sync_error" && <p className="mt-2 text-sm text-rose-300">Gmail sync failed{params?.reason ? `: ${params.reason}` : "."}</p>}
         {!ready && (
           <p className="mt-2 text-sm text-amber-300">
             Add GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI in env to enable connect.
@@ -89,8 +90,8 @@ export default async function SettingsPage({ searchParams }: { searchParams?: { 
       <section className="crm-card p-4">
         <h2 className="font-semibold"><span className="inline-flex items-center gap-1.5"><Settings size={15} /> Revenue target inputs</span></h2>
         <p className="mt-1 text-xs text-slate-400">Only key levers are editable. Dashboard targets are auto-calculated.</p>
-        {searchParams?.targets === "saved" && <p className="mt-2 text-sm text-emerald-300">Inputs saved and dashboard recalculated.</p>}
-        {searchParams?.targets === "error" && <p className="mt-2 text-sm text-rose-300">Could not save inputs{searchParams?.reason ? `: ${decodeURIComponent(searchParams.reason)}` : "."}</p>}
+        {params?.targets === "saved" && <p className="mt-2 text-sm text-emerald-300">Inputs saved and dashboard recalculated.</p>}
+        {params?.targets === "error" && <p className="mt-2 text-sm text-rose-300">Could not save inputs{params?.reason ? `: ${decodeURIComponent(params.reason)}` : "."}</p>}
         <form action="/api/crm/targets" method="post" className="mt-3 grid gap-3 md:grid-cols-2">
           <Field label="Recurring revenue goal (annual CAD)" name="revenueGoalAnnual" value={targets.revenueGoalAnnual} prefix="$" />
           <Field label="Average revenue per client (annual CAD)" name="avgRevenuePerClientAnnual" value={targets.avgRevenuePerClientAnnual} prefix="$" />

@@ -1,4 +1,4 @@
-import { getStore, id, now, saveStore, type StrengthTestSubmission } from "@/lib/crm-store";
+import { getStore, id, now, saveStore, recordLeadStage, type StrengthTestSubmission } from "@/lib/crm-store";
 import { getCrmPool } from "@/lib/crm-db";
 
 function normalizeEmail(value: unknown) {
@@ -87,6 +87,7 @@ export function ensureStrengthTestLead(params: {
       timestamp
     );
     store.contacts.unshift(contact);
+    recordLeadStage(store, null, contact);
     return contact;
   }
 
