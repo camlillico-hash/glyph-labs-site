@@ -135,6 +135,7 @@ function parseRow(r: any) {
     employeeSize: firstNonEmpty(r, ["employeeSize", "Employee Size", "Employees"]),
     areaGeo: firstNonEmpty(r, ["areaGeo", "Area/Geo", "Area", "Geo"]),
     linkedinConnectRequest: firstNonEmpty(r, ["linkedinConnectRequest", "Linkedin Connect Request", "LinkedIn Connect Request"]),
+    doNotContact: isYesValue(firstNonEmpty(r, ["doNotContact", "Do not contact", "Do Not Contact"])),
     title: firstNonEmpty(r, ["title", "Title"]),
     type: ALLOWED_TYPES.includes(type) ? type : "",
     pipelineType,
@@ -199,6 +200,7 @@ export async function POST(req: Request) {
       }
 
       const merged = fillMissing(existing, parsed);
+      if (parsed.doNotContact) merged.doNotContact = true;
       merged.updatedAt = now();
       contacts[existingIdx] = merged;
       recordLeadStage(store, existing, merged);
@@ -224,6 +226,7 @@ export async function POST(req: Request) {
       employeeSize: parsed.employeeSize,
       areaGeo: parsed.areaGeo,
       linkedinConnectRequest: parsed.linkedinConnectRequest,
+      doNotContact: parsed.doNotContact,
       title: parsed.title,
       type: parsed.type,
       pipelineType: parsed.pipelineType,

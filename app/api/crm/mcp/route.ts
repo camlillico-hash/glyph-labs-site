@@ -288,6 +288,7 @@ async function runTool(name: string, args: Record<string, unknown>) {
         `Contact: ${brief.contact.name}`,
         `Company: ${brief.contact.company || "n/a"}`,
         `Status: ${brief.contact.status || "n/a"}`,
+        `Do not contact: ${brief.contact.doNotContact ? "YES - never automate outreach" : "No"}`,
         `Recent activities: ${brief.activities.length}`,
         `Open tasks: ${brief.tasks.filter((task) => !task.done).length}`,
         `Linked deals: ${brief.deals.length}`,

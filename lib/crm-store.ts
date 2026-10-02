@@ -29,6 +29,7 @@ export type Contact = {
   employeeSize?: string;
   areaGeo?: string;
   linkedinConnectRequest?: string;
+  doNotContact?: boolean;
   title?: string;
   type?: string;
   pipelineType?: ContactPipeline;
@@ -340,6 +341,7 @@ function normalizeStore(store: CrmStore): CrmStore {
       referralCount: Number((c as any).referralCount || 0),
       nextReachOutAt: (c as any).nextReachOutAt || undefined,
       seederNotes: (c as any).seederNotes || undefined,
+      doNotContact: c.doNotContact === true,
       openBoardHidden: Boolean((c as any).openBoardHidden),
     };
   });
