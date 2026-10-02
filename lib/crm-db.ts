@@ -13,8 +13,8 @@ export function getCrmPool() {
   pool = new Pool({
     connectionString: DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    max: 5,
-    idleTimeoutMillis: 10000,
+    max: 1,
+    idleTimeoutMillis: 1000,
     connectionTimeoutMillis: 10000,
   });
   return pool;

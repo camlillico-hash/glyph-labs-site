@@ -280,7 +280,7 @@ const pool = DATABASE_URL
       connectionString: DATABASE_URL,
       ssl: { rejectUnauthorized: false },
       max: 1,
-      idleTimeoutMillis: 10000,
+      idleTimeoutMillis: 1000,
       connectionTimeoutMillis: 10000,
     })
   : null;
