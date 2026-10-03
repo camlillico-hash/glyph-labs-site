@@ -113,9 +113,6 @@ export async function resolveCrmMcpPrincipal(req: Request): Promise<Principal | 
   return { access: canWrite ? "write" : "read", accountId: membership.account_id, source: "oauth" };
 }
 
-export function oauthChallenge(requestUrl?: string) {
-  const resourceMetadataUrl = requestUrl && new URL(requestUrl).host === "www.camlillico.com"
-    ? "https://www.camlillico.com/.well-known/oauth-protected-resource/api/crm/mcp"
-    : oauthResourceMetadataUrl();
-  return `Bearer resource_metadata="${resourceMetadataUrl}", error="invalid_token", error_description="Connect your CRM account to continue"`;
+export function oauthChallenge() {
+  return `Bearer resource_metadata="${oauthResourceMetadataUrl()}", error="invalid_token", error_description="Connect your CRM account to continue"`;
 }
