@@ -616,7 +616,8 @@ function isNotification(message: JsonRpcRequest) {
 
 async function handleMessage(
   message: JsonRpcRequest,
-  principal: Awaited<ReturnType<typeof resolveCrmMcpPrincipal>>
+  principal: Awaited<ReturnType<typeof resolveCrmMcpPrincipal>>,
+  requestUrl: string
 ) {
   if (!message || message.jsonrpc !== "2.0" || !message.method) {
     return jsonRpcError(message?.id, -32600, "Invalid JSON-RPC request", { status: 400 });
@@ -656,7 +657,7 @@ async function handleMessage(
     if (!principal && oauthEnabled()) {
       return jsonRpcResult(message.id, {
         content: [{ type: "text", text: "Connect your CRM account to use this tool." }],
-        _meta: { "mcp/www_authenticate": [oauthChallenge()] },
+        _meta: { "mcp/www_authenticate": [oauthChallenge(requestUrl)] },
         isError: true,
       });
     }
@@ -664,7 +665,7 @@ async function handleMessage(
     if (WRITE_TOOLS.has(toolName) && principal.access !== "write") {
       return jsonRpcResult(message.id, {
         content: [{ type: "text", text: "A separate CRM MCP write credential is required for this tool." }],
-        ...(principal.source === "oauth" ? { _meta: { "mcp/www_authenticate": [oauthChallenge().replace("invalid_token", "insufficient_scope")] } } : {}),
+        ...(principal.source === "oauth" ? { _meta: { "mcp/www_authenticate": [oauthChallenge(requestUrl).replace("invalid_token", "insufficient_scope")] } } : {}),
         isError: true,
       });
     }
@@ -733,9 +734,9 @@ export async function POST(req: Request) {
     const messages = payload as JsonRpcRequest[];
     const nonNotifications = messages.filter((message) => !isNotification(message));
     if (!nonNotifications.length) return accepted();
-    const responses = await Promise.all(nonNotifications.map((message) => handleMessage(message, principal).then((response) => response.json())));
+    const responses = await Promise.all(nonNotifications.map((message) => handleMessage(message, principal, req.url).then((response) => response.json())));
     return NextResponse.json(responses);
   }
 
-  return handleMessage(payload as JsonRpcRequest, principal);
+  return handleMessage(payload as JsonRpcRequest, principal, req.url);
 }
