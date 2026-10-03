@@ -1,6 +1,6 @@
 # Notion CRM MCP Setup
 
-This app now exposes a read-only CRM MCP server for Notion Custom Agents.
+The existing Notion credential provides read-only access to Glyph CRM MCP. Outbound write tools require a separate credential and are not available with `CRM_MCP_API_KEY`.
 
 ## Endpoint
 
