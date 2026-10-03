@@ -18,6 +18,13 @@ export function oauthResource() {
   return String(process.env.CRM_MCP_OAUTH_AUDIENCE || "").trim();
 }
 
+export function oauthResourceAliases() {
+  return String(process.env.CRM_MCP_OAUTH_AUDIENCE_ALIASES || "")
+    .split(",")
+    .map((resource) => resource.trim())
+    .filter(Boolean);
+}
+
 export function oauthResourceMetadataUrl() {
   return new URL("/.well-known/oauth-protected-resource", oauthResource()).toString();
 }
@@ -26,6 +33,15 @@ export function oauthResourceMetadata() {
   if (!oauthEnabled()) return null;
   return {
     resource: oauthResource(),
+    authorization_servers: [issuer()],
+    scopes_supported: ["crm:read", "crm:write"],
+  };
+}
+
+export function oauthResourceAliasMetadata(resource: string) {
+  if (!oauthEnabled() || !oauthResourceAliases().includes(resource)) return null;
+  return {
+    resource,
     authorization_servers: [issuer()],
     scopes_supported: ["crm:read", "crm:write"],
   };
@@ -51,9 +67,9 @@ async function verifyAccessToken(token: string): Promise<Claims | null> {
   }
   if (header.alg !== "RS256" || typeof header.kid !== "string") return null;
   const expectedIssuer = issuer();
-  const audience = String(process.env.CRM_MCP_OAUTH_AUDIENCE);
+  const audiences = [oauthResource(), ...oauthResourceAliases()];
   if (claims.iss !== expectedIssuer) return null;
-  if (claims.aud !== audience && !(Array.isArray(claims.aud) && claims.aud.includes(audience))) return null;
+  if (!audiences.some((audience) => claims.aud === audience || (Array.isArray(claims.aud) && claims.aud.includes(audience)))) return null;
   const current = Math.floor(Date.now() / 1000);
   if (typeof claims.exp !== "number" || claims.exp <= current) return null;
   if (typeof claims.nbf === "number" && claims.nbf > current) return null;
