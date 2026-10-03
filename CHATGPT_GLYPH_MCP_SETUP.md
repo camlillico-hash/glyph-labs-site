@@ -17,9 +17,9 @@ The existing `CRM_MCP_API_KEY` remains read-only. `CRM_MCP_WRITE_API_KEY` is a s
 
 ## OAuth prerequisite for ChatGPT Work
 
-Auth0 tenant: `dev-km4cqryav3vbabe0.us.auth0.com`. The Glyph CRM MCP API already has identifier `https://camlillico.com/api/crm/mcp`, RS256 signing, and `crm:read` / `crm:write` permissions. CIMD registration and Resource Parameter Compatibility Profile are enabled. The database connection is promoted to domain level with the user's approval. A Post Login Action named `Glyph CRM MCP verified identity` was created and deployed, but still needs to be dragged into the Post Login flow and applied. The tenant currently has no users. The live protected-resource metadata URL returned 404 on 2026-10-03, so the local server changes are not deployed yet.
+Auth0 tenant: `dev-km4cqryav3vbabe0.us.auth0.com`. The Glyph CRM MCP API has identifier `https://camlillico.com/api/crm/mcp`, RS256 signing, and `crm:read` / `crm:write` permissions. CIMD registration and Resource Parameter Compatibility Profile are enabled. The database connection is promoted to domain level with the user's approval. The Post Login Action `Glyph CRM MCP verified identity` is deployed and live in the login flow. A dedicated third-party Native application, `ChatGPT Work for Glyph CRM`, uses public-client PKCE, allows `https://chatgpt.com/connector_platform_oauth_redirect`, and has user-delegated access to both CRM scopes. Its client ID is `tpc_wnJQQTP3SA6xmQWwVGen1C`; no client secret is needed for the `none` token endpoint authentication method. The tenant currently has no users. Production protected-resource metadata is pending deployment of this branch.
 
-Auth0's preview of importing `https://chatgpt.com/oauth/client.json` selects `private_key_jwt`. Auth0 documents that method for CIMD as Enterprise-only; do not rely on a free trial for the lasting connection. After deployment, use a compatible predefined OAuth client or review the Auth0 plan and registration method before creating the ChatGPT connection.
+Auth0's preview of importing `https://chatgpt.com/oauth/client.json` selects `private_key_jwt`. Auth0 documents that method for CIMD as Enterprise-only. Use the predefined public OAuth client above in ChatGPT Work's Advanced OAuth settings with token endpoint authentication method `none`.
 
 ChatGPT Work cannot supply the existing shared API key as a custom plugin header. Configure an OAuth 2.1 provider before creating the personal plugin. The server accepts RS256 access tokens with:
 
@@ -28,7 +28,7 @@ ChatGPT Work cannot supply the existing shared API key as a custom plugin header
 - a verified email claim that matches one CRM user with exactly one CRM account membership;
 - `crm:read` for read tools and `crm:write` for write tools.
 
-The provider must support MCP OAuth discovery, authorization code with PKCE S256, and client registration through CIMD or DCR. It must pass the MCP `resource` parameter through authorization and token issuance. An established provider such as Auth0 is recommended. The CRM MCP server is the resource server; the provider issues and manages tokens.
+The provider must support MCP OAuth discovery and authorization code with PKCE S256. ChatGPT supports a predefined OAuth client as well as CIMD or DCR. It must pass the MCP `resource` parameter through authorization and token issuance. The CRM MCP server is the resource server; Auth0 issues and manages tokens.
 
 Set these deployment environment variables:
 
