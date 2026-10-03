@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { buildActivitySummary, buildContactBrief, buildDailyDigest, buildDealBrief, buildPipelineHealth, compareActualsToTargets, listDueOrOverdueTasks, listRecentActivities } from "@/lib/crm-analytics";
-import { getStore } from "@/lib/crm-store";
-import { isAllowedCrmMcpOrigin, isAuthorizedCrmMcpRequest, resolveCrmMcpAccountId } from "@/lib/crm-mcp-auth";
+import { getStore, id, now, recordLeadStage, saveStore } from "@/lib/crm-store";
+import { advanceContactToAttemptingOnActivity } from "@/lib/crm-stage-transitions";
+import { isAllowedCrmMcpOrigin, resolveCrmMcpAccountId } from "@/lib/crm-mcp-auth";
+import { oauthChallenge, oauthEnabled, resolveCrmMcpPrincipal } from "@/lib/crm-mcp-oauth";
 
 type JsonRpcRequest = {
   jsonrpc?: string;
@@ -16,6 +18,8 @@ const SERVER_INFO = {
   title: "Glyph CRM",
   version: "1.0.0",
 };
+
+const WRITE_TOOLS = new Set(["create_outbound_lead", "update_outbound_lead", "log_sent_outreach"]);
 
 const TOOLS = [
   {
@@ -146,6 +150,97 @@ const TOOLS = [
       additionalProperties: false,
     },
   },
+  {
+    name: "select_outbound_leads",
+    title: "Select Outbound Leads",
+    description: "Find eligible ICP leads by stage, LinkedIn acceptance, and last activity. Always excludes do-not-contact leads. Read-only; does not send or log outreach.",
+    annotations: { readOnlyHint: true },
+    inputSchema: {
+      type: "object",
+      properties: {
+        status: { type: "string", enum: ["New", "Attempting", "Connected", "Nurture"] },
+        liAccepted: { type: "boolean" },
+        lastActivityBefore: { type: "string", description: "Exclusive cutoff in YYYY-MM-DD format. Leads without activity are included." },
+        limit: { type: "integer", minimum: 1, maximum: 100 },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "find_outbound_leads",
+    title: "Find Outbound Leads",
+    description: "Find existing ICP leads by name, company, email, or LinkedIn URL before creating or updating a record. Includes do-not-contact status for identification; do not use this tool as an outreach eligibility list.",
+    annotations: { readOnlyHint: true },
+    inputSchema: {
+      type: "object",
+      properties: { query: { type: "string" }, limit: { type: "integer", minimum: 1, maximum: 50 } },
+      required: ["query"], additionalProperties: false,
+    },
+  },
+  {
+    name: "create_outbound_lead",
+    title: "Create Outbound Lead",
+    description: "Create one ICP lead after checking for duplicates by email, LinkedIn URL, or name and company. Does not contact the lead.",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+    inputSchema: {
+      type: "object",
+      properties: {
+        firstName: { type: "string" }, lastName: { type: "string" },
+        company: { type: "string" }, title: { type: "string" },
+        email: { type: "string" }, linkedin: { type: "string" },
+        notes: { type: "string" }, liAccepted: { type: "boolean" },
+        doNotContact: { type: "boolean" },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "update_outbound_lead",
+    title: "Update Outbound Lead",
+    description: "Update selected fields of an existing ICP lead. Requires its CRM ID. Cannot clear a do-not-contact flag or record outreach.",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+    inputSchema: {
+      type: "object",
+      properties: {
+        contactId: { type: "string" }, firstName: { type: "string" },
+        lastName: { type: "string" }, company: { type: "string" },
+        title: { type: "string" }, email: { type: "string" },
+        linkedin: { type: "string" }, notes: { type: "string" },
+        status: { type: "string", enum: ["New", "Attempting", "Connected"] },
+        liAccepted: { type: "boolean" }, doNotContact: { type: "boolean" },
+      },
+      required: ["contactId"], additionalProperties: false,
+    },
+  },
+  {
+    name: "prepare_outreach_draft",
+    title: "Prepare Outreach Draft Context",
+    description: "Return one eligible lead and its CRM history for drafting a message for user review. Does not save, send, or log a draft. Refuses do-not-contact leads.",
+    annotations: { readOnlyHint: true },
+    inputSchema: {
+      type: "object",
+      properties: { contactId: { type: "string" } },
+      required: ["contactId"], additionalProperties: false,
+    },
+  },
+  {
+    name: "log_sent_outreach",
+    title: "Log Sent Outreach",
+    description: "Record outreach only after it was actually sent and verified in the destination. Requires a channel, exact message, and external sent-message ID or URL. Refuses do-not-contact leads and duplicate external IDs. This tool does not send a message.",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+    inputSchema: {
+      type: "object",
+      properties: {
+        contactId: { type: "string" },
+        channel: { type: "string", enum: ["linkedin", "email", "text"] },
+        message: { type: "string" },
+        externalMessageId: { type: "string", description: "Provider message ID or stable URL proving the send." },
+        occurredAt: { type: "string", description: "ISO timestamp of the actual send. Defaults to now." },
+      },
+      required: ["contactId", "channel", "message", "externalMessageId"],
+      additionalProperties: false,
+    },
+  },
 ] as const;
 
 function jsonRpcResult(id: JsonRpcRequest["id"], result: unknown, init?: ResponseInit) {
@@ -172,8 +267,8 @@ function formatToolResult(title: string, structuredContent: unknown, lines: stri
   };
 }
 
-async function loadSnapshot(accountId?: string) {
-  const resolvedAccountId = await resolveCrmMcpAccountId(accountId);
+async function loadSnapshot(accountId?: string, authenticatedAccountId?: string) {
+  const resolvedAccountId = authenticatedAccountId || await resolveCrmMcpAccountId(accountId);
   const store = await getStore(resolvedAccountId || undefined);
   return {
     accountId: resolvedAccountId || null,
@@ -200,6 +295,53 @@ function errorMessage(error: unknown) {
   return String(error || "unknown error");
 }
 
+function requiredString(value: unknown, field: string, maxLength = 5000) {
+  if (typeof value !== "string" || !value.trim()) throw new Error(`${field} is required`);
+  const normalized = value.trim();
+  if (normalized.length > maxLength) throw new Error(`${field} is too long`);
+  return normalized;
+}
+
+function optionalField(value: unknown, field: string, maxLength = 5000) {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string" || value.length > maxLength) throw new Error(`${field} must be a string of at most ${maxLength} characters`);
+  return value.trim();
+}
+
+function dateCutoff(value: unknown) {
+  if (value === undefined) return undefined;
+  const cutoff = requiredString(value, "lastActivityBefore", 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cutoff) || Number.isNaN(Date.parse(`${cutoff}T00:00:00Z`))) {
+    throw new Error("lastActivityBefore must be a valid YYYY-MM-DD date");
+  }
+  return cutoff;
+}
+
+function normalizeLinkedin(value: string) {
+  return value.trim().replace(/\/$/, "").toLowerCase();
+}
+
+function assertNoDuplicateLead(
+  contacts: Array<{ id: string; email?: string; linkedin?: string; firstName?: string; lastName?: string; company?: string }>,
+  candidate: { id?: string; email?: string; linkedin?: string; firstName?: string; lastName?: string; company?: string }
+) {
+  const email = String(candidate.email || "").trim().toLowerCase();
+  const linkedin = normalizeLinkedin(String(candidate.linkedin || ""));
+  const name = `${candidate.firstName || ""} ${candidate.lastName || ""}`.trim().toLowerCase();
+  const company = String(candidate.company || "").trim().toLowerCase();
+  const match = contacts.find((contact) => contact.id !== candidate.id && (
+    (email && String(contact.email || "").trim().toLowerCase() === email) ||
+    (linkedin && normalizeLinkedin(String(contact.linkedin || "")) === linkedin) ||
+    (name && company && `${contact.firstName || ""} ${contact.lastName || ""}`.trim().toLowerCase() === name && String(contact.company || "").trim().toLowerCase() === company)
+  ));
+  if (match) throw new Error(`Possible duplicate lead: ${match.id}`);
+}
+
+function assertAllowedKeys(args: Record<string, unknown>, allowed: readonly string[]) {
+  const extra = Object.keys(args).filter((key) => !allowed.includes(key));
+  if (extra.length) throw new Error(`Unsupported argument: ${extra[0]}`);
+}
+
 function latestRecordedActivityLine(
   activities: Array<{ occurredAt?: string; type?: string; contactName?: string }>
 ) {
@@ -211,10 +353,148 @@ function latestRecordedActivityLine(
   return `Latest recorded activity: ${when} (${type}${contact ? ` with ${contact}` : ""})`;
 }
 
-async function runTool(name: string, args: Record<string, unknown>) {
-  const { accountId, store } = await loadSnapshot(asOptionalString(args.accountId));
+async function runTool(name: string, args: Record<string, unknown>, authenticatedAccountId?: string) {
+  const { accountId, store } = await loadSnapshot(asOptionalString(args.accountId), authenticatedAccountId);
 
   switch (name) {
+    case "find_outbound_leads": {
+      assertAllowedKeys(args, ["query", "limit"]);
+      const query = requiredString(args.query, "query", 200).toLowerCase();
+      const limit = args.limit === undefined ? 20 : Number(args.limit);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 50) throw new Error("limit must be an integer from 1 to 50");
+      const leads = store.contacts
+        .filter((contact) => contact.pipelineType === "icp")
+        .filter((contact) => [contact.firstName, contact.lastName, contact.company, contact.email, contact.linkedin, `${contact.firstName || ""} ${contact.lastName || ""}`].some((value) => String(value || "").toLowerCase().includes(query)))
+        .slice(0, limit)
+        .map((contact) => ({
+          id: contact.id, firstName: contact.firstName || "", lastName: contact.lastName || "",
+          company: contact.company || "", email: contact.email || "", linkedin: contact.linkedin || "",
+          status: contact.status || "", doNotContact: contact.doNotContact === true,
+        }));
+      return formatToolResult("Matching Outbound Leads", { accountId, leads }, [`Returned ${leads.length} matches. Check do-not-contact before outreach.`]);
+    }
+    case "select_outbound_leads": {
+      assertAllowedKeys(args, ["status", "liAccepted", "lastActivityBefore", "limit"]);
+      const status = optionalField(args.status, "status", 40);
+      if (status && !["New", "Attempting", "Connected", "Nurture"].includes(status)) throw new Error("Invalid status");
+      if (args.liAccepted !== undefined && typeof args.liAccepted !== "boolean") throw new Error("liAccepted must be boolean");
+      const before = dateCutoff(args.lastActivityBefore);
+      const limit = args.limit === undefined ? 25 : Number(args.limit);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error("limit must be an integer from 1 to 100");
+      const leads = store.contacts
+        .filter((contact) => contact.pipelineType === "icp" && contact.doNotContact !== true)
+        .filter((contact) => !status || contact.status === status)
+        .filter((contact) => args.liAccepted === undefined || contact.liAccepted === args.liAccepted)
+        .map((contact) => {
+          const latest = store.activities
+            .filter((activity) => activity.contactId === contact.id)
+            .reduce((current, activity) => String(activity.occurredAt || "") > current ? String(activity.occurredAt) : current, "");
+          return { contact, lastActivityDate: latest || contact.lastActivityDate || null };
+        })
+        .filter((entry) => !before || !entry.lastActivityDate || entry.lastActivityDate.slice(0, 10) < before)
+        .sort((a, b) => String(a.lastActivityDate || "").localeCompare(String(b.lastActivityDate || "")))
+        .slice(0, limit)
+        .map(({ contact, lastActivityDate }) => ({
+          id: contact.id, name: `${contact.firstName || ""} ${contact.lastName || ""}`.trim(),
+          company: contact.company || "", title: contact.title || "", status: contact.status || "",
+          email: contact.email || "", linkedin: contact.linkedin || "",
+          liAccepted: contact.liAccepted === true, lastActivityDate, doNotContact: false,
+        }));
+      return formatToolResult("Eligible Outbound Leads", { accountId, leads }, [`Returned ${leads.length} eligible leads.`]);
+    }
+    case "create_outbound_lead": {
+      assertAllowedKeys(args, ["firstName", "lastName", "company", "title", "email", "linkedin", "notes", "liAccepted", "doNotContact"]);
+      const firstName = optionalField(args.firstName, "firstName", 120) || "";
+      const lastName = optionalField(args.lastName, "lastName", 120) || "";
+      if (!firstName && !lastName) throw new Error("firstName or lastName is required");
+      if (args.liAccepted !== undefined && typeof args.liAccepted !== "boolean") throw new Error("liAccepted must be boolean");
+      if (args.doNotContact !== undefined && typeof args.doNotContact !== "boolean") throw new Error("doNotContact must be boolean");
+      const company = optionalField(args.company, "company", 200) || "";
+      const email = (optionalField(args.email, "email", 320) || "").toLowerCase();
+      const linkedin = optionalField(args.linkedin, "linkedin", 500) || "";
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Invalid email");
+      assertNoDuplicateLead(store.contacts, { firstName, lastName, company, email, linkedin });
+      const createdAt = now();
+      const lead = {
+        id: id(), firstName, lastName, company, email, linkedin,
+        title: optionalField(args.title, "title", 200) || "",
+        notes: optionalField(args.notes, "notes", 10000) || "",
+        liAccepted: args.liAccepted === true, doNotContact: args.doNotContact === true,
+        pipelineType: "icp" as const, leadSource: "Outbound" as const,
+        status: "New", createdAt, updatedAt: createdAt,
+      };
+      store.contacts.unshift(lead);
+      recordLeadStage(store, null, lead);
+      await saveStore(store, accountId || undefined);
+      return formatToolResult("Created Outbound Lead", { accountId, lead }, [`Created lead ${lead.id}.`]);
+    }
+    case "update_outbound_lead": {
+      assertAllowedKeys(args, ["contactId", "firstName", "lastName", "company", "title", "email", "linkedin", "notes", "status", "liAccepted", "doNotContact"]);
+      const contactId = requiredString(args.contactId, "contactId", 100);
+      const index = store.contacts.findIndex((contact) => contact.id === contactId && contact.pipelineType === "icp");
+      if (index < 0) throw new Error("ICP lead not found");
+      const previous = store.contacts[index];
+      if (previous.doNotContact === true && args.doNotContact === false) throw new Error("Do-not-contact cannot be cleared through MCP");
+      if (args.doNotContact !== undefined && typeof args.doNotContact !== "boolean") throw new Error("doNotContact must be boolean");
+      if (args.liAccepted !== undefined && typeof args.liAccepted !== "boolean") throw new Error("liAccepted must be boolean");
+      const updates: Record<string, string | boolean> = {};
+      for (const field of ["firstName", "lastName", "company", "title", "email", "linkedin", "notes", "status"] as const) {
+        const max = field === "notes" ? 10000 : field === "email" || field === "linkedin" ? 500 : 200;
+        const value = optionalField(args[field], field, max);
+        if (value !== undefined) updates[field] = field === "email" ? value.toLowerCase() : value;
+      }
+      if (args.liAccepted !== undefined) updates.liAccepted = args.liAccepted;
+      if (args.doNotContact !== undefined) updates.doNotContact = args.doNotContact;
+      const updated = { ...previous, ...updates, updatedAt: now() };
+      if (!String(updated.firstName || "").trim() && !String(updated.lastName || "").trim()) throw new Error("firstName or lastName is required");
+      if (args.status !== undefined && !["New", "Attempting", "Connected"].includes(String(args.status))) throw new Error("This MCP tool supports only New, Attempting, and Connected stage updates");
+      if (updated.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updated.email)) throw new Error("Invalid email");
+      if (["Connected", "Warm intro booked"].includes(String(updated.status)) && !updated.email) throw new Error("Email is required for this stage");
+      assertNoDuplicateLead(store.contacts, updated);
+      store.contacts[index] = updated;
+      recordLeadStage(store, previous, updated);
+      await saveStore(store, accountId || undefined);
+      return formatToolResult("Updated Outbound Lead", { accountId, lead: updated }, [`Updated lead ${updated.id}.`]);
+    }
+    case "prepare_outreach_draft": {
+      assertAllowedKeys(args, ["contactId"]);
+      const contactId = requiredString(args.contactId, "contactId", 100);
+      const contact = store.contacts.find((entry) => entry.id === contactId && entry.pipelineType === "icp");
+      if (!contact) throw new Error("ICP lead not found");
+      if (contact.doNotContact === true) throw new Error("Lead is marked do not contact");
+      const brief = buildContactBrief(store, contactId);
+      return formatToolResult("Outreach Draft Context", { accountId, brief, sent: false }, [
+        `Lead: ${contact.firstName || ""} ${contact.lastName || ""}`.trim(),
+        `LinkedIn accepted: ${contact.liAccepted === true ? "Yes" : "No"}`,
+        `Draft status: unsent. Review actual message thread and current role before sending.`,
+      ]);
+    }
+    case "log_sent_outreach": {
+      assertAllowedKeys(args, ["contactId", "channel", "message", "externalMessageId", "occurredAt"]);
+      const contactId = requiredString(args.contactId, "contactId", 100);
+      const channel = requiredString(args.channel, "channel", 20);
+      if (!["linkedin", "email", "text"].includes(channel)) throw new Error("Invalid channel");
+      const message = requiredString(args.message, "message", 10000);
+      const externalMessageId = requiredString(args.externalMessageId, "externalMessageId", 1000);
+      const contactIndex = store.contacts.findIndex((entry) => entry.id === contactId && entry.pipelineType === "icp");
+      if (contactIndex < 0) throw new Error("ICP lead not found");
+      const contact = store.contacts[contactIndex];
+      if (contact.doNotContact === true) throw new Error("Lead is marked do not contact");
+      if (channel === "linkedin" && contact.liAccepted !== true) throw new Error("LinkedIn connection is not marked accepted");
+      if (channel === "email" && !contact.email) throw new Error("Lead has no email address");
+      const duplicate = store.activities.find((activity) => activity.externalMessageId === externalMessageId);
+      if (duplicate) return formatToolResult("Sent Outreach Already Logged", { accountId, activity: duplicate, duplicate: true }, [`Activity ${duplicate.id} already records this external message.`]);
+      const occurredAt = args.occurredAt === undefined ? now() : requiredString(args.occurredAt, "occurredAt", 40);
+      if (Number.isNaN(Date.parse(occurredAt))) throw new Error("occurredAt must be an ISO timestamp");
+      const recordedAt = now();
+      const activity = { id: id(), contactId, type: channel as "linkedin" | "email" | "text", note: message, externalMessageId, occurredAt, createdAt: recordedAt, updatedAt: recordedAt };
+      store.activities.unshift(activity);
+      const updated = { ...contact, status: advanceContactToAttemptingOnActivity(contact), lastActivityDate: occurredAt, lastActivityType: channel, updatedAt: recordedAt };
+      store.contacts[contactIndex] = updated;
+      recordLeadStage(store, contact, updated);
+      await saveStore(store, accountId || undefined);
+      return formatToolResult("Logged Sent Outreach", { accountId, activity, duplicate: false }, [`Logged verified ${channel} message for lead ${contactId}.`]);
+    }
     case "get_daily_digest": {
       const digest = buildDailyDigest(store, asOptionalString(args.date));
       return formatToolResult("Daily CRM Digest", { accountId, ...digest }, [
@@ -334,7 +614,10 @@ function isNotification(message: JsonRpcRequest) {
   return message.id === undefined || message.id === null || String(message.method || "").startsWith("notifications/");
 }
 
-async function handleMessage(message: JsonRpcRequest) {
+async function handleMessage(
+  message: JsonRpcRequest,
+  principal: Awaited<ReturnType<typeof resolveCrmMcpPrincipal>>
+) {
   if (!message || message.jsonrpc !== "2.0" || !message.method) {
     return jsonRpcError(message?.id, -32600, "Invalid JSON-RPC request", { status: 400 });
   }
@@ -351,13 +634,17 @@ async function handleMessage(message: JsonRpcRequest) {
       },
       serverInfo: SERVER_INFO,
       instructions:
-        "Use this server for CRM digests, pipeline health, contact briefs, deal briefs, and target comparisons. CRM is the source of truth and this server is read-only.",
+        "Glyph CRM is the source of truth. Select eligible leads, check do-not-contact status and history, and prepare drafts before outreach. Write tools can create or update leads and log outreach only after a message is verified as sent in its destination. The server does not send messages.",
     });
   }
 
   if (message.method === "tools/list") {
     return jsonRpcResult(message.id, {
-      tools: TOOLS,
+      tools: TOOLS.map((tool) => ({
+        ...tool,
+        annotations: "annotations" in tool ? tool.annotations : { readOnlyHint: true, destructiveHint: false },
+        ...(oauthEnabled() && principal?.source !== "key" ? { securitySchemes: [{ type: "oauth2", scopes: WRITE_TOOLS.has(tool.name) ? ["crm:write"] : ["crm:read"] }] } : {}),
+      })),
     });
   }
 
@@ -366,13 +653,28 @@ async function handleMessage(message: JsonRpcRequest) {
     if (!toolName) return jsonRpcError(message.id, -32602, "Tool name is required", { status: 400 });
     const tool = TOOLS.find((entry) => entry.name === toolName);
     if (!tool) return jsonRpcError(message.id, -32601, `Tool not found: ${toolName}`, { status: 404 });
+    if (!principal && oauthEnabled()) {
+      return jsonRpcResult(message.id, {
+        content: [{ type: "text", text: "Connect your CRM account to use this tool." }],
+        _meta: { "mcp/www_authenticate": [oauthChallenge()] },
+        isError: true,
+      });
+    }
+    if (!principal) return jsonRpcError(message.id, -32001, "Unauthorized", { status: 401 });
+    if (WRITE_TOOLS.has(toolName) && principal.access !== "write") {
+      return jsonRpcResult(message.id, {
+        content: [{ type: "text", text: "A separate CRM MCP write credential is required for this tool." }],
+        ...(principal.source === "oauth" ? { _meta: { "mcp/www_authenticate": [oauthChallenge().replace("invalid_token", "insufficient_scope")] } } : {}),
+        isError: true,
+      });
+    }
 
     try {
       const rawArgs = message.params?.arguments;
       const args = rawArgs && typeof rawArgs === "object" && !Array.isArray(rawArgs)
         ? (rawArgs as Record<string, unknown>)
         : {};
-      const result = await runTool(toolName, args);
+      const result = await runTool(toolName, args, principal.accountId);
       return jsonRpcResult(message.id, result);
     } catch (error: unknown) {
       return jsonRpcResult(message.id, {
@@ -416,7 +718,8 @@ export async function POST(req: Request) {
   if (!isAllowedCrmMcpOrigin(req)) {
     return NextResponse.json({ error: "Forbidden origin" }, { status: 403 });
   }
-  if (!isAuthorizedCrmMcpRequest(req)) {
+  const principal = await resolveCrmMcpPrincipal(req);
+  if (!principal && !oauthEnabled()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -430,9 +733,9 @@ export async function POST(req: Request) {
     const messages = payload as JsonRpcRequest[];
     const nonNotifications = messages.filter((message) => !isNotification(message));
     if (!nonNotifications.length) return accepted();
-    const responses = await Promise.all(nonNotifications.map((message) => handleMessage(message).then((response) => response.json())));
+    const responses = await Promise.all(nonNotifications.map((message) => handleMessage(message, principal).then((response) => response.json())));
     return NextResponse.json(responses);
   }
 
-  return handleMessage(payload as JsonRpcRequest);
+  return handleMessage(payload as JsonRpcRequest, principal);
 }

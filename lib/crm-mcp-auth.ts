@@ -22,6 +22,10 @@ export function getCrmMcpApiKey() {
   ]);
 }
 
+export function getCrmMcpWriteApiKey() {
+  return firstNonEmpty([process.env.CRM_MCP_WRITE_API_KEY]);
+}
+
 export function isCrmMcpConfigured() {
   return Boolean(getCrmMcpApiKey());
 }
@@ -48,11 +52,18 @@ function extractProvidedApiKey(req: Request) {
   ]);
 }
 
-export function isAuthorizedCrmMcpRequest(req: Request) {
-  const expected = getCrmMcpApiKey();
+export function getCrmMcpAccess(req: Request): "read" | "write" | null {
   const provided = extractProvidedApiKey(req);
-  if (!expected || !provided) return false;
-  return timingSafeEqualString(expected, provided);
+  if (!provided) return null;
+  const writeKey = getCrmMcpWriteApiKey();
+  const readKey = getCrmMcpApiKey();
+  if (writeKey && writeKey !== readKey && timingSafeEqualString(writeKey, provided)) return "write";
+  if (readKey && timingSafeEqualString(readKey, provided)) return "read";
+  return null;
+}
+
+export function isAuthorizedCrmMcpRequest(req: Request) {
+  return getCrmMcpAccess(req) !== null;
 }
 
 export function isAllowedCrmMcpOrigin(req: Request) {
@@ -146,8 +157,6 @@ export async function resolveCrmMcpAccountId(preferred?: string) {
     const configuredRows = await countRowsForAccountId(configured);
     if (configuredRows > 0) return configured;
   }
-  if (requested) return requested;
-
   const populated = await findPopulatedAccountId();
   if (populated) return populated;
 
