@@ -42,7 +42,7 @@ CRM_MCP_OAUTH_EMAIL_VERIFIED_CLAIM=https://camlillico.com/email_verified
 
 Auth0 should add both namespaced claims to the access token in a Post Login Action; the verified claim must be the boolean `true`. The two claim-name variables are optional if a provider already includes standard `email` and `email_verified` fields. `CRM_MCP_OAUTH_JWKS_URL` is optional if the provider publishes keys somewhere other than `{issuer}/.well-known/jwks.json`. Do not put secrets in these files.
 
-After deployment, check `https://www.camlillico.com/.well-known/oauth-protected-resource` for the ChatGPT audience and `https://www.camlillico.com/.well-known/oauth-protected-resource/api/crm/mcp` for the Codex audience. The latter requires a second Auth0 API with identifier `https://www.camlillico.com/api/crm/mcp`, the same two scopes, and a user-delegated grant to the Native client. The personal ChatGPT plugin uses `https://camlillico.com/api/crm/mcp`; invoke it with `@Glyph CRM` in a Work chat. Refresh plugin metadata after tool changes. The Auth0 user's email must be verified before the CRM will accept its token.
+After deployment, check `https://www.camlillico.com/.well-known/oauth-protected-resource/api/crm/mcp` for the canonical OAuth resource. Auth0 has an API with identifier `https://www.camlillico.com/api/crm/mcp`, the same two scopes, and a user-delegated grant to the Native client. The installed ChatGPT plugin uses the direct `https://www.camlillico.com/api/crm/mcp` endpoint; invoke it with `@Glyph CRM Direct` in a Work chat. The older apex-domain plugin was uninstalled because the apex domain redirects to `www`. Refresh plugin metadata after tool changes. The Auth0 user's email must be verified before the CRM will accept its token.
 
 ## Sending workflow
 
@@ -53,7 +53,7 @@ Once the personal plugin and sending connections work in an ordinary Work chat, 
 Example first run in Work:
 
 ```text
-@Glyph CRM Select up to 10 ICP leads with LinkedIn accepted, stage Attempting, and last activity before [YYYY-MM-DD]. Exclude do-not-contact. For each, read the CRM brief and actual LinkedIn conversation, verify the current role, and prepare a short personal follow-up for my review. Do not send or log drafts. Show the lead ID, reason for selection, and draft.
+@Glyph CRM Direct Select up to 10 ICP leads with LinkedIn accepted, stage Attempting, and last activity before [YYYY-MM-DD]. Exclude do-not-contact. For each, read the CRM brief and actual LinkedIn conversation, verify the current role, and prepare a short personal follow-up for my review. Do not send or log drafts. Show the lead ID, reason for selection, and draft.
 ```
 
 When the first run is accurate, add a schedule and explicit sending rules. An email or LinkedIn send must be verified in that destination before its CRM activity is logged.
@@ -61,9 +61,9 @@ When the first run is accurate, add a schedule and explicit sending rules. An em
 Example later run after the user authorizes sending:
 
 ```text
-@Glyph CRM Select eligible ICP leads using my saved criteria. Recheck do-not-contact and the CRM history immediately before each send. For LinkedIn, inspect the actual conversation and current profile, send the approved message in LinkedIn, verify it appears in the thread, then log the exact text and sent-message URL. For email, use @Gmail to inspect the thread, send the approved email, verify it in Sent, then log the exact text and Gmail message ID. Skip uncertain matches and report them for review. Do not log drafts or failed sends.
+@Glyph CRM Direct Select eligible ICP leads using my saved criteria. Recheck do-not-contact and the CRM history immediately before each send. For LinkedIn, inspect the actual conversation and current profile, send the approved message in LinkedIn, verify it appears in the thread, then log the exact text and sent-message URL. For email, use @Gmail to inspect the thread, send the approved email, verify it in Sent, then log the exact text and Gmail message ID. Skip uncertain matches and report them for review. Do not log drafts or failed sends.
 ```
 
 ## Codex local connection
 
-The parent project has `.codex/config.toml` pointed at `https://www.camlillico.com/api/crm/mcp`, with the same public OAuth client ID and `crm:read` / `crm:write` scopes. The direct `www` URL is necessary because Codex rejects redirects during OAuth discovery. Run `codex mcp login glyph_crm`, complete the Auth0 browser sign-in, and start a new Codex task. Verify a read-only CRM call before any writes. The existing API key remains available for legacy clients but is not needed for this OAuth connection.
+The parent project has `.codex/config.toml` pointed at `https://www.camlillico.com/api/crm/mcp`, with the same public OAuth client ID and `crm:read` / `crm:write` scopes. It fixes Codex's callback listener to port `61710`, and the Auth0 Native app allows `http://127.0.0.1:61710/callback`. The direct `www` URL is necessary because Codex rejects redirects during OAuth discovery. Codex OAuth login completed successfully. When a fresh login is needed, run `codex mcp login glyph_crm`, complete the Auth0 browser sign-in, and start a new Codex task. Verify a read-only CRM call before any writes. The existing API key remains available for legacy clients but is not needed for this OAuth connection.
