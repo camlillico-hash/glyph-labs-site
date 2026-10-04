@@ -113,6 +113,11 @@ export async function resolveCrmMcpPrincipal(req: Request): Promise<Principal | 
   return { access: canWrite ? "write" : "read", accountId: membership.account_id, source: "oauth" };
 }
 
-export function oauthChallenge() {
-  return `Bearer resource_metadata="${oauthResourceMetadataUrl()}", error="invalid_token", error_description="Connect your CRM account to continue"`;
+export function oauthChallenge(requestUrl?: string) {
+  const requestedResource = requestUrl ? new URL(requestUrl).origin + "/api/crm/mcp" : oauthResource();
+  const alias = oauthResourceAliases().includes(requestedResource);
+  const metadataUrl = alias
+    ? new URL("/.well-known/oauth-protected-resource/api/crm/mcp", requestedResource).toString()
+    : oauthResourceMetadataUrl();
+  return `Bearer resource_metadata="${metadataUrl}", error="invalid_token", error_description="Connect your CRM account to continue"`;
 }
