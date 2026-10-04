@@ -11,6 +11,8 @@ The MCP exposes CRM briefings plus these outbound tools:
 - `create_outbound_lead`: creates a lead after duplicate checks.
 - `update_outbound_lead`: updates selected fields; it cannot clear do-not-contact or trigger later-stage deal workflows.
 - `prepare_outreach_draft`: supplies CRM context for a message drafted in ChatGPT Work. It does not save or send a draft.
+- `create_outreach_review_task`: saves a drafted LinkedIn or email message in the CRM Work Hub, linked to one lead, with a due date and optional conversation and research links. It does not send or log activity.
+- `list_outreach_review_tasks`: reads open review tasks for the Work queue and reminder emails.
 - `log_sent_outreach`: records an actual LinkedIn, email, or text send with its external message ID or URL. It does not send the message. The caller must verify the send in the destination first.
 
 The existing `CRM_MCP_API_KEY` remains read-only. `CRM_MCP_WRITE_API_KEY` is a separate, optional credential for write tools. Do not reuse the read key as the write key.
@@ -45,6 +47,8 @@ Auth0 should add both namespaced claims to the access token in a Post Login Acti
 After deployment, check `https://www.camlillico.com/.well-known/oauth-protected-resource/api/crm/mcp` for the canonical OAuth resource. Auth0 has an API with identifier `https://www.camlillico.com/api/crm/mcp`, the same two scopes, and a user-delegated grant to the Native client. The installed ChatGPT plugin uses the direct `https://www.camlillico.com/api/crm/mcp` endpoint; invoke it with `@Glyph CRM Direct` in a Work chat. The older apex-domain plugin was uninstalled because the apex domain redirects to `www`. Refresh plugin metadata after tool changes. The Auth0 user's email must be verified before the CRM will accept its token.
 
 ## Sending workflow
+
+The owner-led review flow is: Work prepares a draft, creates one CRM outreach review task per lead, Cam checks the lead and real message thread, sends the message, and then clicks **I sent it — complete & log** in the Work Hub. The CRM copies the saved draft into a channel-specific activity for that contact and marks the task complete. If Cam changes the message before sending, edit and save the message in the task first. Completing ordinary CRM tasks retains their existing task-completion behaviour; only outreach review tasks log their saved message as the activity. The scheduled Work queue should create review tasks and return links to them; it should not send or log drafts.
 
 LinkedIn and email sending require separate access to the destination. The current CRM Gmail integration is read-only, and the CRM has no LinkedIn send API. The Gmail plugin is already installed in this ChatGPT account. Use it for email if the relevant mailbox is connected. For LinkedIn, use an authenticated browser session. In ChatGPT Work, send through the destination, verify the sent item there, then call `log_sent_outreach` with the external message ID or URL. Never log a draft as sent. Review the real message thread and current role before sending. Do-not-contact is a hard stop.
 
