@@ -259,6 +259,7 @@ export default function Bos360V3Page() {
                   <li><Image src="/bos360-v3/merchant-logo.svg" alt="Merchant" width={240} height={24} /></li>
                   <li><Image src="/credential-kira-talent.png" alt="Kira Talent" width={345} height={94} sizes="145px" /></li>
                   <li><Image src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees (10KC)" width={270} height={148} sizes="90px" className={styles.coffeesLogo} /></li>
+                  <li><Image src="/bos360-v3/moniker-logo.webp" alt="Moniker" width={1500} height={304} sizes="(max-width: 599px) 104px, 144px" /></li>
                 </ul>
               </div>
             </div>
