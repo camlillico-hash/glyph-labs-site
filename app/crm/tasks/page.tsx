@@ -17,6 +17,7 @@ const ACTIVITY_TYPES = [
 ];
 
 const prettyType = (v?: string) => String(v || "").split("_").map((s) => s ? s[0].toUpperCase() + s.slice(1) : s).join(" ");
+const safeHttpsUrl = (value?: string) => /^https:\/\//i.test(String(value || '')) ? String(value) : '';
 const typeIcon = (v?: string) => {
   const t = String(v || "");
   if (t === "email") return Mail;
@@ -52,7 +53,7 @@ export default function TasksPage() {
   const [hoverTaskStatus, setHoverTaskStatus] = useState<string | null>(null);
   const [hoverDrop, setHoverDrop] = useState<{ status: string; index: number } | null>(null);
   const [fadingIds, setFadingIds] = useState<string[]>([]);
-  const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; action: (() => void) | null }>({ open: false, message: "", action: null });
+  const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; action: (() => void) | null; confirmLabel?: string }>({ open: false, message: "", action: null });
   const [movePicker, setMovePicker] = useState<{ open: boolean; taskId?: string }>({ open: false });
 
   const [selected, setSelected] = useState<any>(null);
@@ -65,7 +66,11 @@ export default function TasksPage() {
 
   const load = async () => {
     const tasksRes = await (await fetch('/api/crm/tasks', { cache: 'no-store' })).json();
-    setTasks(Array.isArray(tasksRes) ? tasksRes : tasksRes.tasks || []);
+    const loadedTasks = Array.isArray(tasksRes) ? tasksRes : tasksRes.tasks || [];
+    setTasks(loadedTasks);
+    const requestedTaskId = new URLSearchParams(window.location.search).get('taskId');
+    const requestedTask = loadedTasks.find((task: any) => task.id === requestedTaskId);
+    if (requestedTask) openTask(requestedTask);
     const contactsRes = await (await fetch('/api/crm/contacts', { cache: 'no-store' })).json();
     const dealsRes = await (await fetch('/api/crm/deals', { cache: 'no-store' })).json();
     const activitiesRes = await (await fetch('/api/crm/activities', { cache: 'no-store' })).json();
@@ -102,12 +107,12 @@ export default function TasksPage() {
   const sorted = useMemo(() => [...tasks], [tasks]);
   const completedTasks = useMemo(() => {
     return [...activities]
-      .filter((a) => String(a.note || "").startsWith("Task completed:"))
+      .filter((a) => a.sourceTaskId || String(a.note || "").startsWith("Task completed:"))
       .sort((a, b) => new Date(b.occurredAt || b.createdAt).getTime() - new Date(a.occurredAt || a.createdAt).getTime())
       .slice(0, 30)
       .map((a) => {
         const raw = String(a.note || "").replace(/^Task completed:\s*/, "");
-        const title = raw.split(" — ")[0] || raw;
+        const title = a.taskTitle || raw.split(" — ")[0] || raw;
         return { ...a, completedTitle: title };
       });
   }, [activities]);
@@ -159,24 +164,40 @@ export default function TasksPage() {
   }
 
   async function completeTask(task: any) {
+    if (getTaskStatus(task) === 'Completed') return;
     setFadingIds((ids) => [...ids, task.id]);
-    await fetch('/api/crm/tasks', {
+    const res = await fetch('/api/crm/tasks', {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ ...task, status: 'Completed' }),
     });
+    if (!res.ok) {
+      const result = await res.json().catch(() => ({}));
+      setError(result.error || 'Could not complete task');
+      setFadingIds((ids) => ids.filter((x) => x !== task.id));
+      return;
+    }
     setTimeout(async () => {
       setFadingIds((ids) => ids.filter((x) => x !== task.id));
       await load();
       if (selected?.id === task.id) closeTray();
     }, 220);
   }
+  function requestTaskCompletion(task: any) {
+    if (!task.outreachReview) return completeTask(task);
+    setConfirmState({
+      open: true,
+      message: 'Have you sent the message saved in this task? Completing it will copy that message into the activity log.',
+      confirmLabel: 'Sent — complete and log',
+      action: () => { void completeTask(task); },
+    });
+  }
 
   async function moveTaskStatus(taskId: string, status: string, targetIndex?: number) {
     const task = tasks.find((t) => t.id === taskId);
     if (!task || getTaskStatus(task) === status) return;
     if (status === "Overdue") return;
-    if (status === "Completed") return completeTask(task);
+    if (status === "Completed") return requestTaskCompletion(task);
     setTasks((prev) => {
       const moving = prev.find((t) => t.id === taskId);
       if (!moving) return prev;
@@ -296,6 +317,7 @@ export default function TasksPage() {
                                   <p className="truncate text-xs text-violet-300 inline-flex items-center gap-1.5">{(() => { const I = typeIcon(t.type || 'meeting'); return <I size={12} />; })()} Type: {prettyType(t.type || 'meeting')}</p>
                                   <p className="truncate text-xs text-emerald-300">{t.relatedType === 'contact' && t.relatedId ? <span>{contactPipelineLabel(t.relatedId)} person: <a className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} href={`/crm/${(contacts.find((c) => c.id === t.relatedId)?.pipelineType || 'connector') === 'connector' ? 'connectors' : 'leads'}?contactId=${t.relatedId}`}>{contactName(t.relatedId)}</a></span> : relatedLabel(t)}</p>
                                   <p className="truncate text-xs text-slate-400">Due: {t.dueDate || '—'}</p>
+                                  {t.outreachReview && <p className="mt-1 text-xs text-amber-300">Draft ready for review and send</p>}
                                   <button type="button" className="mt-2 inline-flex md:hidden rounded border border-neutral-700 px-2 py-1 text-[11px] text-slate-300" onClick={(e) => { e.stopPropagation(); setMovePicker({ open: true, taskId: t.id }); }}>
                                     Move
                                   </button>
@@ -327,17 +349,17 @@ export default function TasksPage() {
                     return (
                       <tr key={t.id} className={`border-b border-neutral-900 hover:bg-neutral-900/60 transition-opacity ${fadingIds.includes(t.id) ? 'opacity-0' : 'opacity-100'}`}>
                         <td className="px-3 py-2">
-                          <button onClick={() => completeTask(t)} className="text-slate-400 hover:text-emerald-300" title="Complete task">
+                          <button onClick={() => requestTaskCompletion(t)} disabled={status === 'Completed'} className="text-slate-400 hover:text-emerald-300 disabled:opacity-50" title={t.outreachReview ? 'Complete after sending; the saved message will be logged' : 'Complete task'}>
                             {fadingIds.includes(t.id) || status === 'Completed' ? <CircleCheck size={18} className="text-emerald-400" /> : <Circle size={18} />}
                           </button>
                         </td>
                         <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(t)}>{editing ? <input className="crm-input" value={inlineDraft.title || ''} onChange={(e)=>setInlineDraft({...inlineDraft, title:e.target.value})} /> : t.title}</td>
-                        <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(t)}>{editing ? <select className="crm-input" value={inlineDraft.type || 'meeting'} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}>{TASK_TYPES.map((s)=> <option key={s} value={s}>{prettyType(s)}</option>)}</select> : <span className="inline-flex items-center gap-1.5">{(() => { const I = typeIcon(t.type || 'meeting'); return <I size={13} />; })()}{prettyType(t.type || 'meeting')}</span>}</td>
+                        <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(t)}>{editing && !t.outreachReview ? <select className="crm-input" value={inlineDraft.type || 'meeting'} onChange={(e)=>setInlineDraft({...inlineDraft, type:e.target.value})}>{TASK_TYPES.map((s)=> <option key={s} value={s}>{prettyType(s)}</option>)}</select> : <span className="inline-flex items-center gap-1.5">{(() => { const I = typeIcon(t.type || 'meeting'); return <I size={13} />; })()}{prettyType(t.type || 'meeting')}</span>}</td>
                         <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(t)}>{editing ? <select className="crm-input" value={inlineDraft.relatedId || ''} onChange={(e)=>setInlineDraft({...inlineDraft, relatedId:e.target.value})}>{inlineDraft.relatedType === 'deal' ? <><option value="">Select linked deal *</option>{deals.map((d)=> <option key={d.id} value={d.id}>{d.name || 'Untitled deal'}</option>)}</> : <><option value="">Select linked person *</option>{contacts.map((c)=> <option key={c.id} value={c.id}>[{c.pipelineType === 'connector' ? 'Connector' : 'Lead'}] {c.firstName} {c.lastName}</option>)}</>}</select> : (t.relatedType === 'contact' ? <span>{t.relatedId ? <a className="text-sky-300 hover:text-sky-200" onClick={(e)=>e.stopPropagation()} href={`/crm/${(contacts.find((c) => c.id === t.relatedId)?.pipelineType || 'connector') === 'connector' ? 'connectors' : 'leads'}?contactId=${t.relatedId}`}>{contactName(t.relatedId)}</a> : 'Unknown person'}</span> : relatedLabel(t))}</td>
                         <td className="px-3 py-2 text-slate-300">{t.relatedType === 'contact' && t.relatedId ? contactPipelineLabel(t.relatedId) : 'Deal'}</td>
                         <td className="px-3 py-2 text-slate-300" onClick={() => !editing && startInlineEdit(t)}>{editing ? <input type="date" className="crm-input" value={inlineDraft.dueDate || ''} onClick={openPicker} onFocus={openPicker} onChange={(e)=>setInlineDraft({...inlineDraft, dueDate:e.target.value})} /> : (t.dueDate || '—')}</td>
                         <td className="px-3 py-2 text-slate-400">{t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "—"}</td>
-                        <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(t)}>{editing ? <select className="crm-input" value={inlineDraft.status || 'Not started'} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{TASK_STATUSES.map((s)=> <option key={s} value={s} disabled={s === 'Overdue'}>{s}</option>)}</select> : <span className={status === 'Completed' ? 'text-emerald-300' : status === 'Canceled' ? 'text-rose-300' : status === 'Overdue' ? 'text-rose-300' : 'text-amber-300'}>{status}</span>}</td>
+                        <td className="px-3 py-2" onClick={() => !editing && startInlineEdit(t)}>{editing ? <select className="crm-input" value={inlineDraft.status || 'Not started'} onChange={(e)=>setInlineDraft({...inlineDraft, status:e.target.value})}>{TASK_STATUSES.map((s)=> <option key={s} value={s} disabled={s === 'Overdue' || (s === 'Completed' && Boolean(t.outreachReview))}>{s}</option>)}</select> : <span className={status === 'Completed' ? 'text-emerald-300' : status === 'Canceled' ? 'text-rose-300' : status === 'Overdue' ? 'text-rose-300' : 'text-amber-300'}>{status}</span>}</td>
                         <td className="px-3 py-2">{editing ? <div className="flex gap-2"><button className="crm-btn-ghost" title="Save" aria-label="Save" onClick={saveInlineEdit}><Save size={14} className="text-emerald-300" /></button><button className="crm-btn-ghost" title="Cancel" aria-label="Cancel" onClick={cancelInlineEdit}><X size={14} className="text-rose-300" /></button></div> : <button className="crm-btn-ghost" title="Open tray" aria-label="Open tray" onClick={() => openTask(t)}><SquareArrowOutUpRight size={14} /></button>}</td>
                       </tr>
                     );
@@ -438,15 +460,24 @@ export default function TasksPage() {
             <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-semibold">{createMode ? "New task" : draft.title || "Task"}</h2><button className="crm-btn-ghost inline-flex items-center gap-1.5" onClick={closeTray}><X size={14} /> Close</button></div>
             <div className="mt-4 flex gap-2">
               {!createMode && !editMode ? <button className="crm-btn inline-flex items-center gap-1.5" title="Open" aria-label="Open" onClick={() => setEditMode(true)}><Pencil size={14} /></button> : <><button className="crm-btn inline-flex items-center gap-1.5" title="Save" aria-label="Save" onClick={saveTask}><Save size={14} className="text-emerald-300" /></button>{!createMode && <button className="crm-btn-ghost inline-flex items-center gap-1.5" title="Cancel" aria-label="Cancel" onClick={() => { setDraft({ ...selected }); setEditMode(false); setError(""); }}><X size={14} className="text-rose-300" /></button>}</>}
+              {!createMode && !editMode && draft.outreachReview && draft.status !== 'Completed' && draft.status !== 'Canceled' && <button className="crm-btn" onClick={() => requestTaskCompletion(draft)}>I sent it — complete &amp; log</button>}
               {!createMode && <button className="crm-btn-ghost text-red-300 inline-flex items-center gap-1.5" title="Delete" aria-label="Delete" onClick={() => setConfirmState({ open: true, message: "Are you sure you want to delete this record?", action: () => deleteTask(selected.id) })}><Trash2 size={14} /></button>}
             </div>
             <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-auto pb-10">
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Task title</label>{(editMode || createMode) ? <input className="crm-input" value={draft.title || ''} onChange={(e) => setDraft({ ...draft, title: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.title || '—'}</p>}</div>
-              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Type</label>{(editMode || createMode) ? <select className="crm-input" value={draft.type || 'meeting'} onChange={(e)=>setDraft({...draft, type:e.target.value})}>{TASK_TYPES.map((s)=> <option key={s} value={s}>{prettyType(s)}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{prettyType(draft.type || 'meeting')}</p>}</div>
+              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Type</label>{(editMode || createMode) && !draft.outreachReview ? <select className="crm-input" value={draft.type || 'meeting'} onChange={(e)=>setDraft({...draft, type:e.target.value})}>{TASK_TYPES.map((s)=> <option key={s} value={s}>{prettyType(s)}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{prettyType(draft.type || 'meeting')}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Related type</label>{(editMode || createMode) ? <select className="crm-input" value={draft.relatedType || 'contact'} onChange={(e) => setDraft({ ...draft, relatedType: e.target.value, relatedId: '' })}><option value="contact">Person</option><option value="deal">Deal</option></select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.relatedType || 'contact'}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Linked record</label>{(editMode || createMode) ? <select className="crm-input" value={draft.relatedId || ''} onChange={(e) => setDraft({ ...draft, relatedId: e.target.value })}>{(draft.relatedType || 'contact') === 'deal' ? <><option value="">Select linked deal *</option>{deals.map((d) => <option key={d.id} value={d.id}>{d.name || 'Untitled deal'}</option>)}</> : <><option value="">Select linked person *</option>{contacts.map((c) => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}</>}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{(draft.relatedType || 'contact') === 'deal' ? dealName(draft.relatedId) : (draft.relatedId ? <a className="text-sky-300 hover:text-sky-200" href={`/crm/contacts?contactId=${draft.relatedId}`}>{contactName(draft.relatedId)}</a> : 'Unknown person')}</p>}</div>
-              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Task status</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || 'Not started'} onChange={(e)=>setDraft({...draft, status:e.target.value})}>{TASK_STATUSES.map((s)=> <option key={s} value={s} disabled={s === 'Overdue'}>{s}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.status || 'Not started'}</p>}</div>
+              <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Task status</label>{(editMode || createMode) ? <select className="crm-input" value={draft.status || 'Not started'} onChange={(e)=>setDraft({...draft, status:e.target.value})}>{TASK_STATUSES.map((s)=> <option key={s} value={s} disabled={s === 'Overdue' || (s === 'Completed' && Boolean(draft.outreachReview))}>{s}</option>)}</select> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.status || 'Not started'}</p>}</div>
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Due date</label>{(editMode || createMode) ? <input type="date" className="crm-input" value={draft.dueDate || ''} onClick={openPicker} onFocus={openPicker} onChange={(e) => setDraft({ ...draft, dueDate: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm">{draft.dueDate || '—'}</p>}</div>
+              {draft.outreachReview && <div className="rounded-lg border border-violet-700/60 bg-violet-950/30 p-3 space-y-3">
+                <h3 className="font-semibold text-violet-200">Outreach review</h3>
+                <p className="text-xs text-slate-300">1. Check the lead. 2. Read the LinkedIn or Gmail conversation. 3. Review and send the message. Complete this task only after sending; the saved message will be copied into the activity log.</p>
+                {safeHttpsUrl(draft.outreachReview.messageUrl) ? <a className="text-sm text-sky-300 underline" href={safeHttpsUrl(draft.outreachReview.messageUrl)} target="_blank" rel="noreferrer">Open message thread</a> : draft.type === 'email' && contacts.find((contact) => contact.id === draft.relatedId)?.email ? <a className="text-sm text-sky-300 underline" href={`https://mail.google.com/mail/u/0/#search/${encodeURIComponent(contacts.find((contact) => contact.id === draft.relatedId)?.email || '')}`} target="_blank" rel="noreferrer">Find Gmail thread</a> : safeHttpsUrl(contacts.find((contact) => contact.id === draft.relatedId)?.linkedin) ? <a className="text-sm text-sky-300 underline" href={safeHttpsUrl(contacts.find((contact) => contact.id === draft.relatedId)?.linkedin)} target="_blank" rel="noreferrer">Open LinkedIn profile</a> : null}
+                {safeHttpsUrl(draft.outreachReview.sourceUrl) && <p><a className="text-sm text-sky-300 underline" href={safeHttpsUrl(draft.outreachReview.sourceUrl)} target="_blank" rel="noreferrer">View research source</a></p>}
+                <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Message to send and log</label>{editMode ? <textarea className="crm-input min-h-44" value={draft.outreachReview.draft || ''} onChange={(e)=>setDraft({...draft, outreachReview: {...draft.outreachReview, draft: e.target.value}})} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{draft.outreachReview.draft}</p>}</div>
+                {editMode && <p className="text-xs text-amber-200">If you change the wording before sending, save the task first so the activity matches what you sent.</p>}
+              </div>}
               <div><label className="mb-1 block text-xs uppercase tracking-wider text-slate-400">Notes</label>{(editMode || createMode) ? <textarea className="crm-input min-h-28" value={draft.notes || ''} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} /> : <p className="rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm whitespace-pre-wrap">{draft.notes || '—'}</p>}</div>
               {error && <p className="text-sm text-red-300">{error}</p>}
             </div>
@@ -529,7 +560,7 @@ export default function TasksPage() {
       <ConfirmDialog
         open={confirmState.open}
         message={confirmState.message}
-        confirmLabel="Delete"
+        confirmLabel={confirmState.confirmLabel || 'Delete'}
         onCancel={() => setConfirmState({ open: false, message: "", action: null })}
         onConfirm={() => {
           const action = confirmState.action;
