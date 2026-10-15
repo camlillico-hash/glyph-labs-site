@@ -254,7 +254,7 @@ export default function Bos360V3Page() {
                 <p>Growth-stage operating experience<br />with teams at</p>
                 <ul className={styles.companyLogos} aria-label="Company experience">
                   <li><Image src="/credential-touchbistro-from-url.png" alt="TouchBistro" width={4716} height={822} sizes="145px" /></li>
-                  <li><Image src="/credential-autohost.png" alt="Autohost" width={600} height={83} sizes="145px" /></li>
+                  <li><Image src="/bos360-v3/checktiv-by-autohost.png" alt="Checktiv by Autohost" width={3000} height={750} sizes="(max-width: 599px) 104px, 144px" /></li>
                   <li><Image src="/bos360-v3/ctc-medical-communications.png" alt="CTC Medical Communications" width={10000} height={2089} sizes="(max-width: 599px) 45vw, 192px" className={styles.ctcLogo} /></li>
                   <li><Image src="/bos360-v3/merchant-logo.svg" alt="Merchant" width={240} height={24} /></li>
                   <li><Image src="/credential-kira-talent.png" alt="Kira Talent" width={345} height={94} sizes="145px" /></li>
