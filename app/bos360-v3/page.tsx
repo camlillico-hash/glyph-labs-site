@@ -97,7 +97,7 @@ export default function Bos360V3Page() {
               width={501}
               height={125}
               className={styles.logo}
-              sizes="128px"
+              sizes="(max-width: 599px) 104px, 136px"
             />
             <span>Cam Lillico</span>
           </a>
@@ -106,48 +106,63 @@ export default function Bos360V3Page() {
       </header>
 
       <main id="main-content" tabIndex={-1}>
-        <section className={`${styles.container} ${styles.hero}`} aria-labelledby="hero-title">
-          <div className={styles.heroCopy}>
-            <p className={styles.eyebrow}>BOS360 Business Coach</p>
-            <h1 id="hero-title" className={styles.heroTitle}>
-              Strengthen the business you’ve built.
-            </h1>
-            <p className={styles.heroDescription}>
-              I help founder-led leadership teams get clear on what matters, make
-              decisions that move the business forward, and follow through together.
-            </p>
-            <div className={styles.heroActions}>
-              <BookingLink />
-              <a
-                className={styles.textLink}
-                href="/strength-test"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Take the Strength Test
-              </a>
+        <section className={styles.hero} aria-labelledby="hero-title">
+          <div className={`${styles.container} ${styles.heroMain}`}>
+            <div className={styles.heroCopy}>
+              <p className={styles.eyebrow}>BOS360 Business Coach</p>
+              <h1 id="hero-title" className={styles.heroTitle}>
+                Strengthen the business you’ve built.
+              </h1>
+              <p className={styles.heroDescription}>
+                I help founder-led leadership teams get clear on what matters, make
+                decisions that move the business forward, and follow through together.
+              </p>
+              <div className={styles.heroActions}>
+                <BookingLink />
+                <a
+                  className={styles.textLink}
+                  href="/strength-test"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Take the Strength Test
+                </a>
+              </div>
+              <p className={styles.heroCredibility}>
+                Certified BOS360 Coach <span aria-hidden="true">·</span> Based in Ontario
+              </p>
             </div>
-            <p className={styles.heroCredibility}>
-              Certified BOS360 Coach <span aria-hidden="true">·</span> Growth-stage operator{" "}
-              <span aria-hidden="true">·</span> Based in Ontario
-            </p>
+            <figure className={styles.portrait}>
+              <div className={styles.headshotFrame}>
+                <Image
+                  src="/cam-headshot-circle.png"
+                  alt="Cam Lillico, BOS360 business coach"
+                  width={420}
+                  height={420}
+                  priority
+                  sizes="(max-width: 599px) 80px, (max-width: 899px) 230px, 320px"
+                  className={styles.headshot}
+                />
+              </div>
+              <figcaption className={styles.portraitCaption}>
+                <div><strong>Cam Lillico</strong><span>Your BOS360 coach</span></div>
+              </figcaption>
+            </figure>
           </div>
-          <figure className={styles.portrait}>
-            <div className={styles.headshotFrame}>
-              <Image
-                src="/cam-headshot-circle.png"
-                alt="Cam Lillico, BOS360 business coach"
-                width={420}
-                height={420}
-                priority
-                sizes="(max-width: 599px) 180px, (max-width: 899px) 230px, 320px"
-                className={styles.headshot}
-              />
+          <section className={styles.experience} aria-labelledby="experience-title">
+            <div className={styles.container}>
+              <h2 id="experience-title">Growth-stage operating experience with teams at</h2>
+              <ul className={styles.companyLogos}>
+                <li><Image src="/credential-touchbistro-from-url.png" alt="TouchBistro" width={4716} height={822} sizes="(max-width: 599px) 28vw, 136px" /></li>
+                <li><Image src="/bos360-v3/checktiv-by-autohost.png" alt="Checktiv by Autohost" width={3000} height={750} sizes="(max-width: 599px) 28vw, 136px" /></li>
+                <li><Image src="/bos360-v3/ctc-medical-communications.png" alt="CTC Medical Communications" width={10000} height={2089} sizes="(max-width: 599px) 28vw, 152px" className={styles.ctcLogo} /></li>
+                <li><Image src="/credential-kira-talent.png" alt="Kira Talent" width={345} height={94} sizes="(max-width: 599px) 28vw, 136px" /></li>
+                <li><Image src="/bos360-v3/merchant-logo.svg" alt="Merchant" width={240} height={24} className={styles.merchantLogo} /></li>
+                <li><Image src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees (10KC)" width={270} height={148} sizes="80px" className={styles.coffeesLogo} /></li>
+                <li><Image src="/bos360-v3/moniker-logo.webp" alt="Moniker" width={1500} height={304} sizes="(max-width: 599px) 28vw, 112px" className={styles.monikerLogo} /></li>
+              </ul>
             </div>
-            <figcaption className={styles.portraitCaption}>
-              <div><strong>Cam Lillico</strong><span>Your BOS360 coach</span></div>
-            </figcaption>
-          </figure>
+          </section>
         </section>
 
         <section className={`${styles.section} ${styles.problem}`} aria-labelledby="problem-title">
@@ -236,7 +251,7 @@ export default function Bos360V3Page() {
           </div>
           <div className={styles.trustDetails}>
             <div className={styles.container}>
-              <ul className={styles.credentials} aria-label="Credentials and experience">
+              <ul className={styles.credentials} aria-label="Credentials">
                 <li>
                   <Image src="/badge-bos360.png" alt="BOS360 Certified Business Coach badge" width={890} height={817} sizes="88px" />
                   <div><strong>Certified BOS360 Coach</strong></div>
@@ -250,18 +265,6 @@ export default function Bos360V3Page() {
                   <div><strong>EOS Implementor</strong><span>2020–2025</span></div>
                 </li>
               </ul>
-              <div className={styles.experience}>
-                <p>Growth-stage operating experience<br />with teams at</p>
-                <ul className={styles.companyLogos} aria-label="Company experience">
-                  <li><Image src="/credential-touchbistro-from-url.png" alt="TouchBistro" width={4716} height={822} sizes="145px" /></li>
-                  <li><Image src="/bos360-v3/checktiv-by-autohost.png" alt="Checktiv by Autohost" width={3000} height={750} sizes="(max-width: 599px) 104px, 144px" /></li>
-                  <li><Image src="/bos360-v3/ctc-medical-communications.png" alt="CTC Medical Communications" width={10000} height={2089} sizes="(max-width: 599px) 45vw, 192px" className={styles.ctcLogo} /></li>
-                  <li><Image src="/bos360-v3/merchant-logo.svg" alt="Merchant" width={240} height={24} /></li>
-                  <li><Image src="/credential-kira-talent.png" alt="Kira Talent" width={345} height={94} sizes="145px" /></li>
-                  <li><Image src="/credential-ten-thousand-coffees.png" alt="Ten Thousand Coffees (10KC)" width={270} height={148} sizes="90px" className={styles.coffeesLogo} /></li>
-                  <li><Image src="/bos360-v3/moniker-logo.webp" alt="Moniker" width={1500} height={304} sizes="(max-width: 599px) 104px, 144px" /></li>
-                </ul>
-              </div>
             </div>
           </div>
         </section>
