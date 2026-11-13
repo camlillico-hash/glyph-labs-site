@@ -37,11 +37,13 @@ function archiveTaskAsActivity(store: any, task: any) {
     : task.relatedId;
   if (!contactId) return;
 
+  const outreachDraft = String(task.outreachReview?.draft || "").trim();
   const activity = {
     id: id(),
     contactId,
     type: (task.type && (TASK_TYPES as readonly string[]).includes(task.type) ? task.type : "task_completed"),
-    note: `Task completed: ${task.title}${task.notes ? ` — ${task.notes}` : ""}`,
+    note: task.outreachReview ? outreachDraft : `Task completed: ${task.title}${task.notes ? ` — ${task.notes}` : ""}`,
+    ...(task.outreachReview ? { sourceTaskId: task.id, taskTitle: task.title } : {}),
     occurredAt: now(),
     createdAt: now(),
     updatedAt: now(),
@@ -106,6 +108,9 @@ export async function POST(req: Request) {
   const store = await getStore(accountId);
   const error = validateTaskPayload(body, store);
   if (error) return NextResponse.json({ error }, { status: 400 });
+  if (body.outreachReview && (!String(body.outreachReview.draft || "").trim() || !["email", "linkedin"].includes(body.outreachReview.channel) || body.type !== body.outreachReview.channel)) {
+    return NextResponse.json({ error: "Outreach review tasks need a message and matching channel" }, { status: 400 });
+  }
 
   const status = normalizeStatus(body);
   const record = { id: id(), createdAt: now(), updatedAt: now(), ...body, type: normalizeType(body), status, done: status === "Completed" };
@@ -135,6 +140,9 @@ export async function PUT(req: Request) {
 
   const status = normalizeStatus(body);
   const updated = { ...store.tasks[idx], ...body, type: normalizeType(body), status, done: status === "Completed", updatedAt: now() };
+  if (updated.outreachReview && (!String(updated.outreachReview.draft || "").trim() || !["email", "linkedin"].includes(updated.outreachReview.channel) || updated.type !== updated.outreachReview.channel)) {
+    return NextResponse.json({ error: "Outreach review tasks need a message and matching channel" }, { status: 400 });
+  }
 
   if (status === "Completed") {
     archiveTaskAsActivity(store, updated);

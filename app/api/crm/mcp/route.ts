@@ -19,7 +19,7 @@ const SERVER_INFO = {
   version: "1.0.0",
 };
 
-const WRITE_TOOLS = new Set(["create_outbound_lead", "update_outbound_lead", "log_sent_outreach"]);
+const WRITE_TOOLS = new Set(["create_outbound_lead", "update_outbound_lead", "create_outreach_review_task", "log_sent_outreach"]);
 
 const TOOLS = [
   {
@@ -221,6 +221,41 @@ const TOOLS = [
       type: "object",
       properties: { contactId: { type: "string" } },
       required: ["contactId"], additionalProperties: false,
+    },
+  },
+  {
+    name: "create_outreach_review_task",
+    title: "Create Outreach Review Task",
+    description: "Put an approved-for-review outbound draft in the CRM Work Hub as a task linked to one lead. Cam reviews, sends, and completes the task; completion logs the saved message as an activity. Never call this a sent message when creating the task.",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+    inputSchema: {
+      type: "object",
+      properties: {
+        contactId: { type: "string" },
+        channel: { type: "string", enum: ["linkedin", "email"] },
+        message: { type: "string", description: "The complete draft to display in the task and later copy into the activity log when Cam completes it." },
+        dueDate: { type: "string", description: "Review due date in YYYY-MM-DD format." },
+        messageUrl: { type: "string", description: "Optional LinkedIn conversation or Gmail thread URL to review before sending." },
+        sourceUrl: { type: "string", description: "Optional public source URL supporting personalization." },
+        notes: { type: "string", description: "Short context for why this prospect was selected. Do not put the draft here." },
+      },
+      required: ["contactId", "channel", "message", "dueDate"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "list_outreach_review_tasks",
+    title: "List Outreach Review Tasks",
+    description: "List open CRM Work Hub outreach tasks, including new tasks and overdue tasks for reminders. Read-only.",
+    annotations: { readOnlyHint: true },
+    inputSchema: {
+      type: "object",
+      properties: {
+        createdSince: { type: "string", description: "Optional ISO timestamp; return tasks created on or after this time." },
+        overdueOnly: { type: "boolean" },
+        limit: { type: "integer", minimum: 1, maximum: 100 },
+      },
+      additionalProperties: false,
     },
   },
   {
@@ -468,6 +503,60 @@ async function runTool(name: string, args: Record<string, unknown>, authenticate
         `LinkedIn accepted: ${contact.liAccepted === true ? "Yes" : "No"}`,
         `Draft status: unsent. Review actual message thread and current role before sending.`,
       ]);
+    }
+    case "create_outreach_review_task": {
+      assertAllowedKeys(args, ["contactId", "channel", "message", "dueDate", "messageUrl", "sourceUrl", "notes"]);
+      const contactId = requiredString(args.contactId, "contactId", 100);
+      const channel = requiredString(args.channel, "channel", 20);
+      if (channel !== "linkedin" && channel !== "email") throw new Error("channel must be linkedin or email");
+      const message = requiredString(args.message, "message", 10000);
+      const dueDate = requiredString(args.dueDate, "dueDate", 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || Number.isNaN(Date.parse(`${dueDate}T12:00:00Z`))) throw new Error("dueDate must be YYYY-MM-DD");
+      const messageUrl = optionalField(args.messageUrl, "messageUrl", 1000) || "";
+      const sourceUrl = optionalField(args.sourceUrl, "sourceUrl", 1000) || "";
+      for (const url of [messageUrl, sourceUrl]) if (url && !/^https:\/\//i.test(url)) throw new Error("URLs must use https");
+      const contact = store.contacts.find((entry) => entry.id === contactId && entry.pipelineType === "icp");
+      if (!contact) throw new Error("ICP lead not found");
+      if (contact.doNotContact === true) throw new Error("Lead is marked do not contact");
+      if (channel === "email" && !contact.email) throw new Error("Lead has no email address");
+      if (channel === "linkedin" && !contact.linkedin) throw new Error("Lead has no LinkedIn profile");
+      const existing = store.tasks.find((task) => task.relatedType === "contact" && task.relatedId === contactId && task.outreachReview?.channel === channel && task.status !== "Canceled" && task.status !== "Completed");
+      if (existing) return formatToolResult("Outreach Review Task Already Exists", { accountId, task: existing, duplicate: true }, [`Task ${existing.id} already awaits review for this lead and channel.`]);
+      const createdAt = now();
+      const task = {
+        id: id(), title: `Review and send ${channel === "linkedin" ? "LinkedIn" : "email"} message to ${`${contact.firstName || ""} ${contact.lastName || ""}`.trim()}`,
+        type: channel as "linkedin" | "email", relatedType: "contact" as const, relatedId: contactId,
+        dueDate, status: "Not started" as const, done: false,
+        notes: optionalField(args.notes, "notes", 3000) || "",
+        outreachReview: { channel: channel as "linkedin" | "email", draft: message, messageUrl, sourceUrl },
+        createdAt, updatedAt: createdAt,
+      };
+      store.tasks.unshift(task);
+      await saveStore(store, accountId || undefined);
+      return formatToolResult("Created Outreach Review Task", { accountId, task, duplicate: false }, [`Created Work Hub task ${task.id}. The draft is unsent and will be logged when Cam completes the task after sending.`]);
+    }
+    case "list_outreach_review_tasks": {
+      assertAllowedKeys(args, ["createdSince", "overdueOnly", "limit"]);
+      const createdSince = optionalField(args.createdSince, "createdSince", 40) || "";
+      if (createdSince && Number.isNaN(Date.parse(createdSince))) throw new Error("createdSince must be an ISO timestamp");
+      if (args.overdueOnly !== undefined && typeof args.overdueOnly !== "boolean") throw new Error("overdueOnly must be boolean");
+      const limit = args.limit === undefined ? 50 : Number(args.limit);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error("limit must be an integer from 1 to 100");
+      const dateParts = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+      const today = `${dateParts.find((part) => part.type === "year")?.value}-${dateParts.find((part) => part.type === "month")?.value}-${dateParts.find((part) => part.type === "day")?.value}`;
+      const tasks = store.tasks
+        .filter((task) => task.outreachReview && !task.done && task.status !== "Canceled")
+        .filter((task) => !createdSince || task.createdAt >= createdSince)
+        .filter((task) => args.overdueOnly !== true || Boolean(task.dueDate && task.dueDate < today))
+        .sort((a, b) => String(a.dueDate || "").localeCompare(String(b.dueDate || "")))
+        .slice(0, limit)
+        .map((task) => ({
+          id: task.id, title: task.title, contactId: task.relatedId, channel: task.outreachReview?.channel,
+          message: task.outreachReview?.draft, messageUrl: task.outreachReview?.messageUrl || "",
+          dueDate: task.dueDate, createdAt: task.createdAt, overdue: Boolean(task.dueDate && task.dueDate < today),
+          workUrl: `https://www.camlillico.com/crm/tasks?taskId=${encodeURIComponent(task.id)}`,
+        }));
+      return formatToolResult("Outreach Review Tasks", { accountId, tasks, today }, [`Returned ${tasks.length} open outreach review tasks.`]);
     }
     case "log_sent_outreach": {
       assertAllowedKeys(args, ["contactId", "channel", "message", "externalMessageId", "occurredAt"]);
